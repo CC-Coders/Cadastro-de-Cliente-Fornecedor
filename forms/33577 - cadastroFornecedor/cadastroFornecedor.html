@@ -1,0 +1,230 @@
+<html>
+   <head>
+      <!--SMSTI -->
+      <link type="text/css" rel="stylesheet" href="/style-guide/css/fluig-style-guide.min.css" />
+      <script type="text/javascript" src="/portal/resources/js/jquery/jquery.js"></script>
+      <script type="text/javascript" src="/portal/resources/js/jquery/jquery-ui.min.js"></script>
+      <script type="text/javascript" src="/portal/resources/js/mustache/mustache-min.js"></script>
+      <script type="text/javascript" src="/style-guide/js/fluig-style-guide.min.js" charset="utf-8"></script>
+      <script type="text/javascript" src="/webdesk/vcXMLRPC.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+      <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.19.9/docxtemplater.js"></script>
+      <script src="https://unpkg.com/pizzip@3.0.6/dist/pizzip.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.js"></script>
+      <script src="https://unpkg.com/pizzip@3.0.6/dist/pizzip-utils.js"></script>
+      <script src="jquery-fileupload.js"></script>
+      <script src="fileupload.js"></script>
+      <!-- Formulário -->
+      <link type="text/css" rel="stylesheet" href="cadastroFornecedor.css" />
+      <script type="text/javascript" src="cadastroFornecedor.js"></script>
+      <title>Cadastro de Fornecedor</title>
+   </head>
+   <body>
+<div class="fluig-style-guide">
+  <form name="form" id="formSolicitacao">
+
+    <!-- CAMPOS OCULTOS DO FLUIG -->
+    <div class="hidden" style="display:none;">
+      <input type="hidden" id="atividade" name="atividade">
+      <input type="hidden" id="formMode" name="formMode">
+      <input type="hidden" id="solicitante" name="solicitante">
+
+      <div id="historicoHidden">
+        <table id="tableHistorico" tablename="tableHistorico" noaddbutton="true" nodeletebutton="true">
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Data</th>
+              <th>Atividade</th>
+              <th>Observacao</th>
+              <th>Acao</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="hidden" class="tableHistoricoUsuario" name="tableHistoricoUsuario"/></td>
+              <td><input type="hidden" class="tableHistoricoData" name="tableHistoricoData"/></td>
+              <td><input type="hidden" class="tableHistoricoAtividade" name="tableHistoricoAtividade"/></td>
+              <td><input type="hidden" class="tableHistoricoObservacao" name="tableHistoricoObservacao"/></td>
+              <td><input type="hidden" class="tableHistoricoAcao" name="tableHistoricoAcao"/></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <main class="page-wrap">
+
+      <div class="val-summary" id="valSummary" style="display:none;">
+        <div class="val-summary-title">Corrija os itens abaixo antes de continuar:</div>
+        <ul id="valList"></ul>
+      </div>
+
+      <!-- ETAPA 1 -->
+      <div class="step-panel step-1 active" id="step-1">
+
+        <div class="page-header step-1">
+          <div class="page-header-icon">
+            <i class="flaticon flaticon-account-circle"></i>
+          </div>
+          <div class="page-header-info">
+            <div class="page-header-title">Pré Cadastro — Identificação e Endereço</div>
+            <div class="page-header-sub">
+              Informe a classificação e os dados comerciais do cadastro.
+            </div>
+            <div class="step-badge step-1">Etapa 1 de 3 — Pré Cadastro</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head" onclick="toggleSection(this)">
+            <div class="section-head-left">
+              <div class="section-num">1</div>
+              <span class="section-name">Dados do Cliente / Fornecedor</span>
+              <span class="section-count">4 campos</span>
+            </div>
+            <span class="section-arrow open">▼</span>
+          </div>
+
+          <div class="section-body">
+            <div class="grid g2">
+              <div class="fg">
+                <label for="classificacao">Classificação <span class="req">*</span></label>
+                <select id="classificacao" name="classificacao" class="form-control" required>
+                  <option value="">Selecione...</option>
+                  <option>Cliente</option>
+                  <option>Fornecedor</option>
+                  <option>Cliente / Fornecedor</option>
+                </select>
+                <span class="field-error">Campo obrigatório.</span>
+              </div>
+
+              <div class="fg">
+                <label for="categoria">Categoria <span class="req">*</span></label>
+                <select id="categoria" name="categoria" class="form-control" required>
+                  <option value="">Selecione...</option>
+                  <option>Pessoa Jurídica</option>
+                  <option>Pessoa Física</option>
+                </select>
+                <span class="field-error">Campo obrigatório.</span>
+              </div>
+
+              <div class="fg">
+                <label for="tipo">Tipo <span class="req">*</span></label>
+                <select id="tipo" name="tipo" class="form-control" required>
+                  <option value="">Selecione...</option>
+                  <option>Subcontratado</option>
+                  <option>Transportadora</option>
+                  <option>Consultoria</option>
+                  <option>Materiais e Insumos</option>
+                  <option>Locação de Equipamentos</option>
+                  <option>Serviços Gerais</option>
+                  <option>Serviços de Engenharia</option>
+                  <option>Tecnologia e TI</option>
+                </select>
+                <span class="field-error">Campo obrigatório.</span>
+              </div>
+
+              <div class="fg">
+                <label for="classificacaoOperacional">Classificação Operacional <span class="req">*</span></label>
+                <select id="classificacaoOperacional" name="classificacaoOperacional" class="form-control" required>
+                  <option value="">Selecione...</option>
+                  <option>Obra / Construção Civil</option>
+                  <option>Mineração</option>
+                  <option>Infraestrutura Viária</option>
+                  <option>Pavimentação e Terraplanagem</option>
+                  <option>Saneamento e Drenagem</option>
+                  <option>Aluguel de Equipamentos</option>
+                  <option>Transporte e Logística</option>
+                  <option>Fornecimento de Materiais</option>
+                  <option>Serviços Administrativos</option>
+                  <option>Tecnologia e Sistemas</option>
+                  <option>Consultoria e Assessoria</option>
+                  <option>Seguro e Benefícios</option>
+                </select>
+                <span class="field-error">Campo obrigatório.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head" onclick="toggleSection(this)">
+            <div class="section-head-left">
+              <div class="section-num">5</div>
+              <span class="section-name">Dados Comerciais</span>
+              <span class="section-count">11 campos</span>
+            </div>
+            <span class="section-arrow open">▼</span>
+          </div>
+
+          <div class="section-body">
+            <div class="grid g3">
+              <div class="fg">
+                <label for="docFiscal">CPF / CNPJ <span class="req">*</span></label>
+                <input type="text" id="docFiscal" name="docFiscal" class="form-control">
+              </div>
+
+              <div class="fg">
+                <label for="docSecundario">RG / Inscrição Estadual <span class="req">*</span></label>
+                <input type="text" id="docSecundario" name="docSecundario" class="form-control">
+              </div>
+
+              <div class="fg">
+                <label for="razaoSocial">Razão Social / Nome <span class="req">*</span></label>
+                <input type="text" id="razaoSocial" name="razaoSocial" class="form-control">
+              </div>
+            </div>
+          </div>
+        </div>
+
+    <div class="stepper-wrap">
+      <div class="stepper">
+        <div class="step-item active" id="nav-step-1" onclick="goToStep(1)">
+          <div class="step-circle"><span class="step-num">1</span></div>
+          <div class="step-info">
+            <span class="step-label">Etapa 1 de 3</span>
+            <span class="step-name">Pré Cadastro</span>
+            <span class="step-sub">Identificação · Endereço</span>
+          </div>
+        </div>
+
+        <div class="step-connector"><div class="step-connector-line"></div></div>
+
+        <div class="step-item" id="nav-step-2" onclick="goToStep(2)">
+          <div class="step-circle"><span class="step-num">2</span></div>
+          <div class="step-info">
+            <span class="step-label">Etapa 2 de 3</span>
+            <span class="step-name">Dados Cadastrais</span>
+            <span class="step-sub">Fiscal · Bancos · Condições · Contatos</span>
+          </div>
+        </div>
+
+        <div class="step-connector"><div class="step-connector-line"></div></div>
+
+        <div class="step-item" id="nav-step-3" onclick="goToStep(3)">
+          <div class="step-circle"><span class="step-num">3</span></div>
+          <div class="step-info">
+            <span class="step-label">Etapa 3 de 3</span>
+            <span class="step-name">Documentação</span>
+            <span class="step-sub">Documentos Obrigatórios</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      </div>
+
+      <!-- ETAPA 2 -->
+      <div class="step-panel step-2" id="step-2" style="display:none;"></div>
+
+      <!-- ETAPA 3 -->
+      <div class="step-panel step-3" id="step-3" style="display:none;"></div>
+
+    </main>
+  </form>
+</div>
+   </body>
+</html>
