@@ -28,7 +28,7 @@
     <processDefinitionVersionPK>
       <companyId>1</companyId>
       <processId>CadastrodeFornecedor</processId>
-      <version>11</version>
+      <version>19</version>
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
     <formId>33577</formId>
@@ -75,8 +75,8 @@
       <notifyAuthorityFollowUp>false</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>80</positionX>
-      <positionY>41</positionY>
+      <positionX>77</positionX>
+      <positionY>73</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -101,56 +101,6 @@
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
         <version>1</version>
-        <sequence>9</sequence>
-      </processStatePK>
-      <stateName>Cadastro</stateName>
-      <stateDescription>Cadastro</stateDescription>
-      <instruction></instruction>
-      <deadlineTime>0</deadlineTime>
-      <deadlineFieldName></deadlineFieldName>
-      <joint>false</joint>
-      <agreementPercentage>0</agreementPercentage>
-      <selectColleague>1</selectColleague>
-      <initialState>false</initialState>
-      <notifyAuthorityDelay>true</notifyAuthorityDelay>
-      <notifyRequisitionerDelay>false</notifyRequisitionerDelay>
-      <allowanceAuthorityTime>3600</allowanceAuthorityTime>
-      <frequenceAuthorityTime>3600</frequenceAuthorityTime>
-      <allowanceRequisitionerTime>0</allowanceRequisitionerTime>
-      <frequenceRequisitionerTime>0</frequenceRequisitionerTime>
-      <transferAttachments>false</transferAttachments>
-      <subProcessId></subProcessId>
-      <formFolder>0</formFolder>
-      <notifyAuthorityFollowUp>true</notifyAuthorityFollowUp>
-      <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
-      <automatic>false</automatic>
-      <positionX>160</positionX>
-      <positionY>266</positionY>
-      <forecastedEffortType>0</forecastedEffortType>
-      <forecastedEffort>0</forecastedEffort>
-      <notifyManagerFollowUp>false</notifyManagerFollowUp>
-      <notifyManagerDelay>false</notifyManagerDelay>
-      <allowanceManagerTime>0</allowanceManagerTime>
-      <frequenceManagerTime>0</frequenceManagerTime>
-      <inhibitTransfer>false</inhibitTransfer>
-      <periodId></periodId>
-      <stateType>0</stateType>
-      <bpmnType>80</bpmnType>
-      <signalId>0</signalId>
-      <counterSign>false</counterSign>
-      <openInstances>0</openInstances>
-      <noticeExpirationAuthorityTime>0</noticeExpirationAuthorityTime>
-      <noticeExpirationRequisitionerTime>0</noticeExpirationRequisitionerTime>
-      <noticeExpirationManagerTime>0</noticeExpirationManagerTime>
-      <destinationStates/>
-      <digitalSignature>false</digitalSignature>
-      <executionType>0</executionType>
-    </ProcessState>
-    <ProcessState>
-      <processStatePK>
-        <companyId>1</companyId>
-        <processId>CadastrodeFornecedor</processId>
-        <version>1</version>
         <sequence>11</sequence>
       </processStatePK>
       <stateName>Validação </stateName>
@@ -160,6 +110,8 @@
       <deadlineFieldName></deadlineFieldName>
       <joint>false</joint>
       <agreementPercentage>0</agreementPercentage>
+      <engineAllocationId>Usuário</engineAllocationId>
+      <engineAllocationConfiguration>&lt;AssignmentController&gt;&lt;User&gt;gustavo.reis&lt;/User&gt;&lt;/AssignmentController&gt;</engineAllocationConfiguration>
       <selectColleague>1</selectColleague>
       <initialState>false</initialState>
       <notifyAuthorityDelay>true</notifyAuthorityDelay>
@@ -174,8 +126,8 @@
       <notifyAuthorityFollowUp>true</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>320</positionX>
-      <positionY>381</positionY>
+      <positionX>137</positionX>
+      <positionY>334</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -225,8 +177,8 @@
       <notifyAuthorityFollowUp>true</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>450</positionX>
-      <positionY>496</positionY>
+      <positionX>427</positionX>
+      <positionY>471</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -275,8 +227,8 @@
       <notifyAuthorityFollowUp>true</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>540</positionX>
-      <positionY>602</positionY>
+      <positionX>517</positionX>
+      <positionY>600</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -325,8 +277,8 @@
       <notifyAuthorityFollowUp>true</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>590</positionX>
-      <positionY>141</positionY>
+      <positionX>427</positionX>
+      <positionY>186</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -376,8 +328,8 @@
       <notifyAuthorityFollowUp>true</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>525</positionX>
-      <positionY>543</positionY>
+      <positionX>502</positionX>
+      <positionY>518</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -409,8 +361,8 @@
       <subProcessId></subProcessId>
       <formFolder>0</formFolder>
       <automatic>true</automatic>
-      <positionX>473</positionX>
-      <positionY>365</positionY>
+      <positionX>287</positionX>
+      <positionY>318</positionY>
       <inhibitTransfer>false</inhibitTransfer>
       <stateType>1</stateType>
       <bpmnType>120</bpmnType>
@@ -448,8 +400,8 @@
       <notifyAuthorityFollowUp>false</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>630</positionX>
-      <positionY>511</positionY>
+      <positionX>607</positionX>
+      <positionY>487</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -473,7 +425,7 @@
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
         <expressionOrder>1</expressionOrder>
-        <version>11</version>
+        <version>19</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>true</condition>
@@ -482,40 +434,6 @@
     </ConditionProcessState>
   </list>
   <list>
-    <ProcessLink>
-      <processLinkPK>
-        <companyId>1</companyId>
-        <processId>CadastrodeFornecedor</processId>
-        <version>1</version>
-        <linkSequence>10</linkSequence>
-      </processLinkPK>
-      <actionLabel></actionLabel>
-      <returnPermited>false</returnPermited>
-      <initialStateSequence>4</initialStateSequence>
-      <finalStateSequence>9</finalStateSequence>
-      <returnLabel></returnLabel>
-      <name></name>
-      <automaticLink>false</automaticLink>
-      <defaultLink>false</defaultLink>
-      <type>0</type>
-    </ProcessLink>
-    <ProcessLink>
-      <processLinkPK>
-        <companyId>1</companyId>
-        <processId>CadastrodeFornecedor</processId>
-        <version>1</version>
-        <linkSequence>12</linkSequence>
-      </processLinkPK>
-      <actionLabel></actionLabel>
-      <returnPermited>false</returnPermited>
-      <initialStateSequence>9</initialStateSequence>
-      <finalStateSequence>11</finalStateSequence>
-      <returnLabel></returnLabel>
-      <name></name>
-      <automaticLink>false</automaticLink>
-      <defaultLink>false</defaultLink>
-      <type>0</type>
-    </ProcessLink>
     <ProcessLink>
       <processLinkPK>
         <companyId>1</companyId>
@@ -543,23 +461,6 @@
       <actionLabel></actionLabel>
       <returnPermited>false</returnPermited>
       <initialStateSequence>13</initialStateSequence>
-      <finalStateSequence>16</finalStateSequence>
-      <returnLabel></returnLabel>
-      <name></name>
-      <automaticLink>false</automaticLink>
-      <defaultLink>false</defaultLink>
-      <type>0</type>
-    </ProcessLink>
-    <ProcessLink>
-      <processLinkPK>
-        <companyId>1</companyId>
-        <processId>CadastrodeFornecedor</processId>
-        <version>1</version>
-        <linkSequence>21</linkSequence>
-      </processLinkPK>
-      <actionLabel></actionLabel>
-      <returnPermited>false</returnPermited>
-      <initialStateSequence>19</initialStateSequence>
       <finalStateSequence>16</finalStateSequence>
       <returnLabel></returnLabel>
       <name></name>
@@ -627,8 +528,42 @@
       </processLinkPK>
       <actionLabel></actionLabel>
       <returnPermited>false</returnPermited>
+      <initialStateSequence>4</initialStateSequence>
+      <finalStateSequence>11</finalStateSequence>
+      <returnLabel></returnLabel>
+      <name></name>
+      <automaticLink>false</automaticLink>
+      <defaultLink>false</defaultLink>
+      <type>0</type>
+    </ProcessLink>
+    <ProcessLink>
+      <processLinkPK>
+        <companyId>1</companyId>
+        <processId>CadastrodeFornecedor</processId>
+        <version>1</version>
+        <linkSequence>30</linkSequence>
+      </processLinkPK>
+      <actionLabel></actionLabel>
+      <returnPermited>false</returnPermited>
       <initialStateSequence>27</initialStateSequence>
-      <finalStateSequence>9</finalStateSequence>
+      <finalStateSequence>11</finalStateSequence>
+      <returnLabel></returnLabel>
+      <name></name>
+      <automaticLink>false</automaticLink>
+      <defaultLink>false</defaultLink>
+      <type>0</type>
+    </ProcessLink>
+    <ProcessLink>
+      <processLinkPK>
+        <companyId>1</companyId>
+        <processId>CadastrodeFornecedor</processId>
+        <version>1</version>
+        <linkSequence>31</linkSequence>
+      </processLinkPK>
+      <actionLabel></actionLabel>
+      <returnPermited>false</returnPermited>
+      <initialStateSequence>19</initialStateSequence>
+      <finalStateSequence>16</finalStateSequence>
       <returnLabel></returnLabel>
       <name></name>
       <automaticLink>false</automaticLink>
@@ -687,9 +622,9 @@ process.instructions=</eventDescription>
     <SwimLane>
       <color>FFFFFF</color>
       <height>691</height>
-      <width>921</width>
-      <positionX>10</positionX>
-      <positionY>10</positionY>
+      <width>718</width>
+      <positionX>0</positionX>
+      <positionY>20</positionY>
       <stateName>Cadastro de Cliente / Fornecedor</stateName>
       <type>1</type>
       <parentSequence>0</parentSequence>
@@ -702,10 +637,10 @@ process.instructions=</eventDescription>
     </SwimLane>
     <SwimLane>
       <color>9F9F9F</color>
-      <height>115</height>
-      <width>891</width>
-      <positionX>40</positionX>
-      <positionY>10</positionY>
+      <height>138</height>
+      <width>688</width>
+      <positionX>30</positionX>
+      <positionY>20</positionY>
       <stateName>Solicitante</stateName>
       <type>2</type>
       <parentSequence>1</parentSequence>
@@ -718,10 +653,10 @@ process.instructions=</eventDescription>
     </SwimLane>
     <SwimLane>
       <color>FFFF80</color>
-      <height>115</height>
-      <width>891</width>
-      <positionX>40</positionX>
-      <positionY>125</positionY>
+      <height>138</height>
+      <width>688</width>
+      <positionX>30</positionX>
+      <positionY>158</positionY>
       <stateName>Correção</stateName>
       <type>2</type>
       <parentSequence>1</parentSequence>
@@ -734,11 +669,11 @@ process.instructions=</eventDescription>
     </SwimLane>
     <SwimLane>
       <color>82b0b7</color>
-      <height>115</height>
-      <width>891</width>
-      <positionX>40</positionX>
-      <positionY>355</positionY>
-      <stateName>Validação</stateName>
+      <height>138</height>
+      <width>688</width>
+      <positionX>30</positionX>
+      <positionY>296</positionY>
+      <stateName>Suprimentos</stateName>
       <type>2</type>
       <parentSequence>1</parentSequence>
       <swimLanePK>
@@ -750,10 +685,10 @@ process.instructions=</eventDescription>
     </SwimLane>
     <SwimLane>
       <color>adc9ac</color>
-      <height>115</height>
-      <width>891</width>
-      <positionX>40</positionX>
-      <positionY>470</positionY>
+      <height>138</height>
+      <width>688</width>
+      <positionX>30</positionX>
+      <positionY>434</positionY>
       <stateName>Integração</stateName>
       <type>2</type>
       <parentSequence>1</parentSequence>
@@ -766,10 +701,10 @@ process.instructions=</eventDescription>
     </SwimLane>
     <SwimLane>
       <color>d0daae</color>
-      <height>116</height>
-      <width>891</width>
-      <positionX>40</positionX>
-      <positionY>585</positionY>
+      <height>139</height>
+      <width>688</width>
+      <positionX>30</positionX>
+      <positionY>572</positionY>
       <stateName>Fluig</stateName>
       <type>2</type>
       <parentSequence>1</parentSequence>
@@ -780,22 +715,6 @@ process.instructions=</eventDescription>
         <sequence>6</sequence>
       </swimLanePK>
     </SwimLane>
-    <SwimLane>
-      <color>d6e0d0</color>
-      <height>115</height>
-      <width>891</width>
-      <positionX>40</positionX>
-      <positionY>240</positionY>
-      <stateName>Cadastro</stateName>
-      <type>2</type>
-      <parentSequence>1</parentSequence>
-      <swimLanePK>
-        <companyId>1</companyId>
-        <processId>CadastrodeFornecedor</processId>
-        <version>1</version>
-        <sequence>7</sequence>
-      </swimLanePK>
-    </SwimLane>
   </list>
   <list/>
   <list/>
@@ -804,155 +723,133 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>11</version>
-        <linkSequence>10</linkSequence>
+        <version>19</version>
+        <linkSequence>17</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
-      <positionX>132</positionX>
-      <positionY>59</positionY>
+      <positionX>316</positionX>
+      <positionY>503</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>11</version>
-        <linkSequence>10</linkSequence>
-        <bendSequence>2</bendSequence>
-      </processLinkBendPK>
-      <positionX>132</positionX>
-      <positionY>298</positionY>
-    </ProcessLinkBend>
-    <ProcessLinkBend>
-      <processLinkBendPK>
-        <companyId>1</companyId>
-        <processId>CadastrodeFornecedor</processId>
-        <version>11</version>
-        <linkSequence>12</linkSequence>
-        <bendSequence>1</bendSequence>
-      </processLinkBendPK>
-      <positionX>281</positionX>
-      <positionY>297</positionY>
-    </ProcessLinkBend>
-    <ProcessLinkBend>
-      <processLinkBendPK>
-        <companyId>1</companyId>
-        <processId>CadastrodeFornecedor</processId>
-        <version>11</version>
-        <linkSequence>12</linkSequence>
-        <bendSequence>2</bendSequence>
-      </processLinkBendPK>
-      <positionX>281</positionX>
-      <positionY>413</positionY>
-    </ProcessLinkBend>
-    <ProcessLinkBend>
-      <processLinkBendPK>
-        <companyId>1</companyId>
-        <processId>CadastrodeFornecedor</processId>
-        <version>11</version>
-        <linkSequence>21</linkSequence>
-        <bendSequence>1</bendSequence>
-      </processLinkBendPK>
-      <positionX>412</positionX>
-      <positionY>644</positionY>
-    </ProcessLinkBend>
-    <ProcessLinkBend>
-      <processLinkBendPK>
-        <companyId>1</companyId>
-        <processId>CadastrodeFornecedor</processId>
-        <version>11</version>
-        <linkSequence>21</linkSequence>
-        <bendSequence>2</bendSequence>
-      </processLinkBendPK>
-      <positionX>412</positionX>
-      <positionY>528</positionY>
-    </ProcessLinkBend>
-    <ProcessLinkBend>
-      <processLinkBendPK>
-        <companyId>1</companyId>
-        <processId>CadastrodeFornecedor</processId>
-        <version>11</version>
+        <version>19</version>
         <linkSequence>25</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
-      <positionX>592</positionX>
-      <positionY>557</positionY>
+      <positionX>569</positionX>
+      <positionY>532</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>11</version>
+        <version>19</version>
         <linkSequence>28</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
-      <positionX>556</positionX>
-      <positionY>412</positionY>
+      <positionX>385</positionX>
+      <positionY>366</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>11</version>
+        <version>19</version>
         <linkSequence>28</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
-      <positionX>556</positionX>
-      <positionY>259</positionY>
+      <positionX>385</positionX>
+      <positionY>280</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>11</version>
+        <version>19</version>
         <linkSequence>28</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
-      <positionX>556</positionX>
-      <positionY>182</positionY>
+      <positionX>385</positionX>
+      <positionY>226</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>11</version>
+        <version>19</version>
         <linkSequence>29</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
-      <positionX>718</positionX>
-      <positionY>182</positionY>
+      <positionX>93</positionX>
+      <positionY>366</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>11</version>
-        <linkSequence>29</linkSequence>
+        <version>19</version>
+        <linkSequence>30</linkSequence>
+        <bendSequence>1</bendSequence>
+      </processLinkBendPK>
+      <positionX>575</positionX>
+      <positionY>228</positionY>
+    </ProcessLinkBend>
+    <ProcessLinkBend>
+      <processLinkBendPK>
+        <companyId>1</companyId>
+        <processId>CadastrodeFornecedor</processId>
+        <version>19</version>
+        <linkSequence>30</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
-      <positionX>718</positionX>
-      <positionY>86</positionY>
+      <positionX>575</positionX>
+      <positionY>130</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>11</version>
-        <linkSequence>29</linkSequence>
+        <version>19</version>
+        <linkSequence>30</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
-      <positionX>213</positionX>
-      <positionY>86</positionY>
+      <positionX>189</positionX>
+      <positionY>130</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>11</version>
-        <linkSequence>29</linkSequence>
-        <bendSequence>4</bendSequence>
+        <version>19</version>
+        <linkSequence>31</linkSequence>
+        <bendSequence>1</bendSequence>
       </processLinkBendPK>
-      <positionX>213</positionX>
-      <positionY>157</positionY>
+      <positionX>638</positionX>
+      <positionY>641</positionY>
+    </ProcessLinkBend>
+    <ProcessLinkBend>
+      <processLinkBendPK>
+        <companyId>1</companyId>
+        <processId>CadastrodeFornecedor</processId>
+        <version>19</version>
+        <linkSequence>31</linkSequence>
+        <bendSequence>2</bendSequence>
+      </processLinkBendPK>
+      <positionX>638</positionX>
+      <positionY>698</positionY>
+    </ProcessLinkBend>
+    <ProcessLinkBend>
+      <processLinkBendPK>
+        <companyId>1</companyId>
+        <processId>CadastrodeFornecedor</processId>
+        <version>19</version>
+        <linkSequence>31</linkSequence>
+        <bendSequence>3</bendSequence>
+      </processLinkBendPK>
+      <positionX>479</positionX>
+      <positionY>698</positionY>
     </ProcessLinkBend>
   </list>
   <list/>

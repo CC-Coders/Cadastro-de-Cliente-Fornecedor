@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.8.0_202" class="java.beans.XMLDecoder">
+ <object class="java.util.HashMap">
+  <void method="put">
+   <string>volume</string>
+   <array class="java.lang.String" length="1">
+    <void index="0">
+     <string>Default</string>
+    </void>
+   </array>
+  </void>
+  <void method="put">
+   <string>expediente</string>
+   <array class="java.lang.String" length="1">
+    <void index="0">
+     <string>Default</string>
+    </void>
+   </array>
+  </void>
+  <void method="put">
+   <string>mecanismo</string>
+   <array class="[Ljava.lang.Object;" length="27">
+    <void index="0">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>approveMethod</string>
+      </void>
+      <void index="1">
+       <string>approveMethod</string>
+      </void>
+     </array>
+    </void>
+    <void index="1">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>AprovEngProvisao</string>
+      </void>
+      <void index="1">
+       <string>AprovEngProvisao</string>
+      </void>
+     </array>
+    </void>
+    <void index="2">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>Atribuição por Associação</string>
+      </void>
+      <void index="1">
+       <string>Associado</string>
+      </void>
+     </array>
+    </void>
+    <void index="3">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>buscaUser</string>
+      </void>
+      <void index="1">
+       <string>buscaUser</string>
+      </void>
+     </array>
+    </void>
+    <void index="4">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>Atribuição por Campo de Formulário</string>
+      </void>
+      <void index="1">
+       <string>Campo Formulário</string>
+      </void>
+     </array>
+    </void>
+    <void index="5">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>customAproveMec</string>
+      </void>
+      <void index="1">
+       <string>customAproveMec</string>
+      </void>
+     </array>
+    </void>
+    <void index="6">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>Atribuição por Executor de Atividade</string>
+      </void>
+      <void index="1">
+       <string>Executor Atividade</string>
+      </void>
+     </array>
+    </void>
+    <void index="7">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>FrotaMecanismo</string>
+      </void>
+      <void index="1">
+       <string>FrotaMecanismo</string>
+      </void>
+     </array>
+    </void>
+    <void index="8">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>Atribuição por Grupo</string>
+      </void>
+      <void index="1">
+       <string>Grupo</string>
+      </void>
+     </array>
+    </void>
+    <void index="9">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>Atribuição por Grupos do Colaborador</string>
+      </void>
+      <void index="1">
+       <string>Grupos Colaborador</string>
+      </void>
+     </array>
+    </void>
+    <void index="10">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>IncluirSuporteFrotaMecanismo</string>
+      </void>
+      <void index="1">
+       <string>IncluirFrotaMecanismo</string>
+      </void>
+     </array>
+    </void>
+    <void index="11">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>IncluirFrotaMecanismoPRod</string>
+      </void>
+      <void index="1">
+       <string>IncluirFrotaMecanismoPRod</string>
+      </void>
+     </array>
+    </void>
+    <void index="12">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>LocalEstoqueMecanismoPaola</string>
+      </void>
+      <void index="1">
+       <string>LocalEstoqueMecanismo</string>
+      </void>
+     </array>
+    </void>
+    <void index="13">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>MecanismoBuscaGerente</string>
+      </void>
+      <void index="1">
+       <string>MecanismoBuscaGerente</string>
+      </void>
+     </array>
+    </void>
+    <void index="14">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>MecanismoBuscaResponsavel</string>
+      </void>
+      <void index="1">
+       <string>MecanismoBuscaResponsavel</string>
+      </void>
+     </array>
+    </void>
+    <void index="15">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string></string>
+      </void>
+      <void index="1">
+       <string>MecanismoEmailSolicitante</string>
+      </void>
+     </array>
+    </void>
+    <void index="16">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>MecanismoImportaGerentes</string>
+      </void>
+      <void index="1">
+       <string>MecanismoImportaGerentes</string>
+      </void>
+     </array>
+    </void>
+    <void index="17">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>mecanismoRecebeMedicoes</string>
+      </void>
+      <void index="1">
+       <string>mecanismoRecebeMedicoes</string>
+      </void>
+     </array>
+    </void>
+    <void index="18">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>mecanismoSolicMedicao</string>
+      </void>
+      <void index="1">
+       <string>mecanismoSolicMedicao</string>
+      </void>
+     </array>
+    </void>
+    <void index="19">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>mecCustomAprouv</string>
+      </void>
+      <void index="1">
+       <string>mecCustomAprouv</string>
+      </void>
+     </array>
+    </void>
+    <void index="20">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>mecCustomAprov</string>
+      </void>
+      <void index="1">
+       <string>mecCustomAprov</string>
+      </void>
+     </array>
+    </void>
+    <void index="21">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>NewMecanism</string>
+      </void>
+      <void index="1">
+       <string>NewMecanism</string>
+      </void>
+     </array>
+    </void>
+    <void index="22">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>ObrasProject</string>
+      </void>
+      <void index="1">
+       <string>ObrasProject</string>
+      </void>
+     </array>
+    </void>
+    <void index="23">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>Atribuição por Papel</string>
+      </void>
+      <void index="1">
+       <string>Papel</string>
+      </void>
+     </array>
+    </void>
+    <void index="24">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>Atribuição para um Grupo</string>
+      </void>
+      <void index="1">
+       <string>Pool Grupo</string>
+      </void>
+     </array>
+    </void>
+    <void index="25">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>Atribuição para um Papel</string>
+      </void>
+      <void index="1">
+       <string>Pool Papel</string>
+      </void>
+     </array>
+    </void>
+    <void index="26">
+     <array class="java.lang.Object" length="2">
+      <void index="0">
+       <string>Atribuição por Usuário</string>
+      </void>
+      <void index="1">
+       <string>Usuário</string>
+      </void>
+     </array>
+    </void>
+   </array>
+  </void>
+ </object>
+</java>

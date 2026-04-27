@@ -1,230 +1,888 @@
-<html>
-   <head>
-      <!--SMSTI -->
-      <link type="text/css" rel="stylesheet" href="/style-guide/css/fluig-style-guide.min.css" />
-      <script type="text/javascript" src="/portal/resources/js/jquery/jquery.js"></script>
-      <script type="text/javascript" src="/portal/resources/js/jquery/jquery-ui.min.js"></script>
-      <script type="text/javascript" src="/portal/resources/js/mustache/mustache-min.js"></script>
-      <script type="text/javascript" src="/style-guide/js/fluig-style-guide.min.js" charset="utf-8"></script>
-      <script type="text/javascript" src="/webdesk/vcXMLRPC.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
-      <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.19.9/docxtemplater.js"></script>
-      <script src="https://unpkg.com/pizzip@3.0.6/dist/pizzip.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.js"></script>
-      <script src="https://unpkg.com/pizzip@3.0.6/dist/pizzip-utils.js"></script>
-      <script src="jquery-fileupload.js"></script>
-      <script src="fileupload.js"></script>
-      <!-- Formulário -->
-      <link type="text/css" rel="stylesheet" href="cadastroFornecedor.css" />
-      <script type="text/javascript" src="cadastroFornecedor.js"></script>
-      <title>Cadastro de Forneceeeeeeeedor</title>
-   </head>
-   <body>
-<div class="fluig-style-guide">
-  <form name="form" id="formSolicitacao">
+<html lang="pt-BR">
+  <head>
+    <!--CASTILHO CONSTRUTORA/gustavo.reis -->
+    <link type="text/css" rel="stylesheet" href="/style-guide/css/fluig-style-guide.min.css" />
+    <script type="text/javascript" src="/portal/resources/js/jquery/jquery.js"></script>
+    <script type="text/javascript" src="/portal/resources/js/jquery/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/portal/resources/js/mustache/mustache-min.js"></script>
+    <script type="text/javascript" src="/style-guide/js/fluig-style-guide.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/webdesk/vcXMLRPC.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.19.9/docxtemplater.js"></script>
+    <script src="https://unpkg.com/pizzip@3.0.6/dist/pizzip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.js"></script>
+    <script src="https://unpkg.com/pizzip@3.0.6/dist/pizzip-utils.js"></script>
+    <script src="jquery-fileupload.js"></script>
+    <script src="fileupload.js"></script>
+    <!-- Formulário -->
+    <link rel="stylesheet" href="css/cadastroFornecedor.css" />
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/paginacao.css">
+    <script src="js/paginacao.js"></script>
+    <script src="js/Functions.js"></script>
+    <script src="js/Script.js"></script>
+    <title>Cadastro de Fornecedor</title>
+  </head>
+  <body>
+    <div class="fluig-style-guide">
+      <form name="form" id="formSolicitacao">
+        <!-- CAMPOS OCULTOS DO FLUIG -->
+        <div class="hidden" style="display:none;">
+          <input type="hidden" id="atividade" name="atividade">
+          <input type="hidden" id="formMode" name="formMode">
+          <input type="hidden" id="solicitante" name="solicitante">
+          <!-- historico -->
+          <div id="historicoHidden" name="historicoHidden">
+            <table id="tableHistorico" tablename="tableHistorico" noaddbutton="true" nodeletebutton="true">
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Data</th>
+                  <th>Atividade</th>
+                  <th>Observacao</th>
+                  <th>Acao</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><input type="hidden" class="tableHistoricoUsuario" name="tableHistoricoUsuario"/></td>
+                  <td><input type="hidden" class="tableHistoricoData" name="tableHistoricoData"/></td>
+                  <td><input type="hidden" class="tableHistoricoAtividade" name="tableHistoricoAtividade"/></td>
+                  <td><input type="hidden" class="tableHistoricoObservacao" name="tableHistoricoObservacao"/></td>
+                  <td><input type="hidden" class="tableHistoricoAcao" name="tableHistoricoAcao"/></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!--CABEÇALHO-->
+        <header>
+          <div class="wizard-progress">
+              <div class="step active" style="display: block">SOLICITAÇÃO</div>
+              <div class="step" style="display: none;">CORREÇÃO</div>
+              <div class="step" style="display: block">CADASTRO</div>
+              <div class="step" style="display: block">VALIDAÇÃO</div>
+              <div class="step" style="display: block">INTEGRAÇÃO</div>
+              <div class="step" style="display: block">FIM</div>
+          </div>
+        </header>
+        <!-- INICIO  -->
+        <main class="page-wrap" id="preCadastro">
+          <!-- PRÉ CADASTRO -->
+          <div class="step-panel step-1 active" id="divPreCadastro">
+            <!-- Cabeçalho identificador Pré Cadastro -->
+            <div class="page-header step-1" name="divHeaderPreCad" id="divHeaderPreCad">
+              <div class="page-header-icon">
+                <i class="flaticon flaticon-account-circle"></i>
+              </div>
+              <div class="page-header-info">
+                <div class="page-header-title">Pré Cadastro — Identificação e Endereço</div>
+                <div class="page-header-sub">Informe a classificação e os dados comerciais do cadastro.</div>
+                <div class="step-badge step-1">Etapa 1 de 3 — Pré Cadastro</div>
+              </div>
+            </div>
+            <!-- dados do cliente/fornecedor -->
+            <div class="section" id="divDadosFornecedor">
+              <div class="section-head" onclick="toggleSection(this)">
+                <div class="section-head-left">
+                  <div class="section-num">1</div>
+                  <span class="section-name">Dados do Cliente / Fornecedor</span>
+                  <span class="section-count">4 campos</span>
+                  <span class="section-arrow open">▼</span>
+                </div>
+              </div>
+              <div class="section-body">
+                <div class="grid g2">
+                  <!-- Classificação do cadastro -->
+                  <div class="fg" id="divClassificacao" name="divClassificacao">
+                    <label for="classificacao">Classificação <span class="req">*</span></label>
+                    <select id="classificacao" name="classificacao" class="form-control" required>
+                      <option value="">Selecione...</option>
+                      <option value="Cliente">Cliente</option>
+                      <option value="Fornecedor">Fornecedor</option>
+                      <option value="Cliente / Fornecedor">Cliente / Fornecedor</option>
+                    </select>
+                  </div>
+                  <!-- categoria do fornecedor -->
+                  <div class="fg" id="divCategoria" name="divCategoria">
+                    <label for="categoria">Categoria <span class="req">*</span></label>
+                    <select id="categoria" name="categoria" class="form-control" required>
+                      <option value="">Selecione...</option>
+                      <option value="Pessoa Jurídica">Pessoa Jurídica</option>
+                      <option value="Pessoa Física">Pessoa Física</option>
+                    </select>
+                  </div>
+                  <!-- Tipo de Fornecedor -->
+                  <div class="fg" id="divTipo" name="divTipo">
+                    <label for="tipo">Tipo <span class="req">*</span></label>
+                    <select id="tipo" name="tipo" class="form-control" required>
+                      <option value="">Selecione...</option>
+                      <option value="Subcontratado">Subcontratado</option>
+                      <option value="Transportadora">Transportadora</option>
+                      <option value="Consultoria">Consultoria</option>
+                      <option value="Materiais e Insumos">Materiais e Insumos</option>
+                      <option value="Locação de Equipamentos">Locação de Equipamentos</option>
+                      <option value="Serviços Gerais">Serviços Gerais</option>
+                      <option value="Serviços de Engenharia">Serviços de Engenharia</option>
+                      <option value="Tecnologia e TI">Tecnologia e TI</option>
+                    </select>
+                  </div>
+                  <!-- Classificação Operacional -->
+                  <div class="fg" id="divClassificacaoOperacional" name="divClassificacaoOperacional">
+                    <label for="classificacaoOperacional">Classificação Operacional <span class="req">*</span></label>
+                    <select id="classificacaoOperacional" name="classificacaoOperacional" class="form-control" required>
+                      <option value="">Selecione...</option>
+                      <option value="Obra / Construção Civil">Obra / Construção Civil</option>
+                      <option value="Mineração">Mineração</option>
+                      <option value="Infraestrutura Viária">Infraestrutura Viária</option>
+                      <option value="Pavimentação e Terraplanagem">Pavimentação e Terraplanagem</option>
+                      <option value="Saneamento e Drenagem">Saneamento e Drenagem</option>
+                      <option value="Aluguel de Equipamentos">Aluguel de Equipamentos</option>
+                      <option value="Transporte e Logística">Transporte e Logística</option>
+                      <option value="Fornecimento de Materiais">Fornecimento de Materiais</option>
+                      <option value="Serviços Administrativos">Serviços Administrativos</option>
+                      <option value="Tecnologia e Sistemas">Tecnologia e Sistemas</option>
+                      <option value="Consultoria e Assessoria">Consultoria e Assessoria</option>
+                      <option value="Seguro e Benefícios">Seguro e Benefícios</option>
+                    </select>
+                  </div>
+                </div>
+                <div id="divToggleEstrangeiro" class="retencao-box">
+                  <div class="retencao-content">
+                    <div class="retencao-text">
+                      <strong>Fornecedor estrangeiro?</strong>
+                      <small>
+                        Aplicável a prestadores de serviço ou fornecedores de materiais estrangeiros. Indique se o cadastro é de um fornecedor estrangeiro, para o processo seguir o caminho legal.
+                      </small>
+                    </div>
+                    <div class="retencao-toggle">
+                      <span class="retencao-label">Não</span>
 
-    <!-- CAMPOS OCULTOS DO FLUIG -->
-    <div class="hidden" style="display:none;">
-      <input type="hidden" id="atividade" name="atividade">
-      <input type="hidden" id="formMode" name="formMode">
-      <input type="hidden" id="solicitante" name="solicitante">
+                      <div class="switch switch-success">
+                        <input class="switch-input" type="checkbox" id="toggleEstrangeiro" name="toggleEstrangeiro">
+                        <label class="switch-button" for="toggleEstrangeiro"></label>
+                      </div>
+                      <span class="retencao-label">Sim</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- dados comerciais -->
+            <div class="section" id="divDadosComerciais">
+              <div class="section-head" onclick="toggleSection(this)">
+                <div class="section-head-left">
+                  <div class="section-num">2</div>
+                  <span class="section-name">Dados Comerciais</span>
+                  <span class="section-count">11 campos</span>
+                  <span class="section-arrow open">▼</span>
+                </div>
+              </div>
+              <div class="section-body">
+                <div class="alert alert-danger" id="alertCPF" name="alertCPF" style="display:none;">
+                    Pessoa Física: informe o CPF (validação de dígitos verificadores) e o RG.
+                </div>
+                <div class="alert alert-danger" id="alertCnpj" name="alertCnpj" style="display:none;">
+                    Pessoa Jurídica: informe o CNPJ (validação de dígitos verificadores) e a Inscrição Estadual.
+                </div>
+                <div class="grid g3" id="docFiscal">                 
+                  <!-- cpf -->
+                  <div class="fg" id="divCpf">
+                    <label for="docCpf">CPF <span class="req">*</span></label>
+                    <input type="text" id="docCpf" name="docCpf" placeholder="000.000.000-00" class="form-control">
+                  </div>
+                  <!-- cnpj -->
+                  <div class="fg" id="divCnpj">
+                    <label for="docCnpj">CNPJ <span class="req">*</span></label>
+                    <input type="text" id="docCnpj" name="docCnpj" placeholder="00.000.000/0000-00" class="form-control">
+                  </div>
+                  <!-- rg -->
+                  <div class="fg" id="divRg">
+                    <label for="docRg">RG <span class="req">*</span></label>
+                    <input type="text" id="docRg" name="docRg" placeholder="00.000.000-0" class="form-control">
+                  </div>
+                  <!-- inscrição estadual -->
+                  <div class="fg" id="divInscricaoEstadual">
+                    <label for="docInscricaoEstadual">Inscrição Estadual <span class="req">*</span></label>
+                    <input type="text" id="docInscricaoEstadual" name="docInscricaoEstadual" placeholder="000.000.000.000" class="form-control">
+                  </div>
+                  <!-- razão social -->
+                  <div class="fg" id="divRazaoSocial">
+                    <label for="razaoSocial">Razão Social / Nome <span class="req">*</span></label>
+                    <input type="text" id="razaoSocial" name="razaoSocial" placeholder="Nome Completo ou Razão Social" class="form-control">
+                  </div>
+                  <!-- cep -->
+                  <div class="fg" id="divCep">
+                    <label for="cep">CEP <span class="req">*</span></label>
+                    <input type="text" id="cep" name="cep" placeholder="00000-000" class="form-control">
+                  </div>
+                  <!-- endereço -->
+                  <div class="fg" id="divEndereco">
+                    <label for="endereco">Endereço <span class="req">*</span></label>
+                    <input type="text" id="endereco" name="endereco" placeholder="Rua, Avenida, Rodovia..." class="form-control">
+                  </div>
+                  <!-- número -->
+                  <div class="fg" id="divNumero">
+                    <label for="numero">Número <span class="req">*</span></label>
+                    <input type="text" id="numero" name="numero" placeholder="Nº" class="form-control">
+                  </div>
+                  <!-- complemento -->
+                  <div class="fg" id="divComplemento">
+                    <label for="complemento">Complemento</label>
+                    <input type="text" id="complemento" name="complemento" placeholder="Sala, Andar, Bloco..." class="form-control">
+                  </div>
+                  <!-- bairro -->
+                  <div class="fg" id="divBairro">
+                    <label for="bairro">Bairro <span class="req">*</span></label>
+                    <input type="text" id="bairro" name="bairro" placeholder="Bairro"  class="form-control">
+                  </div>
+                  <!-- cidade -->
+                  <div class="fg" id="divCidade">
+                    <label for="cidade">Cidade <span class="req">*</span></label>
+                    <input type="text" id="cidade" name="cidade" placeholder="Cidade" class="form-control">
+                  </div>
+                  <!-- pais -->
+                  <div class="fg" id="divPais">
+                    <label for="pais">País <span class="req">*</span></label>
+                    <input type="text" id="pais" name="pais" placeholder="País" class="form-control">
+                  </div>
+                  <!-- estado -->
+                  <div class="fg" id="divEstado">
+                    <label for="estado">Estado <span class="req">*</span></label>
+                    <input type="text" id="estado" name="estado" placeholder="UF" class="form-control">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- DADOS CADASTRAIS -->
+          <div class="step-panel step-2" id="divDadosCadastrais" name="divDadosCadastrais" style="display:none;">
+            <!-- Cabeçalho identificador Dados Cadastrais -->
+            <div class="page-header step-2" id="divHeaderDadosCadastrais">
+              <div class="page-header-icon">
+                <i class="animaliaicon animaliaicon-file-text icon" aria-hidden="true"></i>
+              </div>
+              <div class="page-header-info">
+                <div class="page-header-title">Dados Cadastrais</div>
+                <div class="page-header-sub">Complete os dados fiscais, bancários, condições comerciais e informações de contato do cliente ou fornecedor.</div>
+                <div class="step-badge step-2">Etapa 2 de 3 — Dados Cadastrais</div>
+              </div>
+            </div>
+            <!-- dados fiscais -->
+            <div class="section" id="divDadosFiscais">
+              <div class="section-head" onclick="toggleSection(this)">
+                <div class="section-head-left">
+                  <div class="section-num">3</div>
+                  <span class="section-name">Dados Fiscais</span>
+                  <span class="section-count">9 campos</span>
+                  <span class="section-arrow open">▼</span>
+                </div>
+              </div>
+              <div class="section-body">
+                <div class="grid g3">
+                  <!-- contribuinte icms -->
+                  <div class="fg" id="divIcms">
+                    <label for="icms">Contribuinte ICMS <span class="req">*</span></label>
+                    <select id="icms" name="icms" class="form-control" required>
+                      <option value="">Selecione...</option>
+                      <option value="Contribuinte">Contribuinte</option>
+                      <option value="Não Contribuinte">Não Contribuinte</option>
+                      <option value="Isento">Isento</option>
+                    </select>
+                  </div>
+                  <!-- aliquota irrf -->
+                  <div class="fg" id="divIrrf">
+                    <label for="irrf">Alíquota IRRF (%) <span class="req">*</span></label>
+                    <input type="number" id="IputIrrf" name="IputIrrf" class="form-control">
+                  </div>
+                  <!-- simples nacional -->
+                  <div class="fg" id="divSimplesNacional">
+                    <label for="simplesNacional">Simples Nacional <span class="req">*</span></label>
+                    <select id="simplesNacional" name="simplesNacional" class="form-control">
+                      <option value="">Selecione...</option>
+                      <option value="Sim">Sim</option>
+                      <option value="Não">Não</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="divider"></div>
+                <!-- ------- -->
+                <div class="grid g3">
+                  <!-- natureza rendimento -->
+                  <div class="fg" id="divNaturezaRendimento">
+                    <label for="naturezaRendimento">Natureza de Rendimentos <span class="req">*</span></label>
+                    <select id="naturezaRendimento" name="naturezaRendimento" class="form-control">
+                      <option value="">Selecione...</option>
+                      <option value="0501 — Rendimentos do Trabalho Assalariado">0501 — Rendimentos do Trabalho Assalariado</option>
+                      <option value="0561 — Rendimentos do Trabalho Sem Vínculo">0561 — Rendimentos do Trabalho Sem Vínculo</option>
+                      <option value="0600 — Rendimentos de Capital">0600 — Rendimentos de Capital</option>
+                      <option value="1700 — Serviços Prestados por PJ">1700 — Serviços Prestados por PJ</option>
+                      <option value="1780 — Serviços de Construção Civil">1780 — Serviços de Construção Civil</option>
+                      <option value="1850 — Serviços de Transporte Rodoviário">1850 — Serviços de Transporte Rodoviário</option>
+                      <option value="3001 — Fornecimento de Mercadorias">3001 — Fornecimento de Mercadorias</option>
+                      <option value="4000 — Rendimentos de Aluguéis e Arrendamentos">4000 — Rendimentos de Aluguéis e Arrendamentos</option>
+                      <option value="5706 — Juros e Encargos">5706 — Juros e Encargos</option>
+                      <option value="9202 — Outros Rendimentos">9202 — Outros Rendimentos</option>
+                    </select>
+                  </div>
+                  <!-- regime fiscal -->
+                  <div class="fg" id="divRegimeFiscal">
+                    <label for="regimeFiscal">Regime Fiscal <span class="req">*</span></label>
+                    <select id="regimeFiscal" name="regimeFiscal" class="form-control">
+                      <option value="">Selecione...</option>
+                      <option value="Lucro Real">Lucro Real</option>
+                      <option value="Lucro Presumido">Lucro Presumido</option>
+                      <option value="Lucro Arbitrado">Lucro Arbitrado</option>
+                      <option value="Simples Nacional">Simples Nacional</option>
+                      <option value="MEI — Microempreendedor Individual">MEI — Microempreendedor Individual</option>
+                      <option value="Imune / Isento">Imune / Isento</option>
+                      <option value="Pessoa Física">Pessoa Física</option>
+                    </select>
+                  </div>
+                  <!-- tipo documento emitido -->
+                  <div class="fg" id="divTipoDocEmitido">
+                    <label for="tipoDocEmitido">Tipo de Documento Emitido <span class="req">*</span></label>
+                    <select id="tipoDocEmitido" name="tipoDocEmitido" class="form-control">
+                      <option value="">Selecione...</option>
+                      <option value="NF-e">NF-e — Nota Fiscal Eletrônica</option>
+                      <option value="NFS-e">NFS-e — Nota Fiscal de Serviços Eletrônica</option>
+                      <option value="CT-e">CT-e — Conhecimento de Transporte Eletrônico</option>
+                      <option value="NF-3e">NF-3e — Nota Fiscal de Energia Elétrica</option>
+                      <option value="MDF-e">MDF-e — Manifesto Eletrônico de Documentos Fiscais</option>
+                      <option value="Recibo / RPA">Recibo / RPA</option>
+                      <option value="Fatura / Boleto">Fatura / Boleto</option>
+                      <option value="Não emite documento fiscal">Não emite documento fiscal</option>
+                    </select>
+                  </div>
+                </div>
+             <div class="divider"></div>
+              <div class="grid g3" id="divMoedaGrupoMercadoria">
+                <!-- moeda -->
+                <div class="fg" id="divMoeda">
+                  <label for="moeda">Moeda do Pedido <span class="req">*</span></label>
+                  <div class="select-wrap">
+                    <select id="moeda" name="moeda" class="form-control" required>
+                      <option value="">Selecione...</option>
+                      <option value="BRL">BRL — Real Brasileiro</option>
+                      <option value="USD">USD — Dólar Americano</option>
+                      <option value="EUR">EUR — Euro</option>
+                      <option value="ARS">ARS — Peso Argentino</option>
+                    </select>
+                  </div>
+                </div>
+                <!-- grupo principal -->
+                <div class="fg" id="divGrupoMercadoriaPrincipal">
+                  <label for="grupoMercadoria1">Grupo de Mercadoria <span class="req">*</span></label>
+                  <div class="select-wrap">
+                    <select id="grupoMercadoria1" name="grupoMercadoria1" class="form-control grupo-mercadoria">
+                      <option value="">Selecione...</option>
+                      <option value="Materiais de Construção">Materiais de Construção</option>
+                      <option value="Equipamentos e Máquinas">Equipamentos e Máquinas</option>
+                      <option value="Serviços de Engenharia">Serviços de Engenharia</option>
+                      <option value="Combustíveis e Lubrificantes">Combustíveis e Lubrificantes</option>
+                      <option value="Serviços Administrativos">Serviços Administrativos</option>
+                      <option value="Tecnologia e TI">Tecnologia e TI</option>
+                      <option value="Seguro e Apólices">Seguro e Apólices</option>
+                    </select>
+                  </div>
+                </div>
+                <!-- botão -->
+                <div class="fg align-end" id="divBtnAddGrupoMercadoria">
+                  <label>&nbsp;</label>
+                  <button type="button" class="btn btn-warning btn-grupo-mercadoria" id="btn-add-grupo-mercadoria">
+                    + Adicionar Grupo de Mercadoria
+                  </button>
+                </div>
+              </div>
+              <div id="grupo-mercadoria-wrap"></div>
+              <div class="divider"></div>
+                <!-- cnae -->
+                <div class="cnae-box">
+                  <div class="cnae-header">
+                    <i class="flaticon flaticon-document"></i>
+                    <span>CNAE — CLASSIFICAÇÃO NACIONAL DE ATIVIDADES ECONÔMICAS</span>
+                  </div>
+                  <div class="grid g3">
+                    <!-- cnae principal -->
+                    <div class="fg span2" id="divCnaePrincipal">
+                      <label for="cnaePrincipal">CNAE Principal <span class="req">*</span></label>
+                      <input type="text" id="cnaePrincipal" name="cnaePrincipal" class="form-control" placeholder="0000-0/00 — Descrição da atividade">
+                    </div>
+                    <!-- botao adicionar cnae -->
+                    <div class="fg align-end" id="divBtnAddCnae">
+                      <button type="button" class="btn btn-warning btn-cnae" id="btn-add-cnae">
+                        + Adicionar CNAE Secundário
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <!-- container cnae secundarios -->
+                <div id="cnae-secundarios-wrap"></div>
+                <div class="divider"></div>
+                <!-- toggle retenção -->
+                <div class="retencao-box" id="divToggleRetencao" style="display: none;">
+                  <div class="retencao-content">
+                    <div class="retencao-text">
+                      <strong>Haverá retenções de impostos neste contrato?</strong>
+                      <small>
+                        Aplicável a prestadores de serviço. Indique se haverá retenção de ISS, INSS, CSLL, PIS/COFINS ou outro tributo nas notas fiscais emitidas.
+                      </small>
+                    </div>
 
-      <div id="historicoHidden">
-        <table id="tableHistorico" tablename="tableHistorico" noaddbutton="true" nodeletebutton="true">
-          <thead>
-            <tr>
-              <th>Usuario</th>
-              <th>Data</th>
-              <th>Atividade</th>
-              <th>Observacao</th>
-              <th>Acao</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><input type="hidden" class="tableHistoricoUsuario" name="tableHistoricoUsuario"/></td>
-              <td><input type="hidden" class="tableHistoricoData" name="tableHistoricoData"/></td>
-              <td><input type="hidden" class="tableHistoricoAtividade" name="tableHistoricoAtividade"/></td>
-              <td><input type="hidden" class="tableHistoricoObservacao" name="tableHistoricoObservacao"/></td>
-              <td><input type="hidden" class="tableHistoricoAcao" name="tableHistoricoAcao"/></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+                    <div class="retencao-toggle">
+                      <span class="retencao-label">Não</span>
+
+                      <div class="switch switch-success">
+                        <input
+                          class="switch-input"
+                          type="checkbox"
+                          id="toggleRetencao"
+                          name="toggleRetencao"
+                        />
+                        <label class="switch-button" for="toggleRetencao"></label>
+                      </div>
+
+                      <span class="retencao-label">Sim</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- painel retenções -->
+                <div id="divRetencoesPanel" name="divRetencoesPanel" class="retencoes-box field-hidden">
+                  <div class="retencoes-title">
+                    <i class="flaticon flaticon-document"></i>
+                    <span>SELECIONE OS IMPOSTOS QUE SERÃO RETIDOS:</span>
+                  </div>
+                  <div class="grid g3 retencoes-grid">
+                    <!-- ISS -->
+                    <label class="retencao-item">
+                      <input type="checkbox" id="iss" name="iss">
+                      <span>ISS</span>
+                    </label>
+                    <!-- INSS -->
+                    <label class="retencao-item">
+                      <input type="checkbox" id="inss" name="inss">
+                      <span>INSS</span>
+                    </label>
+                    <!-- IRRF -->
+                    <label class="retencao-item">
+                      <input type="checkbox" id="irrf" name="irrf">
+                      <span>IRRF</span>
+                    </label>
+                    <!-- CSLL -->
+                    <label class="retencao-item">
+                      <input type="checkbox" id="csll" name="csll">
+                      <span>CSLL</span>
+                    </label>
+                    <!-- PIS -->
+                    <label class="retencao-item">
+                      <input type="checkbox" id="pis" name="pis">
+                      <span>PIS</span>
+                    </label>
+                    <!-- COFINS -->
+                    <label class="retencao-item">
+                      <input type="checkbox" id="cofins" name="cofins">
+                      <span>COFINS</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- dados bancarios -->
+            <div class="section" id="divDadosBancarios">
+              <div class="section-head" onclick="toggleSection(this)">
+                <div class="section-head-left">
+                  <div class="section-num">4</div>
+                  <span class="section-name">Dados Bancários</span>
+                  <span class="section-count">4 campos</span>
+                  <span class="section-arrow open">▼</span>
+                </div>
+              </div>
+              <div class="section-body">
+                <div class="grid g4">
+                  <!-- condicao pagamento -->
+                  <div class="fg span2" id="divCondicaoPagamento">
+                    <label for="condicaoPagamento">Condição de Pagamento <span class="req">*</span></label>
+                    <div class="select-wrap">
+                      <select id="condicaoPagamento" name="condicaoPagamento" class="form-control" required>
+                        <option value="">Selecione...</option>
+                        <option value="À Vista">À Vista</option>
+                        <option value="7 Dias">7 Dias</option>
+                        <option value="14 Dias">14 Dias</option>
+                        <option value="21 Dias">21 Dias</option>
+                        <option value="28 Dias">28 Dias</option>
+                        <option value="30 Dias">30 Dias</option>
+                        <option value="30/60 Dias">30/60 Dias</option>
+                        <option value="30/60/90 Dias">30/60/90 Dias</option>
+                        <option value="45 Dias">45 Dias</option>
+                        <option value="60 Dias">60 Dias</option>
+                      </select>
+                    </div>
+                  </div>
+                  <!-- banco -->
+                  <div class="fg span2" id="divBanco">
+                    <label for="banco">Banco <span class="req">*</span></label>
+                    <div class="select-wrap">
+                      <select id="banco" name="banco" class="form-control" required>
+                        <option value="">Selecione...</option>
+                        <option value="001">001 - Banco do Brasil</option>
+                        <option value="033">033 - Santander</option>
+                        <option value="041">041 - Banrisul</option>
+                        <option value="077">077 - Inter</option>
+                        <option value="104">104 - Caixa Econômica Federal</option>
+                        <option value="212">212 - Banco Original</option>
+                        <option value="237">237 - Bradesco</option>
+                        <option value="260">260 - Nubank</option>
+                        <option value="341">341 - Itaú</option>
+                        <option value="748">748 - Sicredi</option>
+                        <option value="756">756 - Sicoob</option>
+                        <option value="999">Outro</option>
+                      </select>
+                    </div>
+                  </div>
+                  <!-- agencia -->
+                  <div class="fg span2" id="divAgencia">
+                    <label for="agencia">Agência <span class="req">*</span></label>
+                    <input type="text" id="agencia" name="agencia" class="form-control" placeholder="0000-0" maxlength="10" required>
+                  </div>
+                  <!-- conta -->
+                  <div class="fg span2" id="divConta">
+                    <label for="conta">Conta <span class="req">*</span></label>
+                    <input type="text"id="conta"name="conta"class="form-control"placeholder="00000-0" maxlength="14"required>
+                  </div>
+                </div>
+                <div class="bank-warning">
+                  <div class="bank-warning-icon">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                  </div>
+                  <div class="bank-warning-text">
+                    <div class="bank-warning-title">⚠ Atenção — Titularidade dos Dados Bancários</div>
+                    <div class="bank-warning-body">
+                      Os dados bancários informados devem ser em nome da empresa e do CNPJ fornecido.
+                      <strong>Não serão aceitos dados bancários de terceiros</strong>, contas de sócios,
+                      representantes ou quaisquer pessoas distintas do titular do cadastro.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- contatos -->
+            <div class="section" id="divContatos">
+              <div class="section-head" onclick="toggleSection(this)">
+                <div class="section-head-left">
+                  <div class="section-num">5</div>
+                  <span class="section-name">Contatos</span>
+                  <span class="section-count">8 campos</span>
+                  <span class="section-arrow open">▼</span>
+                </div>
+              </div>
+              <div class="section-body">
+                <div class="grid g3">
+                  <!-- telefone financeiro -->
+                  <div class="fg" id="divTelFinanceiro">
+                    <label for="telFinanceiro">Telefone Financeiro <span class="req">*</span></label>
+                    <input type="tel" id="telFinanceiro" name="telFinanceiro" placeholder="(00)0000-0000" class="form-control">
+                  </div>
+                  <!-- telefone comercial -->
+                  <div class="fg" id="divTelComercial">
+                    <label for="telComercial">Telefone Comercial <span class="req">*</span></label>
+                    <input type="tel" id="telComercial" name="telComercial" placeholder="(00)0000-0000" class="form-control">
+                  </div>
+                  <!-- celular -->
+                  <div class="fg" id="divCelular">
+                    <label for="celular">Celular <span class="req">*</span></label>
+                    <input type="tel" id="celular" name="celular" placeholder="(00)00000-0000" class="form-control">
+                  </div>
+                  <div class="divider span3"></div>
+                  <!-- email nfe -->
+                  <div class="fg" id="divEmailNfe">
+                    <label for="emailNfe">E-mail NFE <span class="req">*</span></label>
+                    <input type="email" id="emailNfe" name="emailNfe" placeholder="nfe@empresa.com.br" class="form-control">
+                  </div>
+                  <!-- email comercial -->
+                  <div class="fg" id="divEmailComercial">
+                    <label for="emailComercial">E-mail Comercial <span class="req">*</span></label>
+                    <input type="email" id="emailComercial" name="emailComercial" placeholder="comercial@empresa.com.br" class="form-control">
+                  </div>
+                  <!-- email contas receber -->
+                  <div class="fg" id="divEmailCr">
+                    <label for="emailCr">E-mail Contas a Receber <span class="req">*</span></label>
+                    <input type="email" id="emailCr" name="emailCr" placeholder="financeiro@empresa.com.br" class="form-control">
+                  </div>
+                  <!-- email juridico -->
+                  <div class="fg" id="divEmailJuridico">
+                    <label for="emailJuridico">E-mail Jurídico <span class="req">*</span></label>
+                    <input type="email" id="emailJuridico" name="emailJuridico" placeholder="juridico@empresa.com.br" class="form-control">
+                  </div>
+                  <!-- site -->
+                  <div class="fg" id="divSite">
+                    <label for="site">Site</label>
+                    <input type="url" id="site" name="site" placeholder="https://www.empresa.com.br" class="form-control">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- DOCUMENTAÇÃO -->
+          <div class="step-panel step-3" id="divDocumentacao" name="divDocumentacao" style="display:none;">
+            <!-- Cabeçalho identificador Documentação -->
+            <div class="page-header step-3" id="divHeaderDocumentacao" name="divHeaderDocumentacao">
+              <div class="page-header-icon">
+                <i class="flaticon flaticon-cloud-download icon-lg" aria-hidden="true"></i>
+              </div>
+              <div class="page-header-info">
+                <div class="page-header-title">Documentação — Anexos Obrigatórios</div>
+                <div class="page-header-sub">Anexe os documentos obrigatórios para validação do cadastro do cliente / fornecedor.</div>
+                <div class="step-badge step-3">Etapa 3 de 3 — Documentação</div>
+              </div>
+            </div>
+            <!-- anexos de documentos -->
+            <div class="section" id="divAnexosDocumentos" name="divAnexosDocumentos">
+              <div class="section-head" onclick="toggleSection(this)">
+                <div class="section-head-left">
+                  <div class="section-num">6</div>
+                  <span class="section-name">Anexos de Documentos</span>
+                  <span class="section-count">3 obrigatórios</span>
+                  <span class="section-arrow open">▼</span>
+                </div>
+              </div>
+              <div class="section-body">
+                <div class="grid g3">
+
+                  <!-- CARTÃO CNPJ -->
+                  <div class="fg">
+                    <label for="fileCartaoCnpj">Cartão CNPJ <span class="req">*</span></label>
+
+                    <input type="file" id="fileCartaoCnpj" name="fileCartaoCnpj" style="display:none;">
+
+                    <div class="upload-area" id="uploadCartaoCnpj" data-upload-id="fileCartaoCnpj">
+                      <div class="upload-icon">
+                        <i class="flaticon flaticon-cloud-upload icon-md"></i>
+                      </div>
+                      <div class="upload-title">Cartão CNPJ</div>
+                      <div class="upload-hint">Arraste ou clique para selecionar</div>
+                      <div class="upload-formats">PDF, JPG ou PNG</div>
+                      <span class="upload-badge badge-req">Obrigatório</span>
+                    </div>
+
+                    <div class="upload-file-status" id="statusFileCartaoCnpj" style="display:none;">
+                      <span id="nomeFileCartaoCnpj"></span>
+                      <span class="upload-file-remove"
+                            data-input-id="fileCartaoCnpj"
+                            data-area-id="uploadCartaoCnpj"
+                            data-sufixo="CartaoCnpj">✕</span>
+                    </div>
+                  </div>
+
+                  <!-- COMPROVANTE BANCÁRIO -->
+                  <div class="fg">
+                    <label for="fileComprovanteBanco">Comprovante Bancário <span class="req">*</span></label>
+
+                    <input type="file" id="fileComprovanteBanco" name="fileComprovanteBanco" style="display:none;">
+
+                    <div class="upload-area" id="uploadComprovanteBanco" data-upload-id="fileComprovanteBanco">
+                      <div class="upload-icon">
+                        <i class="flaticon flaticon-cloud-upload icon-md"></i>
+                      </div>
+                      <div class="upload-title">Comprovante Bancário</div>
+                      <div class="upload-hint">Extrato ou cabeçalho do banco</div>
+                      <div class="upload-formats">PDF, JPG ou PNG</div>
+                      <span class="upload-badge badge-req">Obrigatório</span>
+                    </div>
+
+                    <div class="upload-file-status" id="statusFileComprovanteBanco" style="display:none;">
+                      <span id="nomeFileComprovanteBanco"></span>
+                      <span class="upload-file-remove"
+                            data-input-id="fileComprovanteBanco"
+                            data-area-id="uploadComprovanteBanco"
+                            data-sufixo="ComprovanteBanco">✕</span>
+                    </div>
+                  </div>
+
+                  <!-- CONTRATO SOCIAL -->
+                  <div class="fg">
+                    <label for="fileContratoSocial">Contrato Social <span class="req">*</span></label>
+
+                    <input type="file" id="fileContratoSocial" name="fileContratoSocial" style="display:none;">
+
+                    <div class="upload-area" id="uploadContratoSocial" data-upload-id="fileContratoSocial">
+                      <div class="upload-icon">
+                        <i class="flaticon flaticon-description icon-md"></i>
+                      </div>
+                      <div class="upload-title">Contrato Social</div>
+                      <div class="upload-hint">Documento atualizado</div>
+                      <div class="upload-formats">PDF, JPG ou PNG</div>
+                      <span class="upload-badge badge-req">Obrigatório</span>
+                    </div>
+
+                    <div class="upload-file-status" id="statusFileContratoSocial" style="display:none;">
+                      <span id="nomeFileContratoSocial"></span>
+                      <span class="upload-file-remove"
+                            data-input-id="fileContratoSocial"
+                            data-area-id="uploadContratoSocial"
+                            data-sufixo="ContratoSocial">✕</span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+            <!-- conformidade e ética -->
+            <div class="section" id="divConformidadeEtica" name="divConformidadeEtica">
+              <div class="section-head" onclick="toggleSection(this)">
+                <div class="section-head-left">
+                  <div class="section-num">7</div>
+                  <span class="section-name">Conformidade e Ética</span>
+                  <span class="section-count">4 obrigatórios</span>
+                  <span class="section-arrow open">▼</span>
+                </div>
+              </div>
+              <div class="section-body">
+                <div class="grid g4">
+                  <!-- código de conduta -->
+                  <div class="fg" id="divCodigoConduta" name="divCodigoConduta">
+                    <label for="fileCodigoConduta">Código de Conduta <span class="req">*</span></label>
+                    <div class="upload-area" id="uploadCodigoConduta" name="uploadCodigoConduta">
+                      <input type="file" id="fileCodigoConduta" name="fileCodigoConduta" accept=".pdf,.jpg,.jpeg,.png,.webp">
+                      <div class="upload-icon">
+                        <i class="flaticon flaticon-description icon-md" aria-hidden="true"></i>
+                      </div>
+                      <div class="upload-title">Código de Conduta</div>
+                      <div class="upload-hint">Assinado pelo representante legal</div>
+                      <div class="upload-formats">PDF, JPG, JPEG, PNG ou WEBP · máx. 10 MB</div>
+                      <span class="upload-badge badge-req">Obrigatório</span>
+                    </div>
+                  </div>
+                  <!-- política anticorrupção -->
+                  <div class="fg" id="divPoliticaAnticorrupcao" name="divPoliticaAnticorrupcao">
+                    <label for="filePoliticaAnticorrupcao">Política Anticorrupção <span class="req">*</span></label>
+                    <div class="upload-area" id="uploadPoliticaAnticorrupcao" name="uploadPoliticaAnticorrupcao">
+                      <input type="file" id="filePoliticaAnticorrupcao" name="filePoliticaAnticorrupcao" accept=".pdf,.jpg,.jpeg,.png,.webp">
+                      <div class="upload-icon">
+                        <i class="flaticon flaticon-description icon-md" aria-hidden="true"></i>
+                      </div>
+                      <div class="upload-title">Política Anticorrupção</div>
+                      <div class="upload-hint">Declaração de ciência assinada</div>
+                      <div class="upload-formats">PDF, JPG, JPEG, PNG ou WEBP · máx. 10 MB</div>
+                      <span class="upload-badge badge-req">Obrigatório</span>
+                    </div>
+                  </div>
+                  <!-- conflito de interesses -->
+                  <div class="fg" id="divConflitoInteresses" name="divConflitoInteresses">
+                    <label for="fileConflitoInteresses">Conflito de Interesses <span class="req">*</span></label>
+                    <div class="upload-area" id="uploadConflitoInteresses" name="uploadConflitoInteresses">
+                      <input type="file" id="fileConflitoInteresses" name="fileConflitoInteresses" accept=".pdf,.jpg,.jpeg,.png,.webp">
+                      <div class="upload-icon">
+                        <i class="flaticon flaticon-description icon-md" aria-hidden="true"></i>
+                      </div>
+                      <div class="upload-title">Conflito de Interesses</div>
+                      <div class="upload-hint">Declaração de ausência de conflito</div>
+                      <div class="upload-formats">PDF, JPG, JPEG, PNG ou WEBP · máx. 10 MB</div>
+                      <span class="upload-badge badge-req">Obrigatório</span>
+                    </div>
+                  </div>
+                  <!-- ciência lgpd -->
+                  <div class="fg" id="divCienciaLgpd" name="divCienciaLgpd">
+                    <label for="fileCienciaLgpd">Ciência sobre LGPD <span class="req">*</span></label>
+                    <div class="upload-area" id="uploadCienciaLgpd" name="uploadCienciaLgpd">
+                      <input type="file" id="fileCienciaLgpd" name="fileCienciaLgpd" accept=".pdf,.jpg,.jpeg,.png,.webp">
+                      <div class="upload-icon">
+                        <i class="flaticon flaticon-description icon-md" aria-hidden="true"></i>
+                      </div>
+                      <div class="upload-title">Ciência sobre LGPD</div>
+                      <div class="upload-hint">Termo de ciência e consentimento</div>
+                      <div class="upload-formats">PDF, JPG, JPEG, PNG ou WEBP · máx. 10 MB</div>
+                      <span class="upload-badge badge-req">Obrigatório</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Rodapé da etapa -->
+          <!-- <div class="step-footer">
+            <span class="footer-info">
+              Campos com <span class="ast">*</span> são obrigatórios — 7 anexos obrigatórios
+            </span>
+            <div class="footer-actions">
+              <button type="button" class="btn btn-default" onclick="voltarEtapa()">Voltar</button>
+              <button type="button" class="btn btn-primary" onclick="avancarEtapa()">Avançar</button>
+            </div>
+          </div> -->
+          <!-- PAGINAÇÃO -->
+        <div class="stepper-nav-wrap">
+          <button type="button" class="stepper-arrow left" id="btnPrevStep" onclick="goToPrevVisibleStep()">
+            <i class="fluigicon fluigicon-chevron-left icon-sm" aria-hidden="true"></i>
+          </button>
+
+          <div class="stepper-wrap">
+            <div class="stepper">
+              <!-- pré cadastro -->
+              <div class="step-item active" id="nav-step-PreCad" onclick="goToStep(1)">
+                <div class="step-circle"><span class="step-num">1</span></div>
+                <div class="step-info">
+                  <span class="step-label">Etapa 1 de 3</span>
+                  <span class="step-name">Pré Cadastro</span>
+                  <span class="step-sub">Identificação · Endereço</span>
+                </div>
+              </div>
+
+              <div class="step-connector">
+                <div class="step-connector-line"></div>
+              </div>
+
+              <!-- Dados cadastrais -->
+              <div class="step-item" id="nav-step-DadosCadastrais" onclick="goToStep(2)">
+                <div class="step-circle"><span class="step-num">2</span></div>
+                <div class="step-info">
+                  <span class="step-label">Etapa 2 de 3</span>
+                  <span class="step-name">Dados Cadastrais</span>
+                  <span class="step-sub">Fiscal · Bancos · Condições</span>
+                </div>
+              </div>
+
+              <div class="step-connector">
+                <div class="step-connector-line"></div>
+              </div>
+
+              <!-- Documentação -->
+              <div class="step-item" id="nav-step-Documentacao" onclick="goToStep(3)">
+                <div class="step-circle"><span class="step-num">3</span></div>
+                <div class="step-info">
+                  <span class="step-label">Etapa 3 de 3</span>
+                  <span class="step-name">Documentação</span>
+                  <span class="step-sub">Documentos Obrigatórios</span>
+                </div>
+              </div>
+
+              <div class="step-connector" id="divDivisaoHistorico" style="display: none;">
+                <div class="step-connector-line"></div>
+              </div>
+
+              <!-- Historico e decisão -->
+              <div class="step-item" id="nav-step-HistoricoDecisao" style="display: none;" onclick="goToStep(4)">
+                <div class="step-circle">
+                  <i class="animaliaicon animaliaicon-clock-clockwise icon-md" aria-hidden="true"></i>
+                </div>
+                <div class="step-info">
+                  <span class="step-label">Questionamentos</span>
+                  <span class="step-name">Historico / Decisão</span>
+                  <span class="step-sub">Processo · Informações</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="stepper-arrow right" id="btnNextStep" onclick="goToNextVisibleStep()">
+            <i class="fluigicon fluigicon-chevron-right icon-sm" aria-hidden="true"></i>
+          </button>
+        </div>
+        </main>
+      </form>
     </div>
-
-    <main class="page-wrap">
-
-      <div class="val-summary" id="valSummary" style="display:none;">
-        <div class="val-summary-title">Corrija os itens abaixo antes de continuar:</div>
-        <ul id="valList"></ul>
-      </div>
-
-      <!-- ETAPA 1 -->
-      <div class="step-panel step-1 active" id="step-1">
-
-        <div class="page-header step-1">
-          <div class="page-header-icon">
-            <i class="flaticon flaticon-account-circle"></i>
-          </div>
-          <div class="page-header-info">
-            <div class="page-header-title">Pré Cadastro — Identificação e Endereço</div>
-            <div class="page-header-sub">
-              Informe a classificação e os dados comerciais do cadastro.
-            </div>
-            <div class="step-badge step-1">Etapa 1 de 3 — Pré Cadastro</div>
-          </div>
-        </div>
-
-        <div class="section">
-          <div class="section-head" onclick="toggleSection(this)">
-            <div class="section-head-left">
-              <div class="section-num">1</div>
-              <span class="section-name">Dados do Cliente / Fornecedor</span>
-              <span class="section-count">4 campos</span>
-            </div>
-            <span class="section-arrow open">▼</span>
-          </div>
-
-          <div class="section-body">
-            <div class="grid g2">
-              <div class="fg">
-                <label for="classificacao">Classificação <span class="req">*</span></label>
-                <select id="classificacao" name="classificacao" class="form-control" required>
-                  <option value="">Selecione...</option>
-                  <option>Cliente</option>
-                  <option>Fornecedor</option>
-                  <option>Cliente / Fornecedor</option>
-                </select>
-                <span class="field-error">Campo obrigatório.</span>
-              </div>
-
-              <div class="fg">
-                <label for="categoria">Categoria <span class="req">*</span></label>
-                <select id="categoria" name="categoria" class="form-control" required>
-                  <option value="">Selecione...</option>
-                  <option>Pessoa Jurídica</option>
-                  <option>Pessoa Física</option>
-                </select>
-                <span class="field-error">Campo obrigatório.</span>
-              </div>
-
-              <div class="fg">
-                <label for="tipo">Tipo <span class="req">*</span></label>
-                <select id="tipo" name="tipo" class="form-control" required>
-                  <option value="">Selecione...</option>
-                  <option>Subcontratado</option>
-                  <option>Transportadora</option>
-                  <option>Consultoria</option>
-                  <option>Materiais e Insumos</option>
-                  <option>Locação de Equipamentos</option>
-                  <option>Serviços Gerais</option>
-                  <option>Serviços de Engenharia</option>
-                  <option>Tecnologia e TI</option>
-                </select>
-                <span class="field-error">Campo obrigatório.</span>
-              </div>
-
-              <div class="fg">
-                <label for="classificacaoOperacional">Classificação Operacional <span class="req">*</span></label>
-                <select id="classificacaoOperacional" name="classificacaoOperacional" class="form-control" required>
-                  <option value="">Selecione...</option>
-                  <option>Obra / Construção Civil</option>
-                  <option>Mineração</option>
-                  <option>Infraestrutura Viária</option>
-                  <option>Pavimentação e Terraplanagem</option>
-                  <option>Saneamento e Drenagem</option>
-                  <option>Aluguel de Equipamentos</option>
-                  <option>Transporte e Logística</option>
-                  <option>Fornecimento de Materiais</option>
-                  <option>Serviços Administrativos</option>
-                  <option>Tecnologia e Sistemas</option>
-                  <option>Consultoria e Assessoria</option>
-                  <option>Seguro e Benefícios</option>
-                </select>
-                <span class="field-error">Campo obrigatório.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="section">
-          <div class="section-head" onclick="toggleSection(this)">
-            <div class="section-head-left">
-              <div class="section-num">5</div>
-              <span class="section-name">Dados Comerciais</span>
-              <span class="section-count">11 campos</span>
-            </div>
-            <span class="section-arrow open">▼</span>
-          </div>
-
-          <div class="section-body">
-            <div class="grid g3">
-              <div class="fg">
-                <label for="docFiscal">CPF / CNPJ <span class="req">*</span></label>
-                <input type="text" id="docFiscal" name="docFiscal" class="form-control">
-              </div>
-
-              <div class="fg">
-                <label for="docSecundario">RG / Inscrição Estadual <span class="req">*</span></label>
-                <input type="text" id="docSecundario" name="docSecundario" class="form-control">
-              </div>
-
-              <div class="fg">
-                <label for="razaoSocial">Razão Social / Nome <span class="req">*</span></label>
-                <input type="text" id="razaoSocial" name="razaoSocial" class="form-control">
-              </div>
-            </div>
-          </div>
-        </div>
-
-    <div class="stepper-wrap">
-      <div class="stepper">
-        <div class="step-item active" id="nav-step-1" onclick="goToStep(1)">
-          <div class="step-circle"><span class="step-num">1</span></div>
-          <div class="step-info">
-            <span class="step-label">Etapa 1 de 3</span>
-            <span class="step-name">Pré Cadastro</span>
-            <span class="step-sub">Identificação · Endereço</span>
-          </div>
-        </div>
-
-        <div class="step-connector"><div class="step-connector-line"></div></div>
-
-        <div class="step-item" id="nav-step-2" onclick="goToStep(2)">
-          <div class="step-circle"><span class="step-num">2</span></div>
-          <div class="step-info">
-            <span class="step-label">Etapa 2 de 3</span>
-            <span class="step-name">Dados Cadastrais</span>
-            <span class="step-sub">Fiscal · Bancos · Condições · Contatos</span>
-          </div>
-        </div>
-
-        <div class="step-connector"><div class="step-connector-line"></div></div>
-
-        <div class="step-item" id="nav-step-3" onclick="goToStep(3)">
-          <div class="step-circle"><span class="step-num">3</span></div>
-          <div class="step-info">
-            <span class="step-label">Etapa 3 de 3</span>
-            <span class="step-name">Documentação</span>
-            <span class="step-sub">Documentos Obrigatórios</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-      </div>
-
-      <!-- ETAPA 2 -->
-      <div class="step-panel step-2" id="step-2" style="display:none;"></div>
-
-      <!-- ETAPA 3 -->
-      <div class="step-panel step-3" id="step-3" style="display:none;"></div>
-
-    </main>
-  </form>
-</div>
-   </body>
+  </body>
 </html>
