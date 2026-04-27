@@ -28,10 +28,11 @@
     <processDefinitionVersionPK>
       <companyId>1</companyId>
       <processId>CadastrodeFornecedor</processId>
-      <version>19</version>
+      <version>22</version>
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
     <formId>33577</formId>
+    <formIdV2>0</formIdV2>
     <editionMode>true</editionMode>
     <updateAttachmentsVersion>false</updateAttachmentsVersion>
     <controlsAttachmentsSecurity>false</controlsAttachmentsSecurity>
@@ -425,7 +426,7 @@
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
         <expressionOrder>1</expressionOrder>
-        <version>19</version>
+        <version>22</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>true</condition>
@@ -580,7 +581,28 @@
         <processId>CadastrodeFornecedor</processId>
         <version>1</version>
       </workflowProcessEventPK>
-      <eventDescription>function servicetask16(attempt, message) {
+      <eventDescription>function servicetask16(attempt, message) {&#xd;
+}</eventDescription>
+    </WorkflowProcessEvent>
+    <WorkflowProcessEvent>
+      <workflowProcessEventPK>
+        <companyId>1</companyId>
+        <eventId>beforeTaskSave</eventId>
+        <processId>CadastrodeFornecedor</processId>
+        <version>1</version>
+      </workflowProcessEventPK>
+      <eventDescription>function beforeTaskSave(colleagueId, nextSequenceId, userList) {&#xd;
+    var atividadeAtual = getValue(&quot;WKNumState&quot;);&#xd;
+&#xd;
+    if (atividadeAtual == 0 || atividadeAtual == 4) {&#xd;
+        hAPI.addCardChild(&quot;tableHistorico&quot;, {&#xd;
+            tableHistoricoUsuario: colleagueId,&#xd;
+            tableHistoricoData: new java.text.SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;).format(new java.util.Date()),&#xd;
+            tableHistoricoAtividade: &quot;Solicitação&quot;,&#xd;
+            tableHistoricoObservacao: &quot;Solicitação enviada para validação.&quot;,&#xd;
+            tableHistoricoAcao: &quot;Enviado&quot;&#xd;
+        });&#xd;
+    }&#xd;
 }</eventDescription>
     </WorkflowProcessEvent>
     <WorkflowProcessEvent>
@@ -590,8 +612,8 @@
         <processId>CadastrodeFornecedor</processId>
         <version>1</version>
       </workflowProcessEventPK>
-      <eventDescription>process.description=CadastrodeFornecedor
-process.category=
+      <eventDescription>process.description=CadastrodeFornecedor&#xd;
+process.category=&#xd;
 process.instructions=</eventDescription>
     </WorkflowProcessEvent>
     <WorkflowProcessEvent>
@@ -601,8 +623,8 @@ process.instructions=</eventDescription>
         <processId>CadastrodeFornecedor</processId>
         <version>1</version>
       </workflowProcessEventPK>
-      <eventDescription>process.description=CadastrodeFornecedor
-process.category=
+      <eventDescription>process.description=CadastrodeFornecedor&#xd;
+process.category=&#xd;
 process.instructions=</eventDescription>
     </WorkflowProcessEvent>
     <WorkflowProcessEvent>
@@ -612,8 +634,8 @@ process.instructions=</eventDescription>
         <processId>CadastrodeFornecedor</processId>
         <version>1</version>
       </workflowProcessEventPK>
-      <eventDescription>process.description=CadastrodeFornecedor
-process.category=
+      <eventDescription>process.description=CadastrodeFornecedor&#xd;
+process.category=&#xd;
 process.instructions=</eventDescription>
     </WorkflowProcessEvent>
   </list>
@@ -723,7 +745,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>19</version>
+        <version>22</version>
         <linkSequence>17</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -734,7 +756,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>19</version>
+        <version>22</version>
         <linkSequence>25</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -745,7 +767,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>19</version>
+        <version>22</version>
         <linkSequence>28</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -756,7 +778,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>19</version>
+        <version>22</version>
         <linkSequence>28</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -767,7 +789,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>19</version>
+        <version>22</version>
         <linkSequence>28</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
@@ -778,7 +800,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>19</version>
+        <version>22</version>
         <linkSequence>29</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -789,7 +811,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>19</version>
+        <version>22</version>
         <linkSequence>30</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -800,7 +822,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>19</version>
+        <version>22</version>
         <linkSequence>30</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -811,7 +833,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>19</version>
+        <version>22</version>
         <linkSequence>30</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
@@ -822,7 +844,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>19</version>
+        <version>22</version>
         <linkSequence>31</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -833,7 +855,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>19</version>
+        <version>22</version>
         <linkSequence>31</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -844,7 +866,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>19</version>
+        <version>22</version>
         <linkSequence>31</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
