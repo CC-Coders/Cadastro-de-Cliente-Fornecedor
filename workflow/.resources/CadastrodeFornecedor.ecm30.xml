@@ -28,7 +28,7 @@
     <processDefinitionVersionPK>
       <companyId>1</companyId>
       <processId>CadastrodeFornecedor</processId>
-      <version>22</version>
+      <version>35</version>
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
     <formId>33577</formId>
@@ -77,7 +77,7 @@
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
       <positionX>77</positionX>
-      <positionY>73</positionY>
+      <positionY>90</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -128,7 +128,7 @@
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
       <positionX>137</positionX>
-      <positionY>334</positionY>
+      <positionY>252</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -178,8 +178,8 @@
       <notifyAuthorityFollowUp>true</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>427</positionX>
-      <positionY>471</positionY>
+      <positionX>417</positionX>
+      <positionY>424</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -229,7 +229,7 @@
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
       <positionX>517</positionX>
-      <positionY>600</positionY>
+      <positionY>598</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -278,8 +278,8 @@
       <notifyAuthorityFollowUp>true</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>427</positionX>
-      <positionY>186</positionY>
+      <positionX>417</positionX>
+      <positionY>73</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -329,8 +329,8 @@
       <notifyAuthorityFollowUp>true</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>502</positionX>
-      <positionY>518</positionY>
+      <positionX>492</positionX>
+      <positionY>471</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -362,8 +362,8 @@
       <subProcessId></subProcessId>
       <formFolder>0</formFolder>
       <automatic>true</automatic>
-      <positionX>287</positionX>
-      <positionY>318</positionY>
+      <positionX>297</positionX>
+      <positionY>236</positionY>
       <inhibitTransfer>false</inhibitTransfer>
       <stateType>1</stateType>
       <bpmnType>120</bpmnType>
@@ -402,7 +402,7 @@
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
       <positionX>607</positionX>
-      <positionY>487</positionY>
+      <positionY>434</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -426,10 +426,22 @@
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
         <expressionOrder>1</expressionOrder>
-        <version>22</version>
+        <version>35</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
-      <condition>true</condition>
+      <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;Correcao&quot;</condition>
+      <destinationSequenceId>27</destinationSequenceId>
+      <conditionType>0</conditionType>
+    </ConditionProcessState>
+    <ConditionProcessState>
+      <conditionProcessStatePK>
+        <companyId>1</companyId>
+        <processId>CadastrodeFornecedor</processId>
+        <expressionOrder>2</expressionOrder>
+        <version>35</version>
+        <sequence>13</sequence>
+      </conditionProcessStatePK>
+      <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;enviarRm&quot;</condition>
       <destinationSequenceId>16</destinationSequenceId>
       <conditionType>0</conditionType>
     </ConditionProcessState>
@@ -592,17 +604,270 @@
         <version>1</version>
       </workflowProcessEventPK>
       <eventDescription>function beforeTaskSave(colleagueId, nextSequenceId, userList) {&#xd;
-    var atividadeAtual = getValue(&quot;WKNumState&quot;);&#xd;
+    var atividadeAtual = Number(getValue(&quot;WKNumState&quot;));&#xd;
+    var completTask = getValue(&quot;WKCompletTask&quot;) == &quot;true&quot;;&#xd;
+&#xd;
+    if (!completTask) {&#xd;
+        return;&#xd;
+    }&#xd;
 &#xd;
     if (atividadeAtual == 0 || atividadeAtual == 4) {&#xd;
-        hAPI.addCardChild(&quot;tableHistorico&quot;, {&#xd;
-            tableHistoricoUsuario: colleagueId,&#xd;
-            tableHistoricoData: new java.text.SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;).format(new java.util.Date()),&#xd;
-            tableHistoricoAtividade: &quot;Solicitação&quot;,&#xd;
-            tableHistoricoObservacao: &quot;Solicitação enviada para validação.&quot;,&#xd;
-            tableHistoricoAcao: &quot;Enviado&quot;&#xd;
-        });&#xd;
+        adicionarHistorico(colleagueId, &quot;Solicitação&quot;, &quot;Enviado&quot;, &quot;Solicitação enviada para validação.&quot;);&#xd;
+        return;&#xd;
     }&#xd;
+&#xd;
+if (atividadeAtual == 11) {&#xd;
+    var decisao = hAPI.getCardValue(&quot;selectDecisao&quot;);&#xd;
+    var observacao = hAPI.getCardValue(&quot;observacaoValidacao&quot;);&#xd;
+&#xd;
+    var acao = &quot;&quot;;&#xd;
+    var atividade = &quot;Validação&quot;;&#xd;
+&#xd;
+    if (decisao == &quot;Correcao&quot;) {&#xd;
+        acao = &quot;Correção do Cadastro&quot;;&#xd;
+    } else if (decisao == &quot;envioRM&quot;) {&#xd;
+        acao = &quot;Enviar ao RM&quot;;&#xd;
+    } else {&#xd;
+        acao = &quot;Validação&quot;;&#xd;
+    }&#xd;
+&#xd;
+    if (!observacao) {&#xd;
+        observacao = &quot;Decisão registrada na etapa de validação.&quot;;&#xd;
+    }&#xd;
+&#xd;
+    var alteracoes = montarAlteracoesEdicaoValidacao();&#xd;
+&#xd;
+if (alteracoes) {&#xd;
+    observacao += alteracoes;&#xd;
+}&#xd;
+&#xd;
+    adicionarHistorico(colleagueId, atividade, acao, observacao);&#xd;
+&#xd;
+    // 🔥 LIMPA OS CAMPOS APÓS USO&#xd;
+    hAPI.setCardValue(&quot;observacaoValidacao&quot;, &quot;&quot;);&#xd;
+    hAPI.setCardValue(&quot;selectDecisao&quot;, &quot;&quot;);&#xd;
+    hAPI.setCardValue(&quot;snapshotEdicaoValidacao&quot;, &quot;&quot;);&#xd;
+&#xd;
+    return;&#xd;
+}&#xd;
+if (atividadeAtual == 27) {&#xd;
+    var observacao = hAPI.getCardValue(&quot;observacaoValidacao&quot;);&#xd;
+&#xd;
+    if (!observacao) {&#xd;
+        observacao = &quot;Cadastro ajustado e reenviado para validação.&quot;;&#xd;
+    }&#xd;
+&#xd;
+    adicionarHistorico(&#xd;
+        colleagueId,&#xd;
+        &quot;Correção Cadastro&quot;,&#xd;
+        &quot;Reenvio para Validação&quot;,&#xd;
+        observacao&#xd;
+    );&#xd;
+&#xd;
+    // 🔥 LIMPA&#xd;
+    hAPI.setCardValue(&quot;observacaoValidacao&quot;, &quot;&quot;);&#xd;
+    hAPI.setCardValue(&quot;selectDecisao&quot;, &quot;&quot;);&#xd;
+&#xd;
+    return;&#xd;
+}&#xd;
+}&#xd;
+&#xd;
+function adicionarHistorico(usuario, atividade, acao, observacao) {&#xd;
+    hAPI.addCardChild(&quot;tableHistorico&quot;, {&#xd;
+        tableHistoricoUsuario: usuario,&#xd;
+        tableHistoricoData: new java.text.SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;).format(new java.util.Date()),&#xd;
+        tableHistoricoAtividade: atividade,&#xd;
+        tableHistoricoObservacao: observacao,&#xd;
+        tableHistoricoAcao: acao&#xd;
+    });&#xd;
+}&#xd;
+&#xd;
+function anexarDocumentosNoProcesso() {&#xd;
+    var camposDocumentos = [&#xd;
+        &quot;anxCartaoCnpjId&quot;,&#xd;
+        &quot;anxCompBancoId&quot;,&#xd;
+        &quot;anxContratoId&quot;,&#xd;
+        &quot;anxRgCpfId&quot;,&#xd;
+        &quot;anxCompEnderecoId&quot;,&#xd;
+        &quot;anxLaudoPcdId&quot;,&#xd;
+        &quot;anxDependentesId&quot;,&#xd;
+        &quot;anxCodCondutaId&quot;,&#xd;
+        &quot;anxAntiCorrupcaoId&quot;,&#xd;
+        &quot;anxConflitoId&quot;,&#xd;
+        &quot;anxLgpdId&quot;&#xd;
+    ];&#xd;
+&#xd;
+    for (var i = 0; i &lt; camposDocumentos.length; i++) {&#xd;
+        var campo = camposDocumentos[i];&#xd;
+        var documentId = hAPI.getCardValue(campo);&#xd;
+&#xd;
+        log.info(&quot;Campo anexo: &quot; + campo + &quot; | documentId: &quot; + documentId);&#xd;
+&#xd;
+        if (documentId &amp;&amp; String(documentId).trim() !== &quot;&quot; &amp;&amp; !isNaN(documentId)) {&#xd;
+            anexaDocumentoNoProcesso(documentId);&#xd;
+        }&#xd;
+    }&#xd;
+}&#xd;
+function anexaDocumentoNoProcesso(documentId) {&#xd;
+    documentId = Number(documentId);&#xd;
+&#xd;
+    var attachments = hAPI.listAttachments();&#xd;
+    var jaAnexado = false;&#xd;
+&#xd;
+    for (var i = 0; i &lt; attachments.size(); i++) {&#xd;
+        var anexoId = Number(attachments.get(i).getDocumentId());&#xd;
+&#xd;
+        if (documentId === anexoId) {&#xd;
+            jaAnexado = true;&#xd;
+            break;&#xd;
+        }&#xd;
+    }&#xd;
+&#xd;
+    if (!jaAnexado) {&#xd;
+        log.info(&quot;Anexando documento no processo: &quot; + documentId);&#xd;
+        hAPI.attachDocument(documentId);&#xd;
+    } else {&#xd;
+        log.info(&quot;Documento já estava anexado: &quot; + documentId);&#xd;
+    }&#xd;
+}&#xd;
+function montarAlteracoesEdicaoValidacao() {&#xd;
+    var snapshotTexto = hAPI.getCardValue(&quot;snapshotEdicaoValidacao&quot;);&#xd;
+&#xd;
+    if (!snapshotTexto) {&#xd;
+        return &quot;&quot;;&#xd;
+    }&#xd;
+&#xd;
+    var snapshot = {};&#xd;
+&#xd;
+    try {&#xd;
+        snapshot = JSON.parse(snapshotTexto);&#xd;
+    } catch (e) {&#xd;
+        log.error(&quot;Erro ao ler snapshotEdicaoValidacao: &quot; + e);&#xd;
+        return &quot;&quot;;&#xd;
+    }&#xd;
+&#xd;
+    var campos = [&#xd;
+        [&quot;classificacao&quot;, &quot;Classificação&quot;],&#xd;
+        [&quot;categoria&quot;, &quot;Categoria&quot;],&#xd;
+        [&quot;tipo&quot;, &quot;Tipo&quot;],&#xd;
+        [&quot;classificacaoOperacional&quot;, &quot;Classificação Operacional&quot;],&#xd;
+        [&quot;toggleEstrangeiro&quot;, &quot;Fornecedor estrangeiro?&quot;],&#xd;
+&#xd;
+        [&quot;docCpf&quot;, &quot;CPF&quot;],&#xd;
+        [&quot;docCnpj&quot;, &quot;CNPJ&quot;],&#xd;
+        [&quot;docRg&quot;, &quot;RG&quot;],&#xd;
+        [&quot;docInscricaoEstadual&quot;, &quot;Inscrição Estadual&quot;],&#xd;
+&#xd;
+        [&quot;razaoSocial&quot;, &quot;Razão Social / Nome&quot;],&#xd;
+        [&quot;cep&quot;, &quot;CEP&quot;],&#xd;
+        [&quot;endereco&quot;, &quot;Endereço&quot;],&#xd;
+        [&quot;numero&quot;, &quot;Número&quot;],&#xd;
+        [&quot;complemento&quot;, &quot;Complemento&quot;],&#xd;
+        [&quot;bairro&quot;, &quot;Bairro&quot;],&#xd;
+        [&quot;cidade&quot;, &quot;Cidade&quot;],&#xd;
+        [&quot;pais&quot;, &quot;País&quot;],&#xd;
+        [&quot;estado&quot;, &quot;Estado&quot;],&#xd;
+&#xd;
+        [&quot;icms&quot;, &quot;Contribuinte ICMS&quot;],&#xd;
+        [&quot;irrf&quot;, &quot;Alíquota IRRF&quot;],&#xd;
+        [&quot;simplesNacional&quot;, &quot;Simples Nacional&quot;],&#xd;
+        [&quot;naturezaRendimento&quot;, &quot;Natureza de Rendimentos&quot;],&#xd;
+        [&quot;regimeFiscal&quot;, &quot;Regime Fiscal&quot;],&#xd;
+        [&quot;tipoDocEmitido&quot;, &quot;Tipo de Documento Emitido&quot;],&#xd;
+&#xd;
+        [&quot;moeda&quot;, &quot;Moeda do Pedido&quot;],&#xd;
+        [&quot;grupoMercadoria1&quot;, &quot;Grupo de Mercadoria 1&quot;],&#xd;
+        [&quot;grupoMercadoria2&quot;, &quot;Grupo de Mercadoria 2&quot;],&#xd;
+        [&quot;grupoMercadoria3&quot;, &quot;Grupo de Mercadoria 3&quot;],&#xd;
+        [&quot;grupoMercadoria4&quot;, &quot;Grupo de Mercadoria 4&quot;],&#xd;
+&#xd;
+        [&quot;cnaePrincipal&quot;, &quot;CNAE Principal&quot;],&#xd;
+        [&quot;cnaeSecundario1&quot;, &quot;CNAE Secundário 1&quot;],&#xd;
+        [&quot;cnaeSecundario2&quot;, &quot;CNAE Secundário 2&quot;],&#xd;
+        [&quot;cnaeSecundario3&quot;, &quot;CNAE Secundário 3&quot;],&#xd;
+        [&quot;cnaeSecundario4&quot;, &quot;CNAE Secundário 4&quot;],&#xd;
+&#xd;
+        [&quot;toggleRetencao&quot;, &quot;Haverá retenção?&quot;],&#xd;
+        [&quot;iss&quot;, &quot;Retenção ISS&quot;],&#xd;
+        [&quot;inss&quot;, &quot;Retenção INSS&quot;],&#xd;
+        [&quot;inputIrrf&quot;, &quot;Retenção IRRF&quot;],&#xd;
+        [&quot;csll&quot;, &quot;Retenção CSLL&quot;],&#xd;
+        [&quot;pis&quot;, &quot;Retenção PIS&quot;],&#xd;
+        [&quot;cofins&quot;, &quot;Retenção COFINS&quot;],&#xd;
+&#xd;
+        [&quot;condicaoPagamento&quot;, &quot;Condição de Pagamento&quot;],&#xd;
+        [&quot;banco&quot;, &quot;Banco&quot;],&#xd;
+        [&quot;agencia&quot;, &quot;Agência&quot;],&#xd;
+        [&quot;conta&quot;, &quot;Conta&quot;],&#xd;
+&#xd;
+        [&quot;telefone&quot;, &quot;Telefone&quot;],&#xd;
+        [&quot;telComercial&quot;, &quot;Telefone Comercial&quot;],&#xd;
+        [&quot;celular&quot;, &quot;Celular&quot;],&#xd;
+        [&quot;emailAdministrativo&quot;, &quot;E-mail Administrativo&quot;],&#xd;
+        [&quot;emailComercial&quot;, &quot;E-mail Comercial&quot;],&#xd;
+        [&quot;emailCr&quot;, &quot;E-mail Financeiro / Contabilidade&quot;],&#xd;
+        [&quot;site&quot;, &quot;Site&quot;],&#xd;
+&#xd;
+        [&quot;anxCartaoCnpj&quot;, &quot;Anexo Cartão CNPJ&quot;],&#xd;
+        [&quot;anxCompBanco&quot;, &quot;Anexo Comprovante Bancário&quot;],&#xd;
+        [&quot;anxContrato&quot;, &quot;Anexo Contrato Social&quot;],&#xd;
+        [&quot;anxRgCpf&quot;, &quot;Anexo RG / CPF&quot;],&#xd;
+        [&quot;anxCompEndereco&quot;, &quot;Anexo Comprovante de Endereço&quot;],&#xd;
+        [&quot;anxLaudoPcd&quot;, &quot;Anexo Laudo Médico PCD&quot;],&#xd;
+        [&quot;anxDependentes&quot;, &quot;Anexo Dependentes IRRF&quot;],&#xd;
+        [&quot;anxCodConduta&quot;, &quot;Anexo Código de Conduta&quot;],&#xd;
+        [&quot;anxAntiCorrupcao&quot;, &quot;Anexo Política Anticorrupção&quot;],&#xd;
+        [&quot;anxConflito&quot;, &quot;Anexo Conflito de Interesses&quot;],&#xd;
+        [&quot;anxLgpd&quot;, &quot;Anexo Ciência LGPD&quot;]&#xd;
+    ];&#xd;
+&#xd;
+    var alteracoes = [];&#xd;
+&#xd;
+    for (var i = 0; i &lt; campos.length; i++) {&#xd;
+        var campo = campos[i][0];&#xd;
+        var label = campos[i][1];&#xd;
+&#xd;
+        var antigo = String(snapshot[campo] || &quot;&quot;).trim();&#xd;
+        var novo = String(hAPI.getCardValue(campo) || &quot;&quot;).trim();&#xd;
+&#xd;
+        if (isCampoCheckboxAuditoria(campo)) {&#xd;
+            antigo = normalizarCheckboxAuditoria(antigo);&#xd;
+            novo = normalizarCheckboxAuditoria(novo);&#xd;
+        }&#xd;
+&#xd;
+        if (antigo != novo) {&#xd;
+            alteracoes.push(label + &quot;: de &apos;&quot; + antigo + &quot;&apos; para &apos;&quot; + novo + &quot;&apos;&quot;);&#xd;
+        }&#xd;
+    }&#xd;
+&#xd;
+    if (alteracoes.length == 0) {&#xd;
+        return &quot;&quot;;&#xd;
+    }&#xd;
+&#xd;
+    return &quot;&lt;br&gt;&lt;br&gt;&lt;b&gt;Alterações realizadas:&lt;/b&gt;&lt;br&gt;• &quot; + alteracoes.join(&quot;&lt;br&gt;• &quot;);&#xd;
+}&#xd;
+&#xd;
+function isCampoCheckboxAuditoria(campo) {&#xd;
+    return [&#xd;
+        &quot;toggleEstrangeiro&quot;,&#xd;
+        &quot;toggleRetencao&quot;,&#xd;
+        &quot;iss&quot;,&#xd;
+        &quot;inss&quot;,&#xd;
+        &quot;inputIrrf&quot;,&#xd;
+        &quot;csll&quot;,&#xd;
+        &quot;pis&quot;,&#xd;
+        &quot;cofins&quot;&#xd;
+    ].indexOf(campo) &gt;= 0;&#xd;
+}&#xd;
+&#xd;
+function normalizarCheckboxAuditoria(valor) {&#xd;
+    var v = String(valor || &quot;&quot;).toLowerCase().trim();&#xd;
+&#xd;
+    if (v == &quot;on&quot; || v == &quot;true&quot; || v == &quot;1&quot; || v == &quot;sim&quot; || v == &quot;s&quot;) {&#xd;
+        return &quot;Sim&quot;;&#xd;
+    }&#xd;
+&#xd;
+    return &quot;Não&quot;;&#xd;
 }</eventDescription>
     </WorkflowProcessEvent>
     <WorkflowProcessEvent>
@@ -659,7 +924,7 @@ process.instructions=</eventDescription>
     </SwimLane>
     <SwimLane>
       <color>9F9F9F</color>
-      <height>138</height>
+      <height>172</height>
       <width>688</width>
       <positionX>30</positionX>
       <positionY>20</positionY>
@@ -674,12 +939,12 @@ process.instructions=</eventDescription>
       </swimLanePK>
     </SwimLane>
     <SwimLane>
-      <color>FFFF80</color>
-      <height>138</height>
+      <color>82b0b7</color>
+      <height>172</height>
       <width>688</width>
       <positionX>30</positionX>
-      <positionY>158</positionY>
-      <stateName>Correção</stateName>
+      <positionY>192</positionY>
+      <stateName>Suprimentos</stateName>
       <type>2</type>
       <parentSequence>1</parentSequence>
       <swimLanePK>
@@ -690,12 +955,12 @@ process.instructions=</eventDescription>
       </swimLanePK>
     </SwimLane>
     <SwimLane>
-      <color>82b0b7</color>
-      <height>138</height>
+      <color>adc9ac</color>
+      <height>172</height>
       <width>688</width>
       <positionX>30</positionX>
-      <positionY>296</positionY>
-      <stateName>Suprimentos</stateName>
+      <positionY>364</positionY>
+      <stateName>Integração</stateName>
       <type>2</type>
       <parentSequence>1</parentSequence>
       <swimLanePK>
@@ -706,27 +971,11 @@ process.instructions=</eventDescription>
       </swimLanePK>
     </SwimLane>
     <SwimLane>
-      <color>adc9ac</color>
-      <height>138</height>
-      <width>688</width>
-      <positionX>30</positionX>
-      <positionY>434</positionY>
-      <stateName>Integração</stateName>
-      <type>2</type>
-      <parentSequence>1</parentSequence>
-      <swimLanePK>
-        <companyId>1</companyId>
-        <processId>CadastrodeFornecedor</processId>
-        <version>1</version>
-        <sequence>5</sequence>
-      </swimLanePK>
-    </SwimLane>
-    <SwimLane>
       <color>d0daae</color>
-      <height>139</height>
+      <height>175</height>
       <width>688</width>
       <positionX>30</positionX>
-      <positionY>572</positionY>
+      <positionY>536</positionY>
       <stateName>Fluig</stateName>
       <type>2</type>
       <parentSequence>1</parentSequence>
@@ -734,7 +983,7 @@ process.instructions=</eventDescription>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
         <version>1</version>
-        <sequence>6</sequence>
+        <sequence>5</sequence>
       </swimLanePK>
     </SwimLane>
   </list>
@@ -745,42 +994,31 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>22</version>
+        <version>35</version>
         <linkSequence>17</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
-      <positionX>316</positionX>
-      <positionY>503</positionY>
+      <positionX>327</positionX>
+      <positionY>452</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>22</version>
+        <version>35</version>
         <linkSequence>25</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
       <positionX>569</positionX>
-      <positionY>532</positionY>
+      <positionY>485</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>22</version>
+        <version>35</version>
         <linkSequence>28</linkSequence>
         <bendSequence>1</bendSequence>
-      </processLinkBendPK>
-      <positionX>385</positionX>
-      <positionY>366</positionY>
-    </ProcessLinkBend>
-    <ProcessLinkBend>
-      <processLinkBendPK>
-        <companyId>1</companyId>
-        <processId>CadastrodeFornecedor</processId>
-        <version>22</version>
-        <linkSequence>28</linkSequence>
-        <bendSequence>2</bendSequence>
       </processLinkBendPK>
       <positionX>385</positionX>
       <positionY>280</positionY>
@@ -789,89 +1027,89 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>22</version>
+        <version>35</version>
         <linkSequence>28</linkSequence>
-        <bendSequence>3</bendSequence>
+        <bendSequence>2</bendSequence>
       </processLinkBendPK>
       <positionX>385</positionX>
-      <positionY>226</positionY>
+      <positionY>108</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>22</version>
+        <version>35</version>
         <linkSequence>29</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
-      <positionX>93</positionX>
-      <positionY>366</positionY>
+      <positionX>94</positionX>
+      <positionY>280</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>22</version>
+        <version>35</version>
         <linkSequence>30</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
-      <positionX>575</positionX>
-      <positionY>228</positionY>
+      <positionX>538</positionX>
+      <positionY>108</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>22</version>
+        <version>35</version>
         <linkSequence>30</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
-      <positionX>575</positionX>
-      <positionY>130</positionY>
+      <positionX>538</positionX>
+      <positionY>46</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>22</version>
+        <version>35</version>
         <linkSequence>30</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
       <positionX>189</positionX>
-      <positionY>130</positionY>
+      <positionY>46</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>22</version>
+        <version>35</version>
         <linkSequence>31</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
       <positionX>638</positionX>
-      <positionY>641</positionY>
+      <positionY>628</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>22</version>
+        <version>35</version>
         <linkSequence>31</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
       <positionX>638</positionX>
-      <positionY>698</positionY>
+      <positionY>676</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>22</version>
+        <version>35</version>
         <linkSequence>31</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
-      <positionX>479</positionX>
-      <positionY>698</positionY>
+      <positionX>470</positionX>
+      <positionY>676</positionY>
     </ProcessLinkBend>
   </list>
   <list/>
