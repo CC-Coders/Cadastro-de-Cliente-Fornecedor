@@ -28,7 +28,7 @@
     <processDefinitionVersionPK>
       <companyId>1</companyId>
       <processId>CadastrodeFornecedor</processId>
-      <version>35</version>
+      <version>39</version>
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
     <formId>33577</formId>
@@ -264,6 +264,8 @@
       <deadlineFieldName></deadlineFieldName>
       <joint>false</joint>
       <agreementPercentage>0</agreementPercentage>
+      <engineAllocationId>Executor Atividade</engineAllocationId>
+      <engineAllocationConfiguration>&lt;AssignmentController&gt;&lt;BaseActivity&gt;4&lt;/BaseActivity&gt;&lt;Returns&gt;First&lt;/Returns&gt;&lt;/AssignmentController&gt;</engineAllocationConfiguration>
       <selectColleague>1</selectColleague>
       <initialState>false</initialState>
       <notifyAuthorityDelay>true</notifyAuthorityDelay>
@@ -426,7 +428,7 @@
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
         <expressionOrder>1</expressionOrder>
-        <version>35</version>
+        <version>39</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;Correcao&quot;</condition>
@@ -438,7 +440,7 @@
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
         <expressionOrder>2</expressionOrder>
-        <version>35</version>
+        <version>39</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;enviarRm&quot;</condition>
@@ -616,60 +618,58 @@
         return;&#xd;
     }&#xd;
 &#xd;
-if (atividadeAtual == 11) {&#xd;
-    var decisao = hAPI.getCardValue(&quot;selectDecisao&quot;);&#xd;
-    var observacao = hAPI.getCardValue(&quot;observacaoValidacao&quot;);&#xd;
+    if (atividadeAtual == 11) {&#xd;
+        var decisao = hAPI.getCardValue(&quot;selectDecisao&quot;);&#xd;
+        var observacao = hAPI.getCardValue(&quot;observacaoValidacao&quot;);&#xd;
 &#xd;
-    var acao = &quot;&quot;;&#xd;
-    var atividade = &quot;Validação&quot;;&#xd;
+        var acao = &quot;&quot;;&#xd;
+        var atividade = &quot;Validação&quot;;&#xd;
 &#xd;
-    if (decisao == &quot;Correcao&quot;) {&#xd;
-        acao = &quot;Correção do Cadastro&quot;;&#xd;
-    } else if (decisao == &quot;envioRM&quot;) {&#xd;
-        acao = &quot;Enviar ao RM&quot;;&#xd;
-    } else {&#xd;
-        acao = &quot;Validação&quot;;&#xd;
+        if (decisao == &quot;Correcao&quot;) {&#xd;
+            acao = &quot;Correção do Cadastro&quot;;&#xd;
+        } else if (decisao == &quot;envioRM&quot;) {&#xd;
+            acao = &quot;Enviar ao RM&quot;;&#xd;
+        } else {&#xd;
+            acao = &quot;Validação&quot;;&#xd;
+        }&#xd;
+&#xd;
+        if (!observacao) {&#xd;
+            observacao = &quot;Decisão registrada na etapa de validação.&quot;;&#xd;
+        }&#xd;
+&#xd;
+        var alteracoes = montarAlteracoesEdicaoValidacao();&#xd;
+&#xd;
+        if (alteracoes) {&#xd;
+            observacao += alteracoes;&#xd;
+        }&#xd;
+&#xd;
+        adicionarHistorico(colleagueId, atividade, acao, observacao);&#xd;
+&#xd;
+        hAPI.setCardValue(&quot;observacaoValidacao&quot;, &quot;&quot;);&#xd;
+        hAPI.setCardValue(&quot;selectDecisao&quot;, &quot;&quot;);&#xd;
+        hAPI.setCardValue(&quot;snapshotEdicaoValidacao&quot;, &quot;&quot;);&#xd;
+&#xd;
+        return;&#xd;
     }&#xd;
+    if (atividadeAtual == 27) {&#xd;
+        var observacao = hAPI.getCardValue(&quot;observacaoValidacao&quot;);&#xd;
 &#xd;
-    if (!observacao) {&#xd;
-        observacao = &quot;Decisão registrada na etapa de validação.&quot;;&#xd;
+        if (!observacao) {&#xd;
+            observacao = &quot;Cadastro ajustado e reenviado para validação.&quot;;&#xd;
+        }&#xd;
+&#xd;
+        adicionarHistorico(&#xd;
+            colleagueId,&#xd;
+            &quot;Correção Cadastro&quot;,&#xd;
+            &quot;Reenvio para Validação&quot;,&#xd;
+            observacao&#xd;
+        );&#xd;
+&#xd;
+        hAPI.setCardValue(&quot;observacaoValidacao&quot;, &quot;&quot;);&#xd;
+        hAPI.setCardValue(&quot;selectDecisao&quot;, &quot;&quot;);&#xd;
+&#xd;
+        return;&#xd;
     }&#xd;
-&#xd;
-    var alteracoes = montarAlteracoesEdicaoValidacao();&#xd;
-&#xd;
-if (alteracoes) {&#xd;
-    observacao += alteracoes;&#xd;
-}&#xd;
-&#xd;
-    adicionarHistorico(colleagueId, atividade, acao, observacao);&#xd;
-&#xd;
-    // 🔥 LIMPA OS CAMPOS APÓS USO&#xd;
-    hAPI.setCardValue(&quot;observacaoValidacao&quot;, &quot;&quot;);&#xd;
-    hAPI.setCardValue(&quot;selectDecisao&quot;, &quot;&quot;);&#xd;
-    hAPI.setCardValue(&quot;snapshotEdicaoValidacao&quot;, &quot;&quot;);&#xd;
-&#xd;
-    return;&#xd;
-}&#xd;
-if (atividadeAtual == 27) {&#xd;
-    var observacao = hAPI.getCardValue(&quot;observacaoValidacao&quot;);&#xd;
-&#xd;
-    if (!observacao) {&#xd;
-        observacao = &quot;Cadastro ajustado e reenviado para validação.&quot;;&#xd;
-    }&#xd;
-&#xd;
-    adicionarHistorico(&#xd;
-        colleagueId,&#xd;
-        &quot;Correção Cadastro&quot;,&#xd;
-        &quot;Reenvio para Validação&quot;,&#xd;
-        observacao&#xd;
-    );&#xd;
-&#xd;
-    // 🔥 LIMPA&#xd;
-    hAPI.setCardValue(&quot;observacaoValidacao&quot;, &quot;&quot;);&#xd;
-    hAPI.setCardValue(&quot;selectDecisao&quot;, &quot;&quot;);&#xd;
-&#xd;
-    return;&#xd;
-}&#xd;
 }&#xd;
 &#xd;
 function adicionarHistorico(usuario, atividade, acao, observacao) {&#xd;
@@ -708,6 +708,7 @@ function anexarDocumentosNoProcesso() {&#xd;
         }&#xd;
     }&#xd;
 }&#xd;
+&#xd;
 function anexaDocumentoNoProcesso(documentId) {&#xd;
     documentId = Number(documentId);&#xd;
 &#xd;
@@ -730,6 +731,7 @@ function anexaDocumentoNoProcesso(documentId) {&#xd;
         log.info(&quot;Documento já estava anexado: &quot; + documentId);&#xd;
     }&#xd;
 }&#xd;
+&#xd;
 function montarAlteracoesEdicaoValidacao() {&#xd;
     var snapshotTexto = hAPI.getCardValue(&quot;snapshotEdicaoValidacao&quot;);&#xd;
 &#xd;
@@ -751,14 +753,14 @@ function montarAlteracoesEdicaoValidacao() {&#xd;
         [&quot;categoria&quot;, &quot;Categoria&quot;],&#xd;
         [&quot;tipo&quot;, &quot;Tipo&quot;],&#xd;
         [&quot;classificacaoOperacional&quot;, &quot;Classificação Operacional&quot;],&#xd;
-        [&quot;toggleEstrangeiro&quot;, &quot;Fornecedor estrangeiro?&quot;],&#xd;
 &#xd;
         [&quot;docCpf&quot;, &quot;CPF&quot;],&#xd;
         [&quot;docCnpj&quot;, &quot;CNPJ&quot;],&#xd;
         [&quot;docRg&quot;, &quot;RG&quot;],&#xd;
         [&quot;docInscricaoEstadual&quot;, &quot;Inscrição Estadual&quot;],&#xd;
 &#xd;
-        [&quot;razaoSocial&quot;, &quot;Razão Social / Nome&quot;],&#xd;
+        [&quot;razaoSocial&quot;, &quot;Razão Social&quot;],&#xd;
+        [&quot;nomeFantasia&quot;, &quot;Nome Fantasia&quot;],&#xd;
         [&quot;cep&quot;, &quot;CEP&quot;],&#xd;
         [&quot;endereco&quot;, &quot;Endereço&quot;],&#xd;
         [&quot;numero&quot;, &quot;Número&quot;],&#xd;
@@ -777,16 +779,17 @@ function montarAlteracoesEdicaoValidacao() {&#xd;
 &#xd;
         [&quot;moeda&quot;, &quot;Moeda do Pedido&quot;],&#xd;
         [&quot;grupoMercadoria1&quot;, &quot;Grupo de Mercadoria 1&quot;],&#xd;
-        [&quot;grupoMercadoria2&quot;, &quot;Grupo de Mercadoria 2&quot;],&#xd;
-        [&quot;grupoMercadoria3&quot;, &quot;Grupo de Mercadoria 3&quot;],&#xd;
-        [&quot;grupoMercadoria4&quot;, &quot;Grupo de Mercadoria 4&quot;],&#xd;
+        [&quot;hiddenGrupoMercadoria2&quot;, &quot;Grupo de Mercadoria 2&quot;],&#xd;
+        [&quot;hiddenGrupoMercadoria3&quot;, &quot;Grupo de Mercadoria 3&quot;],&#xd;
+        [&quot;hiddenGrupoMercadoria4&quot;, &quot;Grupo de Mercadoria 4&quot;],&#xd;
+        [&quot;hiddenGrupoMercadoria5&quot;, &quot;Grupo de Mercadoria 5&quot;],&#xd;
 &#xd;
         [&quot;cnaePrincipal&quot;, &quot;CNAE Principal&quot;],&#xd;
-        [&quot;cnaeSecundario1&quot;, &quot;CNAE Secundário 1&quot;],&#xd;
-        [&quot;cnaeSecundario2&quot;, &quot;CNAE Secundário 2&quot;],&#xd;
-        [&quot;cnaeSecundario3&quot;, &quot;CNAE Secundário 3&quot;],&#xd;
-        [&quot;cnaeSecundario4&quot;, &quot;CNAE Secundário 4&quot;],&#xd;
-&#xd;
+        [&quot;hiddenCnaeSecundario1&quot;, &quot;CNAE Secundário 1&quot;],&#xd;
+        [&quot;hiddenCnaeSecundario2&quot;, &quot;CNAE Secundário 2&quot;],&#xd;
+        [&quot;hiddenCnaeSecundario3&quot;, &quot;CNAE Secundário 3&quot;],&#xd;
+        [&quot;hiddenCnaeSecundario4&quot;, &quot;CNAE Secundário 4&quot;],&#xd;
+        [&quot;hiddenCnaeSecundario5&quot;, &quot;CNAE Secundário 5&quot;],&#xd;
         [&quot;toggleRetencao&quot;, &quot;Haverá retenção?&quot;],&#xd;
         [&quot;iss&quot;, &quot;Retenção ISS&quot;],&#xd;
         [&quot;inss&quot;, &quot;Retenção INSS&quot;],&#xd;
@@ -994,7 +997,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>35</version>
+        <version>39</version>
         <linkSequence>17</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1005,7 +1008,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>35</version>
+        <version>39</version>
         <linkSequence>25</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1016,7 +1019,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>35</version>
+        <version>39</version>
         <linkSequence>28</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1027,7 +1030,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>35</version>
+        <version>39</version>
         <linkSequence>28</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1038,7 +1041,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>35</version>
+        <version>39</version>
         <linkSequence>29</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1049,7 +1052,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>35</version>
+        <version>39</version>
         <linkSequence>30</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1060,7 +1063,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>35</version>
+        <version>39</version>
         <linkSequence>30</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1071,7 +1074,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>35</version>
+        <version>39</version>
         <linkSequence>30</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
@@ -1082,7 +1085,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>35</version>
+        <version>39</version>
         <linkSequence>31</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1093,7 +1096,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>35</version>
+        <version>39</version>
         <linkSequence>31</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1104,7 +1107,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>35</version>
+        <version>39</version>
         <linkSequence>31</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>

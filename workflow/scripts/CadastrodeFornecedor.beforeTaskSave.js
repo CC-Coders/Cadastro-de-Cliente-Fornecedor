@@ -11,60 +11,58 @@ function beforeTaskSave(colleagueId, nextSequenceId, userList) {
         return;
     }
 
-if (atividadeAtual == 11) {
-    var decisao = hAPI.getCardValue("selectDecisao");
-    var observacao = hAPI.getCardValue("observacaoValidacao");
+    if (atividadeAtual == 11) {
+        var decisao = hAPI.getCardValue("selectDecisao");
+        var observacao = hAPI.getCardValue("observacaoValidacao");
 
-    var acao = "";
-    var atividade = "Validação";
+        var acao = "";
+        var atividade = "Validação";
 
-    if (decisao == "Correcao") {
-        acao = "Correção do Cadastro";
-    } else if (decisao == "envioRM") {
-        acao = "Enviar ao RM";
-    } else {
-        acao = "Validação";
+        if (decisao == "Correcao") {
+            acao = "Correção do Cadastro";
+        } else if (decisao == "envioRM") {
+            acao = "Enviar ao RM";
+        } else {
+            acao = "Validação";
+        }
+
+        if (!observacao) {
+            observacao = "Decisão registrada na etapa de validação.";
+        }
+
+        var alteracoes = montarAlteracoesEdicaoValidacao();
+
+        if (alteracoes) {
+            observacao += alteracoes;
+        }
+
+        adicionarHistorico(colleagueId, atividade, acao, observacao);
+
+        hAPI.setCardValue("observacaoValidacao", "");
+        hAPI.setCardValue("selectDecisao", "");
+        hAPI.setCardValue("snapshotEdicaoValidacao", "");
+
+        return;
     }
+    if (atividadeAtual == 27) {
+        var observacao = hAPI.getCardValue("observacaoValidacao");
 
-    if (!observacao) {
-        observacao = "Decisão registrada na etapa de validação.";
+        if (!observacao) {
+            observacao = "Cadastro ajustado e reenviado para validação.";
+        }
+
+        adicionarHistorico(
+            colleagueId,
+            "Correção Cadastro",
+            "Reenvio para Validação",
+            observacao
+        );
+
+        hAPI.setCardValue("observacaoValidacao", "");
+        hAPI.setCardValue("selectDecisao", "");
+
+        return;
     }
-
-    var alteracoes = montarAlteracoesEdicaoValidacao();
-
-if (alteracoes) {
-    observacao += alteracoes;
-}
-
-    adicionarHistorico(colleagueId, atividade, acao, observacao);
-
-    // 🔥 LIMPA OS CAMPOS APÓS USO
-    hAPI.setCardValue("observacaoValidacao", "");
-    hAPI.setCardValue("selectDecisao", "");
-    hAPI.setCardValue("snapshotEdicaoValidacao", "");
-
-    return;
-}
-if (atividadeAtual == 27) {
-    var observacao = hAPI.getCardValue("observacaoValidacao");
-
-    if (!observacao) {
-        observacao = "Cadastro ajustado e reenviado para validação.";
-    }
-
-    adicionarHistorico(
-        colleagueId,
-        "Correção Cadastro",
-        "Reenvio para Validação",
-        observacao
-    );
-
-    // 🔥 LIMPA
-    hAPI.setCardValue("observacaoValidacao", "");
-    hAPI.setCardValue("selectDecisao", "");
-
-    return;
-}
 }
 
 function adicionarHistorico(usuario, atividade, acao, observacao) {
@@ -103,6 +101,7 @@ function anexarDocumentosNoProcesso() {
         }
     }
 }
+
 function anexaDocumentoNoProcesso(documentId) {
     documentId = Number(documentId);
 
@@ -125,6 +124,7 @@ function anexaDocumentoNoProcesso(documentId) {
         log.info("Documento já estava anexado: " + documentId);
     }
 }
+
 function montarAlteracoesEdicaoValidacao() {
     var snapshotTexto = hAPI.getCardValue("snapshotEdicaoValidacao");
 
@@ -146,14 +146,14 @@ function montarAlteracoesEdicaoValidacao() {
         ["categoria", "Categoria"],
         ["tipo", "Tipo"],
         ["classificacaoOperacional", "Classificação Operacional"],
-        ["toggleEstrangeiro", "Fornecedor estrangeiro?"],
 
         ["docCpf", "CPF"],
         ["docCnpj", "CNPJ"],
         ["docRg", "RG"],
         ["docInscricaoEstadual", "Inscrição Estadual"],
 
-        ["razaoSocial", "Razão Social / Nome"],
+        ["razaoSocial", "Razão Social"],
+        ["nomeFantasia", "Nome Fantasia"],
         ["cep", "CEP"],
         ["endereco", "Endereço"],
         ["numero", "Número"],
@@ -172,16 +172,17 @@ function montarAlteracoesEdicaoValidacao() {
 
         ["moeda", "Moeda do Pedido"],
         ["grupoMercadoria1", "Grupo de Mercadoria 1"],
-        ["grupoMercadoria2", "Grupo de Mercadoria 2"],
-        ["grupoMercadoria3", "Grupo de Mercadoria 3"],
-        ["grupoMercadoria4", "Grupo de Mercadoria 4"],
+        ["hiddenGrupoMercadoria2", "Grupo de Mercadoria 2"],
+        ["hiddenGrupoMercadoria3", "Grupo de Mercadoria 3"],
+        ["hiddenGrupoMercadoria4", "Grupo de Mercadoria 4"],
+        ["hiddenGrupoMercadoria5", "Grupo de Mercadoria 5"],
 
         ["cnaePrincipal", "CNAE Principal"],
-        ["cnaeSecundario1", "CNAE Secundário 1"],
-        ["cnaeSecundario2", "CNAE Secundário 2"],
-        ["cnaeSecundario3", "CNAE Secundário 3"],
-        ["cnaeSecundario4", "CNAE Secundário 4"],
-
+        ["hiddenCnaeSecundario1", "CNAE Secundário 1"],
+        ["hiddenCnaeSecundario2", "CNAE Secundário 2"],
+        ["hiddenCnaeSecundario3", "CNAE Secundário 3"],
+        ["hiddenCnaeSecundario4", "CNAE Secundário 4"],
+        ["hiddenCnaeSecundario5", "CNAE Secundário 5"],
         ["toggleRetencao", "Haverá retenção?"],
         ["iss", "Retenção ISS"],
         ["inss", "Retenção INSS"],

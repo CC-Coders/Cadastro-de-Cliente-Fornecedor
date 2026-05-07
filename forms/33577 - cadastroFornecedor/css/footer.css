@@ -1,8 +1,8 @@
 #btn-voltar,
 #btn-avancar {
-    background-color: transparent;
-    border: none;
-    font-size: 1.8rem;
-    cursor: pointer;
-    user-select: none;
+	background-color: transparent;
+	border: none;
+	font-size: 1.8rem;
+	cursor: pointer;
+	user-select: none;
 }
