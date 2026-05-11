@@ -50,7 +50,7 @@
 //     function obrigatorioAnexo(campo, label) {
 //         var v = valor(campo);
 
-//         if (!v || v == "null" || v == "undefined" || v == "✓") {
+//         if (!v || v == "null" || v == "undefined" || v == "?") {
 //             throw "<div class='alert alert-danger'>Anexo <b>" + label + "</b> é obrigatório.</div>";
 //         }
 //     }
