@@ -240,6 +240,13 @@ function bindEventosDocumentos() {
          validador: validarCPF
       });
    });
+   $("#toggleEstrangeiro")
+   .off("change.estrangeiro")
+   .on("change.estrangeiro", function () {
+      controlarCamposCategoria();
+      controlarAlertaCnpj();
+      aplicarAsteriscoObrigatorio();
+   });
    $("#docCnpj").on("blur keyup", controlarAlertaCnpj);
 }
 
@@ -327,33 +334,64 @@ function bindEventosGrupoMercadoria() {
 }
 function bindEventosUpload() {
 
-  $(document).off("click", ".upload-file-remove");
+   $(document).off("click", ".upload-file-remove");
 
-  $(document).on("click", ".upload-file-remove", function (event) {
-    event.preventDefault();
-    event.stopPropagation();
+   $(document).on("click", ".upload-file-remove", function (event) {
+      event.preventDefault();
+      event.stopPropagation();
 
-    const sufixoCampo = $(this).data("sufixo");
-    const hiddenNome = getHiddenAnexoId(sufixoCampo);
-    const docId = $("#" + hiddenNome + "Id").val();
+      const sufixoCampo = $(this).data("sufixo");
+      const hiddenNome = getHiddenAnexoId(sufixoCampo);
+      const hiddenId = hiddenNome + "Id";
 
-    FLUIGC.message.confirm({
-      message: "Deseja remover?",
-      title: "Remover"
-    }, function (result) {
+      const nomeArquivo = ($("#" + hiddenNome).val() || "").trim();
+      let docId = ($("#" + hiddenId).val() || "").trim();
 
-      if (result) {
-
-        // 🔥 REMOVE DO PROCESSO
-        removerAnexoFluigPorId(docId);
-
-        // 🔥 LIMPA VISUAL
-        limparCardVisualAnexo(sufixoCampo);
-
-        console.log("Anexo removido:", sufixoCampo, docId);
+      if (!docId && nomeArquivo) {
+         docId = buscarIdAnexoPorNome(nomeArquivo);
       }
-    });
-  });
+
+      if (!docId) {
+         console.warn("Não foi possível localizar o docId do anexo:", sufixoCampo, nomeArquivo);
+         return;
+      }
+
+      removerAnexoFluig({
+   documentId: docId,
+   nomeArquivo: nomeArquivo
+});
+
+      aguardarRemocaoConfirmada({
+         sufixoCampo: sufixoCampo,
+         docId: docId,
+         nomeArquivo: nomeArquivo
+      });
+   });
+}
+function aguardarRemocaoConfirmada(config) {
+   let tentativas = 0;
+   const maxTentativas = 30;
+
+   const intervalo = setInterval(function () {
+      tentativas++;
+
+      const aindaExiste = anexoAindaExisteNoFluig(config.docId, config.nomeArquivo);
+
+      if (!aindaExiste) {
+         clearInterval(intervalo);
+         limparCardVisualAnexo(config.sufixoCampo);
+         atualizarContadorAnexosFluig();
+         sincronizarCamposDinamicosHidden();
+
+         console.log("Anexo removido com sucesso:", config.sufixoCampo);
+         return;
+      }
+
+      if (tentativas >= maxTentativas) {
+         clearInterval(intervalo);
+         console.log("Remoção cancelada ou não concluída:", config.sufixoCampo);
+      }
+   }, 300);
 }
 
 function bindEventosCamposDinamicos() {

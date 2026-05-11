@@ -1504,3 +1504,54 @@ header {
 	position: relative !important;
 	z-index: 2 !important;
 }
+
+.bank-info-text {
+   margin: 0 0 18px;
+   color: #374151;
+   font-size: 14px;
+}
+
+.bank-card {
+   border: 1px solid #d9dee7;
+   border-radius: 10px;
+   padding: 18px;
+   margin-bottom: 16px;
+   background: #fff;
+}
+
+.bank-card-head {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   margin-bottom: 18px;
+}
+
+.bank-card-title {
+   background: #24364f;
+   color: #fff;
+   padding: 7px 14px;
+   border-radius: 6px;
+   font-weight: 600;
+}
+
+.btn-remove-bank {
+   border: 0;
+   background: transparent;
+   color: #c0392b;
+   font-weight: 600;
+   cursor: pointer;
+}
+
+.btn-add-bank {
+   border: 1px dashed #2f65c8;
+   color: #204e9e;
+   background: #fff;
+   border-radius: 8px;
+   padding: 12px 18px;
+   font-weight: 600;
+   margin: 8px 0 20px;
+}
+
+.btn-add-bank:hover {
+   background: #f4f8ff;
+}

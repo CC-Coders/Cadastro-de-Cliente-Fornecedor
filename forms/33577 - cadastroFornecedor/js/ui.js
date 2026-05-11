@@ -1,31 +1,44 @@
 function controlarCamposCategoria() {
    const categoria = $("#categoria").val();
+   const estrangeiro = $("#toggleEstrangeiro").is(":checked");
 
-   $("#divCpf, #divCnpj, #divNomeFantasia, #divRg, #divInscricaoEstadual").hide();
-   $("#docCpf, #docCnpj, #docRg, #docInscricaoEstadual").prop("required", false);
+   $("#divCpf, #divCnpj, #divRg, #divInscricaoEstadual, #divInscricaoMunicipal, #divDocEstrangeiro").hide();
+
+   $("#docCpf, #docCnpj, #docRg, #docInscricaoEstadual, #docInscricaoMunicipal, #docEstrangeiro")
+      .prop("required", false);
 
    $("#divToggleEstrangeiro").hide();
 
    if (categoria === "F") {
-      $("#divCpf, #divRg").show();
-      $("#docCpf, #docRg").prop("required", true);
-
-      $("#divToggleEstrangeiro").hide();
+      $("#divCpf, #divNomeFantasia, #divRg").show();
+      $("#docCpf, #docRg, #nomeFantasia").prop("required", true);
 
       aplicarAsteriscoObrigatorio();
       return;
    }
 
    if (categoria === "J") {
-      $("#divCnpj, #divNomeFantasia, #divInscricaoEstadual").show();
-      $("#docCnpj, #nomeFantasia").prop("required", true);
-
       $("#divToggleEstrangeiro").show();
+
+      if (estrangeiro) {
+         $("#divDocEstrangeiro").show();
+         $("#docEstrangeiro").prop("required", true);
+
+         $("#docCnpj, #docInscricaoEstadual, #docInscricaoMunicipal").val("");
+         limparErroCampo("docCnpj");
+         limparErroCampo("docInscricaoEstadual");
+         limparErroCampo("docInscricaoMunicipal");
+      } else {
+         $("#divCnpj, #divNomeFantasia, #divInscricaoEstadual, #divInscricaoMunicipal").show(500);
+         $("#docCnpj, #nomeFantasia, #docInscricaoEstadual").prop("required", true);
+
+         $("#docEstrangeiro").val("");
+         limparErroCampo("docEstrangeiro");
+      }
    }
 
    aplicarAsteriscoObrigatorio();
 }
-
 function controlarAlertaCnpj() {
    const categoria = $("#categoria").val();
    const cnpj = ($("#docCnpj").val() || "").replaceAll(/\D/g, "");
@@ -47,11 +60,11 @@ function controlarRetencaoPorTipo() {
    const tipo = $("#tipo").val();
 
    if (TIPOS_COM_RETENCAO.includes(tipo)) {
-      $("#divToggleRetencao").show();
+      // $("#divToggleRetencao").show();
       return;
    }
 
-   $("#divToggleRetencao").hide();
+   // $("#divToggleRetencao").hide();
    resetarRetencao();
 }
 
@@ -125,9 +138,9 @@ function goToStep(step, animar) {
 }
 
 function goToNextVisibleStep() {
-   if (!validarEtapaAtual()) {
-      return;
-   }
+if (!validarEtapaAtual(false)) {
+   return;
+}
 
    const steps = getStepsVisiveis();
    const atual = getStepAtual();

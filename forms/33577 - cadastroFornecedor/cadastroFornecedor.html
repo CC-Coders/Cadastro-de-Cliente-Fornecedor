@@ -21,6 +21,7 @@
    <link rel="stylesheet" href="css/footer.css"/>
    <link rel="stylesheet" href="css/header.css"/>
    <link rel="stylesheet" href="css/paginacao.css"/>
+   <link rel="stylesheet" href="css/dark.css">
    <script src="js/Functions.js"></script>
    <script src="js/Script.js"></script>
    <script src="js/api.js"></script>
@@ -28,7 +29,6 @@
    <script src="js/validation.js"></script>
    <script src="js/upload.js"></script>
    <script src="js/events.js"></script>
-   <script src="js/Script.js"></script>
    <title>Cadastro de Fornecedor</title>
 </head>
 
@@ -67,6 +67,7 @@
             <input type="hidden" id="anxConflitoId" name="anxConflitoId"/>
             <input type="hidden" id="anxLgpdId" name="anxLgpdId"/>
             <input type="hidden" id="tipoDescricao" name="tipoDescricao">
+            <input type="hidden" id="tipoSelecionado" name="tipoSelecionado">
             <!-- campos adicionais -->
             <input type="hidden" id="hiddenGrupoMercadoria2" name="hiddenGrupoMercadoria2"/>
             <input type="hidden" id="hiddenGrupoMercadoria3" name="hiddenGrupoMercadoria3"/>
@@ -152,7 +153,7 @@
                               <option value="">Selecione...</option>
                               <option value="1">Cliente</option>
                               <option value="2">Fornecedor</option>
-                              <option value="3">Cliente / Fornecedorrrrrr</option>
+                              <option value="3">Cliente / Fornecedor</option>
                            </select>
                         </div>
                         <div class="fg" id="divCategoria" name="divCategoria">
@@ -188,6 +189,25 @@
                            </select>
                         </div>
                      </div>
+                                     <div id="divToggleEstrangeiro" class="retencao-box">
+                  <div class="retencao-content">
+                    <div class="retencao-text">
+                      <strong>Fornecedor estrangeiro?</strong>
+                      <small>
+                        Aplicável a prestadores de serviço ou fornecedores de materiais estrangeiros. Indique se o cadastro é de um fornecedor estrangeiro, para o processo seguir o caminho legal.
+                      </small>
+                    </div>
+                    <div class="retencao-toggle">
+                      <span class="retencao-label">Não</span>
+
+                      <div class="switch switch-success">
+                        <input class="switch-input" type="checkbox" id="toggleEstrangeiro" name="toggleEstrangeiro">
+                        <label class="switch-button" for="toggleEstrangeiro"></label>
+                      </div>
+                      <span class="retencao-label">Sim</span>
+                    </div>
+                  </div>
+                </div>
                   </div>
                </div>
                <div class="section" id="divDadosComerciais">
@@ -213,6 +233,10 @@
                         <div class="fg" id="divCnpj">
                            <label for="docCnpj">CNPJ</label>
                            <input type="text" id="docCnpj" name="docCnpj" placeholder="00.000.000/0000-00" class="form-control" required/>
+                        </div>
+                        <div class="fg" id="divDocEstrangeiro">
+                           <label for="docEstrangeiro">Documento Estrangeiro</label>
+                           <input type="text" id="docEstrangeiro" name="docEstrangeiro" class="form-control"/>
                         </div>
                         <div class="fg" id="divRg">
                            <label for="docRg">RG</label>
@@ -294,9 +318,9 @@
                            <label for="icms">Contribuinte ICMS</label>
                            <select id="icms" name="icms" class="form-control" required>
                               <option value="">Selecione...</option>
-                              <option value="Contribuinte">Contribuinte</option>
-                              <option value="Não Contribuinte">Não Contribuinte</option>
-                              <option value="Isento">Isento</option>
+                              <option value="0">Não Contribuinte</option>
+                              <option value="1">Contribuinte</option>
+                              <option value="2">Isento</option>
                            </select>
                         </div>
                         <div class="fg" id="divIrrf">
@@ -307,29 +331,29 @@
                            <label for="simplesNacional">Simples Nacional</label>
                            <select id="simplesNacional" name="simplesNacional" class="form-control" required>
                               <option value="">Selecione...</option>
-                              <option value="Sim">Sim</option>
-                              <option value="Não">Não</option>
+                              <option value="1">Sim</option>
+                              <option value="0">Não</option>
                            </select>
                         </div>
                      </div>
                      <div class="divider"></div>
                      <div class="grid g3">
-                        <div class="fg" id="divNaturezaRendimento">
-                           <label for="naturezaRendimento">Natureza de Rendimentos</label>
-                           <select id="naturezaRendimento" name="naturezaRendimento" class="form-control" required>
-                              <option value="">Selecione...</option>
-                              <option value="0501 — Rendimentos do Trabalho Assalariado">0501 — Rendimentos do Trabalho Assalariado</option>
-                              <option value="0561 — Rendimentos do Trabalho Sem Vínculo">0561 — Rendimentos do Trabalho Sem Vínculo</option>
-                              <option value="0600 — Rendimentos de Capital">0600 — Rendimentos de Capital</option>
-                              <option value="1700 — Serviços Prestados por PJ">1700 — Serviços Prestados por PJ</option>
-                              <option value="1780 — Serviços de Construção Civil">1780 — Serviços de Construção Civil</option>
-                              <option value="1850 — Serviços de Transporte Rodoviário">1850 — Serviços de Transporte Rodoviário</option>
-                              <option value="3001 — Fornecimento de Mercadorias">3001 — Fornecimento de Mercadorias</option>
-                              <option value="4000 — Rendimentos de Aluguéis e Arrendamentos">4000 — Rendimentos de Aluguéis e Arrendamentos</option>
-                              <option value="5706 — Juros e Encargos">5706 — Juros e Encargos</option>
-                              <option value="9202 — Outros Rendimentos">9202 — Outros Rendimentos</option>
-                           </select>
-                        </div>
+<div class="fg" id="divNaturezaRendimento">
+   <label for="naturezaRendimento">Natureza de Rendimentos</label>
+
+   <select id="naturezaRendimento"
+           name="naturezaRendimento"
+           class="form-control"
+           required>
+
+      <option value="">Selecione...</option>
+
+   </select>
+
+   <input type="hidden"
+          id="codNaturezaRendimento"
+          name="codNaturezaRendimento">
+</div>
                         <div class="fg" id="divRegimeFiscal">
                            <label for="regimeFiscal">Regime Fiscal</label>
                            <select id="regimeFiscal" name="regimeFiscal" class="form-control" required>
@@ -409,10 +433,10 @@
                         <div id="cnae-secundarios-wrap"></div>
                      </div>
                      <div class="divider"></div>
-                     <div class="retencao-box" id="divToggleRetencao" style="display: none">
+                     <div class="retencao-box" id="divToggleRetencao"><!-- style="display: block"> -->
                         <div class="retencao-content">
                            <div class="retencao-text">
-                              <strong>Haverá retenções de impostos neste contrato?</strong>
+                              <strong>Haverá retenções de impostos neste prestador / fornecedor?</strong>
                               <small>Aplicável a prestadores de serviço. Indique se haverá retenção de ISS, INSS, CSLL, PIS/COFINS ou outro tributo nas notas fiscais emitidas.</small>
                            </div>
                            <div class="retencao-toggle">
@@ -466,55 +490,19 @@
                         <span class="section-arrow open">▼</span>
                      </div>
                   </button>
+
                   <div class="section-body">
-                     <div class="grid g4">
-                        <div class="fg span2" id="divCondicaoPagamento">
-                           <label for="condicaoPagamento">Condição de Pagamento</label>
-                           <div class="select-wrap">
-                              <select id="condicaoPagamento" name="condicaoPagamento" class="form-control" required>
-                                 <option value="">Selecione...</option>
-                                 <option value="À Vista">À Vista</option>
-                                 <option value="7 Dias">7 Dias</option>
-                                 <option value="14 Dias">14 Dias</option>
-                                 <option value="21 Dias">21 Dias</option>
-                                 <option value="28 Dias">28 Dias</option>
-                                 <option value="30 Dias">30 Dias</option>
-                                 <option value="30/60 Dias">30/60 Dias</option>
-                                 <option value="30/60/90 Dias">30/60/90 Dias</option>
-                                 <option value="45 Dias">45 Dias</option>
-                                 <option value="60 Dias">60 Dias</option>
-                              </select>
-                           </div>
-                        </div>
-                        <div class="fg span2" id="divBanco">
-                           <label for="banco">Banco</label>
-                           <div class="select-wrap">
-                              <select id="banco" name="banco" class="form-control" required>
-                                 <option value="">Selecione...</option>
-                                 <option value="001">001 - Banco do Brasil</option>
-                                 <option value="033">033 - Santander</option>
-                                 <option value="041">041 - Banrisul</option>
-                                 <option value="077">077 - Inter</option>
-                                 <option value="104">104 - Caixa Econômica Federal</option>
-                                 <option value="212">212 - Banco Original</option>
-                                 <option value="237">237 - Bradesco</option>
-                                 <option value="260">260 - Nubank</option>
-                                 <option value="341">341 - Itaú</option>
-                                 <option value="748">748 - Sicredi</option>
-                                 <option value="756">756 - Sicoob</option>
-                                 <option value="999">Outro</option>
-                              </select>
-                           </div>
-                        </div>
-                        <div class="fg span2" id="divAgencia">
-                           <label for="agencia">Agência</label>
-                           <input type="text" id="agencia" name="agencia" class="form-control" placeholder="0000-0" maxlength="10" required/>
-                        </div>
-                        <div class="fg span2" id="divConta">
-                           <label for="conta">Conta</label>
-                           <input type="text" id="conta" name="conta" class="form-control" placeholder="00000-0" maxlength="14" required/>
-                        </div>
-                     </div>
+
+                     <p class="bank-info-text">
+                        Você pode adicionar mais de uma conta bancária. Todas as contas devem estar em nome da empresa e do CNPJ informado.
+                     </p>
+
+                     <div id="dados-bancarios-cards"></div>
+
+                     <button type="button" id="btn-add-conta-bancaria" class="btn-add-bank">
+                        + Adicionar outra conta bancária
+                     </button>
+
                      <div class="bank-warning">
                         <div class="bank-warning-icon">
                            <svg viewBox="0 0 24 24">
@@ -523,11 +511,33 @@
                         </div>
                         <div class="bank-warning-text">
                            <div class="bank-warning-title">⚠ Atenção — Titularidade dos Dados Bancários</div>
-                           <div class="bank-warning-body">Os dados bancários informados devem ser em nome da empresa e do CNPJ fornecido.
-                              <strong>Não serão aceitos dados bancários de terceiros</strong>,contas de sócios,representantes ou quaisquer pessoas distintas do titular do cadastro.
+                           <div class="bank-warning-body">
+                              Os dados bancários informados devem ser em nome da empresa e do CNPJ fornecido.
+                              <strong>Não serão aceitos dados bancários de terceiros</strong>, contas de sócios, representantes ou quaisquer pessoas distintas do titular do cadastro.
                            </div>
                         </div>
                      </div>
+
+                     <table tablename="tableDadosBancarios" id="tableDadosBancarios" noaddbutton="true" nodeletebutton="true" style="display:none;">
+                        <thead>
+                           <tr>
+                              <th>Condição</th>
+                              <th>Banco</th>
+                              <th>Banco Descrição</th>
+                              <th>Agência</th>
+                              <th>Conta</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <tr>
+                              <td><input type="hidden" name="dbCondicaoPagamento" class="dbCondicaoPagamento"></td>
+                              <td><input type="hidden" name="dbBanco" class="dbBanco"></td>
+                              <td><input type="hidden" name="dbBancoDescricao" class="dbBancoDescricao"></td>
+                              <td><input type="hidden" name="dbAgencia" class="dbAgencia"></td>
+                              <td><input type="hidden" name="dbConta" class="dbConta"></td>
+                           </tr>
+                        </tbody>
+                     </table>
                   </div>
                </div>
                <div class="section" id="divContatos">

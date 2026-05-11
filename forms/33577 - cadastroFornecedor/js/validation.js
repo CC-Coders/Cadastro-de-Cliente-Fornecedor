@@ -38,7 +38,9 @@ function exibirErroCampo(campoId, mensagem) {
    const $container = $campo.closest(".fg");
    const mensagemId = "erro-" + campoId;
 
-   limparErroCampo(campoId);
+   // remove qualquer erro antigo do mesmo campo
+   $("#" + mensagemId).remove();
+   $container.find(".erro-validacao").remove();
 
    $container.addClass("has-error");
    $campo.attr("aria-invalid", "true");
@@ -82,31 +84,29 @@ function validarCampoObrigatorio(campoId, label) {
 
 function validarDocumentosPorCategoria() {
    const categoria = ($("#categoria").val() || "").trim();
+   const estrangeiro = $("#toggleEstrangeiro").is(":checked");
 
-   const CAMPOS_DOCUMENTO_POR_CATEGORIA = {
-      "F": [{
-            id: "docCpf",
-            label: "CPF"
-         },
-         {
-            id: "docRg",
-            label: "RG"
-         }
-      ],
-      "J": [{
-            id: "docCnpj",
-            label: "CNPJ"
-         },
-         {
-            id: "docInscricaoEstadual",
-            label: "Inscrição Estadual"
-         }
-      ]
-   };
+   if (categoria === "F") {
+      return validarListaCampos([
+         { id: "docCpf", label: "CPF" },
+         { id: "docRg", label: "RG" }
+      ]);
+   }
 
-   const campos = CAMPOS_DOCUMENTO_POR_CATEGORIA[categoria] || [];
+   if (categoria === "J" && estrangeiro) {
+      return validarListaCampos([
+         { id: "docEstrangeiro", label: "Documento Estrangeiro" }
+      ]);
+   }
 
-   return validarListaCampos(campos);
+   if (categoria === "J") {
+      return validarListaCampos([
+         { id: "docCnpj", label: "CNPJ" },
+         { id: "docInscricaoEstadual", label: "Inscrição Estadual" }
+      ]);
+   }
+
+   return true;
 }
 
 function limparUploadsCategoria(tipo) {
@@ -145,7 +145,7 @@ function validarListaCampos(campos) {
    return valido;
 }
 
-function validarPreCadastro() {
+function validarPreCadastro(exibirToast) {
    limparErrosPreCadastro();
 
    const camposCliente = [{
@@ -219,15 +219,14 @@ function validarPreCadastro() {
       valido = false;
    }
 
-   if (!valido) {
-      FLUIGC.toast({
-         title: "Atenção",
-         message: "Preencha todos os campos obrigatórios para avançar.",
-         type: "warning",
-         timeout: 3000
-      });
-
-   }
+if (!valido && exibirToast) {
+   FLUIGC.toast({
+      title: "Atenção",
+      message: "Preencha todos os campos obrigatórios para avançar.",
+      type: "warning",
+      timeout: 3000
+   });
+}
 
    return valido;
 }
@@ -406,24 +405,30 @@ function mostrarPagina(indice) {
    $(window).scrollTop(0);
 }
 
-function validarEtapaAtual() {
+function validarEtapaAtual(exibirToast) {
+   if (exibirToast === undefined) {
+      exibirToast = true;
+   }
 
    sincronizarCamposDinamicosHidden();
+
    const paginaAtual = getStepAtual();
 
    if (paginaAtual === 1) {
-      return validarPreCadastro();
-   }
-   if (paginaAtual === 2) {
-      return validarDadosCadastrais();
-   }
-   if (paginaAtual === 3) {
-      return validarDocumentacao();
-   }
-   if (paginaAtual === 4) {
-      return validarHistoricoDecisao();
+      return validarPreCadastro(exibirToast);
    }
 
+   if (paginaAtual === 2) {
+      return validarDadosCadastrais(exibirToast);
+   }
+
+   if (paginaAtual === 3) {
+      return validarDocumentacao(exibirToast);
+   }
+
+   if (paginaAtual === 4) {
+      return validarHistoricoDecisao(exibirToast);
+   }
 
    return true;
 }
@@ -489,12 +494,12 @@ function validarDocumentacao() {
 function limparErroCampo(campoId) {
    const $campo = $("#" + campoId);
    const $container = $campo.closest(".fg");
-   const mensagemId = "erro-" + campoId;
 
    $container.removeClass("has-error");
-   $("#" + mensagemId).remove();
+   $campo.removeAttr("aria-invalid");
 
-   $campo.attr("aria-invalid", "false");
+   $("#erro-" + campoId).remove();
+   $container.find(".erro-validacao").remove();
 }
 
 function limparErrosPreCadastro() {

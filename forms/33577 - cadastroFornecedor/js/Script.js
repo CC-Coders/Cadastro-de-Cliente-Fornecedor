@@ -12,9 +12,10 @@ const NAV_MAP = {
    3: "#nav-step-Documentacao",
    4: "#nav-step-HistoricoDecisao"
 };
+// condicionais para aparecer a opção de impostos
 const TIPOS_COM_RETENCAO = [
-   "Serviços Gerais",
-   "Serviços de Engenharia"
+   // "Serviços Gerais",
+   // "Serviços de Engenharia"
 ];
 const OPCOES_GRUPO_MERCADORIA = [
    "Materiais de Construção",
@@ -69,7 +70,7 @@ $("#categoria").off("change.abrirDadosComerciais").on("change.abrirDadosComercia
 $("#tipo").on("change", function () {
 
     var texto = $("#tipo option:selected").text();
-
+ $("#tipoSelecionado").val($(this).val());
     $("#tipoDescricao").val(texto);
 
 });
@@ -156,6 +157,15 @@ function sincronizarEstadoInicial() {
       setTimeout(function () {
       inicializarSnapshotEdicaoValidacao();
    }, 300);
+   setTimeout(function () {
+
+   const valorTipo = ($("#tipo").attr("value") || $("#tipo").val() || "").trim();
+
+   if (valorTipo) {
+      $("#tipo").val(valorTipo).trigger("change");
+   }
+
+}, 500);
 }
 
 function restaurarGruposMercadoriaSalvos() {
@@ -234,7 +244,7 @@ function atualizarLayoutStepper() {
 $(document).ready(function () {
 
    $("#btnAprovar").on("click", function () {
-      $("#selectDecisao").val("enviarRM").trigger("change");
+      $("#selectDecisao").val("enviarRm").trigger("change");
       destacarBotao(this);
    });
 

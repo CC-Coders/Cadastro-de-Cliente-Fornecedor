@@ -221,15 +221,25 @@ function finalizarUploadVisualFluig(config, nomeArquivo) {
 function buscarIdAnexoPorNome(nomeArquivo) {
    const $p = parent.$;
 
+   const nome = String(nomeArquivo || "").trim();
+
    const $linha = $p("#attachmentsTable tbody tr").filter(function () {
-      return $p(this).text().indexOf(nomeArquivo) !== -1;
+      return $p(this).text().indexOf(nome) !== -1;
    }).first();
 
-   if (!$linha.length) return null;
+   if (!$linha.length) {
+      console.warn("Documento não encontrado na tabela:", nomeArquivo);
+      return "";
+   }
 
-   return $linha.find("td:eq(1)").text().trim();
+   // Colunas visíveis:
+   // 0 = checkbox
+   // 1 = título
+   // 2 = código/documentId
+   const codigo = $linha.find("td").eq(2).text().trim();
+
+   return codigo;
 }
-
 function montarStatusAnexo(sufixoCampo, nomeArquivo) {
    const $status = $("#statusFile" + sufixoCampo);
 
@@ -420,7 +430,7 @@ function limparStatusUpload(config) {
    });
 
    setTimeout(function () {
-      const aindaExiste = anexoAindaExisteNoFluig(nomeArquivo, documentId);
+      const aindaExiste = anexoAindaExisteNoFluig(documentId, nomeArquivo);
 
       if (aindaExiste) {
          return; // clicou em NÃO, mantém o card
@@ -435,21 +445,13 @@ function limparStatusUpload(config) {
    }, 800);
 }
 
-function anexoAindaExisteNoFluig(nomeArquivo, documentId) {
+function anexoAindaExisteNoFluig(docId, nomeArquivo) {
    const $p = parent.$;
+   const id = String(docId || "").trim();
 
    const $linha = $p("#attachmentsTable tbody tr").filter(function () {
-      const texto = $p(this).text().replace(/\s+/g, " ").trim();
-
-      if (documentId && texto.indexOf(documentId) !== -1) {
-         return true;
-      }
-
-      if (nomeArquivo && texto.indexOf(nomeArquivo) !== -1) {
-         return true;
-      }
-
-      return false;
+      const codigo = $p(this).find("td").eq(2).text().trim();
+      return codigo === id;
    }).first();
 
    return $linha.length > 0;
@@ -561,7 +563,20 @@ function marcarUploadErro(campoId, mensagem) {
       "</small>"
    );
 }
+function limparCardVisualAnexo(sufixoCampo) {
+   const hiddenNome = getHiddenAnexoId(sufixoCampo);
+   const hiddenId = hiddenNome + "Id";
 
+   $("#statusFile" + sufixoCampo).hide().empty();
+   $("#upload" + sufixoCampo).removeClass("uploaded upload-error");
+
+   if (hiddenNome) {
+      $("#" + hiddenNome).val("").attr("value", "");
+      $("#" + hiddenId).val("").attr("value", "");
+   }
+
+   $("#file" + sufixoCampo).val("");
+}
 function marcarUploadSucesso(campoId) {
    const $campo = $("#" + campoId);
    const $container = $campo.closest(".fg");
@@ -665,6 +680,3 @@ function removerOcultacaoModalRemocaoAutomatica() {
    parent.$("body").removeClass("modal-open").css("padding-right", "");
 }
 
-function removerOcultacaoModalRemocaoAutomatica() {
-   parent.$("#cssOcultaModalRemocaoInvalido").remove();
-}

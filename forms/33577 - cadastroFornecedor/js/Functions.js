@@ -639,88 +639,63 @@ function sincronizarCamposDinamicosHidden() {
    }
 }
 
-function removerAnexoFluigPorId(docId) {
-  if (!docId) {
-    console.warn("DocId não informado");
-    return;
-  }
-
-  try {
-    if (parent && parent.ECM && parent.ECM.attachmentTable) {
-
-      const tabela = parent.ECM.attachmentTable;
-
-      let removido = false;
-
-      parent.$("#attachmentsTable tbody tr").each(function () {
-        const row = $(this);
-        const id = row.find("input[name='documentId']").val();
-
-        if (id == docId) {
-          tabela.removeRow(row);
-          removido = true;
-        }
-      });
-
-      if (!removido) {
-        console.warn("Documento não encontrado na tabela:", docId);
-      }
-
-    } else {
-      console.warn("ECM attachmentTable não disponível");
-    }
-  } catch (e) {
-    console.error("Erro ao remover anexo do ECM:", e);
-  }
-}
-
-
 
 function carregarTiposClienteFornecedor() {
 
-    var select = $("#tipo");
+   var select = $("#tipo");
 
-    select.empty();
+   var valorSalvo = (
+      $("#tipoSelecionado").val() ||
+      select.val() ||
+      select.attr("value") ||
+      ""
+   ).toString().trim();
 
-    select.append(
-        '<option value="">Selecione...</option>'
-    );
+   select.empty();
+   select.append('<option value="">Selecione...</option>');
 
-    var dataset = DatasetFactory.getDataset(
-        "ds_tipoClienteFornecedorRM",
-        null,
-        null,
-        null
-    );
+   var ds = DatasetFactory.getDataset(
+      "ds_tipoClienteFornecedorRM",
+      null,
+      null,
+      null
+   );
 
-    if (!dataset || !dataset.values || dataset.values.length === 0) {
+   if (!ds || !ds.values || !ds.values.length) {
+      console.warn("Dataset ds_tipoClienteFornecedorRM vazio.");
+      return;
+   }
 
-        console.warn("Dataset vazio");
+   ds.values.forEach(function (item) {
+      var codigo = (item.CODTCF || "").toString().trim();
+      var descricao = (item.DESCRICAO || "").toString().trim();
 
-        select.append(
-            '<option value="">Nenhum registro encontrado</option>'
-        );
+      select.append(
+         '<option value="' + codigo + '">' +
+            codigo + " - " + descricao +
+         '</option>'
+      );
+   });
 
-        return;
-    }
+   if (valorSalvo) {
+      select.val(valorSalvo);
 
-    dataset.values.forEach(function(item) {
-
-        select.append(
-            '<option value="' + item.CODTCF + '">' +
-                item.CODTCF + " - " + item.DESCRICAO +
-            '</option>'
-        );
-
-    });
-
-    console.log("Tipos carregados:", dataset.values.length);
+      if (select.val()) {
+         select.trigger("change");
+      } else {
+         console.warn("Tipo salvo não encontrado nas options:", valorSalvo);
+      }
+   }
 }
-
 
 
 // BEFORE SEND VALIDATE
 var beforeSendValidate = function (numState, nextState) {
+
+   $("#tipoSelecionado").val($("#tipo").val() || "");
+   $("#tipoDescricao").val($("#tipo option:selected").text() || "");
+
+   sincronizarCamposDinamicosHidden();
 sincronizarCamposDinamicosHidden();
    let acao = "";
 

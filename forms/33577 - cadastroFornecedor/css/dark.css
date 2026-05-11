@@ -1,0 +1,916 @@
+/* =========================================================
+   AUTO DARK MODE FLUIG
+   Detecta automaticamente:
+   <html class="theme-dark">
+========================================================= */
+
+html.theme-dark {
+
+  --bg-page: #050505;
+  --bg-card: #0f1115;
+  --bg-soft: #16181d;
+  --bg-input: #05070b;
+
+  --text-primary: #f5f5f5;
+  --text-secondary: #d2d2d2;
+  --text-muted: #8f949b;
+
+  --border-color: #262a31;
+  --border-soft: #1f2329;
+
+  --primary: #ff8c42;
+  --primary-hover: #ff7417;
+
+  --danger: #ff4d4f;
+
+  --shadow:
+    0 10px 30px rgba(0,0,0,.45);
+}
+
+
+/* =========================================================
+   FUNDO GERAL
+========================================================= */
+
+html.theme-dark,
+html.theme-dark body,
+html.theme-dark .fluig-style-guide,
+html.theme-dark .pagina,
+html.theme-dark .page-wrap,
+html.theme-dark .container,
+html.theme-dark .container-fluid {
+
+  background:
+    radial-gradient(circle at top left, rgba(255,140,66,.06), transparent 25%),
+    radial-gradient(circle at bottom right, rgba(255,140,66,.03), transparent 25%),
+    var(--bg-page) !important;
+
+  color: var(--text-primary) !important;
+}
+
+
+/* =========================================================
+   TOPBAR / SUBHEADER
+========================================================= */
+
+html.theme-dark .topbar,
+html.theme-dark .subheader {
+
+  background:
+    rgba(15,17,21,.92) !important;
+
+  backdrop-filter: blur(14px);
+
+  border-color:
+    var(--border-soft) !important;
+}
+
+
+/* =========================================================
+   TEXTOS
+========================================================= */
+
+html.theme-dark h1,
+html.theme-dark h2,
+html.theme-dark h3,
+html.theme-dark h4,
+html.theme-dark h5,
+html.theme-dark p,
+html.theme-dark span,
+html.theme-dark small,
+html.theme-dark strong,
+html.theme-dark div,
+html.theme-dark label,
+html.theme-dark a,
+html.theme-dark .section-name,
+html.theme-dark .panel-title,
+html.theme-dark .topbar-title,
+html.theme-dark .topbar-brand {
+
+  color:
+    var(--text-primary) !important;
+}
+
+
+/* =========================================================
+   CARDS / PANELS
+========================================================= */
+
+html.theme-dark .section,
+html.theme-dark .panel,
+html.theme-dark .panel-default,
+html.theme-dark .card,
+html.theme-dark .wizard-card,
+html.theme-dark .section-body,
+html.theme-dark .panel-body,
+html.theme-dark .upload-area,
+html.theme-dark .retencoes-box,
+html.theme-dark .cnae-box {
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(14,16,20,.98),
+      rgba(9,10,14,.98)
+    ) !important;
+
+  border:
+    1px solid var(--border-color) !important;
+    
+  box-shadow:
+    0 12px 40px rgba(0,0,0,.45) !important;
+}
+
+
+/* =========================================================
+   HEADER DOS PANELS
+========================================================= */
+
+html.theme-dark .section-head,
+html.theme-dark .panel-heading,
+html.theme-dark .panel-default > .panel-heading {
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255,140,66,.10),
+      rgba(255,140,66,.03)
+    ) !important;
+
+  border-bottom:
+    1px solid var(--border-color) !important;
+}
+
+
+/* =========================================================
+   HERO / HEADER CARD
+========================================================= */
+
+html.theme-dark .hero-card,
+html.theme-dark .header-card,
+html.theme-dark .intro-card {
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(15,17,21,.98),
+      rgba(10,12,16,.98)
+    ) !important;
+
+  border:
+    1px solid rgba(255,140,66,.45) !important;
+
+  border-radius:
+    28px !important;
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.55) !important;
+}
+
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+html.theme-dark .form-control,
+html.theme-dark input.form-control,
+html.theme-dark select.form-control,
+html.theme-dark textarea.form-control,
+html.theme-dark .fg input,
+html.theme-dark .fg select,
+html.theme-dark .fg textarea {
+
+  background:
+    var(--bg-input) !important;
+
+  border:
+    1px solid #2d3440 !important;
+
+  color:
+    #ffffff !important;
+
+  border-radius:
+    14px !important;
+
+  min-height:
+    52px !important;
+
+  box-shadow:
+    none !important;
+}
+
+
+/* HOVER */
+html.theme-dark .form-control:hover,
+html.theme-dark input:hover,
+html.theme-dark select:hover,
+html.theme-dark textarea:hover {
+
+  border-color:
+    rgba(255,140,66,.55) !important;
+}
+
+
+/* FOCUS */
+html.theme-dark .form-control:focus,
+html.theme-dark input:focus,
+html.theme-dark select:focus,
+html.theme-dark textarea:focus {
+
+  border-color:
+    var(--primary) !important;
+
+  background:
+    #090b0f !important;
+
+  box-shadow:
+    0 0 0 3px rgba(255,140,66,.14),
+    0 0 24px rgba(255,140,66,.08) !important;
+}
+
+
+/* =========================================================
+   PLACEHOLDER
+========================================================= */
+
+html.theme-dark ::placeholder {
+
+  color:
+    #777 !important;
+}
+
+
+/* =========================================================
+   CAMPOS READONLY
+========================================================= */
+
+html.theme-dark input[readonly],
+html.theme-dark textarea[readonly],
+html.theme-dark .campo-bloqueado {
+
+  background:
+    #171a1f !important;
+
+  border-color:
+    #2d3440 !important;
+
+  color:
+    #9197a1 !important;
+}
+
+
+/* =========================================================
+   LABELS
+========================================================= */
+
+html.theme-dark label,
+html.theme-dark .fg label {
+
+  color:
+    #dce1e8 !important;
+}
+
+
+/* =========================================================
+   STEP ITEM
+========================================================= */
+
+html.theme-dark .step-item {
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(20,22,28,.96),
+      rgba(10,11,15,.98)
+    ) !important;
+
+  border:
+    1px solid var(--border-color) !important;
+
+  border-radius:
+    20px !important;
+}
+
+
+/* ACTIVE */
+html.theme-dark .step-item.active {
+
+  border-color:
+    rgba(255,140,66,.65) !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,140,66,.14),
+      rgba(20,22,28,.98)
+    ) !important;
+
+  box-shadow:
+    0 0 0 1px rgba(255,140,66,.12),
+    0 15px 40px rgba(0,0,0,.45) !important;
+}
+
+
+/* =========================================================
+   STEP CIRCLE
+========================================================= */
+
+html.theme-dark .step-circle,
+html.theme-dark .section-num {
+
+  background:
+    linear-gradient(
+      145deg,
+      #ff9d5d,
+      #ff7417
+    ) !important;
+
+  color:
+    #111 !important;
+
+  box-shadow:
+    0 8px 24px rgba(255,140,66,.35) !important;
+}
+
+
+/* =========================================================
+   BOTÕES
+========================================================= */
+
+html.theme-dark .btn-primary,
+html.theme-dark .btn-success {
+
+  background:
+    linear-gradient(
+      135deg,
+      #ff8c42,
+      #ff7417
+    ) !important;
+
+  border:
+    none !important;
+
+  color:
+    #111 !important;
+
+  box-shadow:
+    0 10px 28px rgba(255,140,66,.25) !important;
+}
+
+
+/* HOVER */
+html.theme-dark .btn-primary:hover,
+html.theme-dark .btn-success:hover {
+
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 14px 34px rgba(255,140,66,.35) !important;
+}
+
+
+/* =========================================================
+   BOTÕES SECUNDÁRIOS
+========================================================= */
+
+html.theme-dark .btn-default,
+html.theme-dark .btn-ghost {
+
+  background:
+    #15181d !important;
+
+  border:
+    1px solid #2d3440 !important;
+
+  color:
+    #f5f5f5 !important;
+}
+
+
+/* =========================================================
+   UPLOAD
+========================================================= */
+
+html.theme-dark .upload-area {
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(12,14,18,.98),
+      rgba(8,10,14,.98)
+    ) !important;
+
+  border:
+    2px dashed #343b46 !important;
+}
+
+
+/* HOVER */
+html.theme-dark .upload-area:hover {
+
+  border-color:
+    var(--primary) !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,140,66,.08),
+      rgba(12,14,18,.98)
+    ) !important;
+}
+
+
+/* =========================================================
+   ERROS
+========================================================= */
+
+html.theme-dark .fg.has-error .form-control {
+
+  border-color:
+    var(--danger) !important;
+
+  box-shadow:
+    0 0 0 3px rgba(255,77,79,.12) !important;
+}
+
+html.theme-dark .erro-validacao,
+html.theme-dark .help-block.erro-validacao {
+
+  color:
+    #ff6b6b !important;
+}
+
+
+/* =========================================================
+   TABELAS
+========================================================= */
+
+html.theme-dark table,
+html.theme-dark .table {
+
+  background:
+    #0f1115 !important;
+
+  color:
+    #fff !important;
+}
+
+html.theme-dark .table thead {
+
+  background:
+    #171a1f !important;
+}
+
+
+/* =========================================================
+   MENU FLUIG
+========================================================= */
+
+html.theme-dark .navbar,
+html.theme-dark .sidebar,
+html.theme-dark .menu,
+html.theme-dark .fs-menu {
+
+  background:
+    #0d0f13 !important;
+
+  border-color:
+    #1f2329 !important;
+}
+
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+html.theme-dark ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+html.theme-dark ::-webkit-scrollbar-track {
+  background: #0d0f13;
+}
+
+html.theme-dark ::-webkit-scrollbar-thumb {
+
+  background:
+    linear-gradient(
+      180deg,
+      #ff8c42,
+      #ff7417
+    );
+
+  border-radius:
+    999px;
+}
+/* =========================================================
+   DARK MODE COMPLEMENTAR — CAMPOS NÃO CONTEMPLADOS
+   Usar no FINAL do cadastroFornecedor.css
+========================================================= */
+
+/* Corrige variáveis quebradas */
+html.theme-dark {
+  --shadow: 0 10px 30px rgba(0, 0, 0, .45);
+}
+
+/* Retenção / Estrangeiro */
+html.theme-dark .retencao-box,
+html.theme-dark #divToggleEstrangeiro,
+html.theme-dark #divToggleRetencao {
+  background: linear-gradient(145deg, #111318, #08090d) !important;
+  border: 1px solid #2a2f38 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 28px rgba(0,0,0,.30) !important;
+}
+
+html.theme-dark .retencao-text strong {
+  color: #f5f5f5 !important;
+}
+
+html.theme-dark .retencao-text small,
+html.theme-dark .retencao-label {
+  color: #aeb4bd !important;
+}
+
+/* Switch */
+html.theme-dark .switch-button {
+  background: #20242b !important;
+  border: 1px solid #353b46 !important;
+}
+
+html.theme-dark .switch-button::before {
+  background: #fff !important;
+}
+
+html.theme-dark .switch-input:checked + .switch-button {
+  background: linear-gradient(135deg, #ff8c42, #ff7417) !important;
+  border-color: #ff8c42 !important;
+}
+
+/* Alertas do Fluig / Bootstrap */
+html.theme-dark .alert,
+html.theme-dark .alert-warning {
+  background: linear-gradient(145deg, #211805, #151007) !important;
+  border: 1px solid rgba(255, 193, 7, .45) !important;
+  color: #ffd36a !important;
+  border-radius: 14px !important;
+}
+
+/* Box de retenções */
+html.theme-dark .retencoes-box {
+  background: linear-gradient(145deg, #111318, #08090d) !important;
+  border: 1px solid #2a2f38 !important;
+}
+
+html.theme-dark .retencoes-title,
+html.theme-dark .retencoes-title span {
+  color: #ffb066 !important;
+}
+
+html.theme-dark .retencao-item {
+  background: #0b0d11 !important;
+  border: 1px solid #2a2f38 !important;
+  color: #f5f5f5 !important;
+}
+
+html.theme-dark .retencao-item:hover,
+html.theme-dark .retencao-item.ativo {
+  background: rgba(255, 140, 66, .10) !important;
+  border-color: #ff8c42 !important;
+}
+
+html.theme-dark .retencao-item span {
+  color: #f5f5f5 !important;
+}
+
+/* CNAE */
+html.theme-dark .cnae-box {
+  background: linear-gradient(145deg, #111318, #08090d) !important;
+  border: 1px solid #2a2f38 !important;
+}
+
+html.theme-dark .cnae-header,
+html.theme-dark .cnae-header span {
+  color: #ffb066 !important;
+}
+
+/* Aviso bancário */
+html.theme-dark .bank-warning {
+  background: linear-gradient(145deg, #181108, #0e0f13) !important;
+  border: 1px solid rgba(255, 140, 66, .35) !important;
+  color: #f5f5f5 !important;
+}
+
+html.theme-dark .bank-warning-icon {
+  background: rgba(255, 140, 66, .14) !important;
+  color: #ff8c42 !important;
+}
+
+html.theme-dark .bank-warning-title {
+  color: #ffb066 !important;
+}
+
+html.theme-dark .bank-warning-body,
+html.theme-dark .bank-warning-body strong {
+  color: #d6dbe2 !important;
+}
+
+/* Upload */
+html.theme-dark .upload-area {
+  background: linear-gradient(145deg, #0c0e12, #080a0e) !important;
+  border: 2px dashed #343b46 !important;
+}
+
+html.theme-dark .upload-area:hover {
+  background: linear-gradient(145deg, rgba(255,140,66,.08), #0c0e12) !important;
+  border-color: #ff8c42 !important;
+}
+
+html.theme-dark .upload-area.uploaded {
+  background: linear-gradient(145deg, rgba(47,170,96,.12), #0c0e12) !important;
+  border-color: #2faa60 !important;
+}
+
+html.theme-dark .upload-area.upload-error {
+  background: linear-gradient(145deg, rgba(255,77,79,.10), #0c0e12) !important;
+  border-color: #ff4d4f !important;
+}
+
+html.theme-dark .upload-title {
+  color: #f5f5f5 !important;
+}
+
+html.theme-dark .upload-hint,
+html.theme-dark .upload-formats {
+  color: #9da3ad !important;
+}
+
+html.theme-dark .upload-icon {
+  background: rgba(255,140,66,.12) !important;
+  color: #ff8c42 !important;
+}
+
+html.theme-dark .upload-badge,
+html.theme-dark .badge-req {
+  background: rgba(255,140,66,.12) !important;
+  border-color: rgba(255,140,66,.30) !important;
+  color: #ffb066 !important;
+}
+
+/* Histórico */
+html.theme-dark .card-historico,
+html.theme-dark #divLinhasHistorico .card {
+  background: linear-gradient(145deg, #111318, #08090d) !important;
+  border-color: #2a2f38 !important;
+  border-left-color: #ff8c42 !important;
+}
+
+html.theme-dark .historico-usuario,
+html.theme-dark .historico-observacao,
+html.theme-dark #divLinhasHistorico .card-body {
+  color: #f5f5f5 !important;
+}
+
+html.theme-dark .historico-data,
+html.theme-dark .historico-atividade {
+  color: #aeb4bd !important;
+}
+
+/* Validação */
+html.theme-dark .val-summary {
+  background: linear-gradient(145deg, rgba(255,77,79,.10), #111318) !important;
+  border-color: rgba(255,77,79,.35) !important;
+  border-left-color: #ff4d4f !important;
+}
+
+html.theme-dark .val-summary-title,
+html.theme-dark .val-summary li {
+  color: #ff8b8b !important;
+}
+
+html.theme-dark .ctx-alert.info {
+  background: linear-gradient(145deg, rgba(255,140,66,.10), #111318) !important;
+  border-color: rgba(255,140,66,.35) !important;
+  color: #ffb066 !important;
+}
+
+/* Footer / paginação */
+html.theme-dark .footer-progress,
+html.theme-dark .footer-info {
+  color: #aeb4bd !important;
+}
+
+html.theme-dark .pagination {
+  background: #111318 !important;
+  border-color: #2a2f38 !important;
+  color: #f5f5f5 !important;
+}
+
+html.theme-dark .pagination-active {
+  background: linear-gradient(135deg, #ff8c42, #ff7417) !important;
+  color: #111 !important;
+}
+
+/* Select arrow */
+html.theme-dark .select-wrap::after {
+  color: #ff8c42 !important;
+}
+
+/* Divider */
+html.theme-dark .divider,
+html.theme-dark hr {
+  border-top-color: #2a2f38 !important;
+}
+
+/* Botões warning usados em CNAE e Grupo */
+html.theme-dark .btn-warning,
+html.theme-dark .btn-cnae,
+html.theme-dark .btn-grupo-mercadoria {
+  background: linear-gradient(135deg, #ff8c42, #ff7417) !important;
+  color: #111 !important;
+  border: none !important;
+  box-shadow: 0 10px 28px rgba(255,140,66,.25) !important;
+}
+
+/* Desabilitados */
+html.theme-dark .disabled-upload,
+html.theme-dark .upload-area.disabled-upload {
+  background: #171a1f !important;
+  border-color: #343b46 !important;
+  opacity: .65 !important;
+}
+
+/* =========================================================
+   BOTÃO APROVAR — VERDE DARK MODE
+========================================================= */
+
+html.theme-dark #btnAprovar,
+html.theme-dark .btn-aprovar {
+
+  background:
+    linear-gradient(
+      135deg,
+      #16a34a,
+      #22c55e
+    ) !important;
+
+  color:
+    #ffffff !important;
+
+  border:
+    1px solid rgba(34,197,94,.45) !important;
+
+  box-shadow:
+    0 10px 28px rgba(34,197,94,.25),
+    0 0 18px rgba(34,197,94,.12) !important;
+}
+
+
+/* HOVER */
+html.theme-dark #btnAprovar:hover,
+html.theme-dark .btn-aprovar:hover {
+
+  background:
+    linear-gradient(
+      135deg,
+      #15803d,
+      #16a34a
+    ) !important;
+
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 14px 34px rgba(34,197,94,.35),
+    0 0 22px rgba(34,197,94,.18) !important;
+}
+
+
+/* BOTÃO REPROVAR */
+html.theme-dark #btnReprovar,
+html.theme-dark .btn-reprovar {
+
+  background:
+    linear-gradient(
+      135deg,
+      #dc2626,
+      #ef4444
+    ) !important;
+
+  color:
+    #ffffff !important;
+
+  border:
+    1px solid rgba(239,68,68,.35) !important;
+
+  box-shadow:
+    0 10px 28px rgba(239,68,68,.20) !important;
+}
+
+
+/* HOVER */
+html.theme-dark #btnReprovar:hover,
+html.theme-dark .btn-reprovar:hover {
+
+  background:
+    linear-gradient(
+      135deg,
+      #b91c1c,
+      #dc2626
+    ) !important;
+
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 14px 34px rgba(239,68,68,.28) !important;
+}
+
+
+
+/* =========================================================
+   DARK MODE — HEADER IGUAL AO PRINT BONITO
+   Detecta automaticamente: <html class="theme-dark">
+========================================================= */
+
+html.theme-dark .wizard-progress {
+  background: transparent !important;
+  padding: 20px 20px 0 !important;
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  width: 100% !important;
+  margin-bottom: 16px !important;
+}
+
+html.theme-dark .step {
+  background: linear-gradient(145deg, #17191f, #0c0d11) !important;
+  color: #8f949b !important;
+  border: 1px solid #2a2f38 !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.03) !important;
+}
+
+html.theme-dark .step.active {
+  background: linear-gradient(135deg, #5a2108, #b3470d) !important;
+  color: #ffffff !important;
+  border-color: #ff7a1a !important;
+  box-shadow: 0 10px 28px rgba(255, 116, 23, .22) !important;
+}
+
+html.theme-dark .step.completed {
+  background: linear-gradient(135deg, #1d2522, #123c32) !important;
+  color: #d8fff3 !important;
+}
+
+/* CARD PRINCIPAL DO TOPO */
+html.theme-dark .page-header {
+  background:
+    radial-gradient(circle at top left, rgba(255, 140, 66, .08), transparent 35%),
+    linear-gradient(145deg, #111318, #08090d) !important;
+
+  border: 1px solid #252a33 !important;
+  border-left: 3px solid #ff7417 !important;
+
+  border-radius: 22px !important;
+
+  box-shadow:
+    0 20px 55px rgba(0,0,0,.48),
+    inset 0 0 0 1px rgba(255,255,255,.025) !important;
+
+  padding: 32px 36px !important;
+  margin: 0 20px 28px !important;
+  color: #f5f5f5 !important;
+}
+
+html.theme-dark .page-header:hover {
+  transform: none !important;
+  box-shadow:
+    0 22px 60px rgba(0,0,0,.55),
+    0 0 0 1px rgba(255,140,66,.12) !important;
+}
+
+html.theme-dark .page-header-icon {
+  background: linear-gradient(145deg, rgba(255,140,66,.18), rgba(255,116,23,.08)) !important;
+  color: #ff8c42 !important;
+  border: 1px solid rgba(255,140,66,.28) !important;
+  box-shadow: 0 10px 28px rgba(0,0,0,.35) !important;
+}
+
+html.theme-dark .page-header-title {
+  color: #f4f6f8 !important;
+  font-size: 26px !important;
+  font-weight: 800 !important;
+}
+
+html.theme-dark .page-header-sub {
+  color: #aeb4bd !important;
+}
+
+html.theme-dark .step-badge {
+  background: rgba(255,140,66,.10) !important;
+  color: #ff9d5d !important;
+  border: 1px solid rgba(255,140,66,.24) !important;
+  box-shadow: none !important;
+}
