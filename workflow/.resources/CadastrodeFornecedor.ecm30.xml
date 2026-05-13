@@ -28,11 +28,14 @@
     <processDefinitionVersionPK>
       <companyId>1</companyId>
       <processId>CadastrodeFornecedor</processId>
+<<<<<<< HEAD
       <version>48</version>
+=======
+      <version>45</version>
+>>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
     <formId>33577</formId>
-    <formIdV2>0</formIdV2>
     <editionMode>true</editionMode>
     <updateAttachmentsVersion>false</updateAttachmentsVersion>
     <controlsAttachmentsSecurity>false</controlsAttachmentsSecurity>
@@ -76,7 +79,7 @@
       <notifyAuthorityFollowUp>false</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>77</positionX>
+      <positionX>70</positionX>
       <positionY>90</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
@@ -280,8 +283,8 @@
       <notifyAuthorityFollowUp>true</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>417</positionX>
-      <positionY>73</positionY>
+      <positionX>440</positionX>
+      <positionY>65</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -403,8 +406,8 @@
       <notifyAuthorityFollowUp>false</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>607</positionX>
-      <positionY>434</positionY>
+      <positionX>620</positionX>
+      <positionY>439</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -428,7 +431,11 @@
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
         <expressionOrder>1</expressionOrder>
+<<<<<<< HEAD
         <version>48</version>
+=======
+        <version>45</version>
+>>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;Correcao&quot;</condition>
@@ -440,7 +447,11 @@
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
         <expressionOrder>2</expressionOrder>
+<<<<<<< HEAD
         <version>48</version>
+=======
+        <version>45</version>
+>>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;enviarRm&quot;</condition>
@@ -864,8 +875,8 @@ function normalizarCheckboxAuditoria(valor) {
         <processId>CadastrodeFornecedor</processId>
         <version>1</version>
       </workflowProcessEventPK>
-      <eventDescription>process.description=CadastrodeFornecedor&#xd;
-process.category=&#xd;
+      <eventDescription>process.description=CadastrodeFornecedor
+process.category=
 process.instructions=</eventDescription>
     </WorkflowProcessEvent>
     <WorkflowProcessEvent>
@@ -875,8 +886,8 @@ process.instructions=</eventDescription>
         <processId>CadastrodeFornecedor</processId>
         <version>1</version>
       </workflowProcessEventPK>
-      <eventDescription>process.description=CadastrodeFornecedor&#xd;
-process.category=&#xd;
+      <eventDescription>process.description=CadastrodeFornecedor
+process.category=
 process.instructions=</eventDescription>
     </WorkflowProcessEvent>
     <WorkflowProcessEvent>
@@ -886,8 +897,8 @@ process.instructions=</eventDescription>
         <processId>CadastrodeFornecedor</processId>
         <version>1</version>
       </workflowProcessEventPK>
-      <eventDescription>process.description=CadastrodeFornecedor&#xd;
-process.category=&#xd;
+      <eventDescription>process.description=CadastrodeFornecedor
+process.category=
 process.instructions=</eventDescription>
     </WorkflowProcessEvent>
   </list>
@@ -981,18 +992,26 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
+<<<<<<< HEAD
         <version>48</version>
+=======
+        <version>45</version>
+>>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>17</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
       <positionX>327</positionX>
-      <positionY>452</positionY>
+      <positionY>456</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
+<<<<<<< HEAD
         <version>48</version>
+=======
+        <version>45</version>
+>>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>25</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1003,62 +1022,86 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
+<<<<<<< HEAD
         <version>48</version>
+=======
+        <version>45</version>
+>>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>28</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
-      <positionX>385</positionX>
-      <positionY>280</positionY>
+      <positionX>409</positionX>
+      <positionY>284</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
+<<<<<<< HEAD
         <version>48</version>
+=======
+        <version>45</version>
+>>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>28</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
-      <positionX>385</positionX>
-      <positionY>108</positionY>
+      <positionX>409</positionX>
+      <positionY>107</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
+<<<<<<< HEAD
         <version>48</version>
+=======
+        <version>45</version>
+>>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>29</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
-      <positionX>94</positionX>
-      <positionY>280</positionY>
+      <positionX>87</positionX>
+      <positionY>284</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
+<<<<<<< HEAD
         <version>48</version>
+=======
+        <version>45</version>
+>>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>30</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
-      <positionX>538</positionX>
-      <positionY>108</positionY>
+      <positionX>569</positionX>
+      <positionY>103</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
+<<<<<<< HEAD
         <version>48</version>
+=======
+        <version>45</version>
+>>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>30</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
-      <positionX>538</positionX>
+      <positionX>569</positionX>
       <positionY>46</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
+<<<<<<< HEAD
         <version>48</version>
+=======
+        <version>45</version>
+>>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>30</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
@@ -1069,34 +1112,46 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
+<<<<<<< HEAD
         <version>48</version>
+=======
+        <version>45</version>
+>>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>31</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
       <positionX>638</positionX>
-      <positionY>628</positionY>
+      <positionY>636</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
+<<<<<<< HEAD
         <version>48</version>
+=======
+        <version>45</version>
+>>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>31</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
       <positionX>638</positionX>
-      <positionY>676</positionY>
+      <positionY>702</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
+<<<<<<< HEAD
         <version>48</version>
+=======
+        <version>45</version>
+>>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>31</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
       <positionX>470</positionX>
-      <positionY>676</positionY>
+      <positionY>702</positionY>
     </ProcessLinkBend>
   </list>
   <list/>
