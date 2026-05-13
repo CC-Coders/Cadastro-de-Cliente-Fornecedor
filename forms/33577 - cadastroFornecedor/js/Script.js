@@ -1,22 +1,30 @@
+// Limites de itens dinâmicos adicionáveis pelo usuário
 window.LIMITE_CNAE_SECUNDARIO = window.LIMITE_CNAE_SECUNDARIO || 5;
 window.LIMITE_GRUPO_MERCADORIA = 9;
+
+// Mapeamento step-number → ID do painel de conteúdo correspondente
 const PANEL_MAP = {
    1: "#divPreCadastro",
    2: "#divDadosCadastrais",
    3: "#divDocumentacao",
    4: "#paginaHistorico"
 };
+
+// Mapeamento step-number → ID do botão de navegação no stepper inferior
 const NAV_MAP = {
    1: "#nav-step-PreCad",
    2: "#nav-step-DadosCadastrais",
    3: "#nav-step-Documentacao",
    4: "#nav-step-HistoricoDecisao"
 };
-// condicionais para aparecer a opção de impostos
+
+// Tipos de fornecedor que exibem automaticamente o painel de retenções.
 const TIPOS_COM_RETENCAO = [
    // "Serviços Gerais",
    // "Serviços de Engenharia"
 ];
+
+// Opções disponíveis para os selects de Grupo de Mercadoria
 const OPCOES_GRUPO_MERCADORIA = [
    "Materiais de Construção",
    "Equipamentos e Máquinas",
@@ -26,18 +34,25 @@ const OPCOES_GRUPO_MERCADORIA = [
    "Tecnologia e TI",
    "Seguro e Apólices"
 ];
+
+// IDs numéricos das atividades do processo BPM — usados em toda a lógica condicional
 const ATIVIDADES = {
-   INICIO_0: 0,
-   INICIO: 4,
-   VALIDACAO: 11,
-   INTEGRACAO: 16,
-   FIM: [22]
+   INICIO_0: 0,   // abertura do formulário antes de enviar (modo rascunho)
+   INICIO: 4,     // atividade de Início / Solicitação
+   VALIDACAO: 11, // atividade de Validação pelo aprovador
+   INTEGRACAO: 16,// atividade de Integração com RM
+   FIM: [22]      // array para suportar múltiplos IDs de atividade fim futuramente
 };
 
+
+// INICIALIZAÇÃO DO FORMULÁRIO
+// A ordem das chamadas abaixo é intencional:
 $(document).ready(function () {
    inicializarTela();
    inicializarMascaras();
-carregarTiposClienteFornecedor();
+   carregarTiposClienteFornecedor();
+   carregarNaturezaRendimento();
+   carregarOpcoesIrrf(true);
    bindEventos();
    inicializarUploadsFluig();
 
@@ -47,68 +62,73 @@ carregarTiposClienteFornecedor();
       console.error("Erro em sincronizarEstadoInicial:", erro);
    }
 
-
    restaurarUploadsSalvos();
    aplicarAsteriscoObrigatorio();
    aplicarBarraProcesso();
    controlarStepperHistorico();
-// Ao carregar
-if ($("#categoria").val()) {
-  abrirDadosComerciais();
-} else {
-  fecharDadosComerciais();
-}
 
-// Change
-$("#categoria").off("change.abrirDadosComerciais").on("change.abrirDadosComerciais", function () {
-  if ($(this).val()) {
-    abrirDadosComerciais();
-  } else {
-    fecharDadosComerciais();
-  }
-});
-$("#tipo").on("change", function () {
+   // Controla a visibilidade da seção "Dados Comerciais" com base na categoria já selecionada
+   if ($("#categoria").val()) {
+      abrirDadosComerciais();
+   } else {
+      fecharDadosComerciais();
+   }
 
-    var texto = $("#tipo option:selected").text();
- $("#tipoSelecionado").val($(this).val());
-    $("#tipoDescricao").val(texto);
+   // Reabre/fecha "Dados Comerciais" quando o usuário troca a categoria
+   $("#categoria").off("change.abrirDadosComerciais").on("change.abrirDadosComerciais", function () {
+      if ($(this).val()) {
+         abrirDadosComerciais();
+      } else {
+         fecharDadosComerciais();
+      }
+   });
 
-});
+   // Mantém os hidden #tipoSelecionado e #tipoDescricao sincronizados com o select #tipo.
+   // Necessário porque o select é populado dinamicamente; o Fluig só persiste o value, não o text.
+   $("#tipo").on("change", function () {
+      var texto = $("#tipo option:selected").text();
+      $("#tipoSelecionado").val($(this).val());
+      $("#tipoDescricao").val(texto);
+   });
 
-// Clique manual
-$("#divDadosComerciais .section-head")
-  .off("click.toggleDadosComerciais")
-  .on("click.toggleDadosComerciais", function () {
-    const body = $("#divDadosComerciais .section-body");
-    const seta = $("#divDadosComerciais .section-arrow");
+   // Override do toggleSection padrão para a seção "Dados Comerciais",
+   // usando slideToggle animado em vez do comportamento estático default
+   $("#divDadosComerciais .section-head")
+      .off("click.toggleDadosComerciais")
+      .on("click.toggleDadosComerciais", function () {
+         const body = $("#divDadosComerciais .section-body");
+         const seta = $("#divDadosComerciais .section-arrow");
 
-    body.stop(true, true).slideToggle(500);
+         body.stop(true, true).slideToggle(500);
+         seta.toggleClass("open");
+         seta.text(seta.hasClass("open") ? "▲" : "▼");
+      });
 
-    seta.toggleClass("open");
-    seta.text(seta.hasClass("open") ? "▲" : "▼");
-  });
-
+   // Aciona busca automática na API de CNPJ quando 14 dígitos são digitados.
+   // cnpjJaConsultado evita chamadas duplicadas ao mesmo CNPJ sem limpar o campo.
    let cnpjJaConsultado = "";
-
    $(document).on("input", "#docCnpj", function () {
-      let cnpj = $(this).val().replace(/[^a-zA-Z0-9]/g, "")
-.toUpperCase();
+      let cnpj = $(this).val().replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
 
       if (cnpj.length === 14 && cnpj !== cnpjJaConsultado) {
          cnpjJaConsultado = cnpj;
          buscarCnpj(cnpj);
       }
    });
+
+   // Delay para garantir que o DOM do Fluig esteja completamente renderizado
+   // antes de aplicar o bloqueio/edição de campos da atividade de Validação
    setTimeout(controlarEdicaoInicioValidacao, 300);
 });
 
-// INICIALIZAÇÃO DA TELA
+
+// SETUP VISUAL INICIAL
 function inicializarTela() {
-   $(".section-body").show();
+   $(".section-body").show(500);
 
    goToStep(1, false);
 
-   $("#divDadosFornecedor .section-body").show();
+   $("#divDadosFornecedor .section-body").show(500);
    $("#divDadosFornecedor .section-arrow").addClass("open").text("▲");
 
    if ($("#categoria").val()) {
@@ -117,34 +137,45 @@ function inicializarTela() {
       fecharDadosComerciais();
    }
 
-   $("#divCpf, #divCnpj, #divNomeFantasia, #divRg, #divInscricaoEstadual").hide();
+   $("#divCpf, #divCnpj, #divNomeFantasia, #divRg, #divInscricaoEstadual").hide(500);
+
+   // Endereço preenchido via ViaCEP / API de CNPJ: campos readonly por padrão
    $("#endereco, #bairro, #cidade, #estado").prop("readonly", true);
+
+   // País: readonly (fixado em "Brasil" no modo nacional; trocado por select no estrangeiro)
+   $("#pais").prop("readonly", true);
+   if (!($("#pais").val() || "").trim()) {
+      $("#pais").val("Brasil");
+   }
+
+   // Select de país estrangeiro: oculto até o toggle ser ativado
+   $("#divSelectPaisEstrangeiro").hide(500);
 }
 function fecharDadosComerciais() {
-  $("#divDadosComerciais .section-body").stop(true, true).slideUp(500);
-  $("#divDadosComerciais .section-arrow").removeClass("open").text("▼");
+   $("#divDadosComerciais .section-body").stop(true, true).slideUp(500);
+   $("#divDadosComerciais .section-arrow").removeClass("open").text("▼");
 }
-
 function abrirDadosComerciais() {
-  $("#divDadosComerciais .section-body").stop(true, true).slideDown(500);
-  $("#divDadosComerciais .section-arrow").addClass("open").text("▲");
+   $("#divDadosComerciais .section-body").stop(true, true).slideDown(500);
+   $("#divDadosComerciais .section-arrow").addClass("open").text("▲");
 }
 function sincronizarEstadoInicial() {
    const funcoesIniciais = [
       function () {
+         // Dispara o change do toggle de retenção para exibir/ocultar o painel de impostos
          $("#toggleRetencao").trigger("change");
       },
-      controlarCamposCategoria,
-      controlarAlertaCnpj,
-      controlarRetencaoPorTipo,
-      controlarDocumentacaoPorCategoria,
-      restaurarGruposMercadoriaSalvos,
-      restaurarCnaesSecundariosSalvos,
-      controlarBotaoAdicionarCnae,
+      controlarCamposCategoria,          // mostra/oculta campos CPF/CNPJ/RG conforme categoria
+      controlarAlertaCnpj,               // exibe alerta de instrução sobre documento fiscal
+      controlarRetencaoPorTipo,          // mostra/oculta toggle de retenção conforme tipo
+      controlarDocumentacaoPorCategoria, // mostra/oculta campos de upload conforme PJ/PF
+      restaurarGruposMercadoriaSalvos,   // reconstrói os selects extras de grupo de mercadoria
+      restaurarCnaesSecundariosSalvos,   // reconstrói os inputs extras de CNAE secundário
+      controlarBotaoAdicionarCnae,       // habilita/desabilita botão "+ CNAE" conforme limite
       controlarBotaoAdicionarGrupoMercadoria,
-
-      atualizarSetas,
-      atualizarLayoutStepper
+      inicializarDadosBancarios,         // reconstrói os cards bancários a partir dos hidden fields
+      atualizarSetas,                    // habilita/desabilita setas de navegação do stepper
+      atualizarLayoutStepper             // alterna entre layout stepper-3 e stepper-4 steps
    ];
 
    funcoesIniciais.forEach(function (funcao) {
@@ -154,20 +185,26 @@ function sincronizarEstadoInicial() {
          console.error("Erro ao sincronizar estado inicial:", erro);
       }
    });
-      setTimeout(function () {
+
+   // Aguarda 300ms para o Fluig terminar de injetar os valores do processo no DOM
+   // antes de tirar o snapshot de auditoria da atividade de Validação
+   setTimeout(function () {
       inicializarSnapshotEdicaoValidacao();
    }, 300);
+
+   // Aguarda 500ms para garantir que carregarTiposClienteFornecedor() já populou
+   // o select #tipo antes de tentar re-selecionar o valor salvo
    setTimeout(function () {
+      const valorTipo = ($("#tipo").attr("value") || $("#tipo").val() || "").trim();
 
-   const valorTipo = ($("#tipo").attr("value") || $("#tipo").val() || "").trim();
-
-   if (valorTipo) {
-      $("#tipo").val(valorTipo).trigger("change");
-   }
-
-}, 500);
+      if (valorTipo) {
+         $("#tipo").val(valorTipo).trigger("change");
+      }
+   }, 500);
 }
 
+
+// RESTAURAÇÃO DE CAMPOS DINÂMICOS
 function restaurarGruposMercadoriaSalvos() {
    for (let i = 2; i <= LIMITE_GRUPO_MERCADORIA; i++) {
       const valor = ($("#hiddenGrupoMercadoria" + i).val() || "").trim();
@@ -178,7 +215,6 @@ function restaurarGruposMercadoriaSalvos() {
       }
    }
 }
-
 function restaurarCnaesSecundariosSalvos() {
    const limite = window.LIMITE_CNAE_SECUNDARIO || 5;
 
@@ -205,6 +241,8 @@ function restaurarCnaesSecundariosSalvos() {
    sincronizarCamposDinamicosHidden();
 }
 
+
+// BARRA DE PROGRESSO DO PROCESSO (wizard-progress)
 function aplicarBarraProcesso() {
    const atividade = Number($("#atividade").val() || 0);
    const $steps = $(".wizard-progress .step");
@@ -233,7 +271,6 @@ function aplicarBarraProcesso() {
       }
    });
 }
-
 function atualizarLayoutStepper() {
    const historicoVisivel = $("#nav-step-HistoricoDecisao").is(":visible");
 
@@ -241,22 +278,6 @@ function atualizarLayoutStepper() {
       .toggleClass("stepper-4", historicoVisivel)
       .toggleClass("stepper-3", !historicoVisivel);
 }
-$(document).ready(function () {
-
-   $("#btnAprovar").on("click", function () {
-      $("#selectDecisao").val("enviarRm").trigger("change");
-      destacarBotao(this);
-   });
-
-   $("#btnReprovar").on("click", function () {
-      $("#selectDecisao").val("Correcao").trigger("change");
-
-      destacarBotao(this);
-   });
-
-});
-
-// função visual (opcional, mas fica top)
 function destacarBotao(botaoSelecionado) {
    $("#btnAprovar, #btnReprovar")
       .removeClass("btn-primary")

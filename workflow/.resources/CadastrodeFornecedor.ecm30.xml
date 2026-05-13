@@ -28,7 +28,7 @@
     <processDefinitionVersionPK>
       <companyId>1</companyId>
       <processId>CadastrodeFornecedor</processId>
-      <version>44</version>
+      <version>48</version>
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
     <formId>33577</formId>
@@ -428,7 +428,7 @@
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
         <expressionOrder>1</expressionOrder>
-        <version>44</version>
+        <version>48</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;Correcao&quot;</condition>
@@ -440,7 +440,7 @@
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
         <expressionOrder>2</expressionOrder>
-        <version>44</version>
+        <version>48</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;enviarRm&quot;</condition>
@@ -605,273 +605,257 @@
         <processId>CadastrodeFornecedor</processId>
         <version>1</version>
       </workflowProcessEventPK>
-      <eventDescription>function beforeTaskSave(colleagueId, nextSequenceId, userList) {&#xd;
-    var atividadeAtual = Number(getValue(&quot;WKNumState&quot;));&#xd;
-    var completTask = getValue(&quot;WKCompletTask&quot;) == &quot;true&quot;;&#xd;
-&#xd;
-    if (!completTask) {&#xd;
-        return;&#xd;
-    }&#xd;
-&#xd;
-    if (atividadeAtual == 0 || atividadeAtual == 4) {&#xd;
-        adicionarHistorico(colleagueId, &quot;Solicitação&quot;, &quot;Enviado&quot;, &quot;Solicitação enviada para validação.&quot;);&#xd;
-        return;&#xd;
-    }&#xd;
-&#xd;
-    if (atividadeAtual == 11) {&#xd;
-        var decisao = hAPI.getCardValue(&quot;selectDecisao&quot;);&#xd;
-        var observacao = hAPI.getCardValue(&quot;observacaoValidacao&quot;);&#xd;
-&#xd;
-        var acao = &quot;&quot;;&#xd;
-        var atividade = &quot;Validação&quot;;&#xd;
-&#xd;
-        if (decisao == &quot;Correcao&quot;) {&#xd;
-            acao = &quot;Correção do Cadastro&quot;;&#xd;
-        } else if (decisao == &quot;envioRM&quot;) {&#xd;
-            acao = &quot;Enviar ao RM&quot;;&#xd;
-        } else {&#xd;
-            acao = &quot;Validação&quot;;&#xd;
-        }&#xd;
-&#xd;
-        if (!observacao) {&#xd;
-            observacao = &quot;Decisão registrada na etapa de validação.&quot;;&#xd;
-        }&#xd;
-&#xd;
-        var alteracoes = montarAlteracoesEdicaoValidacao();&#xd;
-&#xd;
-        if (alteracoes) {&#xd;
-            observacao += alteracoes;&#xd;
-        }&#xd;
-&#xd;
-        adicionarHistorico(colleagueId, atividade, acao, observacao);&#xd;
-&#xd;
-        hAPI.setCardValue(&quot;observacaoValidacao&quot;, &quot;&quot;);&#xd;
-        hAPI.setCardValue(&quot;selectDecisao&quot;, &quot;&quot;);&#xd;
-        hAPI.setCardValue(&quot;snapshotEdicaoValidacao&quot;, &quot;&quot;);&#xd;
-&#xd;
-        return;&#xd;
-    }&#xd;
-    if (atividadeAtual == 27) {&#xd;
-        var observacao = hAPI.getCardValue(&quot;observacaoValidacao&quot;);&#xd;
-&#xd;
-        if (!observacao) {&#xd;
-            observacao = &quot;Cadastro ajustado e reenviado para validação.&quot;;&#xd;
-        }&#xd;
-&#xd;
-        adicionarHistorico(&#xd;
-            colleagueId,&#xd;
-            &quot;Correção Cadastro&quot;,&#xd;
-            &quot;Reenvio para Validação&quot;,&#xd;
-            observacao&#xd;
-        );&#xd;
-&#xd;
-        hAPI.setCardValue(&quot;observacaoValidacao&quot;, &quot;&quot;);&#xd;
-        hAPI.setCardValue(&quot;selectDecisao&quot;, &quot;&quot;);&#xd;
-&#xd;
-        return;&#xd;
-    }&#xd;
-}&#xd;
-&#xd;
-function adicionarHistorico(usuario, atividade, acao, observacao) {&#xd;
-    hAPI.addCardChild(&quot;tableHistorico&quot;, {&#xd;
-        tableHistoricoUsuario: usuario,&#xd;
-        tableHistoricoData: new java.text.SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;).format(new java.util.Date()),&#xd;
-        tableHistoricoAtividade: atividade,&#xd;
-        tableHistoricoObservacao: observacao,&#xd;
-        tableHistoricoAcao: acao&#xd;
-    });&#xd;
-}&#xd;
-&#xd;
-function anexarDocumentosNoProcesso() {&#xd;
-    var camposDocumentos = [&#xd;
-        &quot;anxCartaoCnpjId&quot;,&#xd;
-        &quot;anxCompBancoId&quot;,&#xd;
-        &quot;anxContratoId&quot;,&#xd;
-        &quot;anxRgCpfId&quot;,&#xd;
-        &quot;anxCompEnderecoId&quot;,&#xd;
-        &quot;anxLaudoPcdId&quot;,&#xd;
-        &quot;anxDependentesId&quot;,&#xd;
-        &quot;anxCodCondutaId&quot;,&#xd;
-        &quot;anxAntiCorrupcaoId&quot;,&#xd;
-        &quot;anxConflitoId&quot;,&#xd;
-        &quot;anxLgpdId&quot;&#xd;
-    ];&#xd;
-&#xd;
-    for (var i = 0; i &lt; camposDocumentos.length; i++) {&#xd;
-        var campo = camposDocumentos[i];&#xd;
-        var documentId = hAPI.getCardValue(campo);&#xd;
-&#xd;
-        log.info(&quot;Campo anexo: &quot; + campo + &quot; | documentId: &quot; + documentId);&#xd;
-&#xd;
-        if (documentId &amp;&amp; String(documentId).trim() !== &quot;&quot; &amp;&amp; !isNaN(documentId)) {&#xd;
-            anexaDocumentoNoProcesso(documentId);&#xd;
-        }&#xd;
-    }&#xd;
-}&#xd;
-&#xd;
-function anexaDocumentoNoProcesso(documentId) {&#xd;
-    documentId = Number(documentId);&#xd;
-&#xd;
-    var attachments = hAPI.listAttachments();&#xd;
-    var jaAnexado = false;&#xd;
-&#xd;
-    for (var i = 0; i &lt; attachments.size(); i++) {&#xd;
-        var anexoId = Number(attachments.get(i).getDocumentId());&#xd;
-&#xd;
-        if (documentId === anexoId) {&#xd;
-            jaAnexado = true;&#xd;
-            break;&#xd;
-        }&#xd;
-    }&#xd;
-&#xd;
-    if (!jaAnexado) {&#xd;
-        log.info(&quot;Anexando documento no processo: &quot; + documentId);&#xd;
-        hAPI.attachDocument(documentId);&#xd;
-    } else {&#xd;
-        log.info(&quot;Documento já estava anexado: &quot; + documentId);&#xd;
-    }&#xd;
-}&#xd;
-&#xd;
-function montarAlteracoesEdicaoValidacao() {&#xd;
-    var snapshotTexto = hAPI.getCardValue(&quot;snapshotEdicaoValidacao&quot;);&#xd;
-&#xd;
-    if (!snapshotTexto) {&#xd;
-        return &quot;&quot;;&#xd;
-    }&#xd;
-&#xd;
-    var snapshot = {};&#xd;
-&#xd;
-    try {&#xd;
-        snapshot = JSON.parse(snapshotTexto);&#xd;
-    } catch (e) {&#xd;
-        log.error(&quot;Erro ao ler snapshotEdicaoValidacao: &quot; + e);&#xd;
-        return &quot;&quot;;&#xd;
-    }&#xd;
-&#xd;
-    var campos = [&#xd;
-        [&quot;classificacao&quot;, &quot;Classificação&quot;],&#xd;
-        [&quot;categoria&quot;, &quot;Categoria&quot;],&#xd;
-        [&quot;tipo&quot;, &quot;Tipo&quot;],&#xd;
-        [&quot;classificacaoOperacional&quot;, &quot;Classificação Operacional&quot;],&#xd;
-&#xd;
-        [&quot;docCpf&quot;, &quot;CPF&quot;],&#xd;
-        [&quot;docCnpj&quot;, &quot;CNPJ&quot;],&#xd;
-        [&quot;docRg&quot;, &quot;RG&quot;],&#xd;
-        [&quot;docInscricaoEstadual&quot;, &quot;Inscrição Estadual&quot;],&#xd;
-&#xd;
-        [&quot;razaoSocial&quot;, &quot;Razão Social&quot;],&#xd;
-        [&quot;nomeFantasia&quot;, &quot;Nome Fantasia&quot;],&#xd;
-        [&quot;cep&quot;, &quot;CEP&quot;],&#xd;
-        [&quot;endereco&quot;, &quot;Endereço&quot;],&#xd;
-        [&quot;numero&quot;, &quot;Número&quot;],&#xd;
-        [&quot;complemento&quot;, &quot;Complemento&quot;],&#xd;
-        [&quot;bairro&quot;, &quot;Bairro&quot;],&#xd;
-        [&quot;cidade&quot;, &quot;Cidade&quot;],&#xd;
-        [&quot;pais&quot;, &quot;País&quot;],&#xd;
-        [&quot;estado&quot;, &quot;Estado&quot;],&#xd;
-&#xd;
-        [&quot;icms&quot;, &quot;Contribuinte ICMS&quot;],&#xd;
-        [&quot;irrf&quot;, &quot;Alíquota IRRF&quot;],&#xd;
-        [&quot;simplesNacional&quot;, &quot;Simples Nacional&quot;],&#xd;
-        [&quot;naturezaRendimento&quot;, &quot;Natureza de Rendimentos&quot;],&#xd;
-        [&quot;regimeFiscal&quot;, &quot;Regime Fiscal&quot;],&#xd;
-        [&quot;tipoDocEmitido&quot;, &quot;Tipo de Documento Emitido&quot;],&#xd;
-&#xd;
-        [&quot;moeda&quot;, &quot;Moeda do Pedido&quot;],&#xd;
-        [&quot;grupoMercadoria1&quot;, &quot;Grupo de Mercadoria 1&quot;],&#xd;
-        [&quot;hiddenGrupoMercadoria2&quot;, &quot;Grupo de Mercadoria 2&quot;],&#xd;
-        [&quot;hiddenGrupoMercadoria3&quot;, &quot;Grupo de Mercadoria 3&quot;],&#xd;
-        [&quot;hiddenGrupoMercadoria4&quot;, &quot;Grupo de Mercadoria 4&quot;],&#xd;
-        [&quot;hiddenGrupoMercadoria5&quot;, &quot;Grupo de Mercadoria 5&quot;],&#xd;
-&#xd;
-        [&quot;cnaePrincipal&quot;, &quot;CNAE Principal&quot;],&#xd;
-        [&quot;hiddenCnaeSecundario1&quot;, &quot;CNAE Secundário 1&quot;],&#xd;
-        [&quot;hiddenCnaeSecundario2&quot;, &quot;CNAE Secundário 2&quot;],&#xd;
-        [&quot;hiddenCnaeSecundario3&quot;, &quot;CNAE Secundário 3&quot;],&#xd;
-        [&quot;hiddenCnaeSecundario4&quot;, &quot;CNAE Secundário 4&quot;],&#xd;
-        [&quot;hiddenCnaeSecundario5&quot;, &quot;CNAE Secundário 5&quot;],&#xd;
-        [&quot;toggleRetencao&quot;, &quot;Haverá retenção?&quot;],&#xd;
-        [&quot;iss&quot;, &quot;Retenção ISS&quot;],&#xd;
-        [&quot;inss&quot;, &quot;Retenção INSS&quot;],&#xd;
-        [&quot;inputIrrf&quot;, &quot;Retenção IRRF&quot;],&#xd;
-        [&quot;csll&quot;, &quot;Retenção CSLL&quot;],&#xd;
-        [&quot;pis&quot;, &quot;Retenção PIS&quot;],&#xd;
-        [&quot;cofins&quot;, &quot;Retenção COFINS&quot;],&#xd;
-&#xd;
-        [&quot;condicaoPagamento&quot;, &quot;Condição de Pagamento&quot;],&#xd;
-        [&quot;banco&quot;, &quot;Banco&quot;],&#xd;
-        [&quot;agencia&quot;, &quot;Agência&quot;],&#xd;
-        [&quot;conta&quot;, &quot;Conta&quot;],&#xd;
-&#xd;
-        [&quot;telefone&quot;, &quot;Telefone&quot;],&#xd;
-        [&quot;telComercial&quot;, &quot;Telefone Comercial&quot;],&#xd;
-        [&quot;celular&quot;, &quot;Celular&quot;],&#xd;
-        [&quot;emailAdministrativo&quot;, &quot;E-mail Administrativo&quot;],&#xd;
-        [&quot;emailComercial&quot;, &quot;E-mail Comercial&quot;],&#xd;
-        [&quot;emailCr&quot;, &quot;E-mail Financeiro / Contabilidade&quot;],&#xd;
-        [&quot;site&quot;, &quot;Site&quot;],&#xd;
-&#xd;
-        [&quot;anxCartaoCnpj&quot;, &quot;Anexo Cartão CNPJ&quot;],&#xd;
-        [&quot;anxCompBanco&quot;, &quot;Anexo Comprovante Bancário&quot;],&#xd;
-        [&quot;anxContrato&quot;, &quot;Anexo Contrato Social&quot;],&#xd;
-        [&quot;anxRgCpf&quot;, &quot;Anexo RG / CPF&quot;],&#xd;
-        [&quot;anxCompEndereco&quot;, &quot;Anexo Comprovante de Endereço&quot;],&#xd;
-        [&quot;anxLaudoPcd&quot;, &quot;Anexo Laudo Médico PCD&quot;],&#xd;
-        [&quot;anxDependentes&quot;, &quot;Anexo Dependentes IRRF&quot;],&#xd;
-        [&quot;anxCodConduta&quot;, &quot;Anexo Código de Conduta&quot;],&#xd;
-        [&quot;anxAntiCorrupcao&quot;, &quot;Anexo Política Anticorrupção&quot;],&#xd;
-        [&quot;anxConflito&quot;, &quot;Anexo Conflito de Interesses&quot;],&#xd;
-        [&quot;anxLgpd&quot;, &quot;Anexo Ciência LGPD&quot;]&#xd;
-    ];&#xd;
-&#xd;
-    var alteracoes = [];&#xd;
-&#xd;
-    for (var i = 0; i &lt; campos.length; i++) {&#xd;
-        var campo = campos[i][0];&#xd;
-        var label = campos[i][1];&#xd;
-&#xd;
-        var antigo = String(snapshot[campo] || &quot;&quot;).trim();&#xd;
-        var novo = String(hAPI.getCardValue(campo) || &quot;&quot;).trim();&#xd;
-&#xd;
-        if (isCampoCheckboxAuditoria(campo)) {&#xd;
-            antigo = normalizarCheckboxAuditoria(antigo);&#xd;
-            novo = normalizarCheckboxAuditoria(novo);&#xd;
-        }&#xd;
-&#xd;
-        if (antigo != novo) {&#xd;
-            alteracoes.push(label + &quot;: de &apos;&quot; + antigo + &quot;&apos; para &apos;&quot; + novo + &quot;&apos;&quot;);&#xd;
-        }&#xd;
-    }&#xd;
-&#xd;
-    if (alteracoes.length == 0) {&#xd;
-        return &quot;&quot;;&#xd;
-    }&#xd;
-&#xd;
-    return &quot;&lt;br&gt;&lt;br&gt;&lt;b&gt;Alterações realizadas:&lt;/b&gt;&lt;br&gt;• &quot; + alteracoes.join(&quot;&lt;br&gt;• &quot;);&#xd;
-}&#xd;
-&#xd;
-function isCampoCheckboxAuditoria(campo) {&#xd;
-    return [&#xd;
-        &quot;toggleEstrangeiro&quot;,&#xd;
-        &quot;toggleRetencao&quot;,&#xd;
-        &quot;iss&quot;,&#xd;
-        &quot;inss&quot;,&#xd;
-        &quot;inputIrrf&quot;,&#xd;
-        &quot;csll&quot;,&#xd;
-        &quot;pis&quot;,&#xd;
-        &quot;cofins&quot;&#xd;
-    ].indexOf(campo) &gt;= 0;&#xd;
-}&#xd;
-&#xd;
-function normalizarCheckboxAuditoria(valor) {&#xd;
-    var v = String(valor || &quot;&quot;).toLowerCase().trim();&#xd;
-&#xd;
-    if (v == &quot;on&quot; || v == &quot;true&quot; || v == &quot;1&quot; || v == &quot;sim&quot; || v == &quot;s&quot;) {&#xd;
-        return &quot;Sim&quot;;&#xd;
-    }&#xd;
-&#xd;
-    return &quot;Não&quot;;&#xd;
-}</eventDescription>
+      <eventDescription>function beforeTaskSave(colleagueId, nextSequenceId, userList) {
+    var atividadeAtual = Number(getValue(&quot;WKNumState&quot;));
+    var completTask = getValue(&quot;WKCompletTask&quot;) == &quot;true&quot;;
+
+    if (!completTask) {
+        return;
+    }
+
+    if (atividadeAtual == 0 || atividadeAtual == 4) {
+        adicionarHistorico(colleagueId, &quot;Solicitação&quot;, &quot;Enviado&quot;, &quot;Solicitação enviada para validação.&quot;);
+        return;
+    }
+
+    if (atividadeAtual == 11) {
+        var decisao = hAPI.getCardValue(&quot;selectDecisao&quot;);
+        var observacao = hAPI.getCardValue(&quot;observacaoValidacao&quot;);
+
+        var acao = &quot;&quot;;
+        var atividade = &quot;Validação&quot;;
+
+        if (decisao == &quot;Correcao&quot;) {
+            acao = &quot;Correção do Cadastro&quot;;
+        } else if (decisao == &quot;enviarRm&quot;) {
+            acao = &quot;Enviar ao RM&quot;;
+        } else {
+            acao = &quot;Validação&quot;;
+        }
+
+        if (!observacao) {
+            observacao = &quot;Decisão registrada na etapa de validação.&quot;;
+        }
+
+        // Compara o snapshot tirado no início da Validação com os valores atuais.
+        // Se o validador editou algum campo do solicitante, as diferenças aparecem no histórico.
+        var alteracoes = montarAlteracoesEdicaoValidacao();
+
+        if (alteracoes) {
+            observacao += alteracoes;
+        }
+
+        adicionarHistorico(colleagueId, atividade, acao, observacao);
+
+        // Limpa campos transitórios para não vazar para a próxima atividade.
+        hAPI.setCardValue(&quot;observacaoValidacao&quot;, &quot;&quot;);
+        hAPI.setCardValue(&quot;selectDecisao&quot;, &quot;&quot;);
+        hAPI.setCardValue(&quot;snapshotEdicaoValidacao&quot;, &quot;&quot;);
+
+        return;
+    }
+
+    if (atividadeAtual == 27) {
+        var observacao = hAPI.getCardValue(&quot;observacaoValidacao&quot;);
+
+        if (!observacao) {
+            observacao = &quot;Cadastro ajustado e reenviado para validação.&quot;;
+        }
+
+        adicionarHistorico(
+            colleagueId,
+            &quot;Correção Cadastro&quot;,
+            &quot;Reenvio para Validação&quot;,
+            observacao
+        );
+
+        hAPI.setCardValue(&quot;observacaoValidacao&quot;, &quot;&quot;);
+        hAPI.setCardValue(&quot;selectDecisao&quot;, &quot;&quot;);
+
+        return;
+    }
+}
+
+
+
+// HISTÓRICO DE DECISÃO
+function adicionarHistorico(usuario, atividade, acao, observacao) {
+    hAPI.addCardChild(&quot;tableHistorico&quot;, {
+        tableHistoricoUsuario: usuario,
+        tableHistoricoData: new java.text.SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;).format(new java.util.Date()),
+        tableHistoricoAtividade: atividade,
+        tableHistoricoObservacao: observacao,
+        tableHistoricoAcao: acao
+    });
+}
+
+
+// AUDITORIA DE EDIÇÃO NA VALIDAÇÃO
+function montarAlteracoesEdicaoValidacao() {
+    var snapshotTexto = hAPI.getCardValue(&quot;snapshotEdicaoValidacao&quot;);
+
+    if (!snapshotTexto) {
+        return &quot;&quot;;
+    }
+
+    var snapshot = {};
+
+    try {
+        snapshot = JSON.parse(snapshotTexto);
+    } catch (e) {
+        log.error(&quot;Erro ao ler snapshotEdicaoValidacao: &quot; + e);
+        return &quot;&quot;;
+    }
+
+    // Lista completa de campos auditáveis: [id do campo no card, rótulo legível].
+    // Campos hidden (hiddenBancoNCod, hiddenCnaeSecundarioN etc.) são usados porque
+    // são a fonte de verdade dos campos dinâmicos (ver Functions.js — sincronizarTabelaBancaria).
+    var campos = [
+        [&quot;classificacao&quot;, &quot;Classificação&quot;],
+        [&quot;categoria&quot;, &quot;Categoria&quot;],
+        [&quot;tipo&quot;, &quot;Tipo&quot;],
+        [&quot;classificacaoOperacional&quot;, &quot;Classificação Operacional&quot;],
+
+        [&quot;docCpf&quot;, &quot;CPF&quot;],
+        [&quot;docCnpj&quot;, &quot;CNPJ&quot;],
+        [&quot;docRg&quot;, &quot;RG&quot;],
+        [&quot;docInscricaoEstadual&quot;, &quot;Inscrição Estadual&quot;],
+
+        [&quot;razaoSocial&quot;, &quot;Razão Social&quot;],
+        [&quot;nomeFantasia&quot;, &quot;Nome Fantasia&quot;],
+        [&quot;cep&quot;, &quot;CEP&quot;],
+        [&quot;endereco&quot;, &quot;Endereço&quot;],
+        [&quot;numero&quot;, &quot;Número&quot;],
+        [&quot;complemento&quot;, &quot;Complemento&quot;],
+        [&quot;bairro&quot;, &quot;Bairro&quot;],
+        [&quot;cidade&quot;, &quot;Cidade&quot;],
+        [&quot;pais&quot;, &quot;País&quot;],
+        [&quot;estado&quot;, &quot;Estado&quot;],
+
+        [&quot;icms&quot;, &quot;Contribuinte ICMS&quot;],
+        [&quot;codIrrf&quot;, &quot;Código de Receita IRRF&quot;],
+        [&quot;irrf&quot;, &quot;Alíquota IRRF&quot;],
+        [&quot;simplesNacional&quot;, &quot;Simples Nacional&quot;],
+        [&quot;codNaturezaRendimento&quot;, &quot;Natureza de Rendimentos&quot;],
+        [&quot;regimeFiscal&quot;, &quot;Regime Fiscal&quot;],
+        [&quot;tipoDocEmitido&quot;, &quot;Tipo de Documento Emitido&quot;],
+
+        [&quot;grupoMercadoria1&quot;, &quot;Grupo de Mercadoria 1&quot;],
+        [&quot;hiddenGrupoMercadoria2&quot;, &quot;Grupo de Mercadoria 2&quot;],
+        [&quot;hiddenGrupoMercadoria3&quot;, &quot;Grupo de Mercadoria 3&quot;],
+        [&quot;hiddenGrupoMercadoria4&quot;, &quot;Grupo de Mercadoria 4&quot;],
+        [&quot;hiddenGrupoMercadoria5&quot;, &quot;Grupo de Mercadoria 5&quot;],
+        [&quot;hiddenGrupoMercadoria6&quot;, &quot;Grupo de Mercadoria 6&quot;],
+        [&quot;hiddenGrupoMercadoria7&quot;, &quot;Grupo de Mercadoria 7&quot;],
+        [&quot;hiddenGrupoMercadoria8&quot;, &quot;Grupo de Mercadoria 8&quot;],
+        [&quot;hiddenGrupoMercadoria9&quot;, &quot;Grupo de Mercadoria 9&quot;],
+
+        [&quot;cnaePrincipal&quot;, &quot;CNAE Principal&quot;],
+        [&quot;hiddenCnaeSecundario1&quot;, &quot;CNAE Secundário 1&quot;],
+        [&quot;hiddenCnaeSecundario2&quot;, &quot;CNAE Secundário 2&quot;],
+        [&quot;hiddenCnaeSecundario3&quot;, &quot;CNAE Secundário 3&quot;],
+        [&quot;hiddenCnaeSecundario4&quot;, &quot;CNAE Secundário 4&quot;],
+        [&quot;hiddenCnaeSecundario5&quot;, &quot;CNAE Secundário 5&quot;],
+        [&quot;toggleRetencao&quot;, &quot;Haverá retenção?&quot;],
+        [&quot;iss&quot;, &quot;Retenção ISS&quot;],
+        [&quot;inss&quot;, &quot;Retenção INSS&quot;],
+        [&quot;inputIrrf&quot;, &quot;Retenção IRRF&quot;],
+        [&quot;csll&quot;, &quot;Retenção CSLL&quot;],
+        [&quot;pis&quot;, &quot;Retenção PIS&quot;],
+        [&quot;cofins&quot;, &quot;Retenção COFINS&quot;],
+
+        [&quot;hiddenBanco1Cod&quot;,     &quot;Banco (Conta 1)&quot;],
+        [&quot;hiddenBanco1Agencia&quot;, &quot;Agência (Conta 1)&quot;],
+        [&quot;hiddenBanco1Conta&quot;,   &quot;Conta (Conta 1)&quot;],
+        [&quot;hiddenBanco2Cod&quot;,      &quot;Banco (Conta 2)&quot;],
+        [&quot;hiddenBanco2Agencia&quot;,  &quot;Agência (Conta 2)&quot;],
+        [&quot;hiddenBanco2Conta&quot;,    &quot;Conta (Conta 2)&quot;],
+        [&quot;hiddenBanco3Cod&quot;,      &quot;Banco (Conta 3)&quot;],
+        [&quot;hiddenBanco3Agencia&quot;,  &quot;Agência (Conta 3)&quot;],
+        [&quot;hiddenBanco3Conta&quot;,    &quot;Conta (Conta 3)&quot;],
+        [&quot;hiddenBanco4Cod&quot;,      &quot;Banco (Conta 4)&quot;],
+        [&quot;hiddenBanco4Agencia&quot;,  &quot;Agência (Conta 4)&quot;],
+        [&quot;hiddenBanco4Conta&quot;,    &quot;Conta (Conta 4)&quot;],
+        [&quot;hiddenBanco5Cod&quot;,      &quot;Banco (Conta 5)&quot;],
+        [&quot;hiddenBanco5Agencia&quot;,  &quot;Agência (Conta 5)&quot;],
+        [&quot;hiddenBanco5Conta&quot;,    &quot;Conta (Conta 5)&quot;],
+
+        [&quot;telefone&quot;, &quot;Telefone&quot;],
+        [&quot;telComercial&quot;, &quot;Telefone Comercial&quot;],
+        [&quot;celular&quot;, &quot;Celular&quot;],
+        [&quot;emailAdministrativo&quot;, &quot;E-mail Administrativo&quot;],
+        [&quot;emailComercial&quot;, &quot;E-mail Comercial&quot;],
+        [&quot;emailCr&quot;, &quot;E-mail Financeiro / Contabilidade&quot;],
+        [&quot;site&quot;, &quot;Site&quot;],
+
+        [&quot;anxCartaoCnpj&quot;, &quot;Anexo Cartão CNPJ&quot;],
+        [&quot;anxCompBanco&quot;, &quot;Anexo Comprovante Bancário&quot;],
+        [&quot;anxContrato&quot;, &quot;Anexo Contrato Social&quot;],
+        [&quot;anxRgCpf&quot;, &quot;Anexo RG / CPF&quot;],
+        [&quot;anxCompEndereco&quot;, &quot;Anexo Comprovante de Endereço&quot;],
+        [&quot;anxLaudoPcd&quot;, &quot;Anexo Laudo Médico PCD&quot;],
+        [&quot;anxDependentes&quot;, &quot;Anexo Dependentes IRRF&quot;],
+        [&quot;anxCodConduta&quot;, &quot;Anexo Código de Conduta&quot;],
+        [&quot;anxAntiCorrupcao&quot;, &quot;Anexo Política Anticorrupção&quot;],
+        [&quot;anxConflito&quot;, &quot;Anexo Conflito de Interesses&quot;],
+        [&quot;anxLgpd&quot;, &quot;Anexo Ciência LGPD&quot;]
+    ];
+
+    var alteracoes = [];
+
+    for (var i = 0; i &lt; campos.length; i++) {
+        var campo = campos[i][0];
+        var label = campos[i][1];
+
+        var antigo = String(snapshot[campo] || &quot;&quot;).trim();
+        var novo = String(hAPI.getCardValue(campo) || &quot;&quot;).trim();
+
+        // Campos de checkbox armazenam valores variados (&quot;on&quot;, &quot;true&quot;, &quot;1&quot;, &quot;Sim&quot; etc.).
+        // Normaliza para &quot;Sim&quot;/&quot;Não&quot; antes de comparar para evitar falsos-positivos.
+        if (isCampoCheckboxAuditoria(campo)) {
+            antigo = normalizarCheckboxAuditoria(antigo);
+            novo = normalizarCheckboxAuditoria(novo);
+        }
+
+        if (antigo != novo) {
+            alteracoes.push(label + &quot;: de &apos;&quot; + antigo + &quot;&apos; para &apos;&quot; + novo + &quot;&apos;&quot;);
+        }
+    }
+
+    if (alteracoes.length == 0) {
+        return &quot;&quot;;
+    }
+
+    return &quot;&lt;br&gt;&lt;br&gt;&lt;b&gt;Alterações realizadas:&lt;/b&gt;&lt;br&gt;• &quot; + alteracoes.join(&quot;&lt;br&gt;• &quot;);
+}
+
+// Retorna true para os campos cujo valor é booleano/checkbox.
+// Esses campos precisam de normalização antes da comparação de auditoria.
+function isCampoCheckboxAuditoria(campo) {
+    return [
+        &quot;toggleEstrangeiro&quot;,
+        &quot;toggleRetencao&quot;,
+        &quot;iss&quot;,
+        &quot;inss&quot;,
+        &quot;inputIrrf&quot;,
+        &quot;csll&quot;,
+        &quot;pis&quot;,
+        &quot;cofins&quot;
+    ].indexOf(campo) &gt;= 0;
+}
+
+// Converte qualquer representação booleana para &quot;Sim&quot; ou &quot;Não&quot;.
+// Necessário porque o Fluig persiste checkboxes como &quot;on&quot;, &quot;true&quot;, &quot;1&quot; ou string vazia.
+function normalizarCheckboxAuditoria(valor) {
+    var v = String(valor || &quot;&quot;).toLowerCase().trim();
+
+    if (v == &quot;on&quot; || v == &quot;true&quot; || v == &quot;1&quot; || v == &quot;sim&quot; || v == &quot;s&quot;) {
+        return &quot;Sim&quot;;
+    }
+
+    return &quot;Não&quot;;
+}
+</eventDescription>
     </WorkflowProcessEvent>
     <WorkflowProcessEvent>
       <workflowProcessEventPK>
@@ -997,7 +981,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>44</version>
+        <version>48</version>
         <linkSequence>17</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1008,7 +992,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>44</version>
+        <version>48</version>
         <linkSequence>25</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1019,7 +1003,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>44</version>
+        <version>48</version>
         <linkSequence>28</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1030,7 +1014,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>44</version>
+        <version>48</version>
         <linkSequence>28</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1041,7 +1025,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>44</version>
+        <version>48</version>
         <linkSequence>29</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1052,7 +1036,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>44</version>
+        <version>48</version>
         <linkSequence>30</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1063,7 +1047,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>44</version>
+        <version>48</version>
         <linkSequence>30</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1074,7 +1058,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>44</version>
+        <version>48</version>
         <linkSequence>30</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
@@ -1085,7 +1069,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>44</version>
+        <version>48</version>
         <linkSequence>31</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1096,7 +1080,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>44</version>
+        <version>48</version>
         <linkSequence>31</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1107,7 +1091,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-        <version>44</version>
+        <version>48</version>
         <linkSequence>31</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>

@@ -425,7 +425,7 @@ html.theme-dark .upload-area:hover {
    ERROS
 ========================================================= */
 
-html.theme-dark .fg.has-error .form-control {
+html.theme-dark .fg.has-erro .form-control {
 
   border-color:
     var(--danger) !important;
@@ -558,6 +558,7 @@ html.theme-dark .alert-warning {
   border-radius: 14px !important;
 }
 
+
 /* Box de retenções */
 html.theme-dark .retencoes-box {
   background: linear-gradient(145deg, #111318, #08090d) !important;
@@ -633,7 +634,7 @@ html.theme-dark .upload-area.uploaded {
   border-color: #2faa60 !important;
 }
 
-html.theme-dark .upload-area.upload-error {
+html.theme-dark .upload-area.upload-erro {
   background: linear-gradient(145deg, rgba(255,77,79,.10), #0c0e12) !important;
   border-color: #ff4d4f !important;
 }
@@ -728,11 +729,23 @@ html.theme-dark hr {
 html.theme-dark .btn-warning,
 html.theme-dark .btn-cnae,
 html.theme-dark .btn-grupo-mercadoria {
-  background: linear-gradient(135deg, #ff8c42, #ff7417) !important;
-  color: #111 !important;
-  border: none !important;
-  box-shadow: 0 10px 28px rgba(255,140,66,.25) !important;
+    border: none !important;
+    color: white;
+    background: linear-gradient(135deg, #08a100, #08a100) !important;
+    border: none !important;
+    color: #fff !important;
+    box-shadow: 0 8px 22px rgba(231, 76, 60, .20) !important;
 }
+
+html.theme-dark .btn-warning,
+html.theme-dark .btn-cnae,
+html.theme-dark .btn-grupo-mercadoria:hover {
+  background: linear-gradient(135deg, #0a7205, #0a7205) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(80, 231, 60, 0.3) !important;
+}
+
+
 
 /* Desabilitados */
 html.theme-dark .disabled-upload,
@@ -830,10 +843,8 @@ html.theme-dark .btn-reprovar:hover {
 
 
 
-/* =========================================================
-   DARK MODE — HEADER IGUAL AO PRINT BONITO
-   Detecta automaticamente: <html class="theme-dark">
-========================================================= */
+
+/* DARK MODE — HEADER IGUAL AO PRINT BONITO */
 
 html.theme-dark .wizard-progress {
   background: transparent !important;
@@ -878,9 +889,8 @@ html.theme-dark .page-header {
   box-shadow:
     0 20px 55px rgba(0,0,0,.48),
     inset 0 0 0 1px rgba(255,255,255,.025) !important;
-
+  height: 139px;
   padding: 32px 36px !important;
-  margin: 0 20px 28px !important;
   color: #f5f5f5 !important;
 }
 
@@ -913,4 +923,476 @@ html.theme-dark .step-badge {
   color: #ff9d5d !important;
   border: 1px solid rgba(255,140,66,.24) !important;
   box-shadow: none !important;
+}
+
+
+/* =========================================================
+   DARK MODE — COMPLEMENTO COMPLETO
+   Cobre todos os componentes restantes do formulário
+========================================================= */
+
+
+/* ── TOPBAR ──────────────────────────────────────────── */
+
+html.theme-dark .topbar {
+  background: #0b0d11 !important;
+  border-bottom: 1px solid #1f2329 !important;
+  box-shadow: 0 1px 8px rgba(0,0,0,.45) !important;
+}
+
+html.theme-dark .topbar-logo-icon {
+  background: linear-gradient(135deg, #ff8c42, #ff6b00) !important;
+  color: #111 !important;
+}
+
+html.theme-dark .topbar-brand {
+  color: #f0f0f0 !important;
+}
+
+html.theme-dark .topbar-brand span {
+  color: #ff8c42 !important;
+}
+
+html.theme-dark .topbar-sep {
+  background: #2d3440 !important;
+}
+
+html.theme-dark .topbar-title {
+  color: #c8cdd5 !important;
+}
+
+html.theme-dark .topbar-user-name {
+  color: #d2d8e0 !important;
+}
+
+html.theme-dark .topbar-avatar {
+  background: linear-gradient(135deg, #ff8c42, #ff6b00) !important;
+  color: #111 !important;
+}
+
+
+/* ── SUBHEADER / BREADCRUMB ──────────────────────────── */
+
+html.theme-dark .subheader {
+  background: #0d0f13 !important;
+  border-bottom: 1px solid #1f2329 !important;
+}
+
+html.theme-dark .breadcrumb {
+  background: transparent !important;
+}
+
+html.theme-dark .breadcrumb a {
+  color: #ff8c42 !important;
+}
+
+html.theme-dark .breadcrumb a:hover {
+  color: #ffb066 !important;
+}
+
+html.theme-dark .breadcrumb-sep {
+  color: #4a5060 !important;
+}
+
+html.theme-dark .breadcrumb-current {
+  color: #d2d8e0 !important;
+}
+
+html.theme-dark .required-note {
+  color: #9097a1 !important;
+}
+
+
+/* ── ASTERISCO DE OBRIGATÓRIO ────────────────────────── */
+
+html.theme-dark .req,
+html.theme-dark .ast {
+  color: #ff6b6b !important;
+}
+
+
+/* ── STEPPER — DETALHES ──────────────────────────────── */
+
+html.theme-dark .step-item.done {
+  background: linear-gradient(145deg, #141719, #0c0d10) !important;
+  border-color: #252a31 !important;
+  opacity: 0.7;
+  filter: none;
+}
+
+html.theme-dark .step-connector-line {
+  background: linear-gradient(90deg, #2a2f38, #1f2329) !important;
+}
+
+html.theme-dark .step-label {
+  color: #5c6270 !important;
+}
+
+html.theme-dark .step-name {
+  color: #d2d8e0 !important;
+}
+
+html.theme-dark .step-sub {
+  color: #6e7580 !important;
+}
+
+html.theme-dark .step-item.active .step-name {
+  color: #f5f5f5 !important;
+}
+
+html.theme-dark .step-item.active .step-sub {
+  color: #c8cdd5 !important;
+}
+
+html.theme-dark .stepper-arrow {
+  color: #c8cdd5 !important;
+}
+
+html.theme-dark .stepper-wrap::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #ff8c42, #ff6b00) !important;
+}
+
+
+/* ── SECTION HEAD — HOVER ────────────────────────────── */
+
+html.theme-dark .section-head:hover,
+html.theme-dark .panel-heading:hover {
+  background: linear-gradient(
+    90deg,
+    rgba(255,140,66,.16),
+    rgba(255,140,66,.06)
+  ) !important;
+}
+
+
+/* ── BANK CARDS ──────────────────────────────────────── */
+
+html.theme-dark .bank-info-text {
+  color: #aeb4bd !important;
+}
+
+html.theme-dark .bank-card {
+  background: linear-gradient(
+    145deg,
+    rgba(14,16,21,.98),
+    rgba(9,11,15,.98)
+  ) !important;
+  border: 1px solid #262b34 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 28px rgba(0,0,0,.35) !important;
+}
+
+html.theme-dark .bank-card-title {
+  background: linear-gradient(135deg, #1a2535, #243044) !important;
+  color: #c8d8f0 !important;
+  border: 1px solid #2d3d55 !important;
+  border-radius: 8px !important;
+}
+
+html.theme-dark .btn-remove-bank {
+  border: 1px dashed rgba(255,77,79,.55) !important;
+  background: rgba(255,77,79,.08) !important;
+  color: #ff6b6b !important;
+}
+
+html.theme-dark .btn-remove-bank:hover {
+  background: rgba(255,77,79,.18) !important;
+  border-color: #ff4d4f !important;
+}
+
+html.theme-dark .btn-add-bank,
+html.theme-dark #btn-add-conta-bancaria {
+  border: 1px dashed rgba(47,170,96,.55) !important;
+  background: rgba(47,170,96,.08) !important;
+  color: #5edb8c !important;
+  border-radius: 10px !important;
+}
+
+html.theme-dark .btn-add-bank:hover,
+html.theme-dark #btn-add-conta-bancaria:hover {
+  background: rgba(47,170,96,.16) !important;
+  border-color: #2faa60 !important;
+}
+
+
+/* ── BOTÃO DANGER ────────────────────────────────────── */
+
+html.theme-dark .btn-danger {
+  background: linear-gradient(135deg, #c0392b, #e74c3c) !important;
+  border: none !important;
+  color: #fff !important;
+  box-shadow: 0 8px 22px rgba(231,76,60,.20) !important;
+}
+
+html.theme-dark .btn-danger:hover {
+  background: linear-gradient(135deg, #a93226, #c0392b) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(231,76,60,.30) !important;
+}
+
+
+/* ── BOTÃO VISUALIZAR ANEXO ──────────────────────────── */
+
+html.theme-dark .btn-visualizar-anexo {
+  background: linear-gradient(135deg, #1a6b8a, #1a9abd) !important;
+  border: 1px solid rgba(26,154,189,.45) !important;
+  color: #fff !important;
+  box-shadow: 0 6px 18px rgba(26,154,189,.20) !important;
+}
+
+html.theme-dark .btn-visualizar-anexo:hover {
+  background: linear-gradient(135deg, #145a77, #1a6b8a) !important;
+}
+
+
+/* ── UPLOAD — REMOVER ────────────────────────────────── */
+
+html.theme-dark .upload-file-remove {
+  background: linear-gradient(135deg, #c0392b, #e74c3c) !important;
+  border: 1px solid rgba(231,76,60,.4) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgba(231,76,60,.22) !important;
+}
+
+html.theme-dark .upload-file-remove:hover {
+  background: linear-gradient(135deg, #a93226, #c0392b) !important;
+}
+
+html.theme-dark .upload-file-status > span[id^="nomeFile"] {
+  color: #5edb8c !important;
+}
+
+html.theme-dark .upload-file-status > span[id^="nomeFile"]::before {
+  color: #5edb8c !important;
+}
+
+
+/* ── ALERTAS CNPJ / CPF ──────────────────────────────── */
+
+html.theme-dark #alertCnpj,
+html.theme-dark #alertCPF {
+  background: linear-gradient(145deg, #211c08, #16120a) !important;
+  border: 1px solid rgba(255,193,7,.35) !important;
+  color: #ffd36a !important;
+  border-radius: 12px !important;
+}
+
+
+/* ── CAMPO ESTRANGEIRO / SELECT PAÍS ─────────────────── */
+
+html.theme-dark #divToggleEstrangeiro .retencao-text strong {
+  color: #f5f5f5 !important;
+}
+
+html.theme-dark #divToggleEstrangeiro .retencao-text small {
+  color: #9da3ad !important;
+}
+
+
+/* ── CAMPOS BLOQUEADOS / READONLY (reforço) ──────────── */
+
+html.theme-dark .campo-bloqueado,
+html.theme-dark input[readonly],
+html.theme-dark textarea[readonly],
+html.theme-dark select[disabled] {
+  background: #141720 !important;
+  border-color: #262b34 !important;
+  color: #6a7080 !important;
+  cursor: not-allowed;
+}
+
+html.theme-dark .fg:has(input[readonly]),
+html.theme-dark .fg:has(.campo-bloqueado) {
+  opacity: 0.75;
+}
+
+html.theme-dark .btn-bloqueado {
+  opacity: 0.35 !important;
+  filter: grayscale(40%) !important;
+}
+
+
+/* ── TOAST / FEEDBACK ────────────────────────────────── */
+
+html.theme-dark .toast {
+  background: #111520 !important;
+  border: 1px solid #2a2f38 !important;
+  color: #f5f5f5 !important;
+  box-shadow: 0 14px 40px rgba(0,0,0,.55) !important;
+}
+
+
+/* ── MODAL FLUIG ─────────────────────────────────────── */
+
+html.theme-dark .modal-content,
+html.theme-dark .fluig-modal .modal-content {
+  background: #111318 !important;
+  border: 1px solid #2a2f38 !important;
+  color: #f5f5f5 !important;
+}
+
+html.theme-dark .modal-header {
+  background: linear-gradient(90deg, rgba(255,140,66,.10), rgba(255,140,66,.03)) !important;
+  border-bottom: 1px solid #2a2f38 !important;
+}
+
+html.theme-dark .modal-header .modal-title {
+  color: #f5f5f5 !important;
+}
+
+html.theme-dark .modal-footer {
+  border-top: 1px solid #2a2f38 !important;
+  background: #0f1115 !important;
+}
+
+html.theme-dark .modal-backdrop {
+  background: #000 !important;
+  opacity: 0.72 !important;
+}
+
+html.theme-dark .close,
+html.theme-dark .modal-header .close {
+  color: #aeb4bd !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+html.theme-dark .close:hover {
+  color: #ff6b6b !important;
+}
+
+
+/* ── FLUIG NOTIFY (toasts nativos) ───────────────────── */
+
+html.theme-dark .fluig-toast,
+html.theme-dark .notification,
+html.theme-dark .notify-item {
+  background: #111318 !important;
+  border: 1px solid #2a2f38 !important;
+  color: #f5f5f5 !important;
+  box-shadow: 0 14px 40px rgba(0,0,0,.55) !important;
+}
+
+
+/* ── PÁGINA HISTÓRICO / DECISÃO ──────────────────────── */
+
+html.theme-dark #paginaHistorico .section,
+html.theme-dark #paginaHistorico .panel {
+  background: linear-gradient(145deg, #0e1014, #090a0e) !important;
+  border-color: #252a33 !important;
+}
+
+html.theme-dark .observacao-textarea,
+html.theme-dark #observacaoValidacao {
+  background: #05070b !important;
+  color: #f5f5f5 !important;
+  border-color: #2d3440 !important;
+}
+
+html.theme-dark .decisao-wrap {
+  background: #0b0d11 !important;
+  border: 1px solid #252a33 !important;
+  border-radius: 14px !important;
+}
+
+
+/* ── DIVIDER / HR ────────────────────────────────────── */
+
+html.theme-dark .divider,
+html.theme-dark hr {
+  border-top-color: #1f2329 !important;
+}
+
+
+/* ── SELEÇÃO DE TEXTO ────────────────────────────────── */
+
+html.theme-dark ::selection {
+  background: rgba(255,140,66,.28) !important;
+  color: #fff !important;
+}
+
+
+/* ── OPÇÕES DE SELECT ────────────────────────────────── */
+
+html.theme-dark select option {
+  background: #0f1115 !important;
+  color: #f5f5f5 !important;
+}
+
+
+/* ── BARRA DE NAVEGAÇÃO FLUIG (frame pai) ─────────────── */
+
+html.theme-dark .fluig-header,
+html.theme-dark .top-nav,
+html.theme-dark .portal-nav {
+  background: #0b0d11 !important;
+  border-color: #1f2329 !important;
+}
+
+
+/* =========================================================
+   DARK MODE — ELEMENTOS DE header.css / footer.css / paginacao.css
+========================================================= */
+
+/* ── Wizard progress background (header.css) ─────────── */
+
+html.theme-dark .wizard-progress {
+  background: transparent !important;
+  border-bottom: 1px solid #1f2329 !important;
+}
+
+/* ── Step hover (header.css) ─────────────────────────── */
+
+html.theme-dark .step:not(.active):hover {
+  background: linear-gradient(145deg, #1e2128, #14161c) !important;
+  box-shadow: 0 6px 14px rgba(0,0,0,.35) !important;
+  transform: translateY(-1px);
+}
+
+/* ── Pagination (paginacao.css) ──────────────────────── */
+
+html.theme-dark .pagination {
+  background: #111318 !important;
+  border-color: #2a2f38 !important;
+  color: #d2d8e0 !important;
+}
+
+html.theme-dark .pagination:hover {
+  background: #181b21 !important;
+  border-color: rgba(255,140,66,.40) !important;
+  color: #f5f5f5 !important;
+}
+
+html.theme-dark .pagination-active {
+  background: linear-gradient(135deg, #ff8c42, #ff6b00) !important;
+  color: #111 !important;
+  border-color: transparent !important;
+}
+
+/* ── Botões de navegação forward/back (footer.css) ───── */
+
+html.theme-dark #btn-voltar,
+html.theme-dark #btn-avancar {
+  color: #c8cdd5 !important;
+}
+
+html.theme-dark #btn-voltar:hover,
+html.theme-dark #btn-avancar:hover {
+  color: #ff8c42 !important;
+}
+
+html.theme-dark #btn-voltar:disabled,
+html.theme-dark #btn-avancar:disabled {
+  color: #353b46 !important;
+  cursor: not-allowed;
+}
+
+/* ── Scrollbar da paginação ──────────────────────────── */
+
+html.theme-dark .wizard-progress::-webkit-scrollbar-track {
+  background: #0b0d11 !important;
+}
+
+html.theme-dark .wizard-progress::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #ff8c42, #ff6b00) !important;
 }

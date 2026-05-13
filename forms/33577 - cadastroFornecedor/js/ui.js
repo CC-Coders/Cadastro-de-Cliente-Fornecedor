@@ -1,6 +1,11 @@
+// VISIBILIDADE CONDICIONAL DE CAMPOS
 function controlarCamposCategoria() {
    const categoria = $("#categoria").val();
    const estrangeiro = $("#toggleEstrangeiro").is(":checked");
+   const modoEstrangeiro = (categoria === "J" && estrangeiro);
+
+   // Controla endereço ANTES dos condicionais de categoria
+   controlarEnderecoEstrangeiro(modoEstrangeiro);
 
    $("#divCpf, #divCnpj, #divRg, #divInscricaoEstadual, #divInscricaoMunicipal, #divDocEstrangeiro").hide();
 
@@ -13,11 +18,20 @@ function controlarCamposCategoria() {
       $("#divCpf, #divNomeFantasia, #divRg").show();
       $("#docCpf, #docRg, #nomeFantasia").prop("required", true);
 
+      // Pessoa Física não tem CNAE
+      $(".cnae-box").hide();
+      $("#cnaePrincipal").prop("required", false).val("");
+      $("#cnae-secundarios-wrap").empty();
+
       aplicarAsteriscoObrigatorio();
       return;
    }
 
    if (categoria === "J") {
+      // Pessoa Jurídica tem CNAE
+      $(".cnae-box").show();
+      $("#cnaePrincipal").prop("required", true);
+
       $("#divToggleEstrangeiro").show();
 
       if (estrangeiro) {
@@ -30,7 +44,7 @@ function controlarCamposCategoria() {
          limparErroCampo("docInscricaoMunicipal");
       } else {
          $("#divCnpj, #divNomeFantasia, #divInscricaoEstadual, #divInscricaoMunicipal").show(500);
-         $("#docCnpj, #nomeFantasia, #docInscricaoEstadual").prop("required", true);
+         $("#docCnpj, #nomeFantasia").prop("required", true);
 
          $("#docEstrangeiro").val("");
          limparErroCampo("docEstrangeiro");
@@ -38,6 +52,58 @@ function controlarCamposCategoria() {
    }
 
    aplicarAsteriscoObrigatorio();
+}
+
+// Controla CEP, campos de endereço e o campo País ao ativar/desativar modo estrangeiro.
+// Chamado por controlarCamposCategoria() a cada mudança de categoria ou toggle.
+function controlarEnderecoEstrangeiro(ativo) {
+   if (ativo) {
+      // ── MODO ESTRANGEIRO ──────────────────────────────────────────────
+      // Oculta e desvalida o CEP (não existe CEP fora do Brasil)
+      $("#divCep").hide();
+      $("#cep").prop("required", false);
+
+      // Libera os campos de endereço para preenchimento manual
+      $("#endereco, #bairro, #cidade").prop("readonly", false);
+
+      // Troca o input de País pelo select consultado do dataset GPAIS
+      $("#pais").hide().prop("required", false);
+      $("#divSelectPaisEstrangeiro").show();
+      $("#selectPaisEstrangeiro").prop("required", true);
+
+      // Carrega a lista de países (usa cache após primeira carga)
+      carregarPaisesEstrangeiros();
+
+      // Estado → "End. Exterior" (opcional, pois nem todo país tem UF equivalente)
+      $("#divEstado label").text("End. Exterior");
+      $("#estado")
+         .prop({ required: false, readonly: false })
+         .attr("placeholder", "Estado / Região / Província");
+
+   } else {
+      // ── MODO NACIONAL (padrão) ────────────────────────────────────────
+      // Reexibe e revalida o CEP
+      $("#divCep").show();
+      $("#cep").prop("required", true);
+
+      // Restaura readonly nos campos de endereço (preenchidos pela busca de CEP)
+      $("#endereco, #bairro, #cidade, #estado").prop("readonly", true);
+
+      // Restaura o input de País, garante valor padrão "Brasil"
+      $("#divSelectPaisEstrangeiro").hide();
+      $("#selectPaisEstrangeiro").prop("required", false);
+      $("#pais").show().prop("required", true);
+
+      if (!($("#pais").val() || "").trim()) {
+         $("#pais").val("Brasil");
+      }
+
+      // Restaura label e placeholder originais do Estado
+      $("#divEstado label").text("Estado");
+      $("#estado")
+         .prop("required", true)
+         .attr("placeholder", "UF");
+   }
 }
 function controlarAlertaCnpj() {
    const categoria = $("#categoria").val();
@@ -55,7 +121,6 @@ function controlarAlertaCnpj() {
       $("#alertCPF").hide();
    }
 }
-
 function controlarRetencaoPorTipo() {
    const tipo = $("#tipo").val();
 
@@ -67,7 +132,6 @@ function controlarRetencaoPorTipo() {
    // $("#divToggleRetencao").hide();
    resetarRetencao();
 }
-
 function controlarPainelRetencoes() {
    const $painel = $("#divRetencoesPanel");
 
@@ -81,7 +145,6 @@ function controlarPainelRetencoes() {
    $(".retencao-item input").prop("checked", false);
    $(".retencao-item").removeClass("ativo");
 }
-
 function resetarRetencao() {
    $("#toggleRetencao").prop("checked", false);
    $("#divRetencoesPanel").addClass("field-hidden");
@@ -89,6 +152,8 @@ function resetarRetencao() {
    $(".retencao-item").removeClass("ativo");
 }
 
+
+// SISTEMA DE NAVEGAÇÃO POR STEPS (WIZARD)
 function getStepsVisiveis() {
    return Object.keys(NAV_MAP)
       .map(Number)
@@ -96,7 +161,6 @@ function getStepsVisiveis() {
          return $(NAV_MAP[step]).is(":visible");
       });
 }
-
 function getStepAtual() {
    let stepAtual = 1;
 
@@ -108,7 +172,6 @@ function getStepAtual() {
 
    return stepAtual;
 }
-
 function goToStep(step, animar) {
    if (animar === undefined) {
       animar = true;
@@ -136,11 +199,10 @@ function goToStep(step, animar) {
 
    atualizarSetas();
 }
-
 function goToNextVisibleStep() {
-if (!validarEtapaAtual(false)) {
-   return;
-}
+   if (!validarEtapaAtual(false)) {
+      return;
+   }
 
    const steps = getStepsVisiveis();
    const atual = getStepAtual();
@@ -150,7 +212,6 @@ if (!validarEtapaAtual(false)) {
       goToStep(steps[index + 1]);
    }
 }
-
 function goToPrevVisibleStep() {
    const steps = getStepsVisiveis();
    const atual = getStepAtual();
@@ -160,7 +221,6 @@ function goToPrevVisibleStep() {
       goToStep(steps[index - 1]);
    }
 }
-
 function atualizarSetas() {
    const steps = getStepsVisiveis();
    const atual = getStepAtual();
@@ -169,7 +229,6 @@ function atualizarSetas() {
    $("#btn-voltar").prop("disabled", index === 0);
    $("#btnNextStep").prop("disabled", index === steps.length - 1);
 }
-
 function toggleSection(el) {
    const $head = $(el);
    const $body = $head.next(".section-body, .panel-body");
@@ -184,7 +243,9 @@ function toggleSection(el) {
       $arrow.toggleClass("open");
    }
 }
-// EDITAR CAMPOS NA VALIDAÇÃO
+
+
+// BLOQUEIO / DESBLOQUEIO DE CAMPOS NA VALIDAÇÃO
 function bloquearTudoInicio() {
    const containers = [
       "#divPreCadastro",
@@ -225,7 +286,6 @@ function bloquearTudoInicio() {
          .attr("tabindex", "-1");
    });
 }
-
 function habilitarTudoInicio() {
    const containers = [
       "#divPreCadastro",
@@ -259,7 +319,6 @@ function habilitarTudoInicio() {
 
    inicializarUploadsFluig();
 }
-
 function controlarEdicaoInicioValidacao() {
    const atividade = Number($("#atividade").val() || 0);
 

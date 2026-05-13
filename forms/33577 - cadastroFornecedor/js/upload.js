@@ -1,3 +1,4 @@
+// UPLOAD DO FLUIG
 function inicializarUploadsFluig() {
    $(".upload-area").each(function () {
       const $area = $(this);
@@ -28,7 +29,6 @@ function inicializarUploadsFluig() {
 
    monitorarInputNativoFluig();
 }
-
 function abrirAnexoNativoFluig() {
    const $inputFluig = parent.$("#ecm-navigation-inputFile-clone");
 
@@ -44,9 +44,7 @@ function abrirAnexoNativoFluig() {
    $inputFluig.val("");
    $inputFluig.click();
 }
-// Flag: indica que o próximo <tr> inserido é inválido e deve ser removido
 let _removerProximoAnexo = false;
-
 function monitorarInputNativoFluig() {
    const $inputFluig = parent.$("#ecm-navigation-inputFile-clone");
 
@@ -78,12 +76,6 @@ function monitorarInputNativoFluig() {
       uploadAtualFluig = null;
    });
 }
-
-/**
- * Observa o tbody da tabela de anexos do Fluig.
- * Quando _removerProximoAnexo === true e uma linha real é inserida,
- * clica no botão de remoção e confirma automaticamente o modal.
- */
 function _iniciarObservadorAnexosInvalidos() {
    try {
       const tbody = parent.document.querySelector("#attachmentsTable tbody");
@@ -123,11 +115,6 @@ function _iniciarObservadorAnexosInvalidos() {
       console.warn("[Upload] Não foi possível iniciar observer:", e);
    }
 }
-
-/**
- * Clica no botão de remoção da linha e confirma automaticamente o modal do Fluig.
- * Seletor [data-attachment-remove] confirmado via diagnóstico de produção.
- */
 function _clicarBotaoRemoverFluig(trNode) {
    const $p = parent.$;
    const $linha = $p(trNode);
@@ -161,12 +148,6 @@ function _clicarBotaoRemoverFluig(trNode) {
       }, 80);
    }
 }
-/**
- * Aguarda o modal de confirmação do Fluig ("Deseja remover o anexo?")
- * e clica automaticamente em "Sim".
- */
-
-
 function atualizarContadorAnexosFluig() {
    const $p = parent.$;
 
@@ -180,25 +161,6 @@ function atualizarContadorAnexosFluig() {
       })
       .text(total);
 }
-
-function aguardarRemocaoAnexo(nomeArquivo) {
-   let tentativas = 0;
-   const maxTentativas = 20;
-
-   const intervalo = setInterval(function () {
-      tentativas++;
-
-      const removeu = removerAnexoFluig({
-         nomeArquivo: nomeArquivo,
-         documentId: ""
-      });
-
-      if (removeu || tentativas >= maxTentativas) {
-         clearInterval(intervalo);
-      }
-   }, 300);
-}
-
 function finalizarUploadVisualFluig(config, nomeArquivo) {
    const $area = $("#" + config.areaId);
 
@@ -214,10 +176,11 @@ function finalizarUploadVisualFluig(config, nomeArquivo) {
    }
 
    $area.addClass("uploaded").removeClass("upload-error");
+   $area.siblings(".erro-validacao").remove();
+   $area.closest(".fg").removeClass("has-error has-erro");
 
    montarStatusAnexo(config.sufixoCampo, nomeArquivo);
 }
-
 function buscarIdAnexoPorNome(nomeArquivo) {
    const $p = parent.$;
 
@@ -259,10 +222,9 @@ function montarStatusAnexo(sufixoCampo, nomeArquivo) {
          '</span>' +
          '</div>'
       )
-      .show();
+      .show(500)();
    adicionarBotaoVisualizarAnexo(sufixoCampo, nomeArquivo);
 }
-
 function restaurarUploadsSalvos() {
    $(".upload-area").each(function () {
       const $area = $(this);
@@ -273,7 +235,7 @@ function restaurarUploadsSalvos() {
 
       if (!nomeArquivo || nomeArquivo === "✓" || nomeArquivo === "undefined") {
          $area.removeClass("uploaded upload-error");
-         $("#statusFile" + sufixoCampo).hide().empty();
+         $("#statusFile" + sufixoCampo).hide(500).empty();
          return;
       }
 
@@ -281,21 +243,9 @@ function restaurarUploadsSalvos() {
       montarStatusAnexo(sufixoCampo, nomeArquivo);
    });
 }
-
 function getHiddenAnexoId(sufixoCampo) {
    return MAPA_HIDDEN_ANEXOS[sufixoCampo] || "";
 }
-
-function garantirCampoNomeAnexo(sufixoCampo) {
-   const hiddenId = "hiddenNomeFile" + sufixoCampo;
-
-   if (!$("#" + hiddenId).length) {
-      $("#divDocumentacao").append(
-         '<input type="hidden" id="' + hiddenId + '" name="' + hiddenId + '">'
-      );
-   }
-}
-
 function adicionarBotaoVisualizarAnexo(sufixoCampo, nomeArquivo) {
    const statusId = "#statusFile" + sufixoCampo;
 
@@ -339,7 +289,6 @@ function adicionarBotaoVisualizarAnexo(sufixoCampo, nomeArquivo) {
 
    $status.append(html);
 }
-
 function visualizarAnexoFluig(nomeArquivo) {
    const $p = parent.$;
 
@@ -377,6 +326,8 @@ function visualizarAnexoFluig(nomeArquivo) {
    $linha.trigger("dblclick");
 }
 
+
+// ESTADO E MAPEAMENTO DE UPLOAD
 let uploadAtualFluig = null;
 const MAPA_HIDDEN_ANEXOS = {
    CartaoCnpj: "anxCartaoCnpj",
@@ -391,11 +342,9 @@ const MAPA_HIDDEN_ANEXOS = {
    ConflitoInteresses: "anxConflito",
    CienciaLgpd: "anxLgpd"
 };
-
 function abrirAbaAnexosFluig() {
    parent.$("#tab-attachments, #attachments-tab, a[href='#attachments']").first().click();
 }
-
 function obterSufixoUpload(inputId, $area) {
    const areaId = $area.attr("id") || "";
 
@@ -409,7 +358,6 @@ function obterSufixoUpload(inputId, $area) {
 
    return "";
 }
-
 function limparStatusUpload(config) {
    const sufixoCampo = config?.sufixoCampo || "";
    const areaId = config?.areaId || "";
@@ -444,7 +392,6 @@ function limparStatusUpload(config) {
       });
    }, 800);
 }
-
 function anexoAindaExisteNoFluig(docId, nomeArquivo) {
    const $p = parent.$;
    const id = String(docId || "").trim();
@@ -456,7 +403,6 @@ function anexoAindaExisteNoFluig(docId, nomeArquivo) {
 
    return $linha.length > 0;
 }
-
 function limparVisualUploadConfirmado(config) {
    const sufixoCampo = config.sufixoCampo;
    const areaId = config.areaId;
@@ -467,7 +413,7 @@ function limparVisualUploadConfirmado(config) {
       $("#" + areaId).removeClass("uploaded upload-error");
    }
 
-   $("#statusFile" + sufixoCampo).hide().empty();
+   $("#statusFile" + sufixoCampo).hide(500).empty();
 
    if (hiddenNome) {
       $("#" + hiddenNome).val("");
@@ -477,7 +423,6 @@ function limparVisualUploadConfirmado(config) {
       $("#" + hiddenDocId).val("");
    }
 }
-
 function removerAnexoFluig(config) {
    const nomeArquivo = config?.nomeArquivo || "";
    const documentId = config?.documentId || "";
@@ -526,6 +471,7 @@ function removerAnexoFluig(config) {
 }
 
 
+// VALIDAÇÃO DE UPLOADS
 function validarUploadObrigatorio(campoId, label) {
    const sufixo = campoId.replace("file", "");
    const hiddenId = MAPA_HIDDEN_ANEXOS[sufixo];
@@ -545,7 +491,6 @@ function validarUploadObrigatorio(campoId, label) {
    marcarUploadSucesso(campoId);
    return true;
 }
-
 function marcarUploadErro(campoId, mensagem) {
    const $campo = $("#" + campoId);
    const $container = $campo.closest(".fg");
@@ -554,7 +499,7 @@ function marcarUploadErro(campoId, mensagem) {
 
    limparErroCampo(campoId);
 
-   $container.addClass("has-error");
+   $container.addClass("has-erro");
    $area.addClass("upload-error").removeClass("uploaded");
 
    $area.after(
@@ -567,7 +512,7 @@ function limparCardVisualAnexo(sufixoCampo) {
    const hiddenNome = getHiddenAnexoId(sufixoCampo);
    const hiddenId = hiddenNome + "Id";
 
-   $("#statusFile" + sufixoCampo).hide().empty();
+   $("#statusFile" + sufixoCampo).hide(500).empty();
    $("#upload" + sufixoCampo).removeClass("uploaded upload-error");
 
    if (hiddenNome) {
@@ -584,10 +529,9 @@ function marcarUploadSucesso(campoId) {
 
    limparErroCampo(campoId);
 
-   $container.removeClass("has-error");
+   $container.removeClass("has-erro");
    $area.removeClass("upload-error").addClass("uploaded");
 }
-
 function validarArquivoPermitido(file) {
    const extensoesPermitidas = [".pdf", ".png", ".jpg", ".jpeg"];
    const nomeArquivo = (file.name || "").toLowerCase();
@@ -620,7 +564,6 @@ function validarArquivoPermitido(file) {
 
    return true;
 }
-
 function ocultarToastRemocaoAutomatica() {
    const $p = parent.$;
 
@@ -654,7 +597,6 @@ function ocultarToastRemocaoAutomatica() {
          .remove();
    }, 300);
 }
-
 function ocultarModalRemocaoAutomaticaAtivo() {
    const $p = parent.$;
 
@@ -673,7 +615,6 @@ function ocultarModalRemocaoAutomaticaAtivo() {
       '</style>'
    );
 }
-
 function removerOcultacaoModalRemocaoAutomatica() {
    parent.$("#cssOcultaModalRemocaoInvalido").remove();
    parent.$(".modal-backdrop").remove();

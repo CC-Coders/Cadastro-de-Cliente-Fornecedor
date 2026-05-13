@@ -5,7 +5,7 @@ function onSync(lastSyncDate) {
 
 }
 function createDataset(fields, constraints, sortFields) {
-	  log.error("entrou no dataset");
+	  log.erro("entrou no dataset");
 
 	    var newDataset = DatasetBuilder.newDataset();
 
@@ -21,7 +21,7 @@ function createDataset(fields, constraints, sortFields) {
 	    try {
 	        conn = ds.getConnection();
 	        stmt = conn.createStatement();
-	        log.error("Executing query: " + selectQuery);
+	        log.erro("Executing query: " + selectQuery);
 	        rs = stmt.executeQuery(selectQuery);
 
 	        var metaData = rs.getMetaData();
@@ -31,7 +31,7 @@ function createDataset(fields, constraints, sortFields) {
 	            for (var i = 1; i <= columnCount; i++) {
 	                newDataset.addColumn(metaData.getColumnName(i));
 	            }
-	            log.error("Column names added to dataset");
+	            log.erro("Column names added to dataset");
 
 	            while (rs.next()) {
 	                var arr = [];
@@ -42,21 +42,21 @@ function createDataset(fields, constraints, sortFields) {
 	                newDataset.addRow(arr);
 	            }
 	        } else {
-	            log.error("No columns found in result set");
+	            log.erro("No columns found in result set");
 	        }
-	    } catch (error) {
-	        log.error("Error occurred: " + error.message);
+	    } catch (erro) {
+	        log.erro("Error occurred: " + erro.message);
 	    } finally {
 	        try {
 	            if (rs != null) rs.close();
 	            if (stmt != null) stmt.close();
 	            if (conn != null) conn.close();
-	        } catch (error) {
-	            log.error("Error closing resources: " + error.message);
+	        } catch (erro) {
+	            log.erro("Error closing resources: " + erro.message);
 	        }
 	    }
 
-	    log.error("Dataset created: " + newDataset);
+	    log.erro("Dataset created: " + newDataset);
 	    return newDataset;
 	
 }function onMobileSync(user) {

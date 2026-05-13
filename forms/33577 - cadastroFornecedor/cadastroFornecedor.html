@@ -35,7 +35,7 @@
 <body>
    <div class="fluig-style-guide">
       <form name="form" id="formSolicitacao">
-         <!-- CAMPOS OCULTOS DO FLUIG -->
+         <!-- HIDDEN FIELDS -->
          <div class="hidden" style="display: none">
             <input type="hidden" id="atividade" name="atividade"/>
             <input type="hidden" id="formMode" name="formMode"/>
@@ -55,6 +55,7 @@
             <input type="hidden" id="anxAntiCorrupcao" name="anxAntiCorrupcao"/>
             <input type="hidden" id="anxConflito" name="anxConflito"/>
             <input type="hidden" id="anxLgpd" name="anxLgpd"/>
+            <!-- documentId numérico de cada anexo no ECM do Fluig -->
             <input type="hidden" id="anxCartaoCnpjId" name="anxCartaoCnpjId"/>
             <input type="hidden" id="anxCompBancoId" name="anxCompBancoId"/>
             <input type="hidden" id="anxContratoId" name="anxContratoId"/>
@@ -68,7 +69,7 @@
             <input type="hidden" id="anxLgpdId" name="anxLgpdId"/>
             <input type="hidden" id="tipoDescricao" name="tipoDescricao">
             <input type="hidden" id="tipoSelecionado" name="tipoSelecionado">
-            <!-- campos adicionais -->
+            <!-- Grupos de mercadoria adicionais (2–10). -->
             <input type="hidden" id="hiddenGrupoMercadoria2" name="hiddenGrupoMercadoria2"/>
             <input type="hidden" id="hiddenGrupoMercadoria3" name="hiddenGrupoMercadoria3"/>
             <input type="hidden" id="hiddenGrupoMercadoria4" name="hiddenGrupoMercadoria4"/>
@@ -78,12 +79,14 @@
             <input type="hidden" id="hiddenGrupoMercadoria8" name="hiddenGrupoMercadoria8"/>
             <input type="hidden" id="hiddenGrupoMercadoria9" name="hiddenGrupoMercadoria9"/>
             <input type="hidden" id="hiddenGrupoMercadoria10" name="hiddenGrupoMercadoria10"/>
+            <!-- CNAEs secundários adicionais (1–5) -->
             <input type="hidden" id="hiddenCnaeSecundario1" name="hiddenCnaeSecundario1"/>
             <input type="hidden" id="hiddenCnaeSecundario2" name="hiddenCnaeSecundario2"/>
             <input type="hidden" id="hiddenCnaeSecundario3" name="hiddenCnaeSecundario3"/>
             <input type="hidden" id="hiddenCnaeSecundario4" name="hiddenCnaeSecundario4"/>
             <input type="hidden" id="hiddenCnaeSecundario5" name="hiddenCnaeSecundario5"/>
-            <!-- historico -->
+
+            <!-- HISTÓRICO DE DECISÃO -->
             <div id="historicoHidden" name="historicoHidden">
                <table id="tableHistorico" tablename="tableHistorico" noaddbutton="true" nodeletebutton="true">
                   <thead>
@@ -117,7 +120,7 @@
                </table>
             </div>
          </div>
-         <!--CABEÇALHO-->
+         <!-- CABEÇALHO -->
          <header>
             <div class="wizard-progress">
                <div class="step" style="display: block">SOLICITAÇÃO</div>
@@ -125,9 +128,8 @@
                <div class="step" style="display: block">FIM</div>
             </div>
          </header>
-
          <main class="page-wrap" id="preCadastro">
-            <!-- DADOS BASE -->
+            <!-- PRÉ-CADASTRO -->
             <div class="step-panel step-1 active" id="divPreCadastro">
                <div class="page-header step-1" name="divHeaderPreCad" id="divHeaderPreCad">
                   <div class="page-header-icon"><i class="flaticon flaticon-account-circle"></i></div>
@@ -189,25 +191,25 @@
                            </select>
                         </div>
                      </div>
-                                     <div id="divToggleEstrangeiro" class="retencao-box">
-                  <div class="retencao-content">
-                    <div class="retencao-text">
-                      <strong>Fornecedor estrangeiro?</strong>
-                      <small>
-                        Aplicável a prestadores de serviço ou fornecedores de materiais estrangeiros. Indique se o cadastro é de um fornecedor estrangeiro, para o processo seguir o caminho legal.
-                      </small>
-                    </div>
-                    <div class="retencao-toggle">
-                      <span class="retencao-label">Não</span>
+                     <div id="divToggleEstrangeiro" class="retencao-box">
+                        <div class="retencao-content">
+                        <div class="retencao-text">
+                           <strong>Fornecedor estrangeiro?</strong>
+                           <small>
+                              Aplicável a prestadores de serviço ou fornecedores de materiais estrangeiros. Indique se o cadastro é de um fornecedor estrangeiro, para o processo seguir o caminho legal.
+                           </small>
+                        </div>
+                        <div class="retencao-toggle">
+                           <span class="retencao-label">Não</span>
 
-                      <div class="switch switch-success">
-                        <input class="switch-input" type="checkbox" id="toggleEstrangeiro" name="toggleEstrangeiro">
-                        <label class="switch-button" for="toggleEstrangeiro"></label>
-                      </div>
-                      <span class="retencao-label">Sim</span>
-                    </div>
-                  </div>
-                </div>
+                           <div class="switch switch-success">
+                              <input class="switch-input" type="checkbox" id="toggleEstrangeiro" name="toggleEstrangeiro">
+                              <label class="switch-button" for="toggleEstrangeiro"></label>
+                           </div>
+                           <span class="retencao-label">Sim</span>
+                        </div>
+                        </div>
+                     </div>
                   </div>
                </div>
                <div class="section" id="divDadosComerciais">
@@ -244,7 +246,7 @@
                         </div>
                         <div class="fg" id="divInscricaoEstadual">
                            <label for="docInscricaoEstadual">Inscrição Estadual</label>
-                           <input type="text" id="docInscricaoEstadual" name="docInscricaoEstadual" placeholder="000.000.000.000" class="form-control" required/>
+                           <input type="text" id="docInscricaoEstadual" name="docInscricaoEstadual" placeholder="000.000.000.000" class="form-control"/>
                         </div>
                         <div class="fg" id="divInscricaoMunicipal">
                            <label for="docInscricaoMunicipal">Inscrição Municipal</label>
@@ -284,7 +286,14 @@
                         </div>
                         <div class="fg" id="divPais">
                            <label for="pais">País</label>
-                           <input type="text" id="pais" name="pais" placeholder="País" class="form-control" required/>
+                           <!-- Modo nacional: readonly, fixado em Brasil -->
+                           <input type="text" id="pais" name="pais" placeholder="País" class="form-control" required readonly/>
+                           <!-- Modo estrangeiro: select populado via dataset GPAIS (sem Brasil) -->
+                           <div class="select-wrap" id="divSelectPaisEstrangeiro" style="display:none">
+                              <select id="selectPaisEstrangeiro" name="selectPaisEstrangeiro" class="form-control">
+                                 <option value="">Selecione o país...</option>
+                              </select>
+                           </div>
                         </div>
                         <div class="fg" id="divEstado">
                            <label for="estado">Estado</label>
@@ -313,7 +322,7 @@
                      </div>
                   </button>
                   <div class="section-body">
-                     <div class="grid g3">
+                     <div class="grid g4" id="divIrrfRow">
                         <div class="fg" id="divIcms">
                            <label for="icms">Contribuinte ICMS</label>
                            <select id="icms" name="icms" class="form-control" required>
@@ -323,10 +332,6 @@
                               <option value="2">Isento</option>
                            </select>
                         </div>
-                        <div class="fg" id="divIrrf">
-                           <label for="irrf">Alíquota IRRF (%)</label>
-                           <input type="number" id="irrf" name="irrf" class="form-control" required/>
-                        </div>
                         <div class="fg" id="divSimplesNacional">
                            <label for="simplesNacional">Simples Nacional</label>
                            <select id="simplesNacional" name="simplesNacional" class="form-control" required>
@@ -335,25 +340,28 @@
                               <option value="0">Não</option>
                            </select>
                         </div>
+                        <div class="fg" id="divDescricaoIrrf">
+                           <label for="selectDescricaoIrrf">Código de Receita IRRF</label>
+                           <div class="select-wrap">
+                              <select id="selectDescricaoIrrf" name="codIrrf" class="form-control" required>
+                                 <option value="">Selecione...</option>
+                              </select>
+                           </div>
+                        </div>
+                        <div class="fg" id="divIrrf">
+                           <label for="irrf">Alíquota IRRF (%)</label>
+                           <input type="number" id="irrf" name="irrf" class="form-control" readonly/>
+                        </div>
                      </div>
                      <div class="divider"></div>
                      <div class="grid g3">
-<div class="fg" id="divNaturezaRendimento">
-   <label for="naturezaRendimento">Natureza de Rendimentos</label>
-
-   <select id="naturezaRendimento"
-           name="naturezaRendimento"
-           class="form-control"
-           required>
-
-      <option value="">Selecione...</option>
-
-   </select>
-
-   <input type="hidden"
-          id="codNaturezaRendimento"
-          name="codNaturezaRendimento">
-</div>
+                     <div class="fg" id="divNaturezaRendimento">
+                        <label for="naturezaRendimento">Natureza de Rendimentos</label>
+                        <select id="naturezaRendimento" name="naturezaRendimento" class="form-control" required>
+                           <option value="">Selecione...</option>
+                        </select>
+                        <input type="hidden" id="codNaturezaRendimento"name="codNaturezaRendimento">
+                     </div>
                         <div class="fg" id="divRegimeFiscal">
                            <label for="regimeFiscal">Regime Fiscal</label>
                            <select id="regimeFiscal" name="regimeFiscal" class="form-control" required>
@@ -383,18 +391,7 @@
                         </div>
                      </div>
                      <div class="divider"></div>
-                     <div class="grid g3" id="divMoedaGrupoMercadoria">
-                        <div class="fg" id="divMoeda">
-                           <label for="moeda">Moeda do Pedido</label>
-                           <div class="select-wrap">
-                              <select id="moeda" name="moeda" class="form-control" required>
-                                 <option value="BRL">BRL — Real Brasileiro</option>
-                                 <option value="USD">USD — Dólar Americano</option>
-                                 <option value="EUR">EUR — Euro</option>
-                                 <option value="ARS">ARS — Peso Argentino</option>
-                              </select>
-                           </div>
-                        </div>
+                     <div class="grid g2" id="divMoedaGrupoMercadoria">
                         <div class="fg" id="divGrupoMercadoriaPrincipal">
                            <label for="grupoMercadoria1">Grupo de Mercadoria</label>
                            <div class="select-wrap">
@@ -412,7 +409,7 @@
                            </div>
                         </div>
                         <div class="fg align-end" id="divBtnAddGrupoMercadoria">
-                           <button type="button" class="btn btn-warning btn-grupo-mercadoria"id="btn-add-grupo-mercadoria">+ Adicionar Grupo de Mercadoria</button>
+                           <button type="button" class="btn btn-warning btn-grupo-mercadoria"id="btn-add-grupo-mercadoria">Adicionar</button>
                         </div>
                      </div>
                      <div id="grupo-mercadoria-wrap"></div>
@@ -427,7 +424,7 @@
                               <input type="text" id="cnaePrincipal" name="cnaePrincipal" class="form-control" placeholder="0000-0/00 — Descrição da atividade" required/>
                            </div>
                            <div class="fg align-end" id="divBtnAddCnae">
-                              <button type="button" class="btn btn-warning btn-cnae" id="btn-add-cnae">+ Adicionar CNAE Secundário</button>
+                              <button type="button" class="btn btn-warning btn-cnae" id="btn-add-cnae">Adicionar</button>
                            </div>
                         </div>
                         <div id="cnae-secundarios-wrap"></div>
@@ -521,7 +518,6 @@
                      <table tablename="tableDadosBancarios" id="tableDadosBancarios" noaddbutton="true" nodeletebutton="true" style="display:none;">
                         <thead>
                            <tr>
-                              <th>Condição</th>
                               <th>Banco</th>
                               <th>Banco Descrição</th>
                               <th>Agência</th>
@@ -530,7 +526,6 @@
                         </thead>
                         <tbody>
                            <tr>
-                              <td><input type="hidden" name="dbCondicaoPagamento" class="dbCondicaoPagamento"></td>
                               <td><input type="hidden" name="dbBanco" class="dbBanco"></td>
                               <td><input type="hidden" name="dbBancoDescricao" class="dbBancoDescricao"></td>
                               <td><input type="hidden" name="dbAgencia" class="dbAgencia"></td>
@@ -538,6 +533,32 @@
                            </tr>
                         </tbody>
                      </table>
+
+                     <!-- HIDDEN BANCÁRIOS -->
+                     <input type="hidden" id="hiddenBanco1Cod"       name="hiddenBanco1Cod">
+                     <input type="hidden" id="hiddenBanco1Desc"      name="hiddenBanco1Desc">
+                     <input type="hidden" id="hiddenBanco1Agencia"   name="hiddenBanco1Agencia">
+                     <input type="hidden" id="hiddenBanco1Conta"     name="hiddenBanco1Conta">
+
+                     <input type="hidden" id="hiddenBanco2Cod"       name="hiddenBanco2Cod">
+                     <input type="hidden" id="hiddenBanco2Desc"      name="hiddenBanco2Desc">
+                     <input type="hidden" id="hiddenBanco2Agencia"   name="hiddenBanco2Agencia">
+                     <input type="hidden" id="hiddenBanco2Conta"     name="hiddenBanco2Conta">
+
+                     <input type="hidden" id="hiddenBanco3Cod"       name="hiddenBanco3Cod">
+                     <input type="hidden" id="hiddenBanco3Desc"      name="hiddenBanco3Desc">
+                     <input type="hidden" id="hiddenBanco3Agencia"   name="hiddenBanco3Agencia">
+                     <input type="hidden" id="hiddenBanco3Conta"     name="hiddenBanco3Conta">
+
+                     <input type="hidden" id="hiddenBanco4Cod"       name="hiddenBanco4Cod">
+                     <input type="hidden" id="hiddenBanco4Desc"      name="hiddenBanco4Desc">
+                     <input type="hidden" id="hiddenBanco4Agencia"   name="hiddenBanco4Agencia">
+                     <input type="hidden" id="hiddenBanco4Conta"     name="hiddenBanco4Conta">
+
+                     <input type="hidden" id="hiddenBanco5Cod"       name="hiddenBanco5Cod">
+                     <input type="hidden" id="hiddenBanco5Desc"      name="hiddenBanco5Desc">
+                     <input type="hidden" id="hiddenBanco5Agencia"   name="hiddenBanco5Agencia">
+                     <input type="hidden" id="hiddenBanco5Conta"     name="hiddenBanco5Conta">
                   </div>
                </div>
                <div class="section" id="divContatos">
@@ -600,14 +621,14 @@
                   </button>
                   <div class="section-body">
                      <div class="grid g3">
-                        <!-- RG / CPF -->
+                        <!-- Documento de Identificação -->
                         <div class="fg doc-pf" id="divFileRgCpf" style="display: none">
-                           <label for="fileRgCpf">RG / CPF</label>
+                           <label for="fileRgCpf">Documento de Identificação</label>
                            <input type="file" id="fileRgCpf" name="fileRgCpf" accept=".pdf,.png,.jpg,.jpeg" style="display: none"/>
                            <div class="upload-area" id="uploadRgCpf" data-upload-id="fileRgCpf">
                               <div class="upload-icon"><i class="flaticon flaticon-cloud-upload icon-md"></i></div>
-                              <div class="upload-title">RG / CPF</div>
-                              <div class="upload-hint">Documento pessoal com CPF</div>
+                              <div class="upload-title">Documento de Identificação</div>
+                              <div class="upload-hint">RG, CNH ou outro documento oficial</div>
                               <div class="upload-formats">PDF, JPG ou PNG</div>
                               <span class="upload-badge badge-req">Obrigatório</span>
                            </div>
@@ -814,7 +835,7 @@
                </div> -->
 
             </div>
-            <!-- HISTÓRICO E DECISÃO -->
+            <!-- HISTÓRICO DE DECISÃO -->
             <div class="step-panel step-4" id="paginaHistorico" style="display: none">
                <div class="page-header step-4" id="divHeaderHistorico">
                   <div class="page-header-icon"><i class="flaticon flaticon-clock icon-md" aria-hidden="true"></i></div>
