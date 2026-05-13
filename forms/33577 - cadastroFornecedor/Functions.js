@@ -150,8 +150,8 @@ async function asyncMontaHistorico() {
 
       try {
          $(".divImageUser:last").append(await promiseBuscaImagemUsuario(linha.USUARIO));
-      } catch (erro) {
-         console.warn("Não foi possível carregar imagem do usuário:", linha.USUARIO, erro);
+      } catch (error_) {
+         console.warn("Não foi possível carregar imagem do usuário:", linha.USUARIO, error_);
       }
    }
 }
@@ -623,7 +623,7 @@ function sincronizarCamposDinamicosHidden() {
       }
    }
 
-   for (let i = 1; i <= window.LIMITE_CNAE_SECUNDARIO; i++) {
+   for (let i = 1; i <= globalThis.LIMITE_CNAE_SECUNDARIO; i++) {
       const $campo = $("#cnaeSecundario" + i);
       const $hidden = $("#hiddenCnaeSecundario" + i);
 
@@ -640,9 +640,9 @@ function sincronizarCamposDinamicosHidden() {
 // DATASETS — CARREGAMENTO VIA DatasetFactory
 function carregarTiposClienteFornecedor() {
 
-   var select = $("#tipo");
+   let select = $("#tipo");
 
-   var valorSalvo = (
+   let valorSalvo = (
       $("#tipoSelecionado").val() ||
       select.val() ||
       select.attr("value") ||
@@ -652,21 +652,21 @@ function carregarTiposClienteFornecedor() {
    select.empty();
    select.append('<option value="">Selecione...</option>');
 
-   var ds = DatasetFactory.getDataset(
+   let ds = DatasetFactory.getDataset(
       "ds_tipoClienteFornecedorRM",
       null,
       null,
       null
    );
 
-   if (!ds || !ds.values || !ds.values.length) {
+   if (!ds?.values?.length) {
       console.warn("Dataset ds_tipoClienteFornecedorRM vazio.");
       return;
    }
 
    ds.values.forEach(function (item) {
-      var codigo = (item.CODTCF || "").toString().trim();
-      var descricao = (item.DESCRICAO || "").toString().trim();
+      let codigo = (item.CODTCF || "").toString().trim();
+      let descricao = (item.DESCRICAO || "").toString().trim();
 
       select.append(
          '<option value="' + codigo + '">' +
@@ -686,8 +686,8 @@ function carregarTiposClienteFornecedor() {
    }
 }
 function carregarNaturezaRendimento() {
-   var select = $("#naturezaRendimento");
-   var valorSalvo = (
+   let select = $("#naturezaRendimento");
+   let valorSalvo = (
       $("#codNaturezaRendimento").val() ||
       select.attr("value") ||
       select.val() ||
@@ -696,16 +696,16 @@ function carregarNaturezaRendimento() {
 
    select.find("option:not(:first)").remove();
 
-   var ds = DatasetFactory.getDataset("naturezaRendimento", null, null, null);
+   let ds = DatasetFactory.getDataset("naturezaRendimento", null, null, null);
 
-   if (!ds || !ds.values || !ds.values.length) {
+   if (!ds?.values?.length) {
       console.warn("Dataset naturezaRendimento vazio.");
       return;
    }
 
    ds.values.forEach(function (item) {
-      var cod  = (item.CODNATRENDIMENTO    || "").toString().trim();
-      var desc = (item.DESCRICAORENDIMENTO || "").toString().trim();
+      let cod  = (item.CODNATRENDIMENTO    || "").toString().trim();
+      let desc = (item.DESCRICAORENDIMENTO || "").toString().trim();
       if (cod) {
          select.append('<option value="' + cod + '">' + cod + " — " + desc + "</option>");
       }
@@ -723,17 +723,19 @@ function carregarNaturezaRendimento() {
 // DATASET IRRF (FIRRF / RM)
 // Cache único com todos os registros; filtragem feita no cliente.
 // Evita dependência de ConstraintType e múltiplas chamadas ao servidor.
-var _cacheIrrf = null;
+let _cacheIrrf = null;
 
 // Carrega as opções do select #selectDescricaoIrrf.
 // Busca todos os registros uma única vez e filtra pelo tipo de pessoa da categoria.
 //   preservarValor = true  → restaura o CODRECEITA salvo (carregamento inicial do form)
 //   preservarValor = false → limpa seleção (ao trocar categoria)
 function carregarOpcoesIrrf(preservarValor) {
-   var pessoaTipo = ($("#categoria").val() || "").trim().toUpperCase();
-   var select     = $("#selectDescricaoIrrf");
-   var valorSalvo = preservarValor
-      ? (select.attr("value") || select.val() || "").trim()
+   let pessoaTipo = ($("#categoria").val() || "").trim().toUpperCase();
+   let select     = $("#selectDescricaoIrrf");
+   // hiddenCodIrrf é a âncora confiável: Fluig restaura inputs hidden corretamente,
+   // enquanto selects dinâmicos perdem o valor se as opções ainda não existem no DOM.
+   let valorSalvo = preservarValor
+      ? ($("#hiddenCodIrrf").val() || select.attr("value") || select.val() || "").trim()
       : "";
 
    if (!preservarValor) {
@@ -746,14 +748,14 @@ function carregarOpcoesIrrf(preservarValor) {
       return;
    }
 
-   var ds = DatasetFactory.getDataset("ds_irrfRM", null, null, null);
+   let ds = DatasetFactory.getDataset("ds_irrfRM", null, null, null);
 
    // Aceita tanto array JS (.length) quanto coleção Java (.size())
-   var tamanho = ds && ds.values
+   let tamanho = ds?.values
       ? (ds.values.length !== undefined ? ds.values.length : (ds.values.size ? ds.values.size() : 0))
       : 0;
 
-   if (!ds || !ds.values || tamanho === 0) {
+   if (!ds?.values || tamanho === 0) {
       console.warn("[ds_irrfRM] Dataset vazio ou indisponível.", ds);
       return;
    }
@@ -766,7 +768,7 @@ function carregarOpcoesIrrf(preservarValor) {
 // Exibe "CODRECEITA — DESCRICAO"; value = CODRECEITA; data-aliquota = ALIQUOTA.
 // O dataset retorna colunas com alias lowercase (codreceita, descricao, aliquota, tipo).
 function _popularSelectIrrf(lista, pessoaTipo, valorSalvo) {
-   var select = $("#selectDescricaoIrrf");
+   let select = $("#selectDescricaoIrrf");
    select.find("option:not(:first)").remove();
 
    // Log do primeiro item para diagnosticar os nomes de propriedade reais
@@ -774,14 +776,14 @@ function _popularSelectIrrf(lista, pessoaTipo, valorSalvo) {
       console.log("[ds_irrfRM] primeiro item:", JSON.stringify(lista[0]));
    }
 
-   for (var i = 0; i < lista.length; i++) {
-      var item = lista[i];
+   for (const element of lista) {
+      let item = element;
 
       // Tenta uppercase e lowercase para compatibilidade com qualquer versão deployada do dataset
-      var cod  = String(item.codreceita   || item.CODRECEITA    || "").trim();
-      var desc = String(item.descricao    || item.DESCRICAO     || "").trim();
-      var aliq = String(item.aliquota     || item.ALIQUOTA      || "0").trim();
-      var tipo = String(item.PESSOAFISOUJUR || item.pessoafisoujur || item.tipo || item.PESSOAFIOUJUR || "").trim().toUpperCase();
+      let cod  = String(item.codreceita   || item.CODRECEITA    || "").trim();
+      let desc = String(item.descricao    || item.DESCRICAO     || "").trim();
+      let aliq = String(item.aliquota     || item.ALIQUOTA      || "0").trim();
+      let tipo = String(item.PESSOAFISOUJUR || item.pessoafisoujur || item.tipo || item.PESSOAFIOUJUR || "").trim().toUpperCase();
 
       if (!cod) continue;
 
@@ -791,7 +793,7 @@ function _popularSelectIrrf(lista, pessoaTipo, valorSalvo) {
       //   caso contrário → inclui apenas o tipo correspondente + Ambos
       if (pessoaTipo && tipo && tipo !== "A" && tipo !== pessoaTipo) continue;
 
-      var opt = $("<option></option>")
+      let opt = $("<option></option>")
          .val(cod)
          .text(cod + " — " + desc)
          .attr("data-aliquota", aliq);
@@ -800,17 +802,20 @@ function _popularSelectIrrf(lista, pessoaTipo, valorSalvo) {
 
    if (valorSalvo) {
       select.val(valorSalvo);
-      var selecionado = select.find("option:selected");
+      let selecionado = select.find("option:selected");
       if (selecionado.length && selecionado.val()) {
          $("#irrf").val(selecionado.attr("data-aliquota") || "");
       }
    }
+
+   // mantém hidden sincronizado (idêntico ao padrão de codNaturezaRendimento)
+   $("#hiddenCodIrrf").val(select.val() || "");
 }
 
 
 // DATASET DE PAÍSES (GPAIS / RM)
 // Cache evita múltiplas chamadas ao servidor após a primeira carga
-var _cacheListaPaises = null;
+let _cacheListaPaises = null;
 
 // Carrega a lista de países do dataset ds_paisRM e popula o select de países estrangeiros.
 // Na primeira chamada, executa a query e armazena em cache.
@@ -821,7 +826,7 @@ function carregarPaisesEstrangeiros() {
       return;
    }
 
-   var ds = DatasetFactory.getDataset("ds_paisRM", null, null, null);
+   let ds = DatasetFactory.getDataset("ds_paisRM", null, null, null);
 
    if (!ds || !ds.values || !ds.values.length) {
       console.warn("Dataset ds_paisRM vazio ou indisponível.");
@@ -835,13 +840,13 @@ function carregarPaisesEstrangeiros() {
 // Popula o select #selectPaisEstrangeiro com a lista recebida.
 // Restaura o valor salvo em #pais quando diferente de Brasil.
 function _popularSelectPaises(paises) {
-   var select = $("#selectPaisEstrangeiro");
-   var valorSalvo = ($("#pais").val() || "").trim();
+   let select = $("#selectPaisEstrangeiro");
+   let valorSalvo = ($("#pais").val() || "").trim();
 
    select.empty().append('<option value="">Selecione o país...</option>');
 
    paises.forEach(function (item) {
-      var nome = (item.NOMEPAI || "").toString().trim();
+      let nome = (item.NOMEPAI || "").toString().trim();
       if (!nome) return;
       select.append('<option value="' + nome + '">' + nome + "</option>");
    });
@@ -854,9 +859,9 @@ function _popularSelectPaises(paises) {
 
 
 // DADOS BANCÁRIOS
-var LIMITE_CONTAS_BANCARIAS = 5;
+let LIMITE_CONTAS_BANCARIAS = 5;
 function _opcoesCondicaoPagamento() {
-   var opts = [
+   let opts = [
       "À Vista", "7 dias", "14 dias", "15 dias", "21 dias",
       "28 dias", "30 dias", "45 dias", "60 dias", "90 dias",
       "30/60 dias", "30/60/90 dias", "30/60/90/120 dias",
@@ -869,8 +874,8 @@ function _sufixoBancario(numero) {
    return numero === 1 ? "" : String(numero);
 }
 function _gerarHtmlCardBancario(numero) {
-   var s = _sufixoBancario(numero);
-   var btnRemover = numero === 1
+   let s = _sufixoBancario(numero);
+   let btnRemover = numero === 1
       ? ""
       : '<button type="button" class="btn-remove-bank" data-numero="' + numero + '">Remover</button>';
 
@@ -893,14 +898,14 @@ function _gerarHtmlCardBancario(numero) {
    );
 }
 function inicializarDadosBancarios() {
-   var $wrap = $("#dados-bancarios-cards");
+   let $wrap = $("#dados-bancarios-cards");
 
    // Lê dos hidden fields individuais (persistência confiável entre atividades)
-   var dadosSalvos = [];
-   for (var i = 1; i <= LIMITE_CONTAS_BANCARIAS; i++) {
-      var cod     = ($("#hiddenBanco" + i + "Cod"     ).val() || "").trim();
-      var agencia = ($("#hiddenBanco" + i + "Agencia" ).val() || "").trim();
-      var conta   = ($("#hiddenBanco" + i + "Conta"   ).val() || "").trim();
+   let dadosSalvos = [];
+   for (let i = 1; i <= LIMITE_CONTAS_BANCARIAS; i++) {
+      let cod     = ($("#hiddenBanco" + i + "Cod"     ).val() || "").trim();
+      let agencia = ($("#hiddenBanco" + i + "Agencia" ).val() || "").trim();
+      let conta   = ($("#hiddenBanco" + i + "Conta"   ).val() || "").trim();
 
       if (cod || agencia || conta) {
          dadosSalvos.push({
@@ -915,9 +920,9 @@ function inicializarDadosBancarios() {
    // Fallback: tenta ler do child table se os hidden fields estiverem vazios
    if (!dadosSalvos.length) {
       $("#tableDadosBancarios tbody tr").each(function () {
-         var cod     = ($(this).find(".dbBanco"  ).val() || "").trim();
-         var agencia = ($(this).find(".dbAgencia").val() || "").trim();
-         var conta   = ($(this).find(".dbConta"  ).val() || "").trim();
+         let cod     = ($(this).find(".dbBanco"  ).val() || "").trim();
+         let agencia = ($(this).find(".dbAgencia").val() || "").trim();
+         let conta   = ($(this).find(".dbConta"  ).val() || "").trim();
          if (cod || agencia || conta) {
             dadosSalvos.push({
                cod:      cod,
@@ -933,15 +938,15 @@ function inicializarDadosBancarios() {
 
    if (dadosSalvos.length) {
       dadosSalvos.forEach(function (d, index) {
-         var numero = index + 1;
+         let numero = index + 1;
          $wrap.append(_gerarHtmlCardBancario(numero));
-         var s = _sufixoBancario(numero);
+         let s = _sufixoBancario(numero);
 
          $("#banco"             + s).val(d.cod);
          $("#bancoDescricao"    + s).val(d.desc);
 
-         var agencia = d.agencia;
-         var conta   = d.conta;
+         let agencia = d.agencia;
+         let conta   = d.conta;
          if (/^\d{5}$/.test(agencia)) agencia = agencia.slice(0, 4) + "-" + agencia[4];
          if (/^\d{2,}$/.test(conta))  conta   = conta.slice(0, -1)  + "-" + conta.slice(-1);
 
@@ -956,8 +961,8 @@ function inicializarDadosBancarios() {
    atualizarCamposBancariosRm();
 }
 function adicionarContaBancaria() {
-   var $wrap = $("#dados-bancarios-cards");
-   var quantidade = $wrap.find(".bank-card").length;
+   let $wrap = $("#dados-bancarios-cards");
+   let quantidade = $wrap.find(".bank-card").length;
 
    if (quantidade >= LIMITE_CONTAS_BANCARIAS) {
       FLUIGC.toast({
@@ -980,8 +985,8 @@ function removerContaBancaria(numero) {
 }
 function _reordenarCardsBancarios() {
    $("#dados-bancarios-cards .bank-card").each(function (index) {
-      var numero = index + 1;
-      var s = _sufixoBancario(numero);
+      let numero = index + 1;
+      let s = _sufixoBancario(numero);
 
       $(this).attr("id", "bank-card-" + numero);
       $(this).find(".bank-card-title").text("Conta Bancária " + numero);
@@ -998,18 +1003,18 @@ function _reordenarCardsBancarios() {
    });
 }
 function sincronizarTabelaBancaria() {
-   var $tbody = $("#tableDadosBancarios tbody");
+   let $tbody = $("#tableDadosBancarios tbody");
 
    $tbody.find("tr").remove();
 
    $("#dados-bancarios-cards .bank-card").each(function (index) {
-      var numero = index + 1;
-      var s = _sufixoBancario(numero);
+      let numero = index + 1;
+      let s = _sufixoBancario(numero);
 
-      var banco     = ($("#banco"             + s).val() || "").trim();
-      var bancoDesc = ($("#bancoDescricao"    + s).val() || "").trim();
-      var agencia   = ($("#agencia"           + s).val() || "").replace(/\D/g, "");
-      var conta     = ($("#conta"             + s).val() || "").replace(/\D/g, "");
+      let banco     = ($("#banco"             + s).val() || "").trim();
+      let bancoDesc = ($("#bancoDescricao"    + s).val() || "").trim();
+      let agencia   = ($("#agencia"           + s).val() || "").replace(/\D/g, "");
+      let conta     = ($("#conta"             + s).val() || "").replace(/\D/g, "");
 
       // child table (RM integration)
       $tbody.append(
@@ -1031,8 +1036,8 @@ function sincronizarTabelaBancaria() {
    });
 
    // limpa os hidden dos slots não utilizados
-   var usados = $("#dados-bancarios-cards .bank-card").length;
-   for (var i = usados + 1; i <= LIMITE_CONTAS_BANCARIAS; i++) {
+   let usados = $("#dados-bancarios-cards .bank-card").length;
+   for (let i = usados + 1; i <= LIMITE_CONTAS_BANCARIAS; i++) {
       $("#hiddenBanco" + i + "Cod"     ).val("");
       $("#hiddenBanco" + i + "Desc"    ).val("");
       $("#hiddenBanco" + i + "Agencia" ).val("");
@@ -1042,8 +1047,8 @@ function sincronizarTabelaBancaria() {
    atualizarCamposBancariosRm();
 }
 function controlarBotaoAdicionarConta() {
-   var quantidade = $("#dados-bancarios-cards .bank-card").length;
-   var $botao = $("#btn-add-conta-bancaria");
+   let quantidade = $("#dados-bancarios-cards .bank-card").length;
+   let $botao = $("#btn-add-conta-bancaria");
 
    if (quantidade >= LIMITE_CONTAS_BANCARIAS) {
       $botao.prop("disabled", true).addClass("disabled");
@@ -1054,7 +1059,10 @@ function controlarBotaoAdicionarConta() {
 
 
 // BEFORE SEND VALIDATE
-var beforeSendValidate = function (numState, nextState) {
+// Declarado em window para que o Fluig encontre o hook pelo nome global.
+// Com "let" a função fica no escopo do script mas não em window.beforeSendValidate,
+// e o Fluig não a reconhece — resultando em envio sem validação.
+window.beforeSendValidate = function (numState, nextState) {
 
    $("#tipoSelecionado").val($("#tipo").val() || "");
    $("#tipoDescricao").val($("#tipo option:selected").text() || "");
@@ -1103,31 +1111,66 @@ var beforeSendValidate = function (numState, nextState) {
    }
 
    let valido = true;
+   // step com o primeiro erro encontrado (para navegação automática)
+   let primeiroStepComErro = null;
 
    if (acao == "inicio" || acao == "correcao") {
-      if (!validarPreCadastro()) valido = false;
-      if (!validarDadosCadastrais()) valido = false;
-      if (!validarDocumentacao()) valido = false;
+      // Navega a cada step antes de validar, pois validarCampoObrigatorio
+      // ignora campos invisíveis — sem isso os steps ocultos nunca são checados.
+      goToStep(1, false);
+      if (!validarPreCadastro()) {
+         valido = false;
+         if (primeiroStepComErro === null) primeiroStepComErro = 1;
+      }
+
+      goToStep(2, false);
+      if (!validarDadosCadastrais()) {
+         valido = false;
+         if (primeiroStepComErro === null) primeiroStepComErro = 2;
+      }
+
+      goToStep(3, false);
+      if (!validarDocumentacao()) {
+         valido = false;
+         if (primeiroStepComErro === null) primeiroStepComErro = 3;
+      }
    }
 
    if (acao == "validacao") {
-
       const decisao = valor("selectDecisao");
 
       if (!obrigatorio("observacaoValidacao", "Observações")) valido = false;
       if (!obrigatorio("selectDecisao", "Ação")) valido = false;
 
-      if (decisao != "enviarRm" && decisao != "Correcao") {
+      if (decisao && decisao != "enviarRm" && decisao != "Correcao") {
          marcarErro("selectDecisao", "Selecione uma ação: Aprovar (Enviar ao RM) ou Reprovar (Correção).");
          valido = false;
       }
 
-      if (!validarPreCadastro()) valido = false;
-      if (!validarDadosCadastrais()) valido = false;
-      if (!validarDocumentacao()) valido = false;
+      goToStep(1, false);
+      if (!validarPreCadastro()) {
+         valido = false;
+         if (primeiroStepComErro === null) primeiroStepComErro = 1;
+      }
+
+      goToStep(2, false);
+      if (!validarDadosCadastrais()) {
+         valido = false;
+         if (primeiroStepComErro === null) primeiroStepComErro = 2;
+      }
+
+      goToStep(3, false);
+      if (!validarDocumentacao()) {
+         valido = false;
+         if (primeiroStepComErro === null) primeiroStepComErro = 3;
+      }
    }
 
    if (!valido) {
+      // Navega ao step com o primeiro erro para o usuário ver os avisos inline
+      if (primeiroStepComErro !== null) {
+         goToStep(primeiroStepComErro, false);
+      }
       focusCampoComErro();
       return false;
    }

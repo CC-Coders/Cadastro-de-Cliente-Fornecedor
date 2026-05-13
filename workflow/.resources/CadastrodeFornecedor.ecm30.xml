@@ -1,4 +1,4 @@
-<list>
+﻿<list>
   <ProcessDefinition>
     <processDefinitionPK>
       <companyId>1</companyId>
@@ -28,11 +28,7 @@
     <processDefinitionVersionPK>
       <companyId>1</companyId>
       <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
       <version>48</version>
-=======
-      <version>45</version>
->>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
     <formId>33577</formId>
@@ -431,11 +427,7 @@
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
         <expressionOrder>1</expressionOrder>
-<<<<<<< HEAD
         <version>48</version>
-=======
-        <version>45</version>
->>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;Correcao&quot;</condition>
@@ -447,11 +439,7 @@
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
         <expressionOrder>2</expressionOrder>
-<<<<<<< HEAD
         <version>48</version>
-=======
-        <version>45</version>
->>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;enviarRm&quot;</condition>
@@ -992,11 +980,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
         <version>48</version>
-=======
-        <version>45</version>
->>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>17</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1007,11 +991,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
         <version>48</version>
-=======
-        <version>45</version>
->>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>25</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1022,11 +1002,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
         <version>48</version>
-=======
-        <version>45</version>
->>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>28</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1037,11 +1013,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
         <version>48</version>
-=======
-        <version>45</version>
->>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>28</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1052,11 +1024,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
         <version>48</version>
-=======
-        <version>45</version>
->>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>29</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1067,11 +1035,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
         <version>48</version>
-=======
-        <version>45</version>
->>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>30</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1082,11 +1046,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
         <version>48</version>
-=======
-        <version>45</version>
->>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>30</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1097,11 +1057,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
         <version>48</version>
-=======
-        <version>45</version>
->>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>30</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
@@ -1112,11 +1068,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
         <version>48</version>
-=======
-        <version>45</version>
->>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>31</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1127,11 +1079,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
         <version>48</version>
-=======
-        <version>45</version>
->>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>31</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1142,11 +1090,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
         <version>48</version>
-=======
-        <version>45</version>
->>>>>>> efcf31f7f6e8a840467ea933f3e5ad43e5f8394d
         <linkSequence>31</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>

@@ -59,7 +59,7 @@ function monitorarInputNativoFluig() {
          return;
       }
 
-      const arquivo = this.files && this.files.length ? this.files[0] : null;
+      const arquivo = this.files?.length ? this.files[0] : null;
 
       if (!arquivo) {
          return;
@@ -98,7 +98,7 @@ function _iniciarObservadorAnexosInvalidos() {
                }
 
                // Ignora a linha vazia que o Fluig insere quando a tabela fica sem itens
-               if (node.hasAttribute("data-empty-message")) {
+               if (Object.hasOwn(node.dataset, "emptyMessage")) {
                   return;
                }
 
@@ -187,7 +187,7 @@ function buscarIdAnexoPorNome(nomeArquivo) {
    const nome = String(nomeArquivo || "").trim();
 
    const $linha = $p("#attachmentsTable tbody tr").filter(function () {
-      return $p(this).text().indexOf(nome) !== -1;
+      return $p(this).text().includes(nome);
    }).first();
 
    if (!$linha.length) {
@@ -222,7 +222,7 @@ function montarStatusAnexo(sufixoCampo, nomeArquivo) {
          '</span>' +
          '</div>'
       )
-      .show(500)();
+      .show(500);
    adicionarBotaoVisualizarAnexo(sufixoCampo, nomeArquivo);
 }
 function restaurarUploadsSalvos() {
@@ -261,7 +261,7 @@ function adicionarBotaoVisualizarAnexo(sufixoCampo, nomeArquivo) {
       atividade === ATIVIDADES.INICIO;
 
    const $status = $(statusId);
-   const nomeSeguro = (nomeArquivo || "").replaceAll("'", "\\'");
+   const nomeSeguro = (nomeArquivo || "").replaceAll("'", String.raw`\'`);
 
    const $removeBtn = $status.find(".upload-file-remove").first();
 
@@ -295,7 +295,7 @@ function visualizarAnexoFluig(nomeArquivo) {
    abrirAbaAnexosFluig();
 
    const $linha = $p("#attachmentsTable tbody tr").filter(function () {
-      return $p(this).text().replace(/\s+/g, " ").trim().indexOf(nomeArquivo) !== -1;
+      return $p(this).text().replace(/\s+/g, " ").trim().includes(nomeArquivo);
    }).first();
 
    if (!$linha.length) {
@@ -308,7 +308,7 @@ function visualizarAnexoFluig(nomeArquivo) {
    }
 
    const $linkNome = $linha.find("a").filter(function () {
-      return $p(this).text().trim().indexOf(nomeArquivo) !== -1;
+      return $p(this).text().trim().includes(nomeArquivo);
    }).first();
 
    if ($linkNome.length) {
@@ -432,13 +432,13 @@ function removerAnexoFluig(config) {
 
    if (documentId) {
       $linha = $p("#attachmentsTable tbody tr").filter(function () {
-         return $p(this).text().indexOf(documentId) !== -1;
+         return $p(this).text().includes(documentId);
       }).first();
    }
 
    if (!$linha.length && nomeArquivo) {
       $linha = $p("#attachmentsTable tbody tr").filter(function () {
-         return $p(this).text().replace(/\s+/g, " ").trim().indexOf(nomeArquivo) !== -1;
+         return $p(this).text().replace(/\s+/g, " ").trim().includes(nomeArquivo);
       }).first();
    }
 
@@ -577,8 +577,8 @@ function ocultarToastRemocaoAutomatica() {
             const texto = $p(this).text().toLowerCase();
 
             return (
-               texto.indexOf("anexo foi removido") !== -1 ||
-               texto.indexOf("anexo removido") !== -1
+               texto.includes("anexo foi removido") ||
+               texto.includes("anexo removido")
             );
          })
          .remove();
@@ -590,8 +590,8 @@ function ocultarToastRemocaoAutomatica() {
             const texto = $p(this).text().toLowerCase();
 
             return (
-               texto.indexOf("anexo foi removido") !== -1 ||
-               texto.indexOf("anexo removido") !== -1
+               texto.includes("anexo foi removido") ||
+               texto.includes("anexo removido")
             );
          })
          .remove();

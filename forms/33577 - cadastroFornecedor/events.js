@@ -4,7 +4,7 @@
 // O $(document).ready() do Script.js é muito cedo para ler os campos hidden
 // preenchidos pelo servidor — o window.load garante que os valores estão disponíveis.
 // ─────────────────────────────────────────────
-$(window).on("load", function () {
+$(globalThis).on("load", function () {
 
    // Aguarda 300ms adicionais para o Fluig completar a renderização dos campos
    setTimeout(function () {
@@ -343,7 +343,7 @@ function bindEventosDocumentos() {
    // Sincroniza o select de país estrangeiro com o hidden field #pais
    // (o field #pais é o que o Fluig persiste entre atividades)
    $(document).on("change", "#selectPaisEstrangeiro", function () {
-      var paisSelecionado = $(this).val() || "";
+      let paisSelecionado = $(this).val() || "";
       $("#pais").val(paisSelecionado);
       if (paisSelecionado) {
          limparErroCampo("selectPaisEstrangeiro");
@@ -353,10 +353,13 @@ function bindEventosDocumentos() {
    // Ao selecionar um Código de Receita IRRF, preenche automaticamente o campo Alíquota.
    // O value armazenado no campo codIrrf (name="codIrrf") é o CODRECEITA.
    // A alíquota correspondente fica em data-aliquota do <option> selecionado.
+   // hiddenCodIrrf serve como âncora de restauração (mesmo padrão de codNaturezaRendimento),
+   // porque Fluig não consegue restaurar selects dinâmicos antes das opções existirem.
    $(document).on("change", "#selectDescricaoIrrf", function () {
-      var selecionado = $(this).find("option:selected");
-      var aliq = selecionado.length ? (selecionado.attr("data-aliquota") || "") : "";
+      let selecionado = $(this).find("option:selected");
+      let aliq = selecionado.length ? (selecionado.attr("data-aliquota") || "") : "";
       $("#irrf").val(aliq);
+      $("#hiddenCodIrrf").val($(this).val() || "");
       if ($(this).val()) {
          limparErroCampo("selectDescricaoIrrf");
       }

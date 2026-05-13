@@ -83,7 +83,7 @@ function buscarCnpj(cnpj) {
       },
       error: function (xhr) {
 
-         var mensagem = "Erro ao buscar CNPJ.";
+         let mensagem = "Erro ao buscar CNPJ.";
 
          if (xhr.status === 401) {
             mensagem = "Token da API CNPJ inválido ou ausente.";
@@ -151,14 +151,14 @@ function preencherDadosCnpj(data) {
    });
 }
 function preencherCnaesSecundarios(data) {
-   var atividades = data.atividades_secundarias || [];
-   var limite = window.LIMITE_CNAE_SECUNDARIO || 5;
+   let atividades = data.atividades_secundarias || [];
+   let limite = globalThis.LIMITE_CNAE_SECUNDARIO || 5;
 
    $("#cnae-secundarios-wrap .cnae-secundario-item").remove();
 
    atividades.slice(0, limite).forEach(function (atividade, index) {
-      var numero = index + 1;
-      var valor = atividade.codigo + " — " + atividade.descricao;
+      let numero = index + 1;
+      let valor = atividade.codigo + " — " + atividade.descricao;
 
       adicionarCnae();
 

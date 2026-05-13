@@ -14,21 +14,20 @@
    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.19.9/docxtemplater.js"></script>
    <script src="https://unpkg.com/pizzip@3.0.6/dist/pizzip.js"></script>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.js"></script>
    <script src="https://unpkg.com/pizzip@3.0.6/dist/pizzip-utils.js"></script>
    <!-- Formulário -->
-   <link rel="stylesheet" href="css/cadastroFornecedor.css"/>
-   <link rel="stylesheet" href="css/footer.css"/>
-   <link rel="stylesheet" href="css/header.css"/>
-   <link rel="stylesheet" href="css/paginacao.css"/>
-   <link rel="stylesheet" href="css/dark.css">
-   <script src="js/Functions.js"></script>
-   <script src="js/Script.js"></script>
-   <script src="js/api.js"></script>
-   <script src="js/ui.js"></script>
-   <script src="js/validation.js"></script>
-   <script src="js/upload.js"></script>
-   <script src="js/events.js"></script>
+   <link rel="stylesheet" href="cadastroFornecedor.css"/>
+   <link rel="stylesheet" href="footer.css"/>
+   <link rel="stylesheet" href="header.css"/>
+   <link rel="stylesheet" href="paginacao.css"/>
+   <link rel="stylesheet" href="dark.css">
+   <script src="Functions.js"></script>
+   <script src="Script.js"></script>
+   <script src="api.js"></script>
+   <script src="ui.js"></script>
+   <script src="validation.js"></script>
+   <script src="upload.js"></script>
+   <script src="events.js"></script>
    <title>Cadastro de Fornecedor</title>
 </head>
 
@@ -204,7 +203,7 @@
 
                            <div class="switch switch-success">
                               <input class="switch-input" type="checkbox" id="toggleEstrangeiro" name="toggleEstrangeiro">
-                              <label class="switch-button" for="toggleEstrangeiro"></label>
+                              <label class="switch-button" for="toggleEstrangeiro">Fornecedor estrangeiro</label>
                            </div>
                            <span class="retencao-label">Sim</span>
                         </div>
@@ -347,6 +346,7 @@
                                  <option value="">Selecione...</option>
                               </select>
                            </div>
+                           <input type="hidden" id="hiddenCodIrrf" name="hiddenCodIrrf">
                         </div>
                         <div class="fg" id="divIrrf">
                            <label for="irrf">Alíquota IRRF (%)</label>
@@ -430,7 +430,7 @@
                         <div id="cnae-secundarios-wrap"></div>
                      </div>
                      <div class="divider"></div>
-                     <div class="retencao-box" id="divToggleRetencao"><!-- style="display: block"> -->
+                     <div class="retencao-box" id="divToggleRetencao">
                         <div class="retencao-content">
                            <div class="retencao-text">
                               <strong>Haverá retenções de impostos neste prestador / fornecedor?</strong>
@@ -710,130 +710,6 @@
                      </div>
                   </div>
                </div>
-               
-               <!-- <div class="section" id="divConformidadeEtica" name="divConformidadeEtica">
-                  <button type="button" class="section-head" onclick="toggleSection(this)">
-                     <div class="section-head-left">
-                        <div class="section-num">7</div>
-                        <span class="section-name">Conformidade e Ética</span>
-                        <span class="section-arrow open">▼</span>
-                     </div>
-                  </button>
-                  <div class="section-body">
-                     <div class="grid g4">
-                        <div class="fg conformidade-pf" id="divLaudoMedicoPcd" style="display: none">
-                           <label for="fileLaudoMedicoPcd">Laudo Médico para Isenção de Impostos (PCD)</label>
-                           <input type="file" id="fileLaudoMedicoPcd" name="fileLaudoMedicoPcd" accept=".pdf,.png,.jpg,.jpeg" style="display: none"/>
-                           <div class="upload-area" id="uploadLaudoMedicoPcd" data-upload-id="fileLaudoMedicoPcd">
-                              <div class="upload-icon"><i class="flaticon flaticon-description icon-md"></i></div>
-                              <div class="upload-title">Laudo Médico PCD</div>
-                              <div class="upload-hint">Laudo para isenção de impostos</div>
-                              <div class="upload-formats">PDF, JPG ou PNG</div>
-                              <span class="upload-badge badge-req">Obrigatório</span>
-                           </div>
-                           <div class="upload-file-status" id="statusFileLaudoMedicoPcd" style="display: none">
-                              <span id="nomeFileLaudoMedicoPcd"></span>
-                              <span class="upload-file-remove" data-input-id="fileLaudoMedicoPcd" data-area-id="uploadLaudoMedicoPcd" data-sufixo="LaudoMedicoPcd">
-                                 <i class="flaticon flaticon-trash icon-sm"></i>Remover
-                              </span>
-                           </div>
-                        </div>
-                        
-                        <div class="fg conformidade-pf" id="divDeclaracaoDependentesIrrf" style="display: none">
-                           <label for="fileDeclaracaoDependentesIrrf">Declaração de Dependentes para IRRF</label>
-                           <input type="file" id="fileDeclaracaoDependentesIrrf" name="fileDeclaracaoDependentesIrrf" accept=".pdf,.png,.jpg,.jpeg" style="display: none"/>
-                           <div class="upload-area" id="uploadDeclaracaoDependentesIrrf" data-upload-id="fileDeclaracaoDependentesIrrf">
-                              <div class="upload-icon"><i class="flaticon flaticon-description icon-md"></i></div>
-                              <div class="upload-title"> Declaração de Dependentes IRRF</div>
-                              <div class="upload-hint">Imposto de Renda Retido na Fonte</div>
-                              <div class="upload-formats">PDF, JPG ou PNG</div>
-                              <span class="upload-badge badge-req">Obrigatório</span>
-                           </div>
-                           <div class="upload-file-status" id="statusFileDeclaracaoDependentesIrrf"
-                              style="display: none">
-                              <span id="nomeFileDeclaracaoDependentesIrrf"></span>
-                              <span class="upload-file-remove" data-input-id="fileDeclaracaoDependentesIrrf" data-area-id="uploadDeclaracaoDependentesIrrf" data-sufixo="DeclaracaoDependentesIrrf">
-                                 <i class="flaticon flaticon-trash icon-sm"></i>Remover
-                              </span>
-                           </div>
-                        </div>
-                        
-                        <div class="fg conformidade-pj" id="divCodigoConduta" name="divCodigoConduta">
-                           <label for="fileCodigoConduta">Código de Conduta</label>
-                           <input type="file" id="fileCodigoConduta" name="fileCodigoConduta" accept=".pdf,.png,.jpg,.jpeg" style="display: none"/>
-                           <div class="upload-area" id="uploadCodigoConduta" data-upload-id="fileCodigoConduta">
-                              <div class="upload-icon"><i class="flaticon flaticon-description icon-md" aria-hidden="true"></i></div>
-                              <div class="upload-title">Código de Conduta</div>
-                              <div class="upload-hint">Assinado pelo representante legal</div>
-                              <div class="upload-formats">PDF, JPG, JPEG, PNG ou WEBP · máx. 10 MB
-                              </div>
-                              <span class="upload-badge badge-req">Obrigatório</span>
-                           </div>
-                           <div class="upload-file-status" id="statusFileCodigoConduta" style="display: none">
-                              <span id="nomeFileCodigoConduta"></span>
-                              <span class="upload-file-remove" data-input-id="fileCodigoConduta"data-area-id="uploadCodigoConduta" data-sufixo="CodigoConduta">
-                                 <i class="flaticon flaticon-trash icon-sm"></i>Remover
-                              </span>
-                           </div>
-                        </div>
-                        
-                        <div class="fg conformidade-pj" id="divPoliticaAnticorrupcao" name="divPoliticaAnticorrupcao">
-                           <label for="filePoliticaAnticorrupcao">Política Anticorrupção</label>
-                           <input type="file" id="filePoliticaAnticorrupcao" name="filePoliticaAnticorrupcao" accept=".pdf,.png,.jpg,.jpeg" style="display: none"/>
-                           <div class="upload-area" id="uploadPoliticaAnticorrupcao" data-upload-id="filePoliticaAnticorrupcao">
-                              <div class="upload-icon"><i class="flaticon flaticon-description icon-md" aria-hidden="true"></i></div>
-                              <div class="upload-title">Política Anticorrupção</div>
-                              <div class="upload-hint">Declaração de ciência assinada</div>
-                              <div class="upload-formats">PDF, JPG, JPEG, PNG ou WEBP · máx. 10 MB</div>
-                              <span class="upload-badge badge-req">Obrigatório</span>
-                           </div>
-                           <div class="upload-file-status" id="statusFilePoliticaAnticorrupcao" style="display: none">
-                              <span id="nomeFilePoliticaAnticorrupcao"></span>
-                              <span class="upload-file-remove" data-input-id="filePoliticaAnticorrupcao" data-area-id="uploadPoliticaAnticorrupcao" data-sufixo="PoliticaAnticorrupcao">
-                                 <i class="flaticon flaticon-trash icon-sm"></i>Remover
-                              </span>
-                           </div>
-                        </div>
-                        
-                        <div class="fg conformidade-pj" id="divConflitoInteresses" name="divConflitoInteresses">
-                           <label for="fileConflitoInteresses">Conflito de Interesses</label>
-                           <input type="file" id="fileConflitoInteresses" name="fileConflitoInteresses" accept=".pdf,.png,.jpg,.jpeg" style="display: none"/>
-                           <div class="upload-area" id="uploadConflitoInteresses" data-upload-id="fileConflitoInteresses">
-                              <div class="upload-icon"><i class="flaticon flaticon-description icon-md" aria-hidden="true"></i></div>
-                              <div class="upload-title">Conflito de Interesses</div>
-                              <div class="upload-hint">Declaração de ausência de conflito</div>
-                              <div class="upload-formats">PDF, JPG, JPEG, PNG ou WEBP · máx. 10 MB</div>
-                              <span class="upload-badge badge-req">Obrigatório</span>
-                           </div>
-                           <div class="upload-file-status" id="statusFileConflitoInteresses" style="display: none">
-                              <span id="nomeFileConflitoInteresses"></span>
-                              <span class="upload-file-remove" data-input-id="fileConflitoInteresses" data-area-id="uploadConflitoInteresses" data-sufixo="ConflitoInteresses">
-                                 <i class="flaticon flaticon-trash icon-sm"></i>Remover
-                              </span>
-                           </div>
-                        </div>
-                       
-                        <div class="fg conformidade-pj" id="divCienciaLgpd" name="divCienciaLgpd">
-                           <label for="fileCienciaLgpd">Ciência sobre LGPD</label>
-                           <input type="file" id="fileCienciaLgpd" name="fileCienciaLgpd" accept=".pdf,.png,.jpg,.jpeg" style="display: none"/>
-                           <div class="upload-area" id="uploadCienciaLgpd" data-upload-id="fileCienciaLgpd">
-                              <div class="upload-icon"><i class="flaticon flaticon-description icon-md" aria-hidden="true"></i></div>
-                              <div class="upload-title">Ciência sobre LGPD</div>
-                              <div class="upload-hint">Termo de ciência e consentimento</div>
-                              <div class="upload-formats">PDF, JPG, JPEG, PNG ou WEBP · máx. 10 MB</div>
-                              <span class="upload-badge badge-req">Obrigatório</span>
-                           </div>
-                           <div class="upload-file-status" id="statusFileCienciaLgpd" style="display: none">
-                              <span id="nomeFileCienciaLgpd"></span>
-                              <span class="upload-file-remove" data-input-id="fileCienciaLgpd" data-area-id="uploadCienciaLgpd" data-sufixo="CienciaLgpd">
-                                 <i class="flaticon flaticon-trash icon-sm"></i>Remover
-                              </span>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </div> -->
-
             </div>
             <!-- HISTÓRICO DE DECISÃO -->
             <div class="step-panel step-4" id="paginaHistorico" style="display: none">

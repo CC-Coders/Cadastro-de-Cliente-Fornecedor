@@ -194,9 +194,7 @@ function validarPreCadastro(exibirToast) {
       camposEndereco.push({ id: "selectPaisEstrangeiro", label: "País" });
    } else {
       // Modo nacional: valida CEP, campo País (input readonly) e Estado
-      camposEndereco.push({ id: "cep",    label: "CEP"    });
-      camposEndereco.push({ id: "pais",   label: "País"   });
-      camposEndereco.push({ id: "estado", label: "Estado" });
+      camposEndereco.push({ id: "cep",    label: "CEP"    }, { id: "pais",   label: "País"   }, { id: "estado", label: "Estado" });
    }
 
    let valido = true;

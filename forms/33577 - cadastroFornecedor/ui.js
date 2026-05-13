@@ -125,11 +125,9 @@ function controlarRetencaoPorTipo() {
    const tipo = $("#tipo").val();
 
    if (TIPOS_COM_RETENCAO.includes(tipo)) {
-      // $("#divToggleRetencao").show();
       return;
    }
 
-   // $("#divToggleRetencao").hide();
    resetarRetencao();
 }
 function controlarPainelRetencoes() {

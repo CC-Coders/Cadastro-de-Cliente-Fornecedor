@@ -1,6 +1,6 @@
 // Limites de itens dinâmicos adicionáveis pelo usuário
-window.LIMITE_CNAE_SECUNDARIO = window.LIMITE_CNAE_SECUNDARIO || 5;
-window.LIMITE_GRUPO_MERCADORIA = 9;
+globalThis.LIMITE_CNAE_SECUNDARIO = globalThis.LIMITE_CNAE_SECUNDARIO || 5;
+globalThis.LIMITE_GRUPO_MERCADORIA = 9;
 
 // Mapeamento step-number → ID do painel de conteúdo correspondente
 const PANEL_MAP = {
@@ -58,8 +58,8 @@ $(document).ready(function () {
 
    try {
       sincronizarEstadoInicial();
-   } catch (erro) {
-      console.error("Erro em sincronizarEstadoInicial:", erro);
+   } catch (error_) {
+      console.error("Erro em sincronizarEstadoInicial:", error_);
    }
 
    restaurarUploadsSalvos();
@@ -86,7 +86,7 @@ $(document).ready(function () {
    // Mantém os hidden #tipoSelecionado e #tipoDescricao sincronizados com o select #tipo.
    // Necessário porque o select é populado dinamicamente; o Fluig só persiste o value, não o text.
    $("#tipo").on("change", function () {
-      var texto = $("#tipo option:selected").text();
+      let texto = $("#tipo option:selected").text();
       $("#tipoSelecionado").val($(this).val());
       $("#tipoDescricao").val(texto);
    });
@@ -181,8 +181,8 @@ function sincronizarEstadoInicial() {
    funcoesIniciais.forEach(function (funcao) {
       try {
          funcao();
-      } catch (erro) {
-         console.error("Erro ao sincronizar estado inicial:", erro);
+      } catch (error_) {
+         console.error("Erro ao sincronizar estado inicial:", error_);
       }
    });
 
@@ -216,7 +216,7 @@ function restaurarGruposMercadoriaSalvos() {
    }
 }
 function restaurarCnaesSecundariosSalvos() {
-   const limite = window.LIMITE_CNAE_SECUNDARIO || 5;
+   const limite = globalThis.LIMITE_CNAE_SECUNDARIO || 5;
 
    const cnaesSalvos = [];
 

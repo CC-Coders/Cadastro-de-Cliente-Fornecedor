@@ -686,10 +686,8 @@ select.form-control,
 
 #divBtnAddGrupoMercadoria .btn,
 #divBtnAddCnae .btn {
-    width: auto;
-    margin-top: 0;
-    background-color: #08a100;
-    border-color: #08a100;
+	width: auto;
+	margin-top: 0;
 }
 
 
@@ -987,7 +985,7 @@ button.btn {
 	color: #2f3b33;
 }
 
-.upload-file-status>span[id^="nomeFile"] {
+.upload-file-status span[id^="nomeFile"] {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1003,7 +1001,7 @@ button.btn {
 	text-align: center;
 }
 
-.upload-file-status>span[id^="nomeFile"]::before {
+.upload-file-status span[id^="nomeFile"]::before {
 	content: "✓";
 	margin-right: 6px;
 	color: #00a651;
@@ -1492,11 +1490,11 @@ header {
 }
 
 .bank-card-title {
-    background: #eb7d00;
-    color: #fff;
-    padding: 7px 14px;
-    border-radius: 6px;
-    font-weight: 600;
+   background: #24364f;
+   color: #fff;
+   padding: 7px 14px;
+   border-radius: 6px;
+   font-weight: 600;
 }
 
 .btn-remove-bank {
@@ -1523,7 +1521,3 @@ header {
 .btn-add-bank:hover {
    background: #f0faf4;
 }
-
-
-
-
