@@ -213,7 +213,7 @@ function montarStatusAnexo(sufixoCampo, nomeArquivo) {
          '<div class="file-name">' +
          '<span id="nomeFile' + sufixoCampo + '">' + nomeArquivo + '</span>' +
          '</div>' +
-         '<div class="file-actions">' +
+         '<div class="file-actions">' +  
          '<span class="upload-file-remove" ' +
          'data-input-id="file' + sufixoCampo + '" ' +
          'data-area-id="upload' + sufixoCampo + '" ' +

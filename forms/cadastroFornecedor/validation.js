@@ -20,7 +20,7 @@ const UPLOADS_OBRIGATORIOS = {
    pj: ["fileCartaoCnpj", "fileContratoSocial"]
 };
 const LABELS_UPLOAD = {
-   "fileCartaoCnpj":                "Cartão CNPJ",
+   "fileCartaoCnpj":                "Documento de Identificação Júridica",
    "fileContratoSocial":            "Contrato Social",
    "fileRgCpf":                     "Documento de Identificação",
    "fileComprovanteEndereco":       "Comprovante de Endereço",
@@ -66,7 +66,12 @@ function exibirErroCampo(campoId, mensagem) {
    $container.addClass("has-erro");
    $campo.attr("aria-invalid", "true");
 
-   $campo.after(
+   // Se o campo está dentro de um .input-btn-row, insere o erro APÓS a linha
+   // (não entre o campo e o botão "Adicionar")
+   const $inputBtnRow = $campo.closest(".input-btn-row");
+   const $insertAfter = $inputBtnRow.length ? $inputBtnRow : $campo;
+
+   $insertAfter.after(
       '<small class="help-block erro-validacao" id="' + mensagemId + '">' +
       mensagem +
       "</small>"
@@ -246,12 +251,18 @@ function validarDadosCadastrais() {
    const camposComerciais = [
       {
          id: "grupoMercadoria1",
-         label: "Grupo de Mercadoria"
+         label: "Grupo de Mercadoria",
+         skipWhen: function () { return ($("#classificacao").val() || "") === "1"; }
       },
       {
          id: "cnaePrincipal",
          label: "CNAE Principal",
-         skipWhen: function () { return ($("#categoria").val() || "") === "F"; }
+         skipWhen: function () {
+            const cat = ($("#categoria").val() || "");
+            const estrangeiro = $("#toggleEstrangeiro").is(":checked");
+            const isCliente = ($("#classificacao").val() || "") === "1";
+            return isCliente || cat === "F" || (cat === "J" && estrangeiro);
+         }
       }
    ];
 
@@ -290,40 +301,66 @@ function validarDadosCadastrais() {
    if (!validarListaCampos(camposFiscais)) valido = false;
    if (!validarListaCampos(camposComerciais)) valido = false;
 
-   if ($("#toggleRetencao").is(":checked")) {
-      const algumSelecionado = [
-         "#iss", "#inss", "#inputIrrf", "#csll", "#pis", "#cofins"
-      ].some(function (id) {
-         return $(id).is(":checked");
+   // Verifica o toggle via hidden field E via nativo (OR) — cobre tanto a situação
+   // onde o Fluig restaura só o checkbox nativo quanto onde o JS já populou o hidden
+   const retencaoAtiva = $("#hiddenToggleRetencao").val() === "on"
+                      || $("#toggleRetencao").is(":checked");
+
+   if (retencaoAtiva) {
+      const PARES_IMPOSTO = [
+         { hidden: "#hiddenIss",       nativo: "#iss"       },
+         { hidden: "#hiddenInss",      nativo: "#inss"      },
+         { hidden: "#hiddenInputIrrf", nativo: "#inputIrrf" },
+         { hidden: "#hiddenCsll",      nativo: "#csll"      },
+         { hidden: "#hiddenPis",       nativo: "#pis"       },
+         { hidden: "#hiddenCofins",    nativo: "#cofins"    }
+      ];
+      const algumSelecionado = PARES_IMPOSTO.some(function (p) {
+         return $(p.hidden).val() === "on" || $(p.nativo).is(":checked");
       });
 
       if (!algumSelecionado) {
-         exibirErroCampo("iss", "Selecione pelo menos um imposto.");
+         $("#erroMinimoImposto").show();
          $("#divRetencoesPanel").addClass("retencao-erro");
          valido = false;
       }
    }
 
-   if (!validarListaCampos(camposFinanceiros)) valido = false;
+   // Cliente não tem dados bancários — pula validação bancária
+   const isCliente = ($("#classificacao").val() || "") === "1";
+   if (!isCliente && !validarListaCampos(camposFinanceiros)) valido = false;
+
    if (!validarListaCampos(camposContato)) valido = false;
 
    return valido;
 }
 function validarPainelRetencaoVisual() {
-   const ativo = $("#toggleRetencao").is(":checked");
+   const ativo = $("#hiddenToggleRetencao").val() === "on"
+              || $("#toggleRetencao").is(":checked");
 
    if (!ativo) {
       $("#divRetencoesPanel").removeClass("retencao-erro");
+      $("#erroMinimoImposto").hide();
       return true;
    }
 
-   const algumSelecionado = [
-      "#iss", "#inss", "#inputIrrf", "#csll", "#pis", "#cofins"
-   ].some(function (id) {
-      return $(id).is(":checked");
+   const PARES_IMPOSTO = [
+      { hidden: "#hiddenIss",       nativo: "#iss"       },
+      { hidden: "#hiddenInss",      nativo: "#inss"      },
+      { hidden: "#hiddenInputIrrf", nativo: "#inputIrrf" },
+      { hidden: "#hiddenCsll",      nativo: "#csll"      },
+      { hidden: "#hiddenPis",       nativo: "#pis"       },
+      { hidden: "#hiddenCofins",    nativo: "#cofins"    }
+   ];
+   const algumSelecionado = PARES_IMPOSTO.some(function (p) {
+      return $(p.hidden).val() === "on" || $(p.nativo).is(":checked");
    });
 
    $("#divRetencoesPanel").toggleClass("retencao-erro", !algumSelecionado);
+
+   if (algumSelecionado) {
+      $("#erroMinimoImposto").hide();
+   }
 
    return algumSelecionado;
 }
@@ -345,6 +382,8 @@ function validarEtapaAtual(exibirToast) {
    }
 
    if (paginaAtual === 3) {
+      // Cliente não tem step 3 — nunca deve chegar aqui, mas por segurança retorna true
+      if (($("#classificacao").val() || "") === "1") return true;
       return validarDocumentacao(exibirToast);
    }
 

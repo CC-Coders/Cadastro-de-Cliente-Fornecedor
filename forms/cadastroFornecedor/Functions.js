@@ -369,7 +369,10 @@ const CAMPOS_AUDITORIA_EDICAO = [{
    },
    {
       id: "codIrrf",
-      label: "Código de Receita IRRF"
+      label: "Código de Receita IRRF",
+      // O select tem name="codIrrf" mas id="selectDescricaoIrrf".
+      // domId aponta para o elemento DOM real; id é o nome do campo no card (para o servidor).
+      domId: "selectDescricaoIrrf"
    },
    {
       id: "irrf",
@@ -542,7 +545,7 @@ const CAMPOS_AUDITORIA_EDICAO = [{
 
    {
       id: "anxCartaoCnpj",
-      label: "Anexo Cartão CNPJ"
+      label: "Anexo Documento de Identificação Júridica"
    },
    {
       id: "anxCompBanco",
@@ -599,13 +602,16 @@ function inicializarSnapshotEdicaoValidacao() {
    const snapshot = {};
 
    CAMPOS_AUDITORIA_EDICAO.forEach(function (campo) {
+      // domId permite apontar para um elemento DOM com id diferente do nome do campo no card.
+      // Exemplo: o select #selectDescricaoIrrf tem name="codIrrf" mas id≠"codIrrf".
+      const selectorId = campo.domId || campo.id;
 
       if (campo.tipo === "checkbox") {
-         snapshot[campo.id] = $("#" + campo.id).is(":checked") ? "Sim" : "Não";
+         snapshot[campo.id] = $("#" + selectorId).is(":checked") ? "Sim" : "Não";
          return;
       }
 
-      snapshot[campo.id] = ($("#" + campo.id).val() || "").toString().trim();
+      snapshot[campo.id] = ($("#" + selectorId).val() || "").toString().trim();
    });
 
    $("#snapshotEdicaoValidacao").val(JSON.stringify(snapshot));
@@ -1113,6 +1119,8 @@ window.beforeSendValidate = function (numState, nextState) {
    let valido = true;
    // step com o primeiro erro encontrado (para navegação automática)
    let primeiroStepComErro = null;
+   // Cliente não tem step 3 (Documentação)
+   const isCliente = valor("classificacao") === "1";
 
    if (acao == "inicio" || acao == "correcao") {
       // Navega a cada step antes de validar, pois validarCampoObrigatorio
@@ -1129,10 +1137,12 @@ window.beforeSendValidate = function (numState, nextState) {
          if (primeiroStepComErro === null) primeiroStepComErro = 2;
       }
 
-      goToStep(3, false);
-      if (!validarDocumentacao()) {
-         valido = false;
-         if (primeiroStepComErro === null) primeiroStepComErro = 3;
+      if (!isCliente) {
+         goToStep(3, false);
+         if (!validarDocumentacao()) {
+            valido = false;
+            if (primeiroStepComErro === null) primeiroStepComErro = 3;
+         }
       }
    }
 
@@ -1159,10 +1169,12 @@ window.beforeSendValidate = function (numState, nextState) {
          if (primeiroStepComErro === null) primeiroStepComErro = 2;
       }
 
-      goToStep(3, false);
-      if (!validarDocumentacao()) {
-         valido = false;
-         if (primeiroStepComErro === null) primeiroStepComErro = 3;
+      if (!isCliente) {
+         goToStep(3, false);
+         if (!validarDocumentacao()) {
+            valido = false;
+            if (primeiroStepComErro === null) primeiroStepComErro = 3;
+         }
       }
    }
 

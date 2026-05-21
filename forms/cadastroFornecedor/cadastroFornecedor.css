@@ -135,9 +135,24 @@ hr {
 	margin: 18px 0;
 }
 
-#divMoedaGrupoMercadoria,
-.cnae-box .grid.g3 {
-	align-items: end;
+/* Campo + botão "Adicionar" na mesma linha flex.
+   A mensagem de erro fica ABAIXO da linha e não desloca o botão. */
+.input-btn-row {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+}
+.input-btn-row > .select-wrap {
+	flex: 1;
+	min-width: 0;
+}
+.input-btn-row > .form-control {
+	flex: 1;
+	min-width: 0;
+}
+/* Botão com mesma altura do form-control (46px) para ficarem perfeitamente alinhados */
+.input-btn-row .btn {
+	height: 46px;
 }
 
 .grid.grid-pf {
@@ -811,12 +826,23 @@ button.btn {
 	transition: all 0.25s ease;
 }
 
-.switch-input:checked+.switch-button {
+/* Usa ~ (sibling geral) em vez de + (adjacente) para tolerar hidden inputs entre
+   .switch-input e .switch-button sem quebrar o estado visual do toggle. */
+.switch-input:checked ~ .switch-button {
 	background: #5cb85c;
 }
 
-.switch-input:checked+.switch-button::before {
+.switch-input:checked ~ .switch-button::before {
 	transform: translateX(22px);
+}
+
+/* Quando bloqueado (Validação), .campo-bloqueado sobrescreveria o verde com !important.
+   Estas regras preservam a aparência correta do toggle mesmo quando bloqueado. */
+.switch-input:checked ~ .switch-button.campo-bloqueado {
+	background: #5cb85c !important;
+}
+.switch-input:checked ~ .switch-button.campo-bloqueado::before {
+	transform: translateX(22px) !important;
 }
 
 /* ─── RETENÇÃO / RETENÇÕES ─── */
@@ -896,13 +922,17 @@ button.btn {
 .retencao-item {
 	display: flex;
 	align-items: center;
-	gap: 10px;
-	padding: 12px;
+	justify-content: center;
+	gap: 8px;
+	padding: 12px 16px;
 	border-radius: 8px;
 	border: 1px solid #e2cfa3;
 	background: #fffdf6;
 	cursor: pointer;
 	transition: all 0.2s ease;
+	font-weight: 500;
+	color: #5a4a00;
+	user-select: none;
 }
 
 .retencao-item:hover {
@@ -910,19 +940,54 @@ button.btn {
 	border-color: #f0c36d;
 }
 
-.retencao-item input {
-	accent-color: #f37021;
-	cursor: pointer;
+/* Esconde o checkbox nativo — o card inteiro é o botão visual */
+.retencao-item input[type="checkbox"] {
+	display: none;
 }
 
-.retencao-item input:checked+span {
-	font-weight: 700;
-	color: #d35400;
+/* Ícone de check que aparece quando selecionado */
+.retencao-item span::before {
+	content: "";
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	border: 2px solid #c8b07a;
+	border-radius: 4px;
+	margin-right: 8px;
+	vertical-align: middle;
+	transition: all 0.2s ease;
+	flex-shrink: 0;
 }
 
 .retencao-item.ativo {
 	border-color: #f37021;
 	background: #fff0e6;
+}
+
+.retencao-item.ativo span {
+	font-weight: 700;
+	color: #d35400;
+}
+
+/* Preenchimento do ícone de check quando selecionado */
+.retencao-item.ativo span::before {
+	background: #f37021;
+	border-color: #f37021;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10'%3E%3Cpolyline points='1,5 4,9 11,1' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+	background-size: 10px 8px;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+/* Quando bloqueado (Validação), .campo-bloqueado sobrescreveria o visual de selecionado.
+   Mantém a aparência de ativo para itens que foram marcados. */
+.retencao-item.ativo.campo-bloqueado {
+	border-color: #f37021 !important;
+	background: #fff0e6 !important;
+}
+.retencao-item.ativo.campo-bloqueado span {
+	font-weight: 700 !important;
+	color: #d35400 !important;
 }
 
 
@@ -1264,6 +1329,12 @@ button.btn {
 	font-weight: 600;
 }
 
+/* Mensagem de erro do painel de retenções (fora dos cards individuais) */
+#erroMinimoImposto {
+	margin-top: 4px;
+	margin-bottom: 12px;
+}
+
 .val-summary {
 	max-width: 1650px;
 	margin: 0 auto 18px;
@@ -1428,7 +1499,7 @@ button.btn {
 	}
 }
 
-/* ─── OUTROS ─── */
+/* ─── outros ─── */
 .footer-progress,
 .footer-info {
 	font-size: 13px;
@@ -1442,9 +1513,7 @@ button.btn {
 	flex-wrap: wrap;
 }
 
-
-/* ─── CORREÇÃO / WIZARD PROGRESS ─── */
-/* Impede que o progress bar do Fluig sobreponha o formulário na atividade de Correção. */
+/* wizard */
 header {
 	position: relative !important;
 	z-index: 1 !important;

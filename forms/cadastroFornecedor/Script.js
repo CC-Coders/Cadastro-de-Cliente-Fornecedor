@@ -119,8 +119,36 @@ $(document).ready(function () {
    // Delay para garantir que o DOM do Fluig esteja completamente renderizado
    // antes de aplicar o bloqueio/edição de campos da atividade de Validação
    setTimeout(controlarEdicaoInicioValidacao, 300);
+
+   // Aguarda o Fluig injetar os botões de impressão antes de escondê-los
+   setTimeout(controlarBotoesImprimir, 600);
 });
 
+
+// BOTÕES DE IMPRESSÃO (injetados pelo Fluig)
+// Só devem aparecer no modo de visualização (sem atividade ativa).
+// Em etapas do processo (início, validação, correção, etc.) ficam ocultos.
+function controlarBotoesImprimir() {
+   const atividade = Number($("#atividade").val() || 0);
+
+   // atividade = 0 → modo visualização (histórico) → exibe os botões
+   // atividade > 0 → etapa ativa → esconde os botões
+   if (atividade === 0) return;
+
+   // Esconde qualquer botão cujo texto contenha "imprimir" (gerado pelo Fluig)
+   $("button, .btn, input[type='button']").filter(function () {
+      return /imprimir/i.test($(this).text().trim() + ($(this).val() || ""));
+   }).hide();
+
+   // Tenta também no frame pai (alguns portais Fluig injetam fora do iframe)
+   try {
+      if (parent && parent.$ && parent.document !== document) {
+         parent.$("button, .btn").filter(function () {
+            return /imprimir/i.test(parent.$(this).text().trim());
+         }).hide();
+      }
+   } catch (_) { /* cross-origin — ignora silenciosamente */ }
+}
 
 // SETUP VISUAL INICIAL
 function inicializarTela() {
@@ -161,10 +189,7 @@ function abrirDadosComerciais() {
 }
 function sincronizarEstadoInicial() {
    const funcoesIniciais = [
-      function () {
-         // Dispara o change do toggle de retenção para exibir/ocultar o painel de impostos
-         $("#toggleRetencao").trigger("change");
-      },
+      controlarCamposClassificacao,       // aplica restrições de Cliente (sem CNAE, sem bancos, sem PF)
       controlarCamposCategoria,          // mostra/oculta campos CPF/CNPJ/RG conforme categoria
       controlarAlertaCnpj,               // exibe alerta de instrução sobre documento fiscal
       controlarRetencaoPorTipo,          // mostra/oculta toggle de retenção conforme tipo
@@ -186,21 +211,105 @@ function sincronizarEstadoInicial() {
       }
    });
 
-   // Aguarda 300ms para o Fluig terminar de injetar os valores do processo no DOM
-   // antes de tirar o snapshot de auditoria da atividade de Validação
+   // Aguarda 2000ms para o Fluig terminar de injetar os valores do processo no DOM
+   // e para que todos os selects dinâmicos (codIrrf, codNaturezaRendimento, etc.)
+   // sejam populados pelas chamadas assíncronas de dataset antes de tirar o snapshot.
+   // 300ms era insuficiente: o Fluig popula campos dinâmicos entre 500ms e 1500ms,
+   // causando falsos "de '' para 'X'" no histórico de alterações.
    setTimeout(function () {
       inicializarSnapshotEdicaoValidacao();
-   }, 300);
+   }, 2000);
 
-   // Aguarda 500ms para garantir que carregarTiposClienteFornecedor() já populou
-   // o select #tipo antes de tentar re-selecionar o valor salvo
+   // Aguarda 500ms para o Fluig terminar de injetar os valores de selects dinâmicos.
+   // ATENÇÃO: não restaurar checkboxes aqui — document.ready + 500ms é muito cedo.
+   // Os checkboxes (toggleRetencao, toggleEstrangeiro) são restaurados no window.load.
    setTimeout(function () {
+      // Restaura #tipo (select populado dinamicamente via dataset).
+      // Usamos val() SEM trigger("change") para evitar que controlarRetencaoPorTipo
+      // chame resetarRetencao() e zere o toggle de retenção antes do window.load restaurá-lo.
       const valorTipo = ($("#tipo").attr("value") || $("#tipo").val() || "").trim();
-
       if (valorTipo) {
-         $("#tipo").val(valorTipo).trigger("change");
+         $("#tipo").val(valorTipo);
+         // Sincroniza os hidden fields manualmente (sem disparar o evento change completo)
+         const textoTipo = $("#tipo option:selected").text();
+         $("#tipoSelecionado").val(valorTipo);
+         $("#tipoDescricao").val(textoTipo);
       }
    }, 500);
+}
+
+
+// RESTAURAÇÃO DE CHECKBOXES (window.load)
+// O Fluig só injeta valores de checkboxes após o carregamento completo da página.
+// document.ready + 500ms é cedo demais; window.load garante que os valores estão disponíveis.
+// Não usar val() como fallback — checkboxes retornam "on" por padrão mesmo desmarcados.
+$(globalThis).on("load", function () {
+   setTimeout(restaurarCheckboxesSalvos, 400);
+});
+
+function _checkboxAtivo($el) {
+   // Lê o estado salvo de um checkbox via hidden anchor (novo) ou atributos HTML (fallback legado).
+   // NÃO usa val() — retorna "on" por padrão mesmo para checkboxes desmarcados.
+   const hiddenId = $el.attr("id") ? "#hidden" + $el.attr("id").charAt(0).toUpperCase() + $el.attr("id").slice(1) : "";
+   const hiddenVal = hiddenId ? ($(hiddenId).val() || "") : "";
+
+   if (hiddenVal !== "") {
+      // Hidden anchor presente → fonte definitiva
+      return hiddenVal === "on";
+   }
+
+   // Fallback para processos salvos antes dos hidden anchors existirem:
+   // lê os atributos HTML que o Fluig pode ter injetado.
+   const attrChecked = ($el.attr("checked") || "").toLowerCase();
+   const attrValue   = ($el.attr("value")   || "").toLowerCase();
+   const isChecked   = $el.is(":checked");
+
+   console.log("[restaurarCheckboxesSalvos] fallback #" + $el.attr("id"),
+      "| is(:checked):", isChecked,
+      "| attr(checked):", attrChecked,
+      "| attr(value):",   attrValue,
+      "| val():",         $el.val()
+   );
+
+   return isChecked ||
+          attrChecked === "checked" || attrChecked === "on" || attrChecked === "true" ||
+          attrValue   === "on"      || attrValue   === "true";
+}
+
+function restaurarCheckboxesSalvos() {
+   // ── Toggle de Retenção ─────────────────────────────────────────────────────
+   // Primary: hidden anchor hiddenToggleRetencao (processos novos)
+   // Fallback: leitura de atributos Fluig via _checkboxAtivo (processos legados)
+   const $toggleRetencao = $("#toggleRetencao");
+   const retencaoAtiva = _checkboxAtivo($toggleRetencao);
+   if (retencaoAtiva) {
+      $toggleRetencao.prop("checked", true);
+      controlarPainelRetencoes();
+   }
+
+   // ── Checkboxes individuais de imposto ─────────────────────────────────────
+   ["iss", "inss", "inputIrrf", "csll", "pis", "cofins"].forEach(function (id) {
+      const $cb = $("#" + id);
+      if (_checkboxAtivo($cb)) {
+         $cb.prop("checked", true).closest(".retencao-item").addClass("ativo");
+      }
+   });
+
+   // ── Toggle de Estrangeiro ─────────────────────────────────────────────────
+   const $toggleEst = $("#toggleEstrangeiro");
+   const estrangeiroAtivo = _checkboxAtivo($toggleEst);
+   if (estrangeiroAtivo) {
+      $toggleEst.prop("checked", true);
+      controlarCamposCategoria();
+      controlarAlertaCnpj();
+   }
+
+   // ── Revalida o painel de retenções após restaurar todos os checkboxes ─────
+   // Garante que o border vermelho e a mensagem de erro sejam limpos quando
+   // pelo menos um imposto foi restaurado como selecionado.
+   if (typeof validarPainelRetencaoVisual === "function") {
+      validarPainelRetencaoVisual();
+   }
 }
 
 

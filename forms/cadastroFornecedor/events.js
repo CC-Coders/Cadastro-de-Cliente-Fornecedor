@@ -286,10 +286,27 @@ function bindEventosCamposBasicos() {
       limparErroCampoObrigatorioPreenchido(this);
    });
 
+   // #observacaoValidacao e #selectDecisao não têm atributo required no HTML
+   // (para não acionar a validação nativa do Fluig), mas são obrigatórios pela
+   // validação customizada. O listener abaixo garante que o erro seja limpo ao preencher.
+   $(document).on("input", "#observacaoValidacao", function () {
+      if (($(this).val() || "").trim()) {
+         limparErroCampo("observacaoValidacao");
+      }
+   });
+   $(document).on("change", "#selectDecisao", function () {
+      if ($(this).val()) {
+         limparErroCampo("selectDecisao");
+      }
+   });
+
    $("#naturezaRendimento").on("change", function () {
       $("#codNaturezaRendimento").val($(this).val() || "");
    });
    $("#tipo").on("change", controlarRetencaoPorTipo);
+
+   // Ao trocar a classificação, reavalia CNAE, Dados Bancários e opção PF no #categoria
+   $("#classificacao").on("change", controlarCamposClassificacao);
 }
 
 function limparErroCampoObrigatorioPreenchido(campo) {
@@ -328,6 +345,9 @@ function bindEventosDocumentos() {
    $("#toggleEstrangeiro")
       .off("change.estrangeiro")
       .on("change.estrangeiro", function () {
+         // Sincroniza hidden anchor para Fluig restaurar corretamente
+         $("#hiddenToggleEstrangeiro").val(this.checked ? "on" : "");
+
          // Limpa endereço ao trocar entre modo nacional ↔ estrangeiro,
          // evitando que dados de um modo fiquem preenchidos no outro
          limpaCamposEndereco();
@@ -409,15 +429,34 @@ function bindEventosEndereco() {
 //   - Checkboxes individuais (ISS, INSS, etc.): aplica classe "ativo" e
 //     valida se pelo menos um está selecionado (obrigatório quando toggle ativo)
 function bindEventosRetencao() {
+   // Toggle principal — sincroniza hidden anchor para Fluig restaurar corretamente
+   // Não chama validarPainelRetencaoVisual() aqui: o border de erro só deve aparecer
+   // após uma tentativa de envio, não imediatamente ao ligar o toggle.
+   // A limpeza do erro ao desligar é feita dentro de controlarPainelRetencoes().
    $("#toggleRetencao").on("change", function () {
+      $("#hiddenToggleRetencao").val(this.checked ? "on" : "");
       controlarPainelRetencoes();
-      validarPainelRetencaoVisual();
    });
+
+   // Checkboxes individuais — sincronizam seus hidden anchors
+   const MAP_HIDDEN_IMPOSTO = {
+      iss:       "#hiddenIss",
+      inss:      "#hiddenInss",
+      inputIrrf: "#hiddenInputIrrf",
+      csll:      "#hiddenCsll",
+      pis:       "#hiddenPis",
+      cofins:    "#hiddenCofins"
+   };
 
    $(".retencao-item input").on("change", function () {
       $(this)
          .closest(".retencao-item")
          .toggleClass("ativo", this.checked);
+
+      const hiddenId = MAP_HIDDEN_IMPOSTO[this.id];
+      if (hiddenId) {
+         $(hiddenId).val(this.checked ? "on" : "");
+      }
 
       validarPainelRetencaoVisual();
    });
@@ -428,7 +467,8 @@ function bindEventosRetencao() {
 //   - Remover: remove o item e reordena os IDs/names para manter sequência contínua
 //   - Input: aplica máscara NNNN-N/NN em tempo real (somente se campo não está bloqueado pela validação)
 function bindEventosCnaeSecundario() {
-   $(document).on("click", "#btn-add-cnae", adicionarCnae);
+   // Binding direto no botão estático (mais confiável no Fluig que event delegation no document)
+   $("#btn-add-cnae").off("click.cnae").on("click.cnae", adicionarCnae);
    $(document).on("change", "input[name^='cnaeSecundario']", function () {});
    $(document).on("click", ".btn-remove-cnae", function () {
       $(this).closest(".cnae-secundario-item").remove();
@@ -449,7 +489,8 @@ function bindEventosCnaeSecundario() {
 //   - Alterar: sincroniza imediatamente os hidden fields espelho
 //   - Remover: remove o item, reordena e atualiza os hidden fields
 function bindEventosGrupoMercadoria() {
-   $(document).on("click", "#btn-add-grupo-mercadoria", function () {
+   // Binding direto no botão estático (mais confiável no Fluig que event delegation no document)
+   $("#btn-add-grupo-mercadoria").off("click.grupo").on("click.grupo", function () {
       adicionarGrupoMercadoria();
       sincronizarCamposDinamicosHidden();
    });

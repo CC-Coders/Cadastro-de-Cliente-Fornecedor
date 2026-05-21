@@ -205,6 +205,7 @@
                               <input class="switch-input" type="checkbox" id="toggleEstrangeiro" name="toggleEstrangeiro">
                               <label class="switch-button" for="toggleEstrangeiro">Fornecedor estrangeiro</label>
                            </div>
+                           <input type="hidden" id="hiddenToggleEstrangeiro" name="hiddenToggleEstrangeiro">
                            <span class="retencao-label">Sim</span>
                         </div>
                         </div>
@@ -391,25 +392,26 @@
                         </div>
                      </div>
                      <div class="divider"></div>
-                     <div class="grid g2" id="divMoedaGrupoMercadoria">
+                     <div id="divMoedaGrupoMercadoria">
                         <div class="fg" id="divGrupoMercadoriaPrincipal">
                            <label for="grupoMercadoria1">Grupo de Mercadoria</label>
-                           <div class="select-wrap">
-                              <select id="grupoMercadoria1" name="grupoMercadoria1"class="form-control grupo-mercadoria" required>
-                                 <option value="">Selecione...</option>
-                                 <option value="Materiais de Construção">Materiais de Construção</option>
-                                 <option value="Equipamentos e Máquinas">Equipamentos e Máquinas</option>
-                                 <option value="Serviços de Engenharia">Serviços de Engenharia</option>
-                                 <option value="Combustíveis e Lubrificantes">Combustíveis e Lubrificantes</option>
-                                 <option value="Serviços Administrativos">Serviços Administrativos</option>
-                                 <option value="Tecnologia e TI">Tecnologia e TI</option>
-                                 <option value="Seguro e Apólices">Seguro e Apólices
-                                 </option>
-                              </select>
+                           <div class="input-btn-row">
+                              <div class="select-wrap">
+                                 <select id="grupoMercadoria1" name="grupoMercadoria1" class="form-control grupo-mercadoria" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="Materiais de Construção">Materiais de Construção</option>
+                                    <option value="Equipamentos e Máquinas">Equipamentos e Máquinas</option>
+                                    <option value="Serviços de Engenharia">Serviços de Engenharia</option>
+                                    <option value="Combustíveis e Lubrificantes">Combustíveis e Lubrificantes</option>
+                                    <option value="Serviços Administrativos">Serviços Administrativos</option>
+                                    <option value="Tecnologia e TI">Tecnologia e TI</option>
+                                    <option value="Seguro e Apólices">Seguro e Apólices</option>
+                                 </select>
+                              </div>
+                              <div id="divBtnAddGrupoMercadoria">
+                                 <button type="button" class="btn btn-warning btn-grupo-mercadoria" id="btn-add-grupo-mercadoria">Adicionar</button>
+                              </div>
                            </div>
-                        </div>
-                        <div class="fg align-end" id="divBtnAddGrupoMercadoria">
-                           <button type="button" class="btn btn-warning btn-grupo-mercadoria"id="btn-add-grupo-mercadoria">Adicionar</button>
                         </div>
                      </div>
                      <div id="grupo-mercadoria-wrap"></div>
@@ -418,13 +420,13 @@
                         <div class="cnae-header"><i class="flaticon flaticon-document"></i>
                            <span>CNAE — CLASSIFICAÇÃO NACIONAL DE ATIVIDADES ECONÔMICAS</span>
                         </div>
-                        <div class="grid g3">
-                           <div class="fg span2" id="divCnaePrincipal">
-                              <label for="cnaePrincipal">CNAE Principal</label>
+                        <div class="fg" id="divCnaePrincipal">
+                           <label for="cnaePrincipal">CNAE Principal</label>
+                           <div class="input-btn-row">
                               <input type="text" id="cnaePrincipal" name="cnaePrincipal" class="form-control" placeholder="0000-0/00 — Descrição da atividade" required/>
-                           </div>
-                           <div class="fg align-end" id="divBtnAddCnae">
-                              <button type="button" class="btn btn-warning btn-cnae" id="btn-add-cnae">Adicionar</button>
+                              <div id="divBtnAddCnae">
+                                 <button type="button" class="btn btn-warning btn-cnae" id="btn-add-cnae">Adicionar</button>
+                              </div>
                            </div>
                         </div>
                         <div id="cnae-secundarios-wrap"></div>
@@ -439,9 +441,10 @@
                            <div class="retencao-toggle">
                               <span class="retencao-label">Não</span>
                               <div class="switch switch-success">
-                                 <input class="switch-input" type="checkbox" id="toggleRetencao"name="toggleRetencao"/>
+                                 <input class="switch-input" type="checkbox" id="toggleRetencao" name="toggleRetencao"/>
                                  <label class="switch-button" for="toggleRetencao" aria-label="Alternar retenção"></label>
                               </div>
+                              <input type="hidden" id="hiddenToggleRetencao" name="hiddenToggleRetencao"/>
                               <span class="retencao-label">Sim</span>
                            </div>
                         </div>
@@ -450,6 +453,10 @@
                         <div class="retencoes-title"><i class="flaticon flaticon-document"></i>
                            <span>SELECIONE OS IMPOSTOS QUE SERÃO RETIDOS:</span>
                         </div>
+                        <!-- Mensagem de erro colocada aqui, fora dos cards individuais -->
+                        <small id="erroMinimoImposto" class="help-block erro-validacao" style="display:none">
+                           Selecione pelo menos um imposto.
+                        </small>
                         <div class="grid g3 retencoes-grid">
                            <label class="retencao-item">
                               <input type="checkbox" id="iss" name="iss"/>
@@ -477,6 +484,14 @@
                            </label>
                         </div>
                      </div>
+                     <!-- Hidden anchors para checkboxes de retenção — Fluig não restaura
+                          element.checked automaticamente; lemos estes campos no window.load -->
+                     <input type="hidden" id="hiddenIss"       name="hiddenIss"/>
+                     <input type="hidden" id="hiddenInss"      name="hiddenInss"/>
+                     <input type="hidden" id="hiddenInputIrrf" name="hiddenInputIrrf"/>
+                     <input type="hidden" id="hiddenCsll"      name="hiddenCsll"/>
+                     <input type="hidden" id="hiddenPis"       name="hiddenPis"/>
+                     <input type="hidden" id="hiddenCofins"    name="hiddenCofins"/>
                   </div>
                </div>
                <div class="section" id="divDadosBancarios">
@@ -489,11 +504,9 @@
                   </button>
 
                   <div class="section-body">
-
                      <p class="bank-info-text">
                         Você pode adicionar mais de uma conta bancária. Todas as contas devem estar em nome da empresa e do CNPJ informado.
                      </p>
-
                      <div id="dados-bancarios-cards"></div>
 
                      <button type="button" id="btn-add-conta-bancaria" class="btn-add-bank">
@@ -535,30 +548,30 @@
                      </table>
 
                      <!-- HIDDEN BANCÁRIOS -->
-                     <input type="hidden" id="hiddenBanco1Cod"       name="hiddenBanco1Cod">
-                     <input type="hidden" id="hiddenBanco1Desc"      name="hiddenBanco1Desc">
-                     <input type="hidden" id="hiddenBanco1Agencia"   name="hiddenBanco1Agencia">
-                     <input type="hidden" id="hiddenBanco1Conta"     name="hiddenBanco1Conta">
+                     <input type="hidden" id="hiddenBanco1Cod" name="hiddenBanco1Cod">
+                     <input type="hidden" id="hiddenBanco1Desc" name="hiddenBanco1Desc">
+                     <input type="hidden" id="hiddenBanco1Agencia" name="hiddenBanco1Agencia">
+                     <input type="hidden" id="hiddenBanco1Conta" name="hiddenBanco1Conta">
 
-                     <input type="hidden" id="hiddenBanco2Cod"       name="hiddenBanco2Cod">
-                     <input type="hidden" id="hiddenBanco2Desc"      name="hiddenBanco2Desc">
-                     <input type="hidden" id="hiddenBanco2Agencia"   name="hiddenBanco2Agencia">
-                     <input type="hidden" id="hiddenBanco2Conta"     name="hiddenBanco2Conta">
+                     <input type="hidden" id="hiddenBanco2Cod" name="hiddenBanco2Cod">
+                     <input type="hidden" id="hiddenBanco2Desc" name="hiddenBanco2Desc">
+                     <input type="hidden" id="hiddenBanco2Agencia" name="hiddenBanco2Agencia">
+                     <input type="hidden" id="hiddenBanco2Conta" name="hiddenBanco2Conta">
 
-                     <input type="hidden" id="hiddenBanco3Cod"       name="hiddenBanco3Cod">
-                     <input type="hidden" id="hiddenBanco3Desc"      name="hiddenBanco3Desc">
-                     <input type="hidden" id="hiddenBanco3Agencia"   name="hiddenBanco3Agencia">
-                     <input type="hidden" id="hiddenBanco3Conta"     name="hiddenBanco3Conta">
+                     <input type="hidden" id="hiddenBanco3Cod" name="hiddenBanco3Cod">
+                     <input type="hidden" id="hiddenBanco3Desc" name="hiddenBanco3Desc">
+                     <input type="hidden" id="hiddenBanco3Agencia" name="hiddenBanco3Agencia">
+                     <input type="hidden" id="hiddenBanco3Conta" name="hiddenBanco3Conta">
 
-                     <input type="hidden" id="hiddenBanco4Cod"       name="hiddenBanco4Cod">
-                     <input type="hidden" id="hiddenBanco4Desc"      name="hiddenBanco4Desc">
-                     <input type="hidden" id="hiddenBanco4Agencia"   name="hiddenBanco4Agencia">
-                     <input type="hidden" id="hiddenBanco4Conta"     name="hiddenBanco4Conta">
+                     <input type="hidden" id="hiddenBanco4Cod" name="hiddenBanco4Cod">
+                     <input type="hidden" id="hiddenBanco4Desc" name="hiddenBanco4Desc">
+                     <input type="hidden" id="hiddenBanco4Agencia" name="hiddenBanco4Agencia">
+                     <input type="hidden" id="hiddenBanco4Conta" name="hiddenBanco4Conta">
 
-                     <input type="hidden" id="hiddenBanco5Cod"       name="hiddenBanco5Cod">
-                     <input type="hidden" id="hiddenBanco5Desc"      name="hiddenBanco5Desc">
-                     <input type="hidden" id="hiddenBanco5Agencia"   name="hiddenBanco5Agencia">
-                     <input type="hidden" id="hiddenBanco5Conta"     name="hiddenBanco5Conta">
+                     <input type="hidden" id="hiddenBanco5Cod" name="hiddenBanco5Cod">
+                     <input type="hidden" id="hiddenBanco5Desc" name="hiddenBanco5Desc">
+                     <input type="hidden" id="hiddenBanco5Agencia" name="hiddenBanco5Agencia">
+                     <input type="hidden" id="hiddenBanco5Conta" name="hiddenBanco5Conta">
                   </div>
                </div>
                <div class="section" id="divContatos">
@@ -653,13 +666,13 @@
                               <span class="upload-file-remove" data-input-id="fileComprovanteEndereco" data-area-id="uploadComprovanteEndereco" data-sufixo="ComprovanteEndereco">✕</span>
                            </div>
                         </div>
-                        <!-- Cartão CNPJ -->
+                        <!-- Documento de Identificação Júridica -->
                         <div class="fg doc-pj" id="divFileCartaoCnpj">
-                           <label for="fileCartaoCnpj">Cartão CNPJ</label>
+                           <label for="fileCartaoCnpj">Documento de Identificação Júridica</label>
                            <input type="file" id="fileCartaoCnpj" name="fileCartaoCnpj" accept=".pdf,.png,.jpg,.jpeg" style="display: none"/>
                            <div class="upload-area" id="uploadCartaoCnpj" data-upload-id="fileCartaoCnpj">
                               <div class="upload-icon"><i class="flaticon flaticon-cloud-upload icon-md"></i></div>
-                              <div class="upload-title">Cartão CNPJ</div>
+                              <div class="upload-title">Documento de Identificação Júridica</div>
                               <div class="upload-hint">Arraste ou clique para selecionar</div>
                               <div class="upload-formats">PDF, JPG ou PNG</div>
                               <span class="upload-badge badge-req">Obrigatório</span>
@@ -733,7 +746,7 @@
                      <div class="grid g1">
                         <div class="fg" id="divObservacaoValidacao">
                            <label for="observacaoValidacao">Observações</label>
-                           <textarea id="observacaoValidacao" name="observacaoValidacao" class="form-control" rows="5" placeholder="Digite aqui sua observação, justificativa ou orientação para o solicitante..."></textarea>
+                           <textarea id="observacaoValidacao" name="observacaoValidacao" class="form-control" rows="5" placeholder="Digite aqui sua observação, justificativa ou orientação."></textarea>
                         </div>
                         <div class="fg" id="divSelectDecisao">
                            <label for="selectDecisao">Ação</label>
@@ -792,7 +805,7 @@
                            <span class="step-sub">Fiscal · Bancos · Condições</span>
                         </div>
                      </button>
-                     <div class="step-connector">
+                     <div class="step-connector" id="divDivisaoDocumentacao">
                         <div class="step-connector-line"></div>
                      </div>
                      <!-- Documentação -->

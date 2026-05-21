@@ -1,4 +1,4 @@
-﻿<list>
+<list>
   <ProcessDefinition>
     <processDefinitionPK>
       <companyId>1</companyId>
@@ -32,6 +32,7 @@
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
     <formId>33577</formId>
+    <formIdV2>0</formIdV2>
     <editionMode>true</editionMode>
     <updateAttachmentsVersion>false</updateAttachmentsVersion>
     <controlsAttachmentsSecurity>false</controlsAttachmentsSecurity>
@@ -126,7 +127,7 @@
       <notifyAuthorityFollowUp>true</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>137</positionX>
+      <positionX>160</positionX>
       <positionY>252</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
@@ -279,8 +280,8 @@
       <notifyAuthorityFollowUp>true</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>440</positionX>
-      <positionY>65</positionY>
+      <positionX>420</positionX>
+      <positionY>73</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -402,8 +403,8 @@
       <notifyAuthorityFollowUp>false</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>620</positionX>
-      <positionY>439</positionY>
+      <positionX>607</positionX>
+      <positionY>434</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -763,18 +764,23 @@ function montarAlteracoesEdicaoValidacao() {
         [&quot;pis&quot;, &quot;Retenção PIS&quot;],
         [&quot;cofins&quot;, &quot;Retenção COFINS&quot;],
 
+        [&quot;hiddenBanco1Condicao&quot;, &quot;Condição de Pagamento (Conta 1)&quot;],
         [&quot;hiddenBanco1Cod&quot;,     &quot;Banco (Conta 1)&quot;],
         [&quot;hiddenBanco1Agencia&quot;, &quot;Agência (Conta 1)&quot;],
         [&quot;hiddenBanco1Conta&quot;,   &quot;Conta (Conta 1)&quot;],
+        [&quot;hiddenBanco2Condicao&quot;, &quot;Condição de Pagamento (Conta 2)&quot;],
         [&quot;hiddenBanco2Cod&quot;,      &quot;Banco (Conta 2)&quot;],
         [&quot;hiddenBanco2Agencia&quot;,  &quot;Agência (Conta 2)&quot;],
         [&quot;hiddenBanco2Conta&quot;,    &quot;Conta (Conta 2)&quot;],
+        [&quot;hiddenBanco3Condicao&quot;, &quot;Condição de Pagamento (Conta 3)&quot;],
         [&quot;hiddenBanco3Cod&quot;,      &quot;Banco (Conta 3)&quot;],
         [&quot;hiddenBanco3Agencia&quot;,  &quot;Agência (Conta 3)&quot;],
         [&quot;hiddenBanco3Conta&quot;,    &quot;Conta (Conta 3)&quot;],
+        [&quot;hiddenBanco4Condicao&quot;, &quot;Condição de Pagamento (Conta 4)&quot;],
         [&quot;hiddenBanco4Cod&quot;,      &quot;Banco (Conta 4)&quot;],
         [&quot;hiddenBanco4Agencia&quot;,  &quot;Agência (Conta 4)&quot;],
         [&quot;hiddenBanco4Conta&quot;,    &quot;Conta (Conta 4)&quot;],
+        [&quot;hiddenBanco5Condicao&quot;, &quot;Condição de Pagamento (Conta 5)&quot;],
         [&quot;hiddenBanco5Cod&quot;,      &quot;Banco (Conta 5)&quot;],
         [&quot;hiddenBanco5Agencia&quot;,  &quot;Agência (Conta 5)&quot;],
         [&quot;hiddenBanco5Conta&quot;,    &quot;Conta (Conta 5)&quot;],
@@ -787,7 +793,7 @@ function montarAlteracoesEdicaoValidacao() {
         [&quot;emailCr&quot;, &quot;E-mail Financeiro / Contabilidade&quot;],
         [&quot;site&quot;, &quot;Site&quot;],
 
-        [&quot;anxCartaoCnpj&quot;, &quot;Anexo Cartão CNPJ&quot;],
+        [&quot;anxCartaoCnpj&quot;, &quot;Anexo Documento de Identificação Júridica&quot;],
         [&quot;anxCompBanco&quot;, &quot;Anexo Comprovante Bancário&quot;],
         [&quot;anxContrato&quot;, &quot;Anexo Contrato Social&quot;],
         [&quot;anxRgCpf&quot;, &quot;Anexo RG / CPF&quot;],
@@ -985,7 +991,7 @@ process.instructions=</eventDescription>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
       <positionX>327</positionX>
-      <positionY>456</positionY>
+      <positionY>452</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
@@ -1006,8 +1012,8 @@ process.instructions=</eventDescription>
         <linkSequence>28</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
-      <positionX>409</positionX>
-      <positionY>284</positionY>
+      <positionX>385</positionX>
+      <positionY>280</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
@@ -1017,8 +1023,8 @@ process.instructions=</eventDescription>
         <linkSequence>28</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
-      <positionX>409</positionX>
-      <positionY>107</positionY>
+      <positionX>385</positionX>
+      <positionY>108</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
@@ -1028,8 +1034,19 @@ process.instructions=</eventDescription>
         <linkSequence>29</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
-      <positionX>87</positionX>
-      <positionY>284</positionY>
+      <positionX>133</positionX>
+      <positionY>107</positionY>
+    </ProcessLinkBend>
+    <ProcessLinkBend>
+      <processLinkBendPK>
+        <companyId>1</companyId>
+        <processId>CadastrodeFornecedor</processId>
+        <version>48</version>
+        <linkSequence>29</linkSequence>
+        <bendSequence>2</bendSequence>
+      </processLinkBendPK>
+      <positionX>133</positionX>
+      <positionY>280</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
@@ -1039,8 +1056,8 @@ process.instructions=</eventDescription>
         <linkSequence>30</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
-      <positionX>569</positionX>
-      <positionY>103</positionY>
+      <positionX>538</positionX>
+      <positionY>108</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
@@ -1050,7 +1067,7 @@ process.instructions=</eventDescription>
         <linkSequence>30</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
-      <positionX>569</positionX>
+      <positionX>538</positionX>
       <positionY>46</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
@@ -1061,7 +1078,7 @@ process.instructions=</eventDescription>
         <linkSequence>30</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
-      <positionX>189</positionX>
+      <positionX>212</positionX>
       <positionY>46</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
@@ -1073,7 +1090,7 @@ process.instructions=</eventDescription>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
       <positionX>638</positionX>
-      <positionY>636</positionY>
+      <positionY>628</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
@@ -1084,7 +1101,7 @@ process.instructions=</eventDescription>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
       <positionX>638</positionX>
-      <positionY>702</positionY>
+      <positionY>676</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
@@ -1095,7 +1112,7 @@ process.instructions=</eventDescription>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
       <positionX>470</positionX>
-      <positionY>702</positionY>
+      <positionY>676</positionY>
     </ProcessLinkBend>
   </list>
   <list/>

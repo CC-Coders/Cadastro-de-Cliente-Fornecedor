@@ -186,7 +186,7 @@ function montarAlteracoesEdicaoValidacao() {
         ["emailCr", "E-mail Financeiro / Contabilidade"],
         ["site", "Site"],
 
-        ["anxCartaoCnpj", "Anexo Cartão CNPJ"],
+        ["anxCartaoCnpj", "Anexo Documento de Identificação Júridica"],
         ["anxCompBanco", "Anexo Comprovante Bancário"],
         ["anxContrato", "Anexo Contrato Social"],
         ["anxRgCpf", "Anexo RG / CPF"],
