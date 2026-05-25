@@ -59,6 +59,11 @@ function adicionarGrupoMercadoria() {
 
    $wrap.append(html);
 
+   // Aplica Selectize no novo select recém-adicionado
+   if (typeof inicializarSelectize === "function") {
+      inicializarSelectize("#grupoMercadoria" + numero);
+   }
+
    sincronizarCamposDinamicosHidden();
    controlarBotaoAdicionarGrupoMercadoria();
 }
@@ -873,6 +878,11 @@ function _popularSelectPaises(paises) {
    if (valorSalvo && valorSalvo !== "Brasil") {
       select.val(valorSalvo);
    }
+
+   // Aplica Selectize no select de país
+   if (typeof inicializarSelectize === "function") {
+      inicializarSelectize("#selectPaisEstrangeiro");
+   }
 }
 
 
@@ -1093,6 +1103,11 @@ function inicializarDadosBancarios() {
       $wrap.append(_gerarHtmlCardBancario(1));
    }
 
+   // Aplica Selectize em todos os selects de banco renderizados
+   if (typeof inicializarSelectize === "function") {
+      inicializarSelectize(".banco-select");
+   }
+
    controlarBotaoAdicionarConta();
    atualizarCamposBancariosRm();
 }
@@ -1109,7 +1124,15 @@ function adicionarContaBancaria() {
       return;
    }
 
-   $wrap.append(_gerarHtmlCardBancario(quantidade + 1));
+   let novoNumero = quantidade + 1;
+   let novoS = _sufixoBancario(novoNumero);
+   $wrap.append(_gerarHtmlCardBancario(novoNumero));
+
+   // Aplica Selectize no select de banco recém-criado
+   if (typeof inicializarSelectize === "function") {
+      inicializarSelectize("#selectBancoNome" + novoS);
+   }
+
    sincronizarTabelaBancaria();
    controlarBotaoAdicionarConta();
 }
