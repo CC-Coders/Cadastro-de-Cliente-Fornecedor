@@ -54,7 +54,10 @@ $(document).ready(function () {
    carregarNaturezaRendimento();
    carregarOpcoesIrrf(true);
    bindEventos();
+<<<<<<< HEAD
     aplicarLayoutMobile();
+=======
+>>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
    inicializarUploadsFluig();
 
    try {

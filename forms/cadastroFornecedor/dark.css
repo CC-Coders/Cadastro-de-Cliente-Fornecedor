@@ -841,11 +841,14 @@ html.theme-dark .btn-reprovar:hover {
 
 
 /* DARK MODE — HEADER IGUAL AO PRINT BONITO */
+<<<<<<< HEAD
 
 /* Garante que o <header> pai não sangre além da largura do conteúdo */
 html.theme-dark header {
   background: #1c1c1c !important;
 }
+=======
+>>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
 
 html.theme-dark .wizard-progress {
   /* Fundo igual à página: evita que o <header> 100% apareça nas laterais */
@@ -1341,6 +1344,7 @@ html.theme-dark .portal-nav {
 /* ── Wizard progress background (header.css) ─────────── */
 
 html.theme-dark .wizard-progress {
+<<<<<<< HEAD
   background: #1c1c1c !important;
   border-bottom: 1px solid #1f2329 !important;
   width: 96% !important;
@@ -1348,6 +1352,10 @@ html.theme-dark .wizard-progress {
   margin: 0 auto 16px auto !important;
   padding: 0 20px !important;
   box-sizing: border-box !important;
+=======
+  background: transparent !important;
+  border-bottom: 1px solid #1f2329 !important;
+>>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
 }
 
 /* ── Step hover (header.css) ─────────────────────────── */

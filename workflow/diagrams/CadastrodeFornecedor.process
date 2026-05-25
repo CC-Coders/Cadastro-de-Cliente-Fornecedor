@@ -111,7 +111,11 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
+<<<<<<< HEAD
       <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="106" height="56" x="360" y="424"/>
+=======
+      <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="106" height="56" x="417" y="424"/>
+>>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
       <link businessObjects="servicetask16"/>
       <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.2" incomingConnections="/0/@connections.1 /0/@connections.7"/>
       <anchors xsi:type="pi:BoxRelativeAnchor" visible="true" active="true" referencedGraphicsAlgorithm="/0/@children.4/@graphicsAlgorithm" relativeWidth="1.0" relativeHeight="0.51">
@@ -128,7 +132,11 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
+<<<<<<< HEAD
       <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="106" height="56" x="450" y="598"/>
+=======
+      <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="106" height="56" x="517" y="598"/>
+>>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
       <link businessObjects="task19"/>
       <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.7" incomingConnections="/0/@connections.3"/>
       <anchors xsi:type="pi:BoxRelativeAnchor" visible="true" active="true" referencedGraphicsAlgorithm="/0/@children.5/@graphicsAlgorithm" relativeWidth="1.0" relativeHeight="0.51">
@@ -142,7 +150,11 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
+<<<<<<< HEAD
       <graphicsAlgorithm xsi:type="al:Ellipse" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="35" height="35" x="590" y="434">
+=======
+      <graphicsAlgorithm xsi:type="al:Ellipse" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="35" height="35" x="607" y="434">
+>>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
         <graphicsAlgorithmChildren xsi:type="al:Ellipse" lineWidth="3" transparency="0.0" width="35" height="35" style="/0/@styles.20"/>
       </graphicsAlgorithm>
       <link businessObjects="endevent22"/>
@@ -152,7 +164,11 @@
       </anchors>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
+<<<<<<< HEAD
       <graphicsAlgorithm xsi:type="al:Ellipse" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="30" height="30" x="435" y="471">
+=======
+      <graphicsAlgorithm xsi:type="al:Ellipse" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="30" height="30" x="492" y="471">
+>>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
         <graphicsAlgorithmChildren xsi:type="al:Ellipse" lineWidth="1" transparency="0.0" width="30" height="30" style="/0/@styles.21"/>
       </graphicsAlgorithm>
       <link businessObjects="intermediateerror24"/>
@@ -172,7 +188,11 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
+<<<<<<< HEAD
       <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="106" height="70" x="410" y="73"/>
+=======
+      <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="106" height="70" x="420" y="73"/>
+>>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
       <link businessObjects="task27"/>
       <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.6" incomingConnections="/0/@connections.4"/>
       <anchors xsi:type="pi:BoxRelativeAnchor" visible="true" active="true" referencedGraphicsAlgorithm="/0/@children.8/@graphicsAlgorithm" relativeWidth="1.0" relativeHeight="0.51">
@@ -1191,7 +1211,11 @@
           <points x="-8" before="3" after="3"/>
         </graphicsAlgorithm>
       </connectionDecorators>
+<<<<<<< HEAD
       <bendpoints x="538" y="106"/>
+=======
+      <bendpoints x="538" y="108"/>
+>>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
       <bendpoints x="538" y="46"/>
       <bendpoints x="212" y="46"/>
     </connections>
@@ -1209,9 +1233,15 @@
           <points x="-8" before="3" after="3"/>
         </graphicsAlgorithm>
       </connectionDecorators>
+<<<<<<< HEAD
       <bendpoints x="578" y="626"/>
       <bendpoints x="578" y="676"/>
       <bendpoints x="413" y="676"/>
+=======
+      <bendpoints x="638" y="628"/>
+      <bendpoints x="638" y="676"/>
+      <bendpoints x="470" y="676"/>
+>>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
     </connections>
     <colors red="227" green="238" blue="249"/>
     <colors red="25" green="25" blue="112"/>
@@ -1242,7 +1272,11 @@
   <bpmn2:BpmnEndEvent id="endevent22" name="Fim" incoming="flow23" type="60" extendedFields="&lt;list/>" signalId="0"/>
   <bpmn2:BpmnIntermediateEvent id="intermediateerror24" name="Intermedi&#xe1;rio" outgoing="flow25" type="43" extendedFields="&lt;list/>" sequenceAttached="16" signalId="0" linkId="servicetask16" parentTask="servicetask16"/>
   <bpmn2:BpmnTask id="task27" name="Corre&#xe7;&#xe3;o Cadastro" incoming="flow28" outgoing="flow30" type="80" extendedFields="&lt;list/>" managerMechanism="Executor Atividade" managerAssignmentControllerString="&lt;org.eclipse.bpmn2.impl.AssignmentControllerExecutorMechanism>&#xA;  &lt;idNode>startevent4&lt;/idNode>&#xA;  &lt;returns>0&lt;/returns>&#xA;  &lt;mechanismName>Executor Atividade&lt;/mechanismName>&#xA;&lt;/org.eclipse.bpmn2.impl.AssignmentControllerExecutorMechanism>" loopType="0" authNotify="true" expediente="" selecionaColaboradores="1" esforcoCalculo="0" executionAttempts="0" frequency="0"/>
+<<<<<<< HEAD
   <bpmn2:BpmnProcess id="CadastrodeFornecedor" name="Cadastrode de Cliente/Fornecedor" serverId="DESENVOLVIMENTO-CASTILHO" version="56" author="" extendedFields="&lt;list/>" cardIndex="33577" formSource="server" category="Compras e Servi&#xe7;os" publicProcess="true" volume="Default" expedient="Default" instruction="" mobileReady="true" complementsLevel="1" notifyResponsibleComplements="true" notifyRequisitionerComplements="true"/>
+=======
+  <bpmn2:BpmnProcess id="CadastrodeFornecedor" name="CadastrodeFornecedor" serverId="DESENVOLVIMENTO-CASTILHO" version="48" author="" extendedFields="&lt;list/>" cardIndex="33577" formSource="server" category="Desenvolvimento" volume="Default" expedient="Default" instruction="" keyWord="" complementsLevel="1" notifyResponsibleComplements="true" notifyRequisitionerComplements="true" formType="ECM_FORM_BUILDER"/>
+>>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
   <bpmn2:SequenceFlow id="flow14" name="" sourceRef="task11" targetRef="exclusivegateway13" atividadeFluxo="" atividadeRetorno="" extendedFields="&lt;list/>"/>
   <bpmn2:SequenceFlow id="flow17" name="" sourceRef="exclusivegateway13" targetRef="servicetask16" atividadeFluxo="" atividadeRetorno="" extendedFields="&lt;list/>"/>
   <bpmn2:SequenceFlow id="flow23" name="" sourceRef="servicetask16" targetRef="endevent22" atividadeFluxo="" atividadeRetorno="" extendedFields="&lt;list/>"/>
