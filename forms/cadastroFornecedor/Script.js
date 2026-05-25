@@ -1,3 +1,56 @@
+// ─── SELECTIZE — utilitário central ─────────────────────────────────────────
+// Inicializa (ou reinicializa) Selectize em um ou mais seletores.
+// Preserva o valor atual antes de destruir a instância antiga.
+function inicializarSelectize(seletor, opcoesExtras) {
+   $(seletor).each(function () {
+      var $el = $(this);
+
+      // Destrói instância anterior se existir
+      if (this.selectize) {
+         var valorAnterior = this.selectize.getValue();
+         this.selectize.destroy();
+         $el.val(valorAnterior);   // restaura no <select> nativo
+      }
+
+      var valorAtual = $el.val();
+
+      $el.selectize($.extend({
+         maxItems: 1,
+         create: false,
+         allowEmptyOption: true,
+         searchField: ["text", "value"],
+         closeAfterSelect: true,
+         highlight: true,
+         onInitialize: function () {
+            if (valorAtual) {
+               this.setValue(valorAtual, true); // silent = não dispara onChange
+            }
+         }
+      }, opcoesExtras || {}));
+
+      // Marca o .select-wrap pai para esconder a seta CSS nativa
+      $el.closest(".select-wrap").addClass("has-selectize");
+   });
+}
+
+// Aplica Selectize em todos os selects estáticos e dinâmicos presentes no DOM.
+// Chamado no $(document).ready após todos os carregamentos de dados.
+function aplicarSelectizeGeral() {
+   // Selects estáticos
+   [
+      "#classificacao", "#categoria", "#classificacaoOperacional",
+      "#icms", "#simplesNacional", "#regimeFiscal", "#selectDecisao"
+   ].forEach(function (s) { inicializarSelectize(s); });
+
+   // Selects populados por dataset (já carregados antes desta chamada)
+   inicializarSelectize("#tipo");
+   inicializarSelectize("#naturezaRendimento");
+   inicializarSelectize("#selectDescricaoIrrf");
+   inicializarSelectize(".grupo-mercadoria");   // grupoMercadoria1 + extras
+   inicializarSelectize(".banco-select");        // selectBancoNome + extras
+   inicializarSelectize("#selectPaisEstrangeiro");
+}
+
 // Limites de itens dinâmicos adicionáveis pelo usuário
 globalThis.LIMITE_CNAE_SECUNDARIO = globalThis.LIMITE_CNAE_SECUNDARIO || 5;
 globalThis.LIMITE_GRUPO_MERCADORIA = 9;
@@ -124,6 +177,9 @@ $(document).ready(function () {
 
    // Aguarda o Fluig injetar os botões de impressão antes de escondê-los
    setTimeout(controlarBotoesImprimir, 600);
+
+   // Aplica Selectize em todos os selects após todos os dados estarem carregados
+   aplicarSelectizeGeral();
 });
 
 
@@ -322,7 +378,12 @@ function restaurarGruposMercadoriaSalvos() {
 
       if (valor && !$("#grupoMercadoria" + i).length) {
          adicionarGrupoMercadoria();
-         $("#grupoMercadoria" + i).val(valor).trigger("change");
+         const $sel = $("#grupoMercadoria" + i);
+         $sel.val(valor);
+         // Atualiza Selectize se inicializado
+         if ($sel.length && $sel[0].selectize) {
+            $sel[0].selectize.setValue(valor, true);
+         }
       }
    }
 }
