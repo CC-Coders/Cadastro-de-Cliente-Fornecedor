@@ -5,11 +5,11 @@ function inicializarSelectize(seletor, opcoesExtras) {
    $(seletor).each(function () {
       var $el = $(this);
 
-      // Destrói instância anterior se existir
+      // Destrói instância anterior preservando o valor
       if (this.selectize) {
          var valorAnterior = this.selectize.getValue();
          this.selectize.destroy();
-         $el.val(valorAnterior);   // restaura no <select> nativo
+         $el.val(valorAnterior);
       }
 
       var valorAtual = $el.val();
@@ -17,18 +17,17 @@ function inicializarSelectize(seletor, opcoesExtras) {
       $el.selectize($.extend({
          maxItems: 1,
          create: false,
-         allowEmptyOption: true,
-         searchField: ["text", "value"],
+         searchField: ["text"],
          closeAfterSelect: true,
-         highlight: true,
-         onInitialize: function () {
-            if (valorAtual) {
-               this.setValue(valorAtual, true); // silent = não dispara onChange
-            }
-         }
+         highlight: true
       }, opcoesExtras || {}));
 
-      // Marca o .select-wrap pai para esconder a seta CSS nativa
+      // Restaura valor após inicializar (selectize pode resetar em certos casos)
+      if (valorAtual && this.selectize) {
+         this.selectize.setValue(valorAtual, true);
+      }
+
+      // Marca o .select-wrap para esconder a seta CSS nativa
       $el.closest(".select-wrap").addClass("has-selectize");
    });
 }
