@@ -2,7 +2,7 @@ function createDataset(fields, constraints, sortFields) {
 
     var dataset = DatasetBuilder.newDataset();
 
-    dataset.addColumn("CPODIGO");
+    dataset.addColumn("NUMBANCO");
     dataset.addColumn("NOME");
 
     var conn = null;
@@ -16,9 +16,9 @@ function createDataset(fields, constraints, sortFields) {
         conn = ds.getConnection();
         stmt = conn.createStatement();
 
-        // Retorna todos os bancos com código BCB e nome
+        // Retorna todos os bancos com código (NUMBANCO) e nome
         var sql =
-            "SELECT CPODIGO, NOME " +
+            "SELECT NUMBANCO, NOME " +
             "FROM GBANCO " +
             "ORDER BY NOME";
 
@@ -26,7 +26,7 @@ function createDataset(fields, constraints, sortFields) {
 
         while (rs.next()) {
             dataset.addRow([
-                rs.getString("CPODIGO"),
+                rs.getString("NUMBANCO"),
                 rs.getString("NOME")
             ]);
         }
