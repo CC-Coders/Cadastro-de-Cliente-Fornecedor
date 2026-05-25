@@ -35,7 +35,7 @@ function displayFields(form, customHTML) {
          "$(document).ready(function(){ " +
 
          "$('#alertCnpj').hide();" +
-         "$('#alertCpf').hide();" +
+         "$('#alertCPF').hide();" +
 
 
          "});" +

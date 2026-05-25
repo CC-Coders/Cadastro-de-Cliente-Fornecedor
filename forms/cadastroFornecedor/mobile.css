@@ -1,0 +1,1006 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE.CSS — Cadastro de Cliente / Fornecedor
+   Ref: https://tdn.totvs.com/pages/releaseview.action?pageId=662892312
+
+   Ativação dupla:
+     @media screen and (max-width: 768px)   → browsers responsivos
+     html[data-device="mobile"]             → formController.getMobile() = true
+                                              (tablets > 768px no app Fluig)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+
+/* ─── VARIÁVEIS DO TEMA MOBILE ────────────────────────────────────────────── */
+@media screen and (max-width: 768px) {
+   :root {
+      --m-accent:        #f37021;
+      --m-accent-dark:   #d45f0f;
+      --m-accent-light:  #fff5ed;
+      --m-accent-grad:   linear-gradient(135deg, #ffe259, #ffa751);
+      --m-green:         #10b981;
+      --m-green-light:   #d1fae5;
+      --m-text:          #111827;
+      --m-text-muted:    #6b7280;
+      --m-text-sub:      #9ca3af;
+      --m-border:        #e5e7eb;
+      --m-card:          #ffffff;
+      --m-bg:            #f3f4f6;
+      --m-radius:        16px;
+      --m-radius-sm:     12px;
+   }
+}
+html[data-device="mobile"] {
+   --m-accent:        #f37021;
+   --m-accent-dark:   #d45f0f;
+   --m-accent-light:  #fff5ed;
+   --m-accent-grad:   linear-gradient(135deg, #ffe259, #ffa751);
+   --m-green:         #10b981;
+   --m-green-light:   #d1fae5;
+   --m-text:          #111827;
+   --m-text-muted:    #6b7280;
+   --m-text-sub:      #9ca3af;
+   --m-border:        #e5e7eb;
+   --m-card:          #ffffff;
+   --m-bg:            #f3f4f6;
+   --m-radius:        16px;
+   --m-radius-sm:     12px;
+}
+
+
+/* ─── OVERRIDES DO HEADER.CSS ────────────────────────────────────────────── */
+/* header.css define position:fixed, clip-path de seta e layout horizontal
+   que não servem para mobile. Estas regras sobrescrevem todos esses efeitos. */
+
+@media screen and (max-width: 768px) {
+   /* Remove position:fixed (deixa fluir no documento) */
+   .wizard-progress {
+      position: sticky !important;
+      top: 0 !important;
+      left: auto !important;
+      overflow-x: visible !important;
+   }
+
+   /* Remove o formato de seta (clip-path) e o deslocamento negativo */
+   .wizard-progress .step,
+   .wizard-progress .step:first-child,
+   .wizard-progress .step:last-child {
+      clip-path: none !important;
+      margin-left: 0 !important;
+      transform: none !important;
+      flex: none !important;
+      border-top-left-radius:  20px !important;
+      border-bottom-left-radius:  20px !important;
+      border-top-right-radius: 20px !important;
+      border-bottom-right-radius: 20px !important;
+   }
+
+   /* Remove hover com translateY nos steps */
+   .wizard-progress .step:not(.active):hover { transform: none !important; }
+
+   /* Remove hover do page-header (atrapalha toque em mobile) */
+   .page-header:hover { transform: none !important; box-shadow: none !important; }
+
+   /* Remove border-left accent do page-header (fica ruim no layout centralizado) */
+   .page-header { border-left: none !important; }
+
+   /* page-wrap já recebe padding-top no bloco abaixo para limpar o nav fixo */
+
+   /* Fix: .stepper-arrow tem position:absolute no cadastroFornecedor.css.
+      Reset aqui para static; .stepper-arrow.right (especificidade maior)
+      sobrescreve com position:fixed no bloco do FAB abaixo. */
+   .stepper-arrow {
+      position: static !important;
+      transform: none !important;
+      top: auto !important;
+      left: auto !important;
+      right: auto !important;
+   }
+
+   /* Fix: .step-item tem min-width:250px !important no cadastroFornecedor.css
+      (inclusive no @media max-width:1366px) — força 0 no step ativo */
+   .step-item.active {
+      min-width: 0 !important;
+      max-width: 100% !important;
+   }
+}
+html[data-device="mobile"] .wizard-progress {
+   position: sticky !important;
+   top: 0 !important;
+   left: auto !important;
+   overflow-x: visible !important;
+}
+html[data-device="mobile"] .wizard-progress .step,
+html[data-device="mobile"] .wizard-progress .step:first-child,
+html[data-device="mobile"] .wizard-progress .step:last-child {
+   clip-path: none !important;
+   margin-left: 0 !important;
+   transform: none !important;
+   flex: none !important;
+   border-radius: 20px !important;
+}
+html[data-device="mobile"] .wizard-progress .step:not(.active):hover { transform: none !important; }
+html[data-device="mobile"] .page-header:hover  { transform: none !important; box-shadow: none !important; }
+html[data-device="mobile"] .page-header        { border-left: none !important; }
+/* page-wrap já recebe padding-top no bloco abaixo para limpar o nav fixo */
+
+
+/* ─── BODY ────────────────────────────────────────────────────────────────── */
+/* Sem padding-top: wizard-progress é sticky (ocupa espaço natural no fluxo).
+   padding-bottom pequeno para respiração no final do conteúdo. */
+@media screen and (max-width: 768px) {
+   body {
+      background: var(--m-bg) !important;
+      padding-top: 0 !important;
+      /* padding-bottom cobre o FAB de navegação fixado no canto inferior esquerdo */
+      padding-bottom: 90px !important;
+   }
+}
+html[data-device="mobile"] body {
+   background: var(--m-bg) !important;
+   padding-top: 0 !important;
+   padding-bottom: 90px !important;
+}
+
+
+/* ─── PÁGINA ──────────────────────────────────────────────────────────────── */
+@media screen and (max-width: 768px) {
+   .page-wrap { padding: 12px !important; }
+}
+html[data-device="mobile"] .page-wrap { padding: 12px !important; }
+
+
+/* ─── WIZARD PROGRESS (barra SOLICITAÇÃO / VALIDAÇÃO / FIM) ──────────────── */
+@media screen and (max-width: 768px) {
+   header { padding: 0 !important; }
+
+   .wizard-progress {
+      display: flex !important;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 12px !important;
+      background: var(--m-card);
+      border-bottom: 1px solid var(--m-border);
+      position: sticky;
+      top: 0;
+      z-index: 60;
+   }
+
+   .wizard-progress .step {
+      flex: none !important;
+      padding: 5px 14px !important;
+      border-radius: 20px;
+      font-size: 10px !important;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: var(--m-text-muted);
+      background: var(--m-bg);
+      border: 1.5px solid var(--m-border);
+      transition: all 0.2s;
+   }
+
+   .wizard-progress .step.active {
+      background: var(--m-accent-grad);
+      color: #2a1800;
+      border-color: transparent;
+      box-shadow: 0 2px 8px rgba(243, 112, 33, 0.30);
+   }
+
+   .wizard-progress .step.completed {
+      background: var(--m-green-light);
+      color: #065f46;
+      border-color: transparent;
+   }
+}
+html[data-device="mobile"] header { padding: 0 !important; }
+/* Fix duplicata para html[data-device="mobile"] */
+html[data-device="mobile"] .stepper-arrow {
+   position: static !important;
+   transform: none !important;
+   top: auto !important;
+   left: auto !important;
+   right: auto !important;
+}
+html[data-device="mobile"] .step-item.active {
+   min-width: 0 !important;
+   max-width: 100% !important;
+}
+
+html[data-device="mobile"] .wizard-progress {
+   display: flex !important;
+   justify-content: center;
+   gap: 6px;
+   padding: 10px 12px !important;
+   background: var(--m-card);
+   border-bottom: 1px solid var(--m-border);
+   position: sticky;
+   top: 0;
+   z-index: 60;
+}
+html[data-device="mobile"] .wizard-progress .step {
+   flex: none !important;
+   padding: 5px 14px !important;
+   border-radius: 20px;
+   font-size: 10px !important;
+   font-weight: 800;
+   letter-spacing: 0.6px;
+   text-transform: uppercase;
+   color: var(--m-text-muted);
+   background: var(--m-bg);
+   border: 1.5px solid var(--m-border);
+}
+html[data-device="mobile"] .wizard-progress .step.active {
+   background: var(--m-accent-grad);
+   color: #2a1800;
+   border-color: transparent;
+   box-shadow: 0 2px 8px rgba(243, 112, 33, 0.30);
+}
+html[data-device="mobile"] .wizard-progress .step.completed {
+   background: var(--m-green-light);
+   color: #065f46;
+   border-color: transparent;
+}
+
+
+/* ─── PAGE HEADER (cabeçalho de cada etapa) ──────────────────────────────── */
+@media screen and (max-width: 768px) {
+   .page-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      background: linear-gradient(160deg, #fff5ec 0%, #ffffff 60%);
+      margin: 0 0 14px 0 !important;
+      padding: 28px 20px 22px !important;
+      border-radius: 0 0 28px 28px;
+      border-bottom: 2px solid #f3d8c4;
+      box-shadow: 0 6px 20px rgba(243, 112, 33, 0.10);
+      overflow: hidden;
+      position: relative;
+   }
+
+   /* Bolha decorativa de fundo */
+   .page-header::before {
+      content: '';
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 193, 7, 0.12) 0%, transparent 70%);
+      pointer-events: none;
+   }
+
+   .page-header-icon {
+      width: 64px;
+      height: 64px;
+      min-width: 64px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #ffe8d6, #ffd2b5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+      font-size: 28px;
+      color: #c45a1c;
+      box-shadow:
+         0 6px 18px rgba(243, 112, 33, 0.22),
+         inset 0 1px 0 rgba(255,255,255,.6);
+      position: relative;
+      z-index: 1;
+   }
+
+   .page-header-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+      z-index: 1;
+   }
+
+   .page-header-title {
+      font-size: 18px !important;
+      font-weight: 800;
+      color: var(--m-text);
+      line-height: 1.25;
+      letter-spacing: -0.2px;
+   }
+
+   .page-header-sub {
+      font-size: 12px;
+      color: var(--m-text-muted);
+      line-height: 1.5;
+      max-width: 270px;
+   }
+
+   .step-badge {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      background: var(--m-accent-grad);
+      color: #2a1800;
+      box-shadow: 0 3px 10px rgba(243, 112, 33, 0.30);
+   }
+}
+html[data-device="mobile"] .page-header {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   text-align: center;
+   background: linear-gradient(160deg, #fff5ec 0%, #ffffff 60%);
+   margin: 0 0 14px 0 !important;
+   padding: 28px 20px 22px !important;
+   border-radius: 0 0 28px 28px;
+   border-bottom: 2px solid #f3d8c4;
+   box-shadow: 0 6px 20px rgba(243, 112, 33, 0.10);
+   overflow: hidden;
+   position: relative;
+}
+html[data-device="mobile"] .page-header::before {
+   content: '';
+   position: absolute;
+   top: -30px;
+   right: -30px;
+   width: 120px;
+   height: 120px;
+   border-radius: 50%;
+   background: radial-gradient(circle, rgba(255, 193, 7, 0.12) 0%, transparent 70%);
+   pointer-events: none;
+}
+html[data-device="mobile"] .page-header-icon {
+   width: 64px;
+   height: 64px;
+   min-width: 64px;
+   border-radius: 20px;
+   background: linear-gradient(135deg, #ffe8d6, #ffd2b5);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   margin-bottom: 14px;
+   font-size: 28px;
+   color: #c45a1c;
+   box-shadow: 0 6px 18px rgba(243, 112, 33, 0.22), inset 0 1px 0 rgba(255,255,255,.6);
+   position: relative;
+   z-index: 1;
+}
+html[data-device="mobile"] .page-header-info {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 6px;
+   position: relative;
+   z-index: 1;
+}
+html[data-device="mobile"] .page-header-title {
+   font-size: 18px !important;
+   font-weight: 800;
+   color: var(--m-text);
+   line-height: 1.25;
+}
+html[data-device="mobile"] .page-header-sub {
+   font-size: 12px;
+   color: var(--m-text-muted);
+   max-width: 270px;
+}
+html[data-device="mobile"] .step-badge {
+   display: inline-block;
+   margin-top: 10px;
+   padding: 5px 14px;
+   border-radius: 20px;
+   font-size: 10px;
+   font-weight: 800;
+   letter-spacing: 0.6px;
+   text-transform: uppercase;
+   background: var(--m-accent-grad);
+   color: #2a1800;
+   box-shadow: 0 3px 10px rgba(243, 112, 33, 0.30);
+}
+
+
+/* ─── SEÇÕES (cards com section-head / section-body) ─────────────────────── */
+@media screen and (max-width: 768px) {
+   .section {
+      background: var(--m-card);
+      border-radius: var(--m-radius) !important;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 8px rgba(0, 0, 0, .05);
+      overflow: hidden;
+      border: 1px solid var(--m-border) !important;
+   }
+
+   .section-head {
+      padding: 14px 16px !important;
+      background: var(--m-card) !important;
+      border-bottom: 1px solid var(--m-border) !important;
+   }
+
+   .section-head-left { gap: 10px; }
+
+   .section-num {
+      width: 30px !important;
+      height: 30px !important;
+      min-width: 30px !important;
+      border-radius: 10px !important;
+      background: var(--m-accent-grad) !important;
+      color: #2a1800 !important;
+      font-size: 13px !important;
+      font-weight: 800 !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(243, 112, 33, 0.25);
+   }
+
+   .section-name {
+      font-size: 14px !important;
+      font-weight: 700 !important;
+      color: var(--m-text) !important;
+   }
+
+   .section-arrow {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--m-text-sub);
+   }
+
+   .section-body { padding: 16px !important; }
+}
+html[data-device="mobile"] .section {
+   background: var(--m-card);
+   border-radius: var(--m-radius) !important;
+   margin-bottom: 12px;
+   box-shadow: 0 1px 8px rgba(0, 0, 0, .05);
+   overflow: hidden;
+   border: 1px solid var(--m-border) !important;
+}
+html[data-device="mobile"] .section-head {
+   padding: 14px 16px !important;
+   background: var(--m-card) !important;
+   border-bottom: 1px solid var(--m-border) !important;
+}
+html[data-device="mobile"] .section-num {
+   width: 30px !important;
+   height: 30px !important;
+   min-width: 30px !important;
+   border-radius: 10px !important;
+   background: var(--m-accent-grad) !important;
+   color: #2a1800 !important;
+   font-size: 13px !important;
+   font-weight: 800 !important;
+   box-shadow: 0 2px 6px rgba(243, 112, 33, 0.25);
+}
+html[data-device="mobile"] .section-name {
+   font-size: 14px !important;
+   font-weight: 700 !important;
+   color: var(--m-text) !important;
+}
+html[data-device="mobile"] .section-body { padding: 16px !important; }
+
+
+/* ─── GRID — coluna única ─────────────────────────────────────────────────── */
+@media screen and (max-width: 768px) {
+   .grid,
+   .grid.g2,
+   .grid.g3,
+   .grid.g4 {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 12px;
+   }
+}
+html[data-device="mobile"] .grid,
+html[data-device="mobile"] .grid.g2,
+html[data-device="mobile"] .grid.g3,
+html[data-device="mobile"] .grid.g4 {
+   display: flex !important;
+   flex-direction: column !important;
+   gap: 12px;
+}
+
+
+/* ─── LABELS ─────────────────────────────────────────────────────────────── */
+@media screen and (max-width: 768px) {
+   .fg label {
+      display: block;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--m-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+   }
+}
+html[data-device="mobile"] .fg label {
+   display: block;
+   font-size: 11px;
+   font-weight: 800;
+   color: var(--m-text-muted);
+   text-transform: uppercase;
+   letter-spacing: 0.5px;
+   margin-bottom: 6px;
+}
+
+
+/* ─── INPUTS, SELECTS, TEXTAREAS ─────────────────────────────────────────── */
+@media screen and (max-width: 768px) {
+   .form-control,
+   input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+   select,
+   textarea {
+      width: 100%;
+      min-height: 50px;
+      height: auto !important;
+      border-radius: var(--m-radius-sm) !important;
+      font-size: 15px !important;
+      font-weight: 500;
+      color: var(--m-text);
+      border: 1.5px solid var(--m-border) !important;
+      background: var(--m-card) !important;
+      box-shadow: none !important;
+      padding: 0 14px;
+      transition: border-color 0.15s;
+   }
+
+   .form-control:focus,
+   input:focus,
+   select:focus,
+   textarea:focus {
+      border-color: var(--m-accent) !important;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(243, 112, 33, 0.12) !important;
+   }
+
+   textarea.form-control {
+      min-height: 110px;
+      padding: 12px 14px;
+   }
+}
+html[data-device="mobile"] .form-control,
+html[data-device="mobile"] input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+html[data-device="mobile"] select,
+html[data-device="mobile"] textarea {
+   width: 100%;
+   min-height: 50px;
+   height: auto !important;
+   border-radius: var(--m-radius-sm) !important;
+   font-size: 15px !important;
+   font-weight: 500;
+   color: var(--m-text);
+   border: 1.5px solid var(--m-border) !important;
+   background: var(--m-card) !important;
+   box-shadow: none !important;
+   padding: 0 14px;
+}
+html[data-device="mobile"] textarea.form-control {
+   min-height: 110px;
+   padding: 12px 14px;
+}
+
+
+/* ─── ESTADO DE ERRO (validação — classe .has-erro adicionada por validation.js) ── */
+/*
+   validation.js adiciona .has-erro ao .fg (container do campo) e insere
+   <small class="help-block erro-validacao"> após o campo.
+   A especificidade de .fg.has-erro (...) é maior do que os seletores genéricos
+   acima, então estas regras vencem mesmo com !important nos genéricos.
+*/
+@media screen and (max-width: 768px) {
+   /* Borda vermelha nos campos com erro */
+   .fg.has-erro .form-control,
+   .fg.has-erro input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+   .fg.has-erro select,
+   .fg.has-erro textarea {
+      border-color: #ef4444 !important;
+      background: #fff5f5 !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+   }
+
+   /* Label do campo com erro */
+   .fg.has-erro > label,
+   .fg.has-erro .fg-label {
+      color: #dc2626 !important;
+   }
+
+   /* Mensagem de erro inline */
+   .erro-validacao {
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      color: #dc2626 !important;
+      font-size: 11px !important;
+      font-weight: 600;
+      margin-top: 5px;
+      line-height: 1.4;
+   }
+}
+html[data-device="mobile"] .fg.has-erro .form-control,
+html[data-device="mobile"] .fg.has-erro input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+html[data-device="mobile"] .fg.has-erro select,
+html[data-device="mobile"] .fg.has-erro textarea {
+   border-color: #ef4444 !important;
+   background: #fff5f5 !important;
+   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+}
+html[data-device="mobile"] .fg.has-erro > label,
+html[data-device="mobile"] .fg.has-erro .fg-label { color: #dc2626 !important; }
+html[data-device="mobile"] .erro-validacao {
+   display: block !important;
+   visibility: visible !important;
+   opacity: 1 !important;
+   color: #dc2626 !important;
+   font-size: 11px !important;
+   font-weight: 600;
+   margin-top: 5px;
+}
+
+
+/* ─── BOTÕES GERAIS ──────────────────────────────────────────────────────── */
+@media screen and (max-width: 768px) {
+   .btn {
+      min-height: 48px;
+      border-radius: var(--m-radius-sm) !important;
+      font-size: 14px !important;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+   }
+
+   .btn-warning {
+      background: var(--m-accent-grad) !important;
+      border: none !important;
+      color: #2a1800 !important;
+      box-shadow: 0 2px 8px rgba(243, 112, 33, 0.30) !important;
+   }
+
+   /* Botão "Adicionar" (grupo mercadoria, CNAE) */
+   .btn-grupo-mercadoria,
+   .btn-cnae {
+      min-height: 44px;
+      width: 100%;
+   }
+
+   /* Botão "Remover" (danger) */
+   .btn-danger {
+      min-height: 44px;
+   }
+
+   /* Botão "Adicionar conta bancária" */
+   .btn-add-bank {
+      width: 100%;
+      min-height: 48px;
+      border-radius: var(--m-radius-sm) !important;
+      font-size: 14px !important;
+      font-weight: 700;
+   }
+}
+html[data-device="mobile"] .btn {
+   min-height: 48px;
+   border-radius: var(--m-radius-sm) !important;
+   font-size: 14px !important;
+   font-weight: 700;
+}
+html[data-device="mobile"] .btn-warning {
+   background: var(--m-accent-grad) !important;
+   border: none !important;
+   color: #2a1800 !important;
+   box-shadow: 0 2px 8px rgba(243, 112, 33, 0.30) !important;
+}
+html[data-device="mobile"] .btn-add-bank {
+   width: 100%;
+   min-height: 48px;
+   border-radius: var(--m-radius-sm) !important;
+}
+
+
+/* ─── UPLOAD AREAS ───────────────────────────────────────────────────────── */
+@media screen and (max-width: 768px) {
+   .upload-area {
+      border-radius: var(--m-radius) !important;
+      padding: 22px 16px;
+      border: 2px dashed var(--m-border) !important;
+      text-align: center;
+      /* position:relative definido por JS para suportar o overlay absoluto */
+   }
+
+   .upload-title { font-size: 14px; font-weight: 700; }
+   .upload-hint  { font-size: 12px; color: var(--m-text-muted); }
+   .upload-formats { font-size: 11px; color: var(--m-text-sub); }
+
+   /* Overlay transparente criado por mobile.js que cobre a .upload-area.
+      opacity:0 ≠ display:none → iOS WKWebView dispara change de forma nativa. */
+   .mobile-file-overlay {
+      position: absolute !important;
+      top: 0 !important; left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      min-height: 0 !important;
+      opacity: 0 !important;
+      cursor: pointer !important;
+      z-index: 5 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
+   }
+}
+html[data-device="mobile"] .upload-area {
+   border-radius: var(--m-radius) !important;
+   padding: 22px 16px;
+   border: 2px dashed var(--m-border) !important;
+   text-align: center;
+}
+html[data-device="mobile"] .mobile-file-overlay {
+   position: absolute !important;
+   top: 0 !important; left: 0 !important;
+   width: 100% !important;
+   height: 100% !important;
+   min-height: 0 !important;
+   opacity: 0 !important;
+   cursor: pointer !important;
+   z-index: 5 !important;
+   margin: 0 !important;
+   padding: 0 !important;
+   border: none !important;
+   background: transparent !important;
+   box-shadow: none !important;
+}
+
+
+/* ─── DADOS BANCÁRIOS — card ─────────────────────────────────────────────── */
+@media screen and (max-width: 768px) {
+   .bank-card {
+      border-radius: var(--m-radius) !important;
+      border: 1.5px solid var(--m-border);
+      padding: 14px !important;
+      margin-bottom: 12px;
+   }
+
+   .bank-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+   }
+
+   .bank-card-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--m-text);
+   }
+
+   .btn-remove-bank {
+      font-size: 12px;
+      padding: 4px 10px;
+      min-height: 32px !important;
+   }
+}
+html[data-device="mobile"] .bank-card {
+   border-radius: var(--m-radius) !important;
+   border: 1.5px solid var(--m-border);
+   padding: 14px !important;
+   margin-bottom: 12px;
+}
+
+
+/* ─── TOGGLE / SWITCH ────────────────────────────────────────────────────── */
+@media screen and (max-width: 768px) {
+   .retencao-box {
+      border-radius: var(--m-radius) !important;
+      border: 1.5px solid var(--m-border);
+      padding: 14px 16px;
+   }
+
+   .retencao-content {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+   }
+
+   .retencao-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+   }
+
+   .retencao-text strong { font-size: 14px; }
+   .retencao-text small  { font-size: 12px; color: var(--m-text-muted); }
+}
+html[data-device="mobile"] .retencao-box {
+   border-radius: var(--m-radius) !important;
+   border: 1.5px solid var(--m-border);
+   padding: 14px 16px;
+}
+html[data-device="mobile"] .retencao-content {
+   flex-direction: column;
+   align-items: flex-start;
+   gap: 14px;
+}
+html[data-device="mobile"] .retencao-toggle {
+   width: 100%;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+}
+
+
+/* ─── HISTÓRICO — timeline cards ─────────────────────────────────────────── */
+@media screen and (max-width: 768px) {
+   .card-historico {
+      border-radius: var(--m-radius) !important;
+      padding: 14px;
+      margin-bottom: 10px;
+      background: var(--m-card);
+      border: 1px solid var(--m-border);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .04);
+   }
+}
+html[data-device="mobile"] .card-historico {
+   border-radius: var(--m-radius) !important;
+   padding: 14px;
+   margin-bottom: 10px;
+   background: var(--m-card);
+   border: 1px solid var(--m-border);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BOTÃO DE NAVEGAÇÃO — FAB fixado no canto inferior ESQUERDO
+   Oposto ao botão "Enviar" nativo do Fluig Mobile (canto inferior direito).
+
+   IMPORTANTE: .stepper-nav-wrap não pode ter backdrop-filter nem position
+   diferente de static, pois o Fluig WebView usa esse elemento como containing
+   block e impede que filhos com position:fixed sejam fixados ao viewport.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media screen and (max-width: 768px) {
+
+   /* Wrapper invisível — sem containing block, sem compositing layer */
+   .stepper-nav-wrap {
+      position: static !important;
+      height: 0 !important;
+      overflow: visible !important;
+      display: block !important;
+      background: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      padding: 0 !important;
+      pointer-events: none !important;
+   }
+
+   /* Move o stepper para fora de tela.
+      CRÍTICO: NÃO usar display:none — getStepsVisiveis() (ui.js) usa
+      $(NAV_MAP[step]).is(":visible") para montar a lista de etapas navegáveis.
+      display:none → :visible=false → getStepsVisiveis() retorna [] → nunca avança.
+      position:fixed + left:-9999px mantém :visible=true e some da tela. */
+   .stepper-wrap {
+      position: fixed !important;
+      left: -9999px !important;
+      top: -9999px !important;
+      pointer-events: none !important;
+   }
+   .step-connector { display: none !important; }
+   .step-label,
+   .step-sub       { display: none !important; }
+
+   /* Seta esquerda: oculta */
+   .stepper-arrow.left { display: none !important; }
+
+   /* ── FAB "próxima etapa" — canto inferior esquerdo ── */
+   .stepper-arrow.right {
+      display: flex !important;
+      position: fixed !important;      /* fixed relativo ao viewport (parent é static) */
+      bottom: 20px !important;
+      left: 16px !important;
+      top: auto !important;
+      right: auto !important;
+      transform: none !important;
+      pointer-events: auto !important; /* reabilita clique (parent tem pointer-events:none) */
+      align-items: center;
+      justify-content: center;
+      width: 56px !important;
+      height: 56px !important;
+      min-width: 56px !important;
+      border-radius: 50% !important;
+      background: var(--m-accent-grad) !important;
+      color: #2a1800 !important;
+      border: none !important;
+      font-size: 22px;
+      cursor: pointer;
+      z-index: 9999 !important;
+      box-shadow:
+         0 6px 20px rgba(243, 112, 33, 0.45),
+         0 2px 6px  rgba(0, 0, 0, 0.12) !important;
+      transition: opacity 0.18s, box-shadow 0.18s;
+   }
+
+   .stepper-arrow.right i,
+   .stepper-arrow.right .fluigicon {
+      font-size: 18px;
+      color: #2a1800;
+      pointer-events: none; /* evita que o ícone "roube" o evento de clique */
+   }
+
+   /* FAB desabilitado (último step — sem próxima etapa) */
+   .stepper-arrow.right:disabled {
+      opacity: 0.25;
+      box-shadow: none !important;
+      cursor: not-allowed;
+   }
+
+   .stepper-arrow.right:not(:disabled):active {
+      opacity: 0.72;
+      box-shadow: 0 2px 8px rgba(243, 112, 33, 0.30) !important;
+   }
+}
+
+/* ── Duplicata para html[data-device="mobile"] (tablets > 768px no app Fluig) ── */
+html[data-device="mobile"] .stepper-nav-wrap {
+   position: static !important;
+   height: 0 !important;
+   overflow: visible !important;
+   display: block !important;
+   background: none !important;
+   border: none !important;
+   box-shadow: none !important;
+   backdrop-filter: none !important;
+   -webkit-backdrop-filter: none !important;
+   padding: 0 !important;
+   pointer-events: none !important;
+}
+/* CRÍTICO: NÃO usar display:none no stepper-wrap — quebra getStepsVisiveis() */
+html[data-device="mobile"] .stepper-wrap {
+   position: fixed !important;
+   left: -9999px !important;
+   top: -9999px !important;
+   pointer-events: none !important;
+}
+html[data-device="mobile"] .step-connector { display: none !important; }
+html[data-device="mobile"] .step-label,
+html[data-device="mobile"] .step-sub       { display: none !important; }
+html[data-device="mobile"] .stepper-arrow.left { display: none !important; }
+html[data-device="mobile"] .stepper-arrow.right {
+   display: flex !important;
+   position: fixed !important;
+   bottom: 20px !important;
+   left: 16px !important;
+   top: auto !important;
+   right: auto !important;
+   transform: none !important;
+   pointer-events: auto !important;
+   align-items: center;
+   justify-content: center;
+   width: 56px !important;
+   height: 56px !important;
+   min-width: 56px !important;
+   border-radius: 50% !important;
+   background: var(--m-accent-grad) !important;
+   color: #2a1800 !important;
+   border: none !important;
+   font-size: 22px;
+   cursor: pointer;
+   z-index: 9999 !important;
+   box-shadow:
+      0 6px 20px rgba(243, 112, 33, 0.45),
+      0 2px 6px  rgba(0, 0, 0, 0.12) !important;
+}
+html[data-device="mobile"] .stepper-arrow.right i,
+html[data-device="mobile"] .stepper-arrow.right .fluigicon {
+   font-size: 18px;
+   color: #2a1800;
+   pointer-events: none;
+}
+html[data-device="mobile"] .stepper-arrow.right:disabled {
+   opacity: 0.25;
+   box-shadow: none !important;
+}
+html[data-device="mobile"] .stepper-arrow.right:not(:disabled):active {
+   opacity: 0.72;
+}

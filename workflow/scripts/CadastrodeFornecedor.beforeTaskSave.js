@@ -20,7 +20,7 @@ function beforeTaskSave(colleagueId, nextSequenceId, userList) {
 
         if (decisao == "Correcao") {
             acao = "Correção do Cadastro";
-        } else if (decisao == "envioRM") {
+        } else if (decisao == "enviarRm") {
             acao = "Enviar ao RM";
         } else {
             acao = "Validação";
@@ -30,6 +30,8 @@ function beforeTaskSave(colleagueId, nextSequenceId, userList) {
             observacao = "Decisão registrada na etapa de validação.";
         }
 
+        // Compara o snapshot tirado no início da Validação com os valores atuais.
+        // Se o validador editou algum campo do solicitante, as diferenças aparecem no histórico.
         var alteracoes = montarAlteracoesEdicaoValidacao();
 
         if (alteracoes) {
@@ -38,12 +40,14 @@ function beforeTaskSave(colleagueId, nextSequenceId, userList) {
 
         adicionarHistorico(colleagueId, atividade, acao, observacao);
 
+        // Limpa campos transitórios para não vazar para a próxima atividade.
         hAPI.setCardValue("observacaoValidacao", "");
         hAPI.setCardValue("selectDecisao", "");
         hAPI.setCardValue("snapshotEdicaoValidacao", "");
 
         return;
     }
+
     if (atividadeAtual == 27) {
         var observacao = hAPI.getCardValue("observacaoValidacao");
 
@@ -65,6 +69,9 @@ function beforeTaskSave(colleagueId, nextSequenceId, userList) {
     }
 }
 
+
+
+// HISTÓRICO DE DECISÃO
 function adicionarHistorico(usuario, atividade, acao, observacao) {
     hAPI.addCardChild("tableHistorico", {
         tableHistoricoUsuario: usuario,
@@ -75,56 +82,8 @@ function adicionarHistorico(usuario, atividade, acao, observacao) {
     });
 }
 
-function anexarDocumentosNoProcesso() {
-    var camposDocumentos = [
-        "anxCartaoCnpjId",
-        "anxCompBancoId",
-        "anxContratoId",
-        "anxRgCpfId",
-        "anxCompEnderecoId",
-        "anxLaudoPcdId",
-        "anxDependentesId",
-        "anxCodCondutaId",
-        "anxAntiCorrupcaoId",
-        "anxConflitoId",
-        "anxLgpdId"
-    ];
 
-    for (var i = 0; i < camposDocumentos.length; i++) {
-        var campo = camposDocumentos[i];
-        var documentId = hAPI.getCardValue(campo);
-
-        log.info("Campo anexo: " + campo + " | documentId: " + documentId);
-
-        if (documentId && String(documentId).trim() !== "" && !isNaN(documentId)) {
-            anexaDocumentoNoProcesso(documentId);
-        }
-    }
-}
-
-function anexaDocumentoNoProcesso(documentId) {
-    documentId = Number(documentId);
-
-    var attachments = hAPI.listAttachments();
-    var jaAnexado = false;
-
-    for (var i = 0; i < attachments.size(); i++) {
-        var anexoId = Number(attachments.get(i).getDocumentId());
-
-        if (documentId === anexoId) {
-            jaAnexado = true;
-            break;
-        }
-    }
-
-    if (!jaAnexado) {
-        log.info("Anexando documento no processo: " + documentId);
-        hAPI.attachDocument(documentId);
-    } else {
-        log.info("Documento já estava anexado: " + documentId);
-    }
-}
-
+// AUDITORIA DE EDIÇÃO NA VALIDAÇÃO
 function montarAlteracoesEdicaoValidacao() {
     var snapshotTexto = hAPI.getCardValue("snapshotEdicaoValidacao");
 
@@ -141,6 +100,9 @@ function montarAlteracoesEdicaoValidacao() {
         return "";
     }
 
+    // Lista completa de campos auditáveis: [id do campo no card, rótulo legível].
+    // Campos hidden (hiddenBancoNCod, hiddenCnaeSecundarioN etc.) são usados porque
+    // são a fonte de verdade dos campos dinâmicos (ver Functions.js — sincronizarTabelaBancaria).
     var campos = [
         ["classificacao", "Classificação"],
         ["categoria", "Categoria"],
@@ -164,18 +126,22 @@ function montarAlteracoesEdicaoValidacao() {
         ["estado", "Estado"],
 
         ["icms", "Contribuinte ICMS"],
+        ["codIrrf", "Código de Receita IRRF"],
         ["irrf", "Alíquota IRRF"],
         ["simplesNacional", "Simples Nacional"],
-        ["naturezaRendimento", "Natureza de Rendimentos"],
+        ["codNaturezaRendimento", "Natureza de Rendimentos"],
         ["regimeFiscal", "Regime Fiscal"],
         ["tipoDocEmitido", "Tipo de Documento Emitido"],
 
-        ["moeda", "Moeda do Pedido"],
         ["grupoMercadoria1", "Grupo de Mercadoria 1"],
         ["hiddenGrupoMercadoria2", "Grupo de Mercadoria 2"],
         ["hiddenGrupoMercadoria3", "Grupo de Mercadoria 3"],
         ["hiddenGrupoMercadoria4", "Grupo de Mercadoria 4"],
         ["hiddenGrupoMercadoria5", "Grupo de Mercadoria 5"],
+        ["hiddenGrupoMercadoria6", "Grupo de Mercadoria 6"],
+        ["hiddenGrupoMercadoria7", "Grupo de Mercadoria 7"],
+        ["hiddenGrupoMercadoria8", "Grupo de Mercadoria 8"],
+        ["hiddenGrupoMercadoria9", "Grupo de Mercadoria 9"],
 
         ["cnaePrincipal", "CNAE Principal"],
         ["hiddenCnaeSecundario1", "CNAE Secundário 1"],
@@ -191,10 +157,26 @@ function montarAlteracoesEdicaoValidacao() {
         ["pis", "Retenção PIS"],
         ["cofins", "Retenção COFINS"],
 
-        ["condicaoPagamento", "Condição de Pagamento"],
-        ["banco", "Banco"],
-        ["agencia", "Agência"],
-        ["conta", "Conta"],
+        ["hiddenBanco1Condicao", "Condição de Pagamento (Conta 1)"],
+        ["hiddenBanco1Cod",     "Banco (Conta 1)"],
+        ["hiddenBanco1Agencia", "Agência (Conta 1)"],
+        ["hiddenBanco1Conta",   "Conta (Conta 1)"],
+        ["hiddenBanco2Condicao", "Condição de Pagamento (Conta 2)"],
+        ["hiddenBanco2Cod",      "Banco (Conta 2)"],
+        ["hiddenBanco2Agencia",  "Agência (Conta 2)"],
+        ["hiddenBanco2Conta",    "Conta (Conta 2)"],
+        ["hiddenBanco3Condicao", "Condição de Pagamento (Conta 3)"],
+        ["hiddenBanco3Cod",      "Banco (Conta 3)"],
+        ["hiddenBanco3Agencia",  "Agência (Conta 3)"],
+        ["hiddenBanco3Conta",    "Conta (Conta 3)"],
+        ["hiddenBanco4Condicao", "Condição de Pagamento (Conta 4)"],
+        ["hiddenBanco4Cod",      "Banco (Conta 4)"],
+        ["hiddenBanco4Agencia",  "Agência (Conta 4)"],
+        ["hiddenBanco4Conta",    "Conta (Conta 4)"],
+        ["hiddenBanco5Condicao", "Condição de Pagamento (Conta 5)"],
+        ["hiddenBanco5Cod",      "Banco (Conta 5)"],
+        ["hiddenBanco5Agencia",  "Agência (Conta 5)"],
+        ["hiddenBanco5Conta",    "Conta (Conta 5)"],
 
         ["telefone", "Telefone"],
         ["telComercial", "Telefone Comercial"],
@@ -204,7 +186,7 @@ function montarAlteracoesEdicaoValidacao() {
         ["emailCr", "E-mail Financeiro / Contabilidade"],
         ["site", "Site"],
 
-        ["anxCartaoCnpj", "Anexo Cartão CNPJ"],
+        ["anxCartaoCnpj", "Anexo Documento de Identificação Júridica"],
         ["anxCompBanco", "Anexo Comprovante Bancário"],
         ["anxContrato", "Anexo Contrato Social"],
         ["anxRgCpf", "Anexo RG / CPF"],
@@ -226,6 +208,8 @@ function montarAlteracoesEdicaoValidacao() {
         var antigo = String(snapshot[campo] || "").trim();
         var novo = String(hAPI.getCardValue(campo) || "").trim();
 
+        // Campos de checkbox armazenam valores variados ("on", "true", "1", "Sim" etc.).
+        // Normaliza para "Sim"/"Não" antes de comparar para evitar falsos-positivos.
         if (isCampoCheckboxAuditoria(campo)) {
             antigo = normalizarCheckboxAuditoria(antigo);
             novo = normalizarCheckboxAuditoria(novo);
@@ -243,6 +227,8 @@ function montarAlteracoesEdicaoValidacao() {
     return "<br><br><b>Alterações realizadas:</b><br>• " + alteracoes.join("<br>• ");
 }
 
+// Retorna true para os campos cujo valor é booleano/checkbox.
+// Esses campos precisam de normalização antes da comparação de auditoria.
 function isCampoCheckboxAuditoria(campo) {
     return [
         "toggleEstrangeiro",
@@ -256,6 +242,8 @@ function isCampoCheckboxAuditoria(campo) {
     ].indexOf(campo) >= 0;
 }
 
+// Converte qualquer representação booleana para "Sim" ou "Não".
+// Necessário porque o Fluig persiste checkboxes como "on", "true", "1" ou string vazia.
 function normalizarCheckboxAuditoria(valor) {
     var v = String(valor || "").toLowerCase().trim();
 

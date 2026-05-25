@@ -1,4 +1,4 @@
-// CEP
+// API DE CEP — ViaCEP
 function buscarCep(cep) {
    $.ajax({
       url: "https://viacep.com.br/ws/" + cep + "/json/",
@@ -29,13 +29,13 @@ function buscarCep(cep) {
       }
    });
 }
-
 function preencherEndereco(data) {
    $("#endereco").val(data.logradouro || "");
    $("#bairro").val(data.bairro || "");
    $("#cidade").val(data.localidade || "");
    $("#estado").val(data.uf || "");
-   $("#pais").val(data.pais ||"");
+   // ViaCEP não retorna o campo "pais"; garantimos "Brasil" fixo no modo nacional
+   $("#pais").val("Brasil");
 
    limparErroCampo("cep");
    limparErroCampo("endereco");
@@ -46,7 +46,6 @@ function preencherEndereco(data) {
 
    $("#numero").focus();
 }
-
 function limpaCamposEndereco() {
    $("#endereco").val("");
    $("#bairro").val("");
@@ -57,15 +56,13 @@ function limpaCamposEndereco() {
 }
 
 
-// CNPJ
+// API DE CNPJ — cnpj-api.com
 const TOKEN_CNPJ_API = "504928752084ca6c095f8501397fc9333f77a0ccbc877ea0639cca7735a0dcfd";
-
 function normalizarCnpj(cnpj) {
    return String(cnpj || "")
       .replace(/[^a-zA-Z0-9]/g, "")
       .toUpperCase();
 }
-
 function buscarCnpj(cnpj) {
 
    cnpj = normalizarCnpj(cnpj);
@@ -86,7 +83,7 @@ function buscarCnpj(cnpj) {
       },
       error: function (xhr) {
 
-         var mensagem = "Erro ao buscar CNPJ.";
+         let mensagem = "Erro ao buscar CNPJ.";
 
          if (xhr.status === 401) {
             mensagem = "Token da API CNPJ inválido ou ausente.";
@@ -104,10 +101,8 @@ function buscarCnpj(cnpj) {
       }
    });
 }
-
 function preencherDadosCnpj(data) {
 
-   // RAZÃO SOCIAL
    $("#razaoSocial").val(data.razao_social || "");
    $("#nomeFantasia").val(data.nome_fantasia || "");
    $("#endereco").val(data.endereco?.logradouro || "");
@@ -136,13 +131,6 @@ function preencherDadosCnpj(data) {
          data.atividade_principal.descricao
       );
    }
-   if (data.atividade_principal) {
-      $("#cnaePrincipal").val(
-         data.atividade_principal.codigo +
-         " — " +
-         data.atividade_principal.descricao
-      );
-   }
    preencherCnaesSecundarios(data);
 
    [
@@ -162,30 +150,15 @@ function preencherDadosCnpj(data) {
       }
    });
 }
-
-function preencherCnaePrincipal(data) {
-   var cnae = data.cnae_fiscal || data.cnaeFiscal || "";
-   var descricao = data.cnae_fiscal_descricao || data.cnaeFiscalDescricao || "";
-
-   if (!cnae && data.atividade_principal && data.atividade_principal.length) {
-      cnae = data.atividade_principal[0].code || data.atividade_principal[0].codigo || "";
-      descricao = data.atividade_principal[0].text || data.atividade_principal[0].descricao || "";
-   }
-
-   if (cnae || descricao) {
-      $("#cnaePrincipal").val(cnae + (descricao ? " — " + descricao : ""));
-   }
-}
-
 function preencherCnaesSecundarios(data) {
-   var atividades = data.atividades_secundarias || [];
-   var limite = window.LIMITE_CNAE_SECUNDARIO || 5;
+   let atividades = data.atividades_secundarias || [];
+   let limite = globalThis.LIMITE_CNAE_SECUNDARIO || 5;
 
    $("#cnae-secundarios-wrap .cnae-secundario-item").remove();
 
    atividades.slice(0, limite).forEach(function (atividade, index) {
-      var numero = index + 1;
-      var valor = atividade.codigo + " — " + atividade.descricao;
+      let numero = index + 1;
+      let valor = atividade.codigo + " — " + atividade.descricao;
 
       adicionarCnae();
 
@@ -200,34 +173,11 @@ function preencherCnaesSecundarios(data) {
    controlarBotaoAdicionarCnae();
    sincronizarCamposDinamicosHidden();
 
-if (Number($("#atividade").val() || 0) === ATIVIDADES.VALIDACAO) {
-   $("#snapshotEdicaoValidacao").val("");
-   inicializarSnapshotEdicaoValidacao();
+   if (Number($("#atividade").val() || 0) === ATIVIDADES.VALIDACAO) {
+      $("#snapshotEdicaoValidacao").val("");
+      inicializarSnapshotEdicaoValidacao();
+   }
 }
-}
-
-function limparErrosCnpjPreenchido() {
-   [
-      "docCnpj",
-      "razaoSocial",
-      "nomeFantasia",
-      "cep",
-      "endereco",
-      "numero",
-      "bairro",
-      "cidade",
-      "estado",
-      "pais",
-      "telefone",
-      "emailCr",
-      "cnaePrincipal"
-   ].forEach(function (campo) {
-      if (typeof limparErroCampo === "function") {
-         limparErroCampo(campo);
-      }
-   });
-}
-
 function formatarCep(cep) {
    cep = String(cep || "").replace(/\D/g, "");
 
@@ -239,7 +189,7 @@ function formatarCep(cep) {
 }
 
 
-// CONSULTA EXTERNA DE IMAGEM DE USUÁRIO FLUIG
+// API INTERNA DO FLUIG — Avatar do usuário
 function promiseBuscaImagemUsuario(usuario) {
    return fetch("/api/public/social/image/" + usuario)
       .then(res => res.blob())

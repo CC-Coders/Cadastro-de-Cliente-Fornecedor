@@ -1,6 +1,10 @@
-/* BASE / RESET */
-body {
-	background: #f5f0ea;
+/* ─── BASE / RESET ─── */
+/* !important garante que o Fluig antigo (homologação) não sobrescreva o background */
+body,
+.fluig-style-guide,
+.pagina,
+.container-fluid {
+	background: #ffffff !important;
 	font-family: 'Open Sans', Arial, sans-serif;
 	font-size: 14px;
 	color: #1a1a1a;
@@ -35,11 +39,9 @@ textarea[readonly] {
 	pointer-events: none !important;
 	opacity: 0.7;
 }
-.grid {
-  gap: 22px;
-}
 @media (min-width: 1600px) {
-  .page-wrap {
+  .page-wrap,
+  .wizard-progress {
     max-width: 1800px;
   }
 }
@@ -91,7 +93,7 @@ textarea[readonly] {
 }
 
 
-/* LAYOUT GERAL */
+/* ─── LAYOUT GERAL ─── */
 .page-wrap {
   width: 96%;
   max-width: 1650px;
@@ -138,9 +140,24 @@ hr {
 	margin: 18px 0;
 }
 
-#divMoedaGrupoMercadoria,
-.cnae-box .grid.g3 {
-	align-items: start;
+/* Campo + botão "Adicionar" na mesma linha flex.
+   A mensagem de erro fica ABAIXO da linha e não desloca o botão. */
+.input-btn-row {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+}
+.input-btn-row > .select-wrap {
+	flex: 1;
+	min-width: 0;
+}
+.input-btn-row > .form-control {
+	flex: 1;
+	min-width: 0;
+}
+/* Botão com mesma altura do form-control (46px) para ficarem perfeitamente alinhados */
+.input-btn-row .btn {
+	height: 46px;
 }
 
 .grid.grid-pf {
@@ -162,7 +179,7 @@ hr {
 }
 
 
-/* TOPBAR */
+/* ─── TOPBAR ─── */
 .topbar {
 	height: 64px;
 	background: #ffffff;
@@ -252,7 +269,7 @@ hr {
 }
 
 
-/* SUBHEADER / BREADCRUMB */
+/* ─── SUBHEADER / BREADCRUMB ─── */
 .subheader {
 	background: #faf7f3;
 	border-bottom: 1px solid #eadfd5;
@@ -308,7 +325,7 @@ hr {
 }
 
 
-/* STEPPER / NAVEGAÇÃO */
+/* ─── STEPPER / NAVEGAÇÃO ─── */
 .stepper-nav-wrap {
 	max-width: 1650px;
 	width: 96%;
@@ -332,7 +349,7 @@ hr {
 	align-items: center !important;
 	justify-content: center !important;
 	gap: 40px !important;
-	/* 🔥 AQUI ESTÁ O GANHO REAL */
+	/* width:max-content garante que o stepper não quebre em múltiplas linhas em viewports estreitas */
 	width: max-content !important;
 	min-width: 100%;
 	margin: 0 auto;
@@ -352,7 +369,6 @@ hr {
 	min-width: 250px !important;
 	max-width: 270px !important;
 	margin: 0 10px;
-	/* 🔥 igual você testou */
 	padding: 18px 20px;
 	border: 1px solid #ead8c8;
 	border-radius: 18px;
@@ -480,7 +496,7 @@ hr {
 
 
 
-/* SECTIONS / PANELS */
+/* ─── SECTIONS / PANELS ─── */
 .section-head {
 	width: 100%;
 	border: 0;
@@ -573,22 +589,16 @@ hr {
 }
 
 
-/* FORMULÁRIOS / CAMPOS */
-.fg.has-error label {
+/* ─── FORMULÁRIOS / CAMPOS ─── */
+.fg.has-erro label {
 	color: #d9534f !important;
 }
 
-.fg.has-error .form-control:focus {
+.fg.has-erro .form-control:focus {
 	border-color: #d9534f !important;
 	box-shadow: 0 0 0 0.2rem rgba(217, 83, 79, 0.2);
 }
 
-#divBtnAddGrupoMercadoria {
-	display: flex;
-	padding-top: 26px;
-	flex-direction: column;
-	justify-content: flex-start;
-}
 
 .fg,
 .form-group {
@@ -673,7 +683,7 @@ select.form-control,
 	padding-right: 34px;
 }
 
-.field-error {
+.field-erro {
 	display: block;
 	margin-top: 6px;
 	font-size: 12px;
@@ -691,39 +701,29 @@ select.form-control,
 
 #divBtnAddGrupoMercadoria,
 #divBtnAddCnae {
-	display: flex !important;
-	flex-direction: column;
-	justify-content: flex-start !important;
-	padding-top: 26px;
-	margin-bottom: 0;
+	margin-bottom: 17px;
 }
 
 #divBtnAddGrupoMercadoria .btn,
 #divBtnAddCnae .btn {
-	width: 100%;
-	height: 42px;
+	width: auto;
 	margin-top: 0;
 }
 
-#divBtnAddCnae {
-	align-self: start;
-}
 
 .fg.has-success .form-control {
 	border-color: #28a745;
 	box-shadow: 0 0 0 1px rgba(40, 167, 69, 0.2);
 }
 
-.fg.has-error .form-control {
+.fg.has-erro .form-control {
 	border-color: #d9534f !important;
 	box-shadow: 0 0 0 0.15rem rgba(217, 83, 79, 0.15);
 }
 
 
-/* BOTÕES */
+/* ─── BOTÕES ─── */
 .btn-cnae {
-	width: 100%;
-	height: 42px;
 	font-weight: 600;
 }
 
@@ -745,8 +745,6 @@ select.form-control,
 }
 
 .btn-grupo-mercadoria {
-	width: 100%;
-	height: 42px;
 	font-weight: 600;
 }
 
@@ -798,7 +796,7 @@ button.btn {
 }
 
 
-/* SWITCH / TOGGLE */
+/* ─── SWITCH / TOGGLE ─── */
 .switch {
 	position: relative;
 	display: inline-block;
@@ -833,37 +831,27 @@ button.btn {
 	transition: all 0.25s ease;
 }
 
-.switch-input:checked+.switch-button {
+/* Usa ~ (sibling geral) em vez de + (adjacente) para tolerar hidden inputs entre
+   .switch-input e .switch-button sem quebrar o estado visual do toggle. */
+.switch-input:checked ~ .switch-button {
 	background: #5cb85c;
 }
 
-.switch-input:checked+.switch-button::before {
+.switch-input:checked ~ .switch-button::before {
 	transform: translateX(22px);
 }
 
-.slider:before {
-	content: "";
-	position: absolute;
-	height: 16px;
-	width: 16px;
-	left: 3px;
-	bottom: 3px;
-	background: white;
-	border-radius: 50%;
-	transition: 0.3s;
+/* Quando bloqueado (Validação), .campo-bloqueado sobrescreveria o verde com !important.
+   Estas regras preservam a aparência correta do toggle mesmo quando bloqueado. */
+.switch-input:checked ~ .switch-button.campo-bloqueado {
+	background: #5cb85c !important;
+}
+.switch-input:checked ~ .switch-button.campo-bloqueado::before {
+	transform: translateX(22px) !important;
 }
 
-.switch input:checked+.slider {
-	background-color: #4caf50;
-}
-
-.switch input:checked+.slider:before {
-	transform: translateX(22px);
-}
-
-
-/* RETENÇÃO / RETENÇÕES */
-#divRetencoesPanel.retencao-error {
+/* ─── RETENÇÃO / RETENÇÕES ─── */
+#divRetencoesPanel.retencao-erro {
 	border: 2px solid #d9534f;
 	background-color: #fff5f5;
 	border-radius: 6px;
@@ -939,13 +927,17 @@ button.btn {
 .retencao-item {
 	display: flex;
 	align-items: center;
-	gap: 10px;
-	padding: 12px;
+	justify-content: center;
+	gap: 8px;
+	padding: 12px 16px;
 	border-radius: 8px;
 	border: 1px solid #e2cfa3;
 	background: #fffdf6;
 	cursor: pointer;
 	transition: all 0.2s ease;
+	font-weight: 500;
+	color: #5a4a00;
+	user-select: none;
 }
 
 .retencao-item:hover {
@@ -953,14 +945,23 @@ button.btn {
 	border-color: #f0c36d;
 }
 
-.retencao-item input {
-	accent-color: #f37021;
-	cursor: pointer;
+/* Esconde o checkbox nativo — o card inteiro é o botão visual */
+.retencao-item input[type="checkbox"] {
+	display: none;
 }
 
-.retencao-item input:checked+span {
-	font-weight: 700;
-	color: #d35400;
+/* Ícone de check que aparece quando selecionado */
+.retencao-item span::before {
+	content: "";
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	border: 2px solid #c8b07a;
+	border-radius: 4px;
+	margin-right: 8px;
+	vertical-align: middle;
+	transition: all 0.2s ease;
+	flex-shrink: 0;
 }
 
 .retencao-item.ativo {
@@ -968,8 +969,34 @@ button.btn {
 	background: #fff0e6;
 }
 
+.retencao-item.ativo span {
+	font-weight: 700;
+	color: #d35400;
+}
 
-/* CNAE / GRUPO MERCADORIA */
+/* Preenchimento do ícone de check quando selecionado */
+.retencao-item.ativo span::before {
+	background: #f37021;
+	border-color: #f37021;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10'%3E%3Cpolyline points='1,5 4,9 11,1' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+	background-size: 10px 8px;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+/* Quando bloqueado (Validação), .campo-bloqueado sobrescreveria o visual de selecionado.
+   Mantém a aparência de ativo para itens que foram marcados. */
+.retencao-item.ativo.campo-bloqueado {
+	border-color: #f37021 !important;
+	background: #fff0e6 !important;
+}
+.retencao-item.ativo.campo-bloqueado span {
+	font-weight: 700 !important;
+	color: #d35400 !important;
+}
+
+
+/* ─── CNAE / GRUPO MERCADORIA ─── */
 .cnae-box {
 	background: #fff6d9;
 	border: 1px solid #f0d48a;
@@ -989,7 +1016,7 @@ button.btn {
 }
 
 
-/* UPLOAD / ANEXOS */
+/* ─── UPLOAD / ANEXOS ─── */
 .upload-title {
 	font-size: 15px;
 	font-weight: 800;
@@ -1028,7 +1055,7 @@ button.btn {
 	color: #2f3b33;
 }
 
-.upload-file-status>span[id^="nomeFile"] {
+.upload-file-status span[id^="nomeFile"] {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1044,7 +1071,7 @@ button.btn {
 	text-align: center;
 }
 
-.upload-file-status>span[id^="nomeFile"]::before {
+.upload-file-status span[id^="nomeFile"]::before {
 	content: "✓";
 	margin-right: 6px;
 	color: #00a651;
@@ -1113,8 +1140,13 @@ button.btn {
 .upload-file-remove {
 	border: 1px solid #d00000;
 	background: linear-gradient(135deg, #fa371d, #cf0505);
-	color: #fff;
+	color: #fff !important;
 	box-shadow: 0 3px 8px rgba(253, 13, 13, .28);
+}
+
+.upload-file-remove i,
+.btn-visualizar-anexo i {
+	color: #fff !important;
 }
 
 .upload-area.disabled-upload {
@@ -1179,18 +1211,18 @@ button.btn {
 	border: 1px solid #f5c4a0;
 }
 
-.upload-area.upload-error {
+.upload-area.upload-erro {
 	border-color: #d9534f !important;
 	background: #fff4f2 !important;
 }
 
-.upload-area.upload-error .upload-icon {
+.upload-area.upload-erro .upload-icon {
 	background: #f8d7da;
 	color: #842029;
 }
 
 
-/* HISTÓRICO */
+/* ─── HISTÓRICO ─── */
 .historico-actions {
 	margin-top: 16px;
 	display: flex;
@@ -1292,7 +1324,7 @@ button.btn {
 }
 
 
-/*VALIDAÇÃO / ALERTAS */
+/* ─── VALIDAÇÃO / ALERTAS ─── */
 .erro-validacao,
 .help-block.erro-validacao {
 	display: block;
@@ -1300,6 +1332,12 @@ button.btn {
 	color: #d9534f !important;
 	font-size: 12px;
 	font-weight: 600;
+}
+
+/* Mensagem de erro do painel de retenções (fora dos cards individuais) */
+#erroMinimoImposto {
+	margin-top: 4px;
+	margin-bottom: 12px;
 }
 
 .val-summary {
@@ -1342,7 +1380,7 @@ button.btn {
 }
 
 
-/* AVISO BANCÁRIO */
+/* ─── AVISO BANCÁRIO ─── */
 .bank-warning {
 	margin-top: 18px;
 	border: 1px solid #f0c98f;
@@ -1387,7 +1425,7 @@ button.btn {
 }
 
 
-/* TOAST  */
+/* ─── TOAST ─── */
 .toast {
 	position: fixed;
 	right: 24px;
@@ -1420,7 +1458,7 @@ button.btn {
 }
 
 
-/* RESPONSIVO / STEPPER */
+/* ─── RESPONSIVO / STEPPER ─── */
 @media (max-width: 1366px) {
 	.stepper-nav-wrap {
 		max-width: 1650px;
@@ -1466,7 +1504,7 @@ button.btn {
 	}
 }
 
-/* OUTROS */
+/* ─── outros ─── */
 .footer-progress,
 .footer-info {
 	font-size: 13px;
@@ -1480,8 +1518,7 @@ button.btn {
 	flex-wrap: wrap;
 }
 
-
-/* CORREÇÃO / WIZARD PROGRESS NÃO SOBREPOR FORMULÁRIO */
+/* wizard */
 header {
 	position: relative !important;
 	z-index: 1 !important;
@@ -1493,8 +1530,11 @@ header {
 	top: auto !important;
 	left: auto !important;
 	right: auto !important;
-	width: 100% !important;
+	width: 96% !important;
+	max-width: 1650px !important;
 	margin: 0 auto 32px auto !important;
+	padding: 0 20px !important;
+	box-sizing: border-box !important;
 	z-index: 1 !important;
 }
 
@@ -1535,16 +1575,19 @@ header {
 }
 
 .btn-remove-bank {
-   border: 0;
+   border: 1px dashed #c0392b;
    background: transparent;
-   color: #c0392b;
+   color: #c0392b !important;
    font-weight: 600;
    cursor: pointer;
+   border-radius: 8px;
+   padding: 6px 14px;
+   font-size: 13px;
 }
 
 .btn-add-bank {
-   border: 1px dashed #2f65c8;
-   color: #204e9e;
+   border: 1px dashed #1a7d44;
+   color: #1a7d44;
    background: #fff;
    border-radius: 8px;
    padding: 12px 18px;
@@ -1553,5 +1596,5 @@ header {
 }
 
 .btn-add-bank:hover {
-   background: #f4f8ff;
+   background: #f0faf4;
 }

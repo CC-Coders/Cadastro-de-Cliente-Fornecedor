@@ -14,28 +14,29 @@
    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.19.9/docxtemplater.js"></script>
    <script src="https://unpkg.com/pizzip@3.0.6/dist/pizzip.js"></script>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.js"></script>
    <script src="https://unpkg.com/pizzip@3.0.6/dist/pizzip-utils.js"></script>
    <!-- Formulário -->
-   <link rel="stylesheet" href="css/cadastroFornecedor.css"/>
-   <link rel="stylesheet" href="css/footer.css"/>
-   <link rel="stylesheet" href="css/header.css"/>
-   <link rel="stylesheet" href="css/paginacao.css"/>
-   <link rel="stylesheet" href="css/dark.css">
-   <script src="js/Functions.js"></script>
-   <script src="js/Script.js"></script>
-   <script src="js/api.js"></script>
-   <script src="js/ui.js"></script>
-   <script src="js/validation.js"></script>
-   <script src="js/upload.js"></script>
-   <script src="js/events.js"></script>
+   <link rel="stylesheet" href="cadastroFornecedor.css"/>
+   <link rel="stylesheet" href="footer.css"/>
+   <link rel="stylesheet" href="header.css"/>
+   <link rel="stylesheet" href="paginacao.css"/>
+   <link rel="stylesheet" href="dark.css">
+   <link rel="stylesheet" href="mobile.css">
+   <script src="mobile.js"></script>
+   <script src="Functions.js"></script>
+   <script src="Script.js"></script>
+   <script src="api.js"></script>
+   <script src="ui.js"></script>
+   <script src="validation.js"></script>
+   <script src="upload.js"></script>
+   <script src="events.js"></script>
    <title>Cadastro de Fornecedor</title>
 </head>
 
 <body>
    <div class="fluig-style-guide">
       <form name="form" id="formSolicitacao">
-         <!-- CAMPOS OCULTOS DO FLUIG -->
+         <!-- HIDDEN FIELDS -->
          <div class="hidden" style="display: none">
             <input type="hidden" id="atividade" name="atividade"/>
             <input type="hidden" id="formMode" name="formMode"/>
@@ -55,6 +56,7 @@
             <input type="hidden" id="anxAntiCorrupcao" name="anxAntiCorrupcao"/>
             <input type="hidden" id="anxConflito" name="anxConflito"/>
             <input type="hidden" id="anxLgpd" name="anxLgpd"/>
+            <!-- documentId numérico de cada anexo no ECM do Fluig -->
             <input type="hidden" id="anxCartaoCnpjId" name="anxCartaoCnpjId"/>
             <input type="hidden" id="anxCompBancoId" name="anxCompBancoId"/>
             <input type="hidden" id="anxContratoId" name="anxContratoId"/>
@@ -68,7 +70,7 @@
             <input type="hidden" id="anxLgpdId" name="anxLgpdId"/>
             <input type="hidden" id="tipoDescricao" name="tipoDescricao">
             <input type="hidden" id="tipoSelecionado" name="tipoSelecionado">
-            <!-- campos adicionais -->
+            <!-- Grupos de mercadoria adicionais (2–10). -->
             <input type="hidden" id="hiddenGrupoMercadoria2" name="hiddenGrupoMercadoria2"/>
             <input type="hidden" id="hiddenGrupoMercadoria3" name="hiddenGrupoMercadoria3"/>
             <input type="hidden" id="hiddenGrupoMercadoria4" name="hiddenGrupoMercadoria4"/>
@@ -78,12 +80,14 @@
             <input type="hidden" id="hiddenGrupoMercadoria8" name="hiddenGrupoMercadoria8"/>
             <input type="hidden" id="hiddenGrupoMercadoria9" name="hiddenGrupoMercadoria9"/>
             <input type="hidden" id="hiddenGrupoMercadoria10" name="hiddenGrupoMercadoria10"/>
+            <!-- CNAEs secundários adicionais (1–5) -->
             <input type="hidden" id="hiddenCnaeSecundario1" name="hiddenCnaeSecundario1"/>
             <input type="hidden" id="hiddenCnaeSecundario2" name="hiddenCnaeSecundario2"/>
             <input type="hidden" id="hiddenCnaeSecundario3" name="hiddenCnaeSecundario3"/>
             <input type="hidden" id="hiddenCnaeSecundario4" name="hiddenCnaeSecundario4"/>
             <input type="hidden" id="hiddenCnaeSecundario5" name="hiddenCnaeSecundario5"/>
-            <!-- historico -->
+
+            <!-- HISTÓRICO DE DECISÃO -->
             <div id="historicoHidden" name="historicoHidden">
                <table id="tableHistorico" tablename="tableHistorico" noaddbutton="true" nodeletebutton="true">
                   <thead>
@@ -117,7 +121,7 @@
                </table>
             </div>
          </div>
-         <!--CABEÇALHO-->
+         <!-- CABEÇALHO -->
          <header>
             <div class="wizard-progress">
                <div class="step" style="display: block">SOLICITAÇÃO</div>
@@ -125,9 +129,8 @@
                <div class="step" style="display: block">FIM</div>
             </div>
          </header>
-
          <main class="page-wrap" id="preCadastro">
-            <!-- DADOS BASE -->
+            <!-- PRÉ-CADASTRO -->
             <div class="step-panel step-1 active" id="divPreCadastro">
                <div class="page-header step-1" name="divHeaderPreCad" id="divHeaderPreCad">
                   <div class="page-header-icon"><i class="flaticon flaticon-account-circle"></i></div>
@@ -189,25 +192,26 @@
                            </select>
                         </div>
                      </div>
-                                     <div id="divToggleEstrangeiro" class="retencao-box">
-                  <div class="retencao-content">
-                    <div class="retencao-text">
-                      <strong>Fornecedor estrangeiro?</strong>
-                      <small>
-                        Aplicável a prestadores de serviço ou fornecedores de materiais estrangeiros. Indique se o cadastro é de um fornecedor estrangeiro, para o processo seguir o caminho legal.
-                      </small>
-                    </div>
-                    <div class="retencao-toggle">
-                      <span class="retencao-label">Não</span>
+                     <div id="divToggleEstrangeiro" class="retencao-box">
+                        <div class="retencao-content">
+                        <div class="retencao-text">
+                           <strong>Fornecedor estrangeiro?</strong>
+                           <small>
+                              Aplicável a prestadores de serviço ou fornecedores de materiais estrangeiros. Indique se o cadastro é de um fornecedor estrangeiro, para o processo seguir o caminho legal.
+                           </small>
+                        </div>
+                        <div class="retencao-toggle">
+                           <span class="retencao-label">Não</span>
 
-                      <div class="switch switch-success">
-                        <input class="switch-input" type="checkbox" id="toggleEstrangeiro" name="toggleEstrangeiro">
-                        <label class="switch-button" for="toggleEstrangeiro"></label>
-                      </div>
-                      <span class="retencao-label">Sim</span>
-                    </div>
-                  </div>
-                </div>
+                           <div class="switch switch-success">
+                              <input class="switch-input" type="checkbox" id="toggleEstrangeiro" name="toggleEstrangeiro">
+                              <label class="switch-button" for="toggleEstrangeiro">Fornecedor estrangeiro</label>
+                           </div>
+                           <input type="hidden" id="hiddenToggleEstrangeiro" name="hiddenToggleEstrangeiro">
+                           <span class="retencao-label">Sim</span>
+                        </div>
+                        </div>
+                     </div>
                   </div>
                </div>
                <div class="section" id="divDadosComerciais">
@@ -244,7 +248,7 @@
                         </div>
                         <div class="fg" id="divInscricaoEstadual">
                            <label for="docInscricaoEstadual">Inscrição Estadual</label>
-                           <input type="text" id="docInscricaoEstadual" name="docInscricaoEstadual" placeholder="000.000.000.000" class="form-control" required/>
+                           <input type="text" id="docInscricaoEstadual" name="docInscricaoEstadual" placeholder="000.000.000.000" class="form-control"/>
                         </div>
                         <div class="fg" id="divInscricaoMunicipal">
                            <label for="docInscricaoMunicipal">Inscrição Municipal</label>
@@ -284,7 +288,14 @@
                         </div>
                         <div class="fg" id="divPais">
                            <label for="pais">País</label>
-                           <input type="text" id="pais" name="pais" placeholder="País" class="form-control" required/>
+                           <!-- Modo nacional: readonly, fixado em Brasil -->
+                           <input type="text" id="pais" name="pais" placeholder="País" class="form-control" required readonly/>
+                           <!-- Modo estrangeiro: select populado via dataset GPAIS (sem Brasil) -->
+                           <div class="select-wrap" id="divSelectPaisEstrangeiro" style="display:none">
+                              <select id="selectPaisEstrangeiro" name="selectPaisEstrangeiro" class="form-control">
+                                 <option value="">Selecione o país...</option>
+                              </select>
+                           </div>
                         </div>
                         <div class="fg" id="divEstado">
                            <label for="estado">Estado</label>
@@ -313,7 +324,7 @@
                      </div>
                   </button>
                   <div class="section-body">
-                     <div class="grid g3">
+                     <div class="grid g4" id="divIrrfRow">
                         <div class="fg" id="divIcms">
                            <label for="icms">Contribuinte ICMS</label>
                            <select id="icms" name="icms" class="form-control" required>
@@ -323,10 +334,6 @@
                               <option value="2">Isento</option>
                            </select>
                         </div>
-                        <div class="fg" id="divIrrf">
-                           <label for="irrf">Alíquota IRRF (%)</label>
-                           <input type="number" id="irrf" name="irrf" class="form-control" required/>
-                        </div>
                         <div class="fg" id="divSimplesNacional">
                            <label for="simplesNacional">Simples Nacional</label>
                            <select id="simplesNacional" name="simplesNacional" class="form-control" required>
@@ -335,25 +342,29 @@
                               <option value="0">Não</option>
                            </select>
                         </div>
+                        <div class="fg" id="divDescricaoIrrf">
+                           <label for="selectDescricaoIrrf">Código de Receita IRRF</label>
+                           <div class="select-wrap">
+                              <select id="selectDescricaoIrrf" name="codIrrf" class="form-control" required>
+                                 <option value="">Selecione...</option>
+                              </select>
+                           </div>
+                           <input type="hidden" id="hiddenCodIrrf" name="hiddenCodIrrf">
+                        </div>
+                        <div class="fg" id="divIrrf">
+                           <label for="irrf">Alíquota IRRF (%)</label>
+                           <input type="number" id="irrf" name="irrf" class="form-control" readonly/>
+                        </div>
                      </div>
                      <div class="divider"></div>
                      <div class="grid g3">
-<div class="fg" id="divNaturezaRendimento">
-   <label for="naturezaRendimento">Natureza de Rendimentos</label>
-
-   <select id="naturezaRendimento"
-           name="naturezaRendimento"
-           class="form-control"
-           required>
-
-      <option value="">Selecione...</option>
-
-   </select>
-
-   <input type="hidden"
-          id="codNaturezaRendimento"
-          name="codNaturezaRendimento">
-</div>
+                     <div class="fg" id="divNaturezaRendimento">
+                        <label for="naturezaRendimento">Natureza de Rendimentos</label>
+                        <select id="naturezaRendimento" name="naturezaRendimento" class="form-control" required>
+                           <option value="">Selecione...</option>
+                        </select>
+                        <input type="hidden" id="codNaturezaRendimento"name="codNaturezaRendimento">
+                     </div>
                         <div class="fg" id="divRegimeFiscal">
                            <label for="regimeFiscal">Regime Fiscal</label>
                            <select id="regimeFiscal" name="regimeFiscal" class="form-control" required>
@@ -383,36 +394,26 @@
                         </div>
                      </div>
                      <div class="divider"></div>
-                     <div class="grid g3" id="divMoedaGrupoMercadoria">
-                        <div class="fg" id="divMoeda">
-                           <label for="moeda">Moeda do Pedido</label>
-                           <div class="select-wrap">
-                              <select id="moeda" name="moeda" class="form-control" required>
-                                 <option value="BRL">BRL — Real Brasileiro</option>
-                                 <option value="USD">USD — Dólar Americano</option>
-                                 <option value="EUR">EUR — Euro</option>
-                                 <option value="ARS">ARS — Peso Argentino</option>
-                              </select>
-                           </div>
-                        </div>
+                     <div id="divMoedaGrupoMercadoria">
                         <div class="fg" id="divGrupoMercadoriaPrincipal">
                            <label for="grupoMercadoria1">Grupo de Mercadoria</label>
-                           <div class="select-wrap">
-                              <select id="grupoMercadoria1" name="grupoMercadoria1"class="form-control grupo-mercadoria" required>
-                                 <option value="">Selecione...</option>
-                                 <option value="Materiais de Construção">Materiais de Construção</option>
-                                 <option value="Equipamentos e Máquinas">Equipamentos e Máquinas</option>
-                                 <option value="Serviços de Engenharia">Serviços de Engenharia</option>
-                                 <option value="Combustíveis e Lubrificantes">Combustíveis e Lubrificantes</option>
-                                 <option value="Serviços Administrativos">Serviços Administrativos</option>
-                                 <option value="Tecnologia e TI">Tecnologia e TI</option>
-                                 <option value="Seguro e Apólices">Seguro e Apólices
-                                 </option>
-                              </select>
+                           <div class="input-btn-row">
+                              <div class="select-wrap">
+                                 <select id="grupoMercadoria1" name="grupoMercadoria1" class="form-control grupo-mercadoria" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="Materiais de Construção">Materiais de Construção</option>
+                                    <option value="Equipamentos e Máquinas">Equipamentos e Máquinas</option>
+                                    <option value="Serviços de Engenharia">Serviços de Engenharia</option>
+                                    <option value="Combustíveis e Lubrificantes">Combustíveis e Lubrificantes</option>
+                                    <option value="Serviços Administrativos">Serviços Administrativos</option>
+                                    <option value="Tecnologia e TI">Tecnologia e TI</option>
+                                    <option value="Seguro e Apólices">Seguro e Apólices</option>
+                                 </select>
+                              </div>
+                              <div id="divBtnAddGrupoMercadoria">
+                                 <button type="button" class="btn btn-warning btn-grupo-mercadoria" id="btn-add-grupo-mercadoria">Adicionar</button>
+                              </div>
                            </div>
-                        </div>
-                        <div class="fg align-end" id="divBtnAddGrupoMercadoria">
-                           <button type="button" class="btn btn-warning btn-grupo-mercadoria"id="btn-add-grupo-mercadoria">+ Adicionar Grupo de Mercadoria</button>
                         </div>
                      </div>
                      <div id="grupo-mercadoria-wrap"></div>
@@ -421,19 +422,19 @@
                         <div class="cnae-header"><i class="flaticon flaticon-document"></i>
                            <span>CNAE — CLASSIFICAÇÃO NACIONAL DE ATIVIDADES ECONÔMICAS</span>
                         </div>
-                        <div class="grid g3">
-                           <div class="fg span2" id="divCnaePrincipal">
-                              <label for="cnaePrincipal">CNAE Principal</label>
+                        <div class="fg" id="divCnaePrincipal">
+                           <label for="cnaePrincipal">CNAE Principal</label>
+                           <div class="input-btn-row">
                               <input type="text" id="cnaePrincipal" name="cnaePrincipal" class="form-control" placeholder="0000-0/00 — Descrição da atividade" required/>
-                           </div>
-                           <div class="fg align-end" id="divBtnAddCnae">
-                              <button type="button" class="btn btn-warning btn-cnae" id="btn-add-cnae">+ Adicionar CNAE Secundário</button>
+                              <div id="divBtnAddCnae">
+                                 <button type="button" class="btn btn-warning btn-cnae" id="btn-add-cnae">Adicionar</button>
+                              </div>
                            </div>
                         </div>
                         <div id="cnae-secundarios-wrap"></div>
                      </div>
                      <div class="divider"></div>
-                     <div class="retencao-box" id="divToggleRetencao"><!-- style="display: block"> -->
+                     <div class="retencao-box" id="divToggleRetencao">
                         <div class="retencao-content">
                            <div class="retencao-text">
                               <strong>Haverá retenções de impostos neste prestador / fornecedor?</strong>
@@ -442,9 +443,10 @@
                            <div class="retencao-toggle">
                               <span class="retencao-label">Não</span>
                               <div class="switch switch-success">
-                                 <input class="switch-input" type="checkbox" id="toggleRetencao"name="toggleRetencao"/>
+                                 <input class="switch-input" type="checkbox" id="toggleRetencao" name="toggleRetencao"/>
                                  <label class="switch-button" for="toggleRetencao" aria-label="Alternar retenção"></label>
                               </div>
+                              <input type="hidden" id="hiddenToggleRetencao" name="hiddenToggleRetencao"/>
                               <span class="retencao-label">Sim</span>
                            </div>
                         </div>
@@ -453,6 +455,10 @@
                         <div class="retencoes-title"><i class="flaticon flaticon-document"></i>
                            <span>SELECIONE OS IMPOSTOS QUE SERÃO RETIDOS:</span>
                         </div>
+                        <!-- Mensagem de erro colocada aqui, fora dos cards individuais -->
+                        <small id="erroMinimoImposto" class="help-block erro-validacao" style="display:none">
+                           Selecione pelo menos um imposto.
+                        </small>
                         <div class="grid g3 retencoes-grid">
                            <label class="retencao-item">
                               <input type="checkbox" id="iss" name="iss"/>
@@ -480,6 +486,14 @@
                            </label>
                         </div>
                      </div>
+                     <!-- Hidden anchors para checkboxes de retenção — Fluig não restaura
+                          element.checked automaticamente; lemos estes campos no window.load -->
+                     <input type="hidden" id="hiddenIss"       name="hiddenIss"/>
+                     <input type="hidden" id="hiddenInss"      name="hiddenInss"/>
+                     <input type="hidden" id="hiddenInputIrrf" name="hiddenInputIrrf"/>
+                     <input type="hidden" id="hiddenCsll"      name="hiddenCsll"/>
+                     <input type="hidden" id="hiddenPis"       name="hiddenPis"/>
+                     <input type="hidden" id="hiddenCofins"    name="hiddenCofins"/>
                   </div>
                </div>
                <div class="section" id="divDadosBancarios">
@@ -492,11 +506,9 @@
                   </button>
 
                   <div class="section-body">
-
                      <p class="bank-info-text">
                         Você pode adicionar mais de uma conta bancária. Todas as contas devem estar em nome da empresa e do CNPJ informado.
                      </p>
-
                      <div id="dados-bancarios-cards"></div>
 
                      <button type="button" id="btn-add-conta-bancaria" class="btn-add-bank">
@@ -521,7 +533,6 @@
                      <table tablename="tableDadosBancarios" id="tableDadosBancarios" noaddbutton="true" nodeletebutton="true" style="display:none;">
                         <thead>
                            <tr>
-                              <th>Condição</th>
                               <th>Banco</th>
                               <th>Banco Descrição</th>
                               <th>Agência</th>
@@ -530,7 +541,6 @@
                         </thead>
                         <tbody>
                            <tr>
-                              <td><input type="hidden" name="dbCondicaoPagamento" class="dbCondicaoPagamento"></td>
                               <td><input type="hidden" name="dbBanco" class="dbBanco"></td>
                               <td><input type="hidden" name="dbBancoDescricao" class="dbBancoDescricao"></td>
                               <td><input type="hidden" name="dbAgencia" class="dbAgencia"></td>
@@ -538,6 +548,32 @@
                            </tr>
                         </tbody>
                      </table>
+
+                     <!-- HIDDEN BANCÁRIOS -->
+                     <input type="hidden" id="hiddenBanco1Cod" name="hiddenBanco1Cod">
+                     <input type="hidden" id="hiddenBanco1Desc" name="hiddenBanco1Desc">
+                     <input type="hidden" id="hiddenBanco1Agencia" name="hiddenBanco1Agencia">
+                     <input type="hidden" id="hiddenBanco1Conta" name="hiddenBanco1Conta">
+
+                     <input type="hidden" id="hiddenBanco2Cod" name="hiddenBanco2Cod">
+                     <input type="hidden" id="hiddenBanco2Desc" name="hiddenBanco2Desc">
+                     <input type="hidden" id="hiddenBanco2Agencia" name="hiddenBanco2Agencia">
+                     <input type="hidden" id="hiddenBanco2Conta" name="hiddenBanco2Conta">
+
+                     <input type="hidden" id="hiddenBanco3Cod" name="hiddenBanco3Cod">
+                     <input type="hidden" id="hiddenBanco3Desc" name="hiddenBanco3Desc">
+                     <input type="hidden" id="hiddenBanco3Agencia" name="hiddenBanco3Agencia">
+                     <input type="hidden" id="hiddenBanco3Conta" name="hiddenBanco3Conta">
+
+                     <input type="hidden" id="hiddenBanco4Cod" name="hiddenBanco4Cod">
+                     <input type="hidden" id="hiddenBanco4Desc" name="hiddenBanco4Desc">
+                     <input type="hidden" id="hiddenBanco4Agencia" name="hiddenBanco4Agencia">
+                     <input type="hidden" id="hiddenBanco4Conta" name="hiddenBanco4Conta">
+
+                     <input type="hidden" id="hiddenBanco5Cod" name="hiddenBanco5Cod">
+                     <input type="hidden" id="hiddenBanco5Desc" name="hiddenBanco5Desc">
+                     <input type="hidden" id="hiddenBanco5Agencia" name="hiddenBanco5Agencia">
+                     <input type="hidden" id="hiddenBanco5Conta" name="hiddenBanco5Conta">
                   </div>
                </div>
                <div class="section" id="divContatos">
@@ -600,14 +636,14 @@
                   </button>
                   <div class="section-body">
                      <div class="grid g3">
-                        <!-- RG / CPF -->
+                        <!-- Documento de Identificação -->
                         <div class="fg doc-pf" id="divFileRgCpf" style="display: none">
-                           <label for="fileRgCpf">RG / CPF</label>
+                           <label for="fileRgCpf">Documento de Identificação</label>
                            <input type="file" id="fileRgCpf" name="fileRgCpf" accept=".pdf,.png,.jpg,.jpeg" style="display: none"/>
                            <div class="upload-area" id="uploadRgCpf" data-upload-id="fileRgCpf">
                               <div class="upload-icon"><i class="flaticon flaticon-cloud-upload icon-md"></i></div>
-                              <div class="upload-title">RG / CPF</div>
-                              <div class="upload-hint">Documento pessoal com CPF</div>
+                              <div class="upload-title">Documento de Identificação</div>
+                              <div class="upload-hint">RG, CNH ou outro documento oficial</div>
                               <div class="upload-formats">PDF, JPG ou PNG</div>
                               <span class="upload-badge badge-req">Obrigatório</span>
                            </div>
@@ -632,13 +668,13 @@
                               <span class="upload-file-remove" data-input-id="fileComprovanteEndereco" data-area-id="uploadComprovanteEndereco" data-sufixo="ComprovanteEndereco">✕</span>
                            </div>
                         </div>
-                        <!-- Cartão CNPJ -->
+                        <!-- Documento de Identificação Júridica -->
                         <div class="fg doc-pj" id="divFileCartaoCnpj">
-                           <label for="fileCartaoCnpj">Cartão CNPJ</label>
+                           <label for="fileCartaoCnpj">Documento de Identificação Júridica</label>
                            <input type="file" id="fileCartaoCnpj" name="fileCartaoCnpj" accept=".pdf,.png,.jpg,.jpeg" style="display: none"/>
                            <div class="upload-area" id="uploadCartaoCnpj" data-upload-id="fileCartaoCnpj">
                               <div class="upload-icon"><i class="flaticon flaticon-cloud-upload icon-md"></i></div>
-                              <div class="upload-title">Cartão CNPJ</div>
+                              <div class="upload-title">Documento de Identificação Júridica</div>
                               <div class="upload-hint">Arraste ou clique para selecionar</div>
                               <div class="upload-formats">PDF, JPG ou PNG</div>
                               <span class="upload-badge badge-req">Obrigatório</span>
@@ -689,132 +725,8 @@
                      </div>
                   </div>
                </div>
-               
-               <!-- <div class="section" id="divConformidadeEtica" name="divConformidadeEtica">
-                  <button type="button" class="section-head" onclick="toggleSection(this)">
-                     <div class="section-head-left">
-                        <div class="section-num">7</div>
-                        <span class="section-name">Conformidade e Ética</span>
-                        <span class="section-arrow open">▼</span>
-                     </div>
-                  </button>
-                  <div class="section-body">
-                     <div class="grid g4">
-                        <div class="fg conformidade-pf" id="divLaudoMedicoPcd" style="display: none">
-                           <label for="fileLaudoMedicoPcd">Laudo Médico para Isenção de Impostos (PCD)</label>
-                           <input type="file" id="fileLaudoMedicoPcd" name="fileLaudoMedicoPcd" accept=".pdf,.png,.jpg,.jpeg" style="display: none"/>
-                           <div class="upload-area" id="uploadLaudoMedicoPcd" data-upload-id="fileLaudoMedicoPcd">
-                              <div class="upload-icon"><i class="flaticon flaticon-description icon-md"></i></div>
-                              <div class="upload-title">Laudo Médico PCD</div>
-                              <div class="upload-hint">Laudo para isenção de impostos</div>
-                              <div class="upload-formats">PDF, JPG ou PNG</div>
-                              <span class="upload-badge badge-req">Obrigatório</span>
-                           </div>
-                           <div class="upload-file-status" id="statusFileLaudoMedicoPcd" style="display: none">
-                              <span id="nomeFileLaudoMedicoPcd"></span>
-                              <span class="upload-file-remove" data-input-id="fileLaudoMedicoPcd" data-area-id="uploadLaudoMedicoPcd" data-sufixo="LaudoMedicoPcd">
-                                 <i class="flaticon flaticon-trash icon-sm"></i>Remover
-                              </span>
-                           </div>
-                        </div>
-                        
-                        <div class="fg conformidade-pf" id="divDeclaracaoDependentesIrrf" style="display: none">
-                           <label for="fileDeclaracaoDependentesIrrf">Declaração de Dependentes para IRRF</label>
-                           <input type="file" id="fileDeclaracaoDependentesIrrf" name="fileDeclaracaoDependentesIrrf" accept=".pdf,.png,.jpg,.jpeg" style="display: none"/>
-                           <div class="upload-area" id="uploadDeclaracaoDependentesIrrf" data-upload-id="fileDeclaracaoDependentesIrrf">
-                              <div class="upload-icon"><i class="flaticon flaticon-description icon-md"></i></div>
-                              <div class="upload-title"> Declaração de Dependentes IRRF</div>
-                              <div class="upload-hint">Imposto de Renda Retido na Fonte</div>
-                              <div class="upload-formats">PDF, JPG ou PNG</div>
-                              <span class="upload-badge badge-req">Obrigatório</span>
-                           </div>
-                           <div class="upload-file-status" id="statusFileDeclaracaoDependentesIrrf"
-                              style="display: none">
-                              <span id="nomeFileDeclaracaoDependentesIrrf"></span>
-                              <span class="upload-file-remove" data-input-id="fileDeclaracaoDependentesIrrf" data-area-id="uploadDeclaracaoDependentesIrrf" data-sufixo="DeclaracaoDependentesIrrf">
-                                 <i class="flaticon flaticon-trash icon-sm"></i>Remover
-                              </span>
-                           </div>
-                        </div>
-                        
-                        <div class="fg conformidade-pj" id="divCodigoConduta" name="divCodigoConduta">
-                           <label for="fileCodigoConduta">Código de Conduta</label>
-                           <input type="file" id="fileCodigoConduta" name="fileCodigoConduta" accept=".pdf,.png,.jpg,.jpeg" style="display: none"/>
-                           <div class="upload-area" id="uploadCodigoConduta" data-upload-id="fileCodigoConduta">
-                              <div class="upload-icon"><i class="flaticon flaticon-description icon-md" aria-hidden="true"></i></div>
-                              <div class="upload-title">Código de Conduta</div>
-                              <div class="upload-hint">Assinado pelo representante legal</div>
-                              <div class="upload-formats">PDF, JPG, JPEG, PNG ou WEBP · máx. 10 MB
-                              </div>
-                              <span class="upload-badge badge-req">Obrigatório</span>
-                           </div>
-                           <div class="upload-file-status" id="statusFileCodigoConduta" style="display: none">
-                              <span id="nomeFileCodigoConduta"></span>
-                              <span class="upload-file-remove" data-input-id="fileCodigoConduta"data-area-id="uploadCodigoConduta" data-sufixo="CodigoConduta">
-                                 <i class="flaticon flaticon-trash icon-sm"></i>Remover
-                              </span>
-                           </div>
-                        </div>
-                        
-                        <div class="fg conformidade-pj" id="divPoliticaAnticorrupcao" name="divPoliticaAnticorrupcao">
-                           <label for="filePoliticaAnticorrupcao">Política Anticorrupção</label>
-                           <input type="file" id="filePoliticaAnticorrupcao" name="filePoliticaAnticorrupcao" accept=".pdf,.png,.jpg,.jpeg" style="display: none"/>
-                           <div class="upload-area" id="uploadPoliticaAnticorrupcao" data-upload-id="filePoliticaAnticorrupcao">
-                              <div class="upload-icon"><i class="flaticon flaticon-description icon-md" aria-hidden="true"></i></div>
-                              <div class="upload-title">Política Anticorrupção</div>
-                              <div class="upload-hint">Declaração de ciência assinada</div>
-                              <div class="upload-formats">PDF, JPG, JPEG, PNG ou WEBP · máx. 10 MB</div>
-                              <span class="upload-badge badge-req">Obrigatório</span>
-                           </div>
-                           <div class="upload-file-status" id="statusFilePoliticaAnticorrupcao" style="display: none">
-                              <span id="nomeFilePoliticaAnticorrupcao"></span>
-                              <span class="upload-file-remove" data-input-id="filePoliticaAnticorrupcao" data-area-id="uploadPoliticaAnticorrupcao" data-sufixo="PoliticaAnticorrupcao">
-                                 <i class="flaticon flaticon-trash icon-sm"></i>Remover
-                              </span>
-                           </div>
-                        </div>
-                        
-                        <div class="fg conformidade-pj" id="divConflitoInteresses" name="divConflitoInteresses">
-                           <label for="fileConflitoInteresses">Conflito de Interesses</label>
-                           <input type="file" id="fileConflitoInteresses" name="fileConflitoInteresses" accept=".pdf,.png,.jpg,.jpeg" style="display: none"/>
-                           <div class="upload-area" id="uploadConflitoInteresses" data-upload-id="fileConflitoInteresses">
-                              <div class="upload-icon"><i class="flaticon flaticon-description icon-md" aria-hidden="true"></i></div>
-                              <div class="upload-title">Conflito de Interesses</div>
-                              <div class="upload-hint">Declaração de ausência de conflito</div>
-                              <div class="upload-formats">PDF, JPG, JPEG, PNG ou WEBP · máx. 10 MB</div>
-                              <span class="upload-badge badge-req">Obrigatório</span>
-                           </div>
-                           <div class="upload-file-status" id="statusFileConflitoInteresses" style="display: none">
-                              <span id="nomeFileConflitoInteresses"></span>
-                              <span class="upload-file-remove" data-input-id="fileConflitoInteresses" data-area-id="uploadConflitoInteresses" data-sufixo="ConflitoInteresses">
-                                 <i class="flaticon flaticon-trash icon-sm"></i>Remover
-                              </span>
-                           </div>
-                        </div>
-                       
-                        <div class="fg conformidade-pj" id="divCienciaLgpd" name="divCienciaLgpd">
-                           <label for="fileCienciaLgpd">Ciência sobre LGPD</label>
-                           <input type="file" id="fileCienciaLgpd" name="fileCienciaLgpd" accept=".pdf,.png,.jpg,.jpeg" style="display: none"/>
-                           <div class="upload-area" id="uploadCienciaLgpd" data-upload-id="fileCienciaLgpd">
-                              <div class="upload-icon"><i class="flaticon flaticon-description icon-md" aria-hidden="true"></i></div>
-                              <div class="upload-title">Ciência sobre LGPD</div>
-                              <div class="upload-hint">Termo de ciência e consentimento</div>
-                              <div class="upload-formats">PDF, JPG, JPEG, PNG ou WEBP · máx. 10 MB</div>
-                              <span class="upload-badge badge-req">Obrigatório</span>
-                           </div>
-                           <div class="upload-file-status" id="statusFileCienciaLgpd" style="display: none">
-                              <span id="nomeFileCienciaLgpd"></span>
-                              <span class="upload-file-remove" data-input-id="fileCienciaLgpd" data-area-id="uploadCienciaLgpd" data-sufixo="CienciaLgpd">
-                                 <i class="flaticon flaticon-trash icon-sm"></i>Remover
-                              </span>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </div> -->
-
             </div>
-            <!-- HISTÓRICO E DECISÃO -->
+            <!-- HISTÓRICO DE DECISÃO -->
             <div class="step-panel step-4" id="paginaHistorico" style="display: none">
                <div class="page-header step-4" id="divHeaderHistorico">
                   <div class="page-header-icon"><i class="flaticon flaticon-clock icon-md" aria-hidden="true"></i></div>
@@ -836,7 +748,7 @@
                      <div class="grid g1">
                         <div class="fg" id="divObservacaoValidacao">
                            <label for="observacaoValidacao">Observações</label>
-                           <textarea id="observacaoValidacao" name="observacaoValidacao" class="form-control" rows="5" placeholder="Digite aqui sua observação, justificativa ou orientação para o solicitante..."></textarea>
+                           <textarea id="observacaoValidacao" name="observacaoValidacao" class="form-control" rows="5" placeholder="Digite aqui sua observação, justificativa ou orientação."></textarea>
                         </div>
                         <div class="fg" id="divSelectDecisao">
                            <label for="selectDecisao">Ação</label>
@@ -895,7 +807,7 @@
                            <span class="step-sub">Fiscal · Bancos · Condições</span>
                         </div>
                      </button>
-                     <div class="step-connector">
+                     <div class="step-connector" id="divDivisaoDocumentacao">
                         <div class="step-connector-line"></div>
                      </div>
                      <!-- Documentação -->
