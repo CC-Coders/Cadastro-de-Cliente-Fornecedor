@@ -1411,19 +1411,15 @@ html.theme-dark .wizard-progress::-webkit-scrollbar-thumb {
    DARK MODE — SELECTIZE
 ========================================================= */
 
-html.theme-dark .selectize-control.single .selectize-input,
-html.theme-dark .selectize-control.multi .selectize-input {
+html.theme-dark .selectize-control.single .selectize-input {
   background: var(--bg-input) !important;
   border-color: var(--border-color) !important;
   color: var(--text-primary) !important;
+  box-shadow: none !important;
+  background-image: none !important;
 }
 
-html.theme-dark .selectize-control.single .selectize-input::after {
-  color: var(--text-muted) !important;
-}
-
-html.theme-dark .selectize-control.single .selectize-input.focus,
-html.theme-dark .selectize-control.multi .selectize-input.focus {
+html.theme-dark .selectize-control.single .selectize-input.focus {
   border-color: var(--primary) !important;
   box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.15) !important;
 }
@@ -1437,21 +1433,15 @@ html.theme-dark .selectize-dropdown {
   background: var(--bg-card) !important;
   border-color: var(--border-color) !important;
   color: var(--text-primary) !important;
-  box-shadow: 0 8px 28px rgba(0,0,0,0.45) !important;
-}
-
-html.theme-dark .selectize-dropdown .option {
-  color: var(--text-secondary) !important;
 }
 
 html.theme-dark .selectize-dropdown .option:hover,
-html.theme-dark .selectize-dropdown .active {
+html.theme-dark .selectize-dropdown .active:not(.selected) {
   background: #1e2128 !important;
   color: var(--text-primary) !important;
 }
 
-html.theme-dark .selectize-dropdown .selected,
-html.theme-dark .selectize-dropdown .active.selected {
+html.theme-dark .selectize-dropdown .selected {
   background: rgba(255, 140, 66, 0.12) !important;
   color: var(--primary) !important;
 }
