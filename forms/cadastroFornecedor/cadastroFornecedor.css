@@ -1,15 +1,10 @@
 /* ─── BASE / RESET ─── */
-<<<<<<< HEAD
 /* !important garante que o Fluig antigo (homologação) não sobrescreva o background */
 body,
 .fluig-style-guide,
 .pagina,
 .container-fluid {
 	background: #ffffff !important;
-=======
-body {
-	background: #f5f0ea;
->>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
 	font-family: 'Open Sans', Arial, sans-serif;
 	font-size: 14px;
 	color: #1a1a1a;
