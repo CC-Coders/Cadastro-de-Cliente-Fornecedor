@@ -6,8 +6,8 @@ function obterOpcoesGrupoMercadoria(valorSalvo) {
    if (grupos.length) {
       var html = '<option value="">Selecione...</option>';
       grupos.forEach(function (g) {
-         var sel = (valorSalvo && valorSalvo === g.cod) ? ' selected' : '';
-         html += '<option value="' + g.cod + '"' + sel + '>' + g.cod + " — " + g.desc + "</option>";
+         var sel = (valorSalvo && valorSalvo === g.desc) ? ' selected' : '';
+         html += '<option value="' + g.desc + '"' + sel + '>' + g.desc + "</option>";
       });
       return html;
    }
@@ -922,10 +922,9 @@ function carregarGruposMercadoria() {
       var ds = DatasetFactory.getDataset("ds_grupoMercadoriaRM", null, null, null);
       if (ds && ds.values && ds.values.length) {
          ds.values.forEach(function (item) {
-            var cod  = (item.CODTB2FAT || "").toString().trim();
-            var desc = (item.DESCRICAO  || "").toString().trim();
-            if (cod || desc) {
-               _listaGruposMercadoria.push({ cod: cod, desc: desc });
+            var desc = (item.DESCRICAO || "").toString().trim();
+            if (desc) {
+               _listaGruposMercadoria.push({ desc: desc });
             }
          });
       }
@@ -940,7 +939,7 @@ function popularSelectsGrupoMercadoria() {
    var grupos = carregarGruposMercadoria();
    var optsHtml = '<option value="">Selecione...</option>';
    grupos.forEach(function (g) {
-      optsHtml += '<option value="' + g.cod + '">' + g.cod + " — " + g.desc + "</option>";
+      optsHtml += '<option value="' + g.desc + '">' + g.desc + "</option>";
    });
 
    $(".grupo-mercadoria").each(function () {
@@ -955,8 +954,8 @@ function _gerarOptionsGrupoMercadoria(valorSalvo) {
    var grupos = carregarGruposMercadoria();
    var html = '<option value="">Selecione...</option>';
    grupos.forEach(function (g) {
-      var sel = (valorSalvo && valorSalvo === g.cod) ? ' selected' : '';
-      html += '<option value="' + g.cod + '"' + sel + '>' + g.cod + " — " + g.desc + "</option>";
+      var sel = (valorSalvo && valorSalvo === g.desc) ? ' selected' : '';
+      html += '<option value="' + g.desc + '"' + sel + '>' + g.desc + "</option>";
    });
    return html;
 }
