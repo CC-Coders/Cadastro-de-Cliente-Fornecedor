@@ -63,9 +63,26 @@ function bindEventosDadosBancarios() {
       removerContaBancaria(Number($(this).data("numero")));
    });
 
-   $(document).on("change", ".banco-cod, .banco-descricao, .banco-agencia, .banco-conta", sincronizarTabelaBancaria);
+   // Select de banco: ao escolher, preenche código (readonly) + hidden fields e sincroniza
+   $(document).on("change", ".banco-select", function () {
+      let selectId = this.id; // "selectBancoNome" ou "selectBancoNome2", "selectBancoNome3"…
+      let s = selectId.replace("selectBancoNome", ""); // "" | "2" | "3" …
+      let cpodigo = $(this).val() || "";
+      let nome    = $(this).find("option:selected").data("nome") || $(this).find("option:selected").text() || "";
+      // Limpa texto das opções padrão sem data-nome
+      if (!$(this).find("option:selected").data("nome")) nome = "";
 
-   $(document).on("input change", ".banco-cod, .banco-agencia, .banco-conta, .banco-descricao", function () {
+      $("#banco"           + s).val(cpodigo);
+      $("#bancoDescricao"  + s).val(nome);
+      $("#bancoCodExibicao"+ s).val(cpodigo);
+
+      sincronizarTabelaBancaria();
+      if (cpodigo && selectId) limparErroCampo(selectId);
+   });
+
+   $(document).on("change", ".banco-agencia, .banco-conta", sincronizarTabelaBancaria);
+
+   $(document).on("input change", ".banco-agencia, .banco-conta", function () {
       if (($(this).val() || "").trim() && this.id) {
          limparErroCampo(this.id);
       }

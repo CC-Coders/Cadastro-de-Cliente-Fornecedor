@@ -866,6 +866,40 @@ function _popularSelectPaises(paises) {
 
 // DADOS BANCÁRIOS
 let LIMITE_CONTAS_BANCARIAS = 5;
+
+// Cache global de bancos do RM (ds_bancoRM)
+var _listaBancosRM = null;
+
+function carregarBancosRM() {
+   if (_listaBancosRM !== null) return _listaBancosRM;
+   _listaBancosRM = [];
+   try {
+      var ds = DatasetFactory.getDataset("ds_bancoRM", null, null, null);
+      if (ds && ds.values && ds.values.length) {
+         ds.values.forEach(function (item) {
+            var cod  = (item.CPODIGO || "").toString().trim();
+            var nome = (item.NOME    || "").toString().trim();
+            if (cod || nome) {
+               _listaBancosRM.push({ cod: cod, nome: nome });
+            }
+         });
+      }
+   } catch (e) {
+      console.warn("Erro ao carregar ds_bancoRM:", e);
+   }
+   return _listaBancosRM;
+}
+
+function _gerarOptionsBanco() {
+   var bancos = carregarBancosRM();
+   var html = '<option value="">Selecione o banco...</option>';
+   bancos.forEach(function (b) {
+      var nomeEsc = b.nome.replace(/"/g, "&quot;");
+      html += '<option value="' + b.cod + '" data-nome="' + nomeEsc + '">' + b.cod + " — " + b.nome + "</option>";
+   });
+   return html;
+}
+
 function _opcoesCondicaoPagamento() {
    let opts = [
       "À Vista", "7 dias", "14 dias", "15 dias", "21 dias",
@@ -885,6 +919,8 @@ function _gerarHtmlCardBancario(numero) {
       ? ""
       : '<button type="button" class="btn-remove-bank" data-numero="' + numero + '">Remover</button>';
 
+   let optsBanco = _gerarOptionsBanco();
+
    return (
       '<div class="bank-card" id="bank-card-' + numero + '">' +
       '<div class="bank-card-head">' +
@@ -892,14 +928,29 @@ function _gerarHtmlCardBancario(numero) {
       btnRemover +
       '</div>' +
       '<div class="grid g3">' +
-      '<div class="fg"><label for="banco' + s + '">Código do Banco</label>' +
-      '<input type="text" id="banco' + s + '" name="banco' + s + '" class="form-control banco-cod" placeholder="Ex: 001"></div>' +
-      '<div class="fg"><label for="bancoDescricao' + s + '">Nome do Banco</label>' +
-      '<input type="text" id="bancoDescricao' + s + '" name="bancoDescricao' + s + '" class="form-control banco-descricao" placeholder="Ex: Banco do Brasil"></div>' +
+
+      // NOME DO BANCO — select populado via ds_bancoRM
+      '<div class="fg span2"><label for="selectBancoNome' + s + '">Nome do Banco</label>' +
+      '<div class="select-wrap">' +
+      '<select id="selectBancoNome' + s + '" class="form-control banco-select">' + optsBanco + '</select>' +
+      '</div>' +
+      // hidden anchors para persistência no Fluig
+      '<input type="hidden" id="banco' + s + '" name="banco' + s + '" class="banco-cod">' +
+      '<input type="hidden" id="bancoDescricao' + s + '" name="bancoDescricao' + s + '" class="banco-descricao">' +
+      '</div>' +
+
+      // CÓDIGO DO BANCO — exibição readonly, preenchido automaticamente pelo select
+      '<div class="fg"><label>Código do Banco</label>' +
+      '<input type="text" id="bancoCodExibicao' + s + '" class="form-control" placeholder="Automático" readonly></div>' +
+
+      // AGÊNCIA
       '<div class="fg"><label for="agencia' + s + '">Agência</label>' +
       '<input type="text" id="agencia' + s + '" name="agencia' + s + '" class="form-control banco-agencia" placeholder="0000-0"></div>' +
+
+      // CONTA
       '<div class="fg"><label for="conta' + s + '">Conta</label>' +
       '<input type="text" id="conta' + s + '" name="conta' + s + '" class="form-control banco-conta" placeholder="00000-0"></div>' +
+
       '</div></div>'
    );
 }
@@ -948,8 +999,27 @@ function inicializarDadosBancarios() {
          $wrap.append(_gerarHtmlCardBancario(numero));
          let s = _sufixoBancario(numero);
 
-         $("#banco"             + s).val(d.cod);
-         $("#bancoDescricao"    + s).val(d.desc);
+         // Restaura o select de banco (tenta pelo código; fallback pelo nome)
+         let $selectBanco = $("#selectBancoNome" + s);
+         if (d.cod) {
+            $selectBanco.val(d.cod);
+         }
+         if (!$selectBanco.val() && d.desc) {
+            // Tenta encontrar option pelo nome salvo
+            $selectBanco.find("option").each(function () {
+               let texto = $(this).text();
+               if (texto.indexOf(d.desc) !== -1) {
+                  $selectBanco.val($(this).val());
+                  return false;
+               }
+            });
+         }
+         // Sincroniza hidden fields a partir do select restaurado
+         let codRestaurado  = $selectBanco.val() || d.cod;
+         let descRestaurado = $selectBanco.find("option:selected").data("nome") || d.desc;
+         $("#banco"          + s).val(codRestaurado);
+         $("#bancoDescricao" + s).val(descRestaurado);
+         $("#bancoCodExibicao" + s).val(codRestaurado);
 
          let agencia = d.agencia;
          let conta   = d.conta;
