@@ -1,10 +1,22 @@
 // GRUPO DE MERCADORIA
-function obterOpcoesGrupoMercadoria() {
-   const opcoesHtml = OPCOES_GRUPO_MERCADORIA.map(function (opcao) {
-      return `<option value="${opcao}">${opcao}</option>`;
-   }).join("");
+function obterOpcoesGrupoMercadoria(valorSalvo) {
+   // Tenta usar o dataset do RM; fallback para o array estático se não disponível
+   var grupos = (typeof carregarGruposMercadoria === "function") ? carregarGruposMercadoria() : [];
 
-   return `<option value="">Selecione...</option>${opcoesHtml}`;
+   if (grupos.length) {
+      var html = '<option value="">Selecione...</option>';
+      grupos.forEach(function (g) {
+         var sel = (valorSalvo && valorSalvo === g.cod) ? ' selected' : '';
+         html += '<option value="' + g.cod + '"' + sel + '>' + g.cod + " — " + g.desc + "</option>";
+      });
+      return html;
+   }
+
+   // Fallback estático (quando dataset ainda não carregou)
+   var opcoesHtml = (typeof OPCOES_GRUPO_MERCADORIA !== "undefined" ? OPCOES_GRUPO_MERCADORIA : []).map(function (opcao) {
+      return '<option value="' + opcao + '">' + opcao + "</option>";
+   }).join("");
+   return '<option value="">Selecione...</option>' + opcoesHtml;
 }
 function adicionarGrupoMercadoria() {
    const $wrap = $("#grupo-mercadoria-wrap");
@@ -877,7 +889,7 @@ function carregarBancosRM() {
       var ds = DatasetFactory.getDataset("ds_bancoRM", null, null, null);
       if (ds && ds.values && ds.values.length) {
          ds.values.forEach(function (item) {
-            var cod  = (item.CPODIGO || "").toString().trim();
+            var cod  = (item.NUMBANCO || "").toString().trim();
             var nome = (item.NOME    || "").toString().trim();
             if (cod || nome) {
                _listaBancosRM.push({ cod: cod, nome: nome });
@@ -896,6 +908,55 @@ function _gerarOptionsBanco() {
    bancos.forEach(function (b) {
       var nomeEsc = b.nome.replace(/"/g, "&quot;");
       html += '<option value="' + b.cod + '" data-nome="' + nomeEsc + '">' + b.cod + " — " + b.nome + "</option>";
+   });
+   return html;
+}
+
+// Cache e carregamento dos grupos de mercadoria (TTB2)
+var _listaGruposMercadoria = null;
+
+function carregarGruposMercadoria() {
+   if (_listaGruposMercadoria !== null) return _listaGruposMercadoria;
+   _listaGruposMercadoria = [];
+   try {
+      var ds = DatasetFactory.getDataset("ds_grupoMercadoriaRM", null, null, null);
+      if (ds && ds.values && ds.values.length) {
+         ds.values.forEach(function (item) {
+            var cod  = (item.CODTB2FAT || "").toString().trim();
+            var desc = (item.DESCRICAO  || "").toString().trim();
+            if (cod || desc) {
+               _listaGruposMercadoria.push({ cod: cod, desc: desc });
+            }
+         });
+      }
+   } catch (e) {
+      console.warn("Erro ao carregar ds_grupoMercadoriaRM:", e);
+   }
+   return _listaGruposMercadoria;
+}
+
+// Popula todos os selects de grupo de mercadoria existentes no DOM
+function popularSelectsGrupoMercadoria() {
+   var grupos = carregarGruposMercadoria();
+   var optsHtml = '<option value="">Selecione...</option>';
+   grupos.forEach(function (g) {
+      optsHtml += '<option value="' + g.cod + '">' + g.cod + " — " + g.desc + "</option>";
+   });
+
+   $(".grupo-mercadoria").each(function () {
+      var valorAtual = $(this).val();
+      $(this).empty().append(optsHtml);
+      if (valorAtual) $(this).val(valorAtual);
+   });
+}
+
+// Retorna o HTML de options para um novo select de grupo de mercadoria
+function _gerarOptionsGrupoMercadoria(valorSalvo) {
+   var grupos = carregarGruposMercadoria();
+   var html = '<option value="">Selecione...</option>';
+   grupos.forEach(function (g) {
+      var sel = (valorSalvo && valorSalvo === g.cod) ? ' selected' : '';
+      html += '<option value="' + g.cod + '"' + sel + '>' + g.cod + " — " + g.desc + "</option>";
    });
    return html;
 }

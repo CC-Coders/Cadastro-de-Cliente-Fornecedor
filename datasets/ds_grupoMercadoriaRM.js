@@ -2,7 +2,7 @@ function createDataset(fields, constraints, sortFields) {
 
     var dataset = DatasetBuilder.newDataset();
 
-    dataset.addColumn("CODGRUPO");
+    dataset.addColumn("CODTB2FAT");
     dataset.addColumn("DESCRICAO");
 
     var conn = null;
@@ -18,7 +18,7 @@ function createDataset(fields, constraints, sortFields) {
 
         // Retorna todos os grupos de mercadoria com código e descrição
         var sql =
-            "SELECT CODGRUPO, DESCRICAO " +
+            "SELECT CODTB2FAT, DESCRICAO " +
             "FROM TTB2 " +
             "ORDER BY DESCRICAO";
 
@@ -26,7 +26,7 @@ function createDataset(fields, constraints, sortFields) {
 
         while (rs.next()) {
             dataset.addRow([
-                rs.getString("CODGRUPO"),
+                rs.getString("CODTB2FAT"),
                 rs.getString("DESCRICAO")
             ]);
         }

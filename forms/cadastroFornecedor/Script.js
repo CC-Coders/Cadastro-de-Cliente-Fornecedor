@@ -53,6 +53,7 @@ $(document).ready(function () {
    carregarTiposClienteFornecedor();
    carregarNaturezaRendimento();
    carregarOpcoesIrrf(true);
+   popularSelectsGrupoMercadoria();   // popula grupoMercadoria1 (e extras) via ds_grupoMercadoriaRM
    bindEventos();
    aplicarLayoutMobile();
    inicializarUploadsFluig();
