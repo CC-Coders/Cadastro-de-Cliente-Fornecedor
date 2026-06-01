@@ -1,15 +1,4 @@
-/* ═══════════════════════════════════════════════════════════════════════════
-   MOBILE.CSS — Cadastro de Cliente / Fornecedor
-   Ref: https://tdn.totvs.com/pages/releaseview.action?pageId=662892312
 
-   Ativação dupla:
-     @media screen and (max-width: 768px)   → browsers responsivos
-     html[data-device="mobile"]             → formController.getMobile() = true
-                                              (tablets > 768px no app Fluig)
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-
-/* ─── VARIÁVEIS DO TEMA MOBILE ────────────────────────────────────────────── */
 @media screen and (max-width: 768px) {
    :root {
       --m-accent:        #f37021;
@@ -45,13 +34,7 @@ html[data-device="mobile"] {
    --m-radius-sm:     12px;
 }
 
-
-/* ─── OVERRIDES DO HEADER.CSS ────────────────────────────────────────────── */
-/* header.css define position:fixed, clip-path de seta e layout horizontal
-   que não servem para mobile. Estas regras sobrescrevem todos esses efeitos. */
-
 @media screen and (max-width: 768px) {
-   /* Remove position:fixed (deixa fluir no documento) */
    .wizard-progress {
       position: sticky !important;
       top: 0 !important;
@@ -59,7 +42,6 @@ html[data-device="mobile"] {
       overflow-x: visible !important;
    }
 
-   /* Remove o formato de seta (clip-path) e o deslocamento negativo */
    .wizard-progress .step,
    .wizard-progress .step:first-child,
    .wizard-progress .step:last-child {
@@ -73,20 +55,16 @@ html[data-device="mobile"] {
       border-bottom-right-radius: 20px !important;
    }
 
-   /* Remove hover com translateY nos steps */
-   .wizard-progress .step:not(.active):hover { transform: none !important; }
+   .wizard-progress .step:not(.active):hover { 
+      transform: none !important; 
+   }
+   .page-header:hover {
+       transform: none !important; box-shadow: none !important; 
+      }
+   .page-header { 
+      border-left: none !important; 
+   }
 
-   /* Remove hover do page-header (atrapalha toque em mobile) */
-   .page-header:hover { transform: none !important; box-shadow: none !important; }
-
-   /* Remove border-left accent do page-header (fica ruim no layout centralizado) */
-   .page-header { border-left: none !important; }
-
-   /* page-wrap já recebe padding-top no bloco abaixo para limpar o nav fixo */
-
-   /* Fix: .stepper-arrow tem position:absolute no cadastroFornecedor.css.
-      Reset aqui para static; .stepper-arrow.right (especificidade maior)
-      sobrescreve com position:fixed no bloco do FAB abaixo. */
    .stepper-arrow {
       position: static !important;
       transform: none !important;
@@ -95,8 +73,6 @@ html[data-device="mobile"] {
       right: auto !important;
    }
 
-   /* Fix: .step-item tem min-width:250px !important no cadastroFornecedor.css
-      (inclusive no @media max-width:1366px) — força 0 no step ativo */
    .step-item.active {
       min-width: 0 !important;
       max-width: 100% !important;
@@ -120,17 +96,11 @@ html[data-device="mobile"] .wizard-progress .step:last-child {
 html[data-device="mobile"] .wizard-progress .step:not(.active):hover { transform: none !important; }
 html[data-device="mobile"] .page-header:hover  { transform: none !important; box-shadow: none !important; }
 html[data-device="mobile"] .page-header        { border-left: none !important; }
-/* page-wrap já recebe padding-top no bloco abaixo para limpar o nav fixo */
 
-
-/* ─── BODY ────────────────────────────────────────────────────────────────── */
-/* Sem padding-top: wizard-progress é sticky (ocupa espaço natural no fluxo).
-   padding-bottom pequeno para respiração no final do conteúdo. */
 @media screen and (max-width: 768px) {
    body {
       background: var(--m-bg) !important;
       padding-top: 0 !important;
-      /* padding-bottom cobre o FAB de navegação fixado no canto inferior esquerdo */
       padding-bottom: 90px !important;
    }
 }
@@ -141,14 +111,12 @@ html[data-device="mobile"] body {
 }
 
 
-/* ─── PÁGINA ──────────────────────────────────────────────────────────────── */
 @media screen and (max-width: 768px) {
    .page-wrap { padding: 12px !important; }
 }
 html[data-device="mobile"] .page-wrap { padding: 12px !important; }
 
 
-/* ─── WIZARD PROGRESS (barra SOLICITAÇÃO / VALIDAÇÃO / FIM) ──────────────── */
 @media screen and (max-width: 768px) {
    header { padding: 0 !important; }
 
@@ -192,7 +160,6 @@ html[data-device="mobile"] .page-wrap { padding: 12px !important; }
    }
 }
 html[data-device="mobile"] header { padding: 0 !important; }
-/* Fix duplicata para html[data-device="mobile"] */
 html[data-device="mobile"] .stepper-arrow {
    position: static !important;
    transform: none !important;
@@ -240,8 +207,6 @@ html[data-device="mobile"] .wizard-progress .step.completed {
    border-color: transparent;
 }
 
-
-/* ─── PAGE HEADER (cabeçalho de cada etapa) ──────────────────────────────── */
 @media screen and (max-width: 768px) {
    .page-header {
       display: flex;
@@ -258,7 +223,6 @@ html[data-device="mobile"] .wizard-progress .step.completed {
       position: relative;
    }
 
-   /* Bolha decorativa de fundo */
    .page-header::before {
       content: '';
       position: absolute;
@@ -403,7 +367,7 @@ html[data-device="mobile"] .step-badge {
 }
 
 
-/* ─── SEÇÕES (cards com section-head / section-body) ─────────────────────── */
+
 @media screen and (max-width: 768px) {
    .section {
       background: var(--m-card);
@@ -483,7 +447,7 @@ html[data-device="mobile"] .section-name {
 html[data-device="mobile"] .section-body { padding: 16px !important; }
 
 
-/* ─── GRID — coluna única ─────────────────────────────────────────────────── */
+
 @media screen and (max-width: 768px) {
    .grid,
    .grid.g2,
@@ -504,7 +468,7 @@ html[data-device="mobile"] .grid.g4 {
 }
 
 
-/* ─── LABELS ─────────────────────────────────────────────────────────────── */
+
 @media screen and (max-width: 768px) {
    .fg label {
       display: block;
@@ -527,7 +491,6 @@ html[data-device="mobile"] .fg label {
 }
 
 
-/* ─── INPUTS, SELECTS, TEXTAREAS ─────────────────────────────────────────── */
 @media screen and (max-width: 768px) {
    .form-control,
    input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]),
@@ -583,15 +546,8 @@ html[data-device="mobile"] textarea.form-control {
 }
 
 
-/* ─── ESTADO DE ERRO (validação — classe .has-erro adicionada por validation.js) ── */
-/*
-   validation.js adiciona .has-erro ao .fg (container do campo) e insere
-   <small class="help-block erro-validacao"> após o campo.
-   A especificidade de .fg.has-erro (...) é maior do que os seletores genéricos
-   acima, então estas regras vencem mesmo com !important nos genéricos.
-*/
 @media screen and (max-width: 768px) {
-   /* Borda vermelha nos campos com erro */
+
    .fg.has-erro .form-control,
    .fg.has-erro input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]),
    .fg.has-erro select,
@@ -601,13 +557,12 @@ html[data-device="mobile"] textarea.form-control {
       box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
    }
 
-   /* Label do campo com erro */
    .fg.has-erro > label,
    .fg.has-erro .fg-label {
       color: #dc2626 !important;
    }
 
-   /* Mensagem de erro inline */
+  
    .erro-validacao {
       display: block !important;
       visibility: visible !important;
@@ -639,8 +594,6 @@ html[data-device="mobile"] .erro-validacao {
    margin-top: 5px;
 }
 
-
-/* ─── BOTÕES GERAIS ──────────────────────────────────────────────────────── */
 @media screen and (max-width: 768px) {
    .btn {
       min-height: 48px;
@@ -657,19 +610,17 @@ html[data-device="mobile"] .erro-validacao {
       box-shadow: 0 2px 8px rgba(243, 112, 33, 0.30) !important;
    }
 
-   /* Botão "Adicionar" (grupo mercadoria, CNAE) */
    .btn-grupo-mercadoria,
    .btn-cnae {
       min-height: 44px;
       width: 100%;
    }
 
-   /* Botão "Remover" (danger) */
    .btn-danger {
       min-height: 44px;
    }
 
-   /* Botão "Adicionar conta bancária" */
+
    .btn-add-bank {
       width: 100%;
       min-height: 48px;
@@ -697,22 +648,20 @@ html[data-device="mobile"] .btn-add-bank {
 }
 
 
-/* ─── UPLOAD AREAS ───────────────────────────────────────────────────────── */
 @media screen and (max-width: 768px) {
    .upload-area {
       border-radius: var(--m-radius) !important;
       padding: 22px 16px;
       border: 2px dashed var(--m-border) !important;
       text-align: center;
-      /* position:relative definido por JS para suportar o overlay absoluto */
+
    }
 
    .upload-title { font-size: 14px; font-weight: 700; }
    .upload-hint  { font-size: 12px; color: var(--m-text-muted); }
    .upload-formats { font-size: 11px; color: var(--m-text-sub); }
 
-   /* Overlay transparente criado por mobile.js que cobre a .upload-area.
-      opacity:0 ≠ display:none → iOS WKWebView dispara change de forma nativa. */
+
    .mobile-file-overlay {
       position: absolute !important;
       top: 0 !important; left: 0 !important;
@@ -752,7 +701,6 @@ html[data-device="mobile"] .mobile-file-overlay {
 }
 
 
-/* ─── DADOS BANCÁRIOS — card ─────────────────────────────────────────────── */
 @media screen and (max-width: 768px) {
    .bank-card {
       border-radius: var(--m-radius) !important;
@@ -787,8 +735,6 @@ html[data-device="mobile"] .bank-card {
    margin-bottom: 12px;
 }
 
-
-/* ─── TOGGLE / SWITCH ────────────────────────────────────────────────────── */
 @media screen and (max-width: 768px) {
    .retencao-box {
       border-radius: var(--m-radius) !important;
@@ -829,8 +775,6 @@ html[data-device="mobile"] .retencao-toggle {
    justify-content: space-between;
 }
 
-
-/* ─── HISTÓRICO — timeline cards ─────────────────────────────────────────── */
 @media screen and (max-width: 768px) {
    .card-historico {
       border-radius: var(--m-radius) !important;
@@ -849,18 +793,8 @@ html[data-device="mobile"] .card-historico {
    border: 1px solid var(--m-border);
 }
 
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   BOTÃO DE NAVEGAÇÃO — FAB fixado no canto inferior ESQUERDO
-   Oposto ao botão "Enviar" nativo do Fluig Mobile (canto inferior direito).
-
-   IMPORTANTE: .stepper-nav-wrap não pode ter backdrop-filter nem position
-   diferente de static, pois o Fluig WebView usa esse elemento como containing
-   block e impede que filhos com position:fixed sejam fixados ao viewport.
-   ═══════════════════════════════════════════════════════════════════════════ */
 @media screen and (max-width: 768px) {
 
-   /* Wrapper invisível — sem containing block, sem compositing layer */
    .stepper-nav-wrap {
       position: static !important;
       height: 0 !important;
@@ -875,34 +809,30 @@ html[data-device="mobile"] .card-historico {
       pointer-events: none !important;
    }
 
-   /* Move o stepper para fora de tela.
-      CRÍTICO: NÃO usar display:none — getStepsVisiveis() (ui.js) usa
-      $(NAV_MAP[step]).is(":visible") para montar a lista de etapas navegáveis.
-      display:none → :visible=false → getStepsVisiveis() retorna [] → nunca avança.
-      position:fixed + left:-9999px mantém :visible=true e some da tela. */
    .stepper-wrap {
       position: fixed !important;
       left: -9999px !important;
       top: -9999px !important;
       pointer-events: none !important;
    }
-   .step-connector { display: none !important; }
+   .step-connector {
+       display: none !important; 
+      }
    .step-label,
-   .step-sub       { display: none !important; }
+   .step-sub       { 
+      display: none !important; 
+   }
 
-   /* Seta esquerda: oculta */
    .stepper-arrow.left { display: none !important; }
-
-   /* ── FAB "próxima etapa" — canto inferior esquerdo ── */
    .stepper-arrow.right {
       display: flex !important;
-      position: fixed !important;      /* fixed relativo ao viewport (parent é static) */
+      position: fixed !important; 
       bottom: 20px !important;
       left: 16px !important;
       top: auto !important;
       right: auto !important;
       transform: none !important;
-      pointer-events: auto !important; /* reabilita clique (parent tem pointer-events:none) */
+      pointer-events: auto !important;
       align-items: center;
       justify-content: center;
       width: 56px !important;
@@ -925,10 +855,9 @@ html[data-device="mobile"] .card-historico {
    .stepper-arrow.right .fluigicon {
       font-size: 18px;
       color: #2a1800;
-      pointer-events: none; /* evita que o ícone "roube" o evento de clique */
+      pointer-events: none; 
    }
 
-   /* FAB desabilitado (último step — sem próxima etapa) */
    .stepper-arrow.right:disabled {
       opacity: 0.25;
       box-shadow: none !important;
@@ -941,7 +870,6 @@ html[data-device="mobile"] .card-historico {
    }
 }
 
-/* ── Duplicata para html[data-device="mobile"] (tablets > 768px no app Fluig) ── */
 html[data-device="mobile"] .stepper-nav-wrap {
    position: static !important;
    height: 0 !important;
@@ -955,7 +883,7 @@ html[data-device="mobile"] .stepper-nav-wrap {
    padding: 0 !important;
    pointer-events: none !important;
 }
-/* CRÍTICO: NÃO usar display:none no stepper-wrap — quebra getStepsVisiveis() */
+
 html[data-device="mobile"] .stepper-wrap {
    position: fixed !important;
    left: -9999px !important;

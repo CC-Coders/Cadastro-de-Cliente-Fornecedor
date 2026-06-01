@@ -3,10 +3,10 @@ function createDataset(fields, constraints, sortFields) {
         var constraints = getConstraints(constraints);
 
         var query = "";
-        query += "SELECT DESCRICAO ";
-        query += "FROM TTB2 ";
-        query += "WHERE CODCOLIGADA = 1 ";
-        query += "ORDER BY DESCRICAO";
+        query += "SELECT CODETD, NOME ";
+        query += "FROM GETD ";
+        query += "WHERE NACIONAL = 'S' ";
+        query += "ORDER BY NOME";
 
         var retorno = executaQuery(query, [], "/jdbc/RM");
 
@@ -134,22 +134,4 @@ function executaQuery(query, constraints, dataSorce) {
             conn.close();
         }
     }
-}
-function getDateFimMes() {
-    var date = new Date();
-    var mes = date.getMonth();
-    var ano = date.getFullYear();
-
-    var dateEndMonth = new Date(ano, (mes), 0);
-
-    var dia = dateEndMonth.getDate();
-    if (dia < 10) {
-        dia = "0" + dia;
-    }
-
-    if (mes < 10) {
-        mes = "0" + mes;
-    }
-
-    return [ano, mes, dia].join("-");
 }

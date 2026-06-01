@@ -1,37 +1,37 @@
 // VISIBILIDADE CONDICIONAL DE CAMPOS
 
-// Controla as restrições impostas pela Classificação (Cliente / Fornecedor / Cliente+Fornecedor).
-// Cliente (value "1"):
-//   - Não tem CNAE
-//   - Não tem Dados Bancários
-//   - Não pode ser Pessoa Física → opção desabilitada no select #categoria
-// Fornecedor / Cliente+Fornecedor: sem restrições extras.
 function controlarCamposClassificacao() {
    const classificacao = ($("#classificacao").val() || "").trim();
    const isCliente = classificacao === "1";
 
-   // ── Dados Bancários ────────────────────────────────────────────────────
    if (isCliente) {
       $("#divDadosBancarios").hide();
    } else {
       $("#divDadosBancarios").show();
    }
-
-   // ── Opção Pessoa Física no select #categoria ───────────────────────────
-   const $optPF = $("#categoria option[value='F']");
    if (isCliente) {
-      $optPF.prop("disabled", true).hide();
-      // Se Pessoa Física estava selecionada, limpa a seleção
-      if ($("#categoria").val() === "F") {
-         $("#categoria").val("").trigger("change");
+
+      if (!$("#categoria").data("optPF")) {
+         let $pf = $("#categoria option[value='F']");
+         if ($pf.length) {
+            let eraPF = $("#categoria").val() === "F";
+            $("#categoria").data("optPF", $pf.detach());
+
+            if (eraPF) {
+               $("#categoria").prop("selectedIndex", 0).trigger("change");
+            }
+         }
       }
    } else {
-      $optPF.prop("disabled", false).show();
+      
+      let $pfSalvo = $("#categoria").data("optPF");
+      if ($pfSalvo && !$("#categoria option[value='F']").length) {
+         let $pj = $("#categoria option[value='J']");
+         if ($pj.length) { $pj.after($pfSalvo); } else { $("#categoria").append($pfSalvo); }
+         $("#categoria").removeData("optPF");
+      }
    }
 
-   // ── CNAE ───────────────────────────────────────────────────────────────
-   // controlarCamposCategoria() já esconde o CNAE para PF e PJ Estrangeiro.
-   // Para Cliente, esconde independentemente da categoria.
    if (isCliente) {
       $(".cnae-box").hide().prev(".divider").hide();
       $(".cnae-box").next(".divider").hide();
@@ -39,22 +39,16 @@ function controlarCamposClassificacao() {
       $("#cnae-secundarios-wrap").empty();
    }
 
-   // ── Grupo de Mercadoria ────────────────────────────────────────────────
    if (isCliente) {
       $("#divMoedaGrupoMercadoria, #grupo-mercadoria-wrap").hide();
       $("#grupoMercadoria1").prop("required", false).val("");
-      // Remove grupos adicionais (2+)
       $("#grupo-mercadoria-wrap").empty();
    } else {
-      // Reexibe o wrap além do container — se o usuário veio do modo Cliente,
-      // o wrap ficou oculto e os novos itens seriam adicionados mas invisíveis.
+
       $("#divMoedaGrupoMercadoria, #grupo-mercadoria-wrap").show();
       $("#grupoMercadoria1").prop("required", true);
    }
 
-   // ── Step 3 (Documentação) ───────────────────────────────────────────────
-   // Cliente não precisa enviar documentos — step 3 é removido do stepper.
-   // Se o usuário estiver no step 3 quando trocar para Cliente, volta ao step 2.
    if (isCliente) {
       $("#nav-step-Documentacao, #divDivisaoDocumentacao").hide();
       if (typeof getStepAtual === "function" && getStepAtual() === 3) {
@@ -73,7 +67,6 @@ function controlarCamposCategoria() {
    const estrangeiro = $("#toggleEstrangeiro").is(":checked");
    const modoEstrangeiro = (categoria === "J" && estrangeiro);
 
-   // Controla endereço ANTES dos condicionais de categoria
    controlarEnderecoEstrangeiro(modoEstrangeiro);
 
    $("#divCpf, #divCnpj, #divRg, #divInscricaoEstadual, #divInscricaoMunicipal, #divDocEstrangeiro").hide();
@@ -87,7 +80,11 @@ function controlarCamposCategoria() {
       $("#divCpf, #divNomeFantasia, #divRg").show();
       $("#docCpf, #docRg, #nomeFantasia").prop("required", true);
 
-      // Pessoa Física não tem CNAE
+      $("#divDadosPF").show();
+      $("#dtNascimento, #estadoCivil, #docRgOrgao, #docRgUf").prop("required", true);
+
+      $("#divDependentesBox").show();
+
       $(".cnae-box").hide().prev(".divider").hide();
       $(".cnae-box").next(".divider").hide();
       $("#cnaePrincipal").prop("required", false).val("");
@@ -97,11 +94,20 @@ function controlarCamposCategoria() {
       return;
    }
 
+   $("#divDadosPF").hide();
+   $("#dtNascimento, #estadoCivil, #docRgOrgao, #docRgUf").prop("required", false);
+
+
+   $("#divDependentesBox").hide();
+   $("#toggleDependentes").prop("checked", false);
+   $("#hiddenToggleDependentes").val("");
+   $("#divNumDependentesInput").addClass("field-hidden").hide();
+   $("#numDependentes").val("0");
+
    if (categoria === "J") {
       $("#divToggleEstrangeiro").show();
 
       if (estrangeiro) {
-         // PJ Estrangeiro não tem CNAE (sem CNPJ, sem CNAE brasileiro)
          $(".cnae-box").hide().prev(".divider").hide();
          $(".cnae-box").next(".divider").hide();
          $("#cnaePrincipal").prop("required", false).val("");
@@ -115,7 +121,6 @@ function controlarCamposCategoria() {
          limparErroCampo("docInscricaoEstadual");
          limparErroCampo("docInscricaoMunicipal");
       } else {
-         // PJ Nacional tem CNAE
          $(".cnae-box").show().prev(".divider").show();
          $(".cnae-box").next(".divider").show();
          $("#cnaePrincipal").prop("required", true);
@@ -127,68 +132,109 @@ function controlarCamposCategoria() {
       }
    }
 
-   // Reaplica as restrições de classificação por cima das de categoria
-   // (ex.: Cliente PJ Nacional não deve exibir CNAE nem bancos)
    controlarCamposClassificacao();
 }
 
-// Controla CEP, campos de endereço e o campo País ao ativar/desativar modo estrangeiro.
-// Chamado por controlarCamposCategoria() a cada mudança de categoria ou toggle.
-function controlarEnderecoEstrangeiro(ativo) {
+function controlarCamposDependentes() {
+   const $painel = $("#divNumDependentesInput");
+   const ativo = $("#toggleDependentes").is(":checked");
    if (ativo) {
-      // ── MODO ESTRANGEIRO ──────────────────────────────────────────────
-      // Oculta e desvalida o CEP (não existe CEP fora do Brasil)
+      $painel.removeClass("field-hidden").show();
+      if ((Number.parseInt($("#numDependentes").val(), 10) || 0) < 1) {
+         $("#numDependentes").val("1");
+      }
+   } else {
+      $painel.addClass("field-hidden").hide();
+      $("#numDependentes").val("0");
+   }
+}
+
+let _cidadeSelectOriginalHtml = null;
+
+function controlarEnderecoEstrangeiro(ativo) {
+   const $estadoWrap = $("#divEstado .select-wrap");
+
+   if (ativo) {
       $("#divCep").hide();
       $("#cep").prop("required", false);
 
-      // Libera os campos de endereço para preenchimento manual
-      $("#endereco, #bairro, #cidade").prop("readonly", false);
-
-      // Troca o input de País pelo select consultado do dataset GPAIS
+      $("#endereco, #bairro").prop("readonly", false);
       $("#pais").hide().prop("required", false);
       $("#divSelectPaisEstrangeiro").show();
       $("#selectPaisEstrangeiro").prop("required", true);
-
-      // Carrega a lista de países (usa cache após primeira carga)
       carregarPaisesEstrangeiros();
 
-      // Estado → "End. Exterior" (opcional, pois nem todo país tem UF equivalente)
+      const $estado = $("#estado");
+      if (!$estado.find("option[value='EX']").length) {
+         $estado.prepend('<option value="EX">EX</option>');
+      }
+      $estado.val("EX").prop("required", false);
+      $estadoWrap.hide();
+      if ($("#estadoExteriorDisplay").length) {
+         $("#estadoExteriorDisplay").val("EX");
+      } else {
+         $estadoWrap.after(
+            '<input type="text" id="estadoExteriorDisplay" class="form-control"' +
+            ' value="EX" readonly tabindex="-1">'
+         );
+      }
+      $("#estadoExteriorDisplay").show();
       $("#divEstado label").text("End. Exterior");
-      $("#estado")
-         .prop({ required: false, readonly: false })
-         .attr("placeholder", "Estado / Região / Província");
+
+
+      let $cidadeWrap = $("#divCidade .select-wrap");
+      if ($("#cidade").is("select")) {
+         _cidadeSelectOriginalHtml = $cidadeWrap[0].outerHTML;
+         $cidadeWrap.replaceWith(
+            '<input type="text" id="cidade" name="cidade" class="form-control"' +
+            ' placeholder="Cidade / Localidade" required>'
+         );
+      }
+      let nomeSalvo = ($("#nomeCidadeSalva").val() || "").trim();
+      if (nomeSalvo) $("#cidade").val(nomeSalvo);
+      $("#cidade").prop("readonly", false);
 
    } else {
-      // ── MODO NACIONAL (padrão) ────────────────────────────────────────
-      // Reexibe e revalida o CEP
+
       $("#divCep").show();
       $("#cep").prop("required", true);
 
-      // Restaura readonly nos campos de endereço (preenchidos pela busca de CEP)
-      $("#endereco, #bairro, #cidade, #estado").prop("readonly", true);
-
-      // Restaura o input de País, garante valor padrão "Brasil"
+      $("#endereco, #bairro").prop("readonly", true);
       $("#divSelectPaisEstrangeiro").hide();
       $("#selectPaisEstrangeiro").prop("required", false);
       $("#pais").show().prop("required", true);
-
       if (!($("#pais").val() || "").trim()) {
          $("#pais").val("Brasil");
       }
 
-      // Restaura label e placeholder originais do Estado
+
       $("#divEstado label").text("Estado");
-      $("#estado")
-         .prop("required", true)
-         .attr("placeholder", "UF");
+      $estadoWrap.show();
+      $("#estadoExteriorDisplay").hide();
+      $("#estado option[value='EX']").remove();
+      $("#estado").val("").prop({ required: true, readonly: true });
+
+
+      if (_cidadeSelectOriginalHtml) {
+         let $cidadeInput = $("#cidade");
+         if ($cidadeInput.is("input")) {
+            $cidadeInput.replaceWith(_cidadeSelectOriginalHtml);
+            _cidadeSelectOriginalHtml = null;
+         }
+      }
+      $("#cidade").val("").prop("readonly", true);
+      $("#codMunicipio").val("");
+      if (!globalThis._formRestaurando) {
+         $("#nomeCidadeSalva").val("");
+      }
    }
 }
 function controlarAlertaCnpj() {
    const categoria = $("#categoria").val();
    const estrangeiro = $("#toggleEstrangeiro").is(":checked");
-   const cnpj = ($("#docCnpj").val() || "").replaceAll(/\D/g, "");
+   const cnpj = ($("#docCnpj").val() || "").replace(/[^A-Za-z0-9]/g, "");
 
-   // Estrangeiro não tem CNPJ brasileiro — alerta não se aplica
+
    if (categoria === "J" && !estrangeiro && cnpj.length < 14) {
       $("#alertCnpj").show();
    } else {
@@ -218,12 +264,9 @@ function controlarPainelRetencoes() {
       return;
    }
 
-   // "retencao-erro" (não "retencao-error") — corrige typo que impedia limpeza do border
    $painel.addClass("field-hidden").hide().removeClass("retencao-erro");
 
-   // Limpa o texto de erro "Selecione pelo menos um imposto." do painel dedicado
    $("#erroMinimoImposto").hide();
-
    $(".retencao-item input").prop("checked", false);
    $(".retencao-item").removeClass("ativo");
 }
@@ -233,12 +276,10 @@ function resetarRetencao() {
    $("#divRetencoesPanel").addClass("field-hidden");
    $(".retencao-item input").prop("checked", false);
    $(".retencao-item").removeClass("ativo");
-   // Limpa hidden anchors dos impostos
    $("#hiddenIss, #hiddenInss, #hiddenInputIrrf, #hiddenCsll, #hiddenPis, #hiddenCofins").val("");
 }
 
 
-// SISTEMA DE NAVEGAÇÃO POR STEPS (WIZARD)
 function getStepsVisiveis() {
    return Object.keys(NAV_MAP)
       .map(Number)
@@ -284,12 +325,12 @@ function goToStep(step, animar) {
 
    atualizarSetas();
 
-   // Rola para o topo ao trocar de etapa para que o page-header fique visível
-   // (especialmente importante em telas menores onde o conteúdo anterior empurra o scroll para baixo)
    $("html, body").animate({ scrollTop: 0 }, 200);
 }
 function goToNextVisibleStep() {
-   if (!validarEtapaAtual(false)) {
+   const ehView = ehModoView();
+
+   if (!ehView && !validarEtapaAtual(false)) {
       return;
    }
 
@@ -333,14 +374,10 @@ function toggleSection(el) {
    }
 }
 
+const CONTAINERS_INICIO = ["#divPreCadastro", "#divDadosCadastrais", "#divDocumentacao"];
 
-// BLOQUEIO / DESBLOQUEIO DE CAMPOS NA VALIDAÇÃO
 function bloquearTudoInicio() {
-   const containers = [
-      "#divPreCadastro",
-      "#divDadosCadastrais",
-      "#divDocumentacao"
-   ];
+   const containers = CONTAINERS_INICIO;
 
    containers.forEach(function (container) {
       const $container = $(container);
@@ -376,11 +413,7 @@ function bloquearTudoInicio() {
    });
 }
 function habilitarTudoInicio() {
-   const containers = [
-      "#divPreCadastro",
-      "#divDadosCadastrais",
-      "#divDocumentacao"
-   ];
+   const containers = CONTAINERS_INICIO;
 
    containers.forEach(function (container) {
       const $container = $(container);
@@ -408,25 +441,76 @@ function habilitarTudoInicio() {
 
    inicializarUploadsFluig();
 }
+
+function ehModoView() {
+   return $("body").hasClass("modo-view") ||
+          ($("#formMode").val() || "").toUpperCase() === "VIEW";
+}
 function controlarEdicaoInicioValidacao() {
    const atividade = Number($("#atividade").val() || 0);
+   const formMode  = ($("#formMode").val() || "").toUpperCase();
 
-   if (atividade !== ATIVIDADES.VALIDACAO) {
+   const ehHistorico      = formMode === "VIEW";
+
+
+   const ATIVIDADES_EDITAVEIS = [
+      ATIVIDADES.INICIO_0,
+      ATIVIDADES.INICIO,
+      ATIVIDADES.CORRECAO,
+      ATIVIDADES.INTEGRACAO
+   ];
+
+
+   const ehSomenteLeitura = ehHistorico ||
+                            atividade === ATIVIDADES.ERRO_INTEGRACAO ||
+                            (!ATIVIDADES_EDITAVEIS.includes(atividade) && atividade !== ATIVIDADES.VALIDACAO);
+
+
+   if (atividade !== ATIVIDADES.VALIDACAO && !ehSomenteLeitura) {
       $("#btnEditarCamposInicio").hide();
       return;
    }
 
-   $("#btnEditarCamposInicio").show();
-
    bloquearTudoInicio();
 
-   $("#btnEditarCamposInicio").off("click").on("click", function () {
-      habilitarTudoInicio();
+   if (atividade === ATIVIDADES.VALIDACAO) {
+      $("#btnEditarCamposInicio").show();
+      $("#btnEditarCamposInicio").off("click").on("click", function () {
+         habilitarTudoInicio();
+         $(this)
+            .prop("disabled", true)
+            .removeClass("btn-warning")
+            .addClass("btn-success")
+            .text("Edição liberada");
+      });
+   } else {
+      $("body").addClass("modo-view");
+      $("#btnEditarCamposInicio").hide();
+      $("#btnAprovar, #btnReprovar, #divSelectDecisao").hide();
+      $("#observacaoValidacao").prop("readonly", true).addClass("campo-readonly");
+      goToStep(1, false);
 
-      $(this)
-         .prop("disabled", true)
-         .removeClass("btn-warning")
-         .addClass("btn-success")
-         .text("Edição liberada");
-   });
+      setTimeout(function () {
+         let $hdr = $("#divHeaderPreCad");
+         $hdr.css({
+            "display":        "flex",
+            "flex-direction": "row",
+            "flex-wrap":      "nowrap",
+            "align-items":    "center",
+            "text-align":     "left"
+         });
+         $hdr.find(".page-header-info").css({
+            "flex":       "1",
+            "min-width":  "0",
+            "text-align": "left"
+         });
+         $hdr.find(".page-header-title, .page-header-sub, .step-badge").css("text-align", "left");
+         $(".stepper-nav-wrap").css("display", "flex");
+         $(".stepper-wrap").css({ "display": "block", "overflow-x": "auto" });
+         $(".stepper").css({ "display": "flex", "visibility": "visible" });
+         $(".step-item").css({ "display": "flex", "visibility": "visible", "pointer-events": "auto" });
+         $(".step-connector").css({ "display": "flex", "visibility": "visible" });
+         $("#btn-voltar, #btn-avancar").css({ "display": "inline-flex", "visibility": "visible", "pointer-events": "auto" });
+      }, 150);
+   }
 }

@@ -27,13 +27,8 @@
   <ProcessDefinitionVersion>
     <processDefinitionVersionPK>
       <companyId>1</companyId>
-<<<<<<< HEAD
       <processId>Cadastrode de Cliente/Fornecedor</processId>
-      <version>56</version>
-=======
-      <processId>CadastrodeFornecedor</processId>
-      <version>48</version>
->>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
+      <version>84</version>
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
     <formId>33577</formId>
@@ -219,6 +214,8 @@
       <deadlineFieldName></deadlineFieldName>
       <joint>false</joint>
       <agreementPercentage>0</agreementPercentage>
+      <engineAllocationId>Usuário</engineAllocationId>
+      <engineAllocationConfiguration>&lt;AssignmentController&gt;&lt;User&gt;gustavo.reis&lt;/User&gt;&lt;/AssignmentController&gt;</engineAllocationConfiguration>
       <selectColleague>1</selectColleague>
       <initialState>false</initialState>
       <notifyAuthorityDelay>true</notifyAuthorityDelay>
@@ -233,7 +230,7 @@
       <notifyAuthorityFollowUp>true</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>450</positionX>
+      <positionX>510</positionX>
       <positionY>598</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
@@ -285,11 +282,7 @@
       <notifyAuthorityFollowUp>true</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-<<<<<<< HEAD
       <positionX>410</positionX>
-=======
-      <positionX>420</positionX>
->>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
       <positionY>73</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
@@ -412,12 +405,8 @@
       <notifyAuthorityFollowUp>false</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-<<<<<<< HEAD
       <positionX>590</positionX>
-=======
-      <positionX>607</positionX>
->>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
-      <positionY>434</positionY>
+      <positionY>300</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -441,11 +430,7 @@
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
         <expressionOrder>1</expressionOrder>
-<<<<<<< HEAD
-        <version>56</version>
-=======
-        <version>48</version>
->>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
+        <version>84</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;Correcao&quot;</condition>
@@ -457,11 +442,7 @@
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
         <expressionOrder>2</expressionOrder>
-<<<<<<< HEAD
-        <version>56</version>
-=======
-        <version>48</version>
->>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
+        <version>84</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;enviarRm&quot;</condition>
@@ -616,8 +597,268 @@
         <processId>CadastrodeFornecedor</processId>
         <version>1</version>
       </workflowProcessEventPK>
-      <eventDescription>function servicetask16(attempt, message) {&#xd;
-}</eventDescription>
+      <eventDescription>function servicetask16(attempt, message) {
+
+    var COLIGADA = &quot;1&quot;;
+    var COLIGADAS_BANCO = [&quot;1&quot;, &quot;2&quot;, &quot;5&quot;, &quot;6&quot;, &quot;12&quot;, &quot;13&quot;];
+
+    function f(nome) {
+        return String(hAPI.getCardValue(nome) || &quot;&quot;).trim();
+    }
+
+    var categoria     = f(&quot;categoria&quot;);   
+    var classificacao = f(&quot;classificacao&quot;);   
+    var tipo          = f(&quot;tipo&quot;);            
+
+    var nome          = f(&quot;nome&quot;);
+    var razaoSocial   = f(&quot;razaoSocial&quot;);
+    var nomeFantasia  = f(&quot;nomeFantasia&quot;);
+    var nomeRM        = (categoria === &quot;J&quot;) ? razaoSocial : nome;
+
+    var cnpj          = f(&quot;docCnpj&quot;).replace(/[^A-Za-z0-9]/g, &quot;&quot;).toUpperCase();
+    var cpf           = f(&quot;docCpf&quot;).replace(/\D/g, &quot;&quot;);
+    var cgc           = (categoria === &quot;J&quot;) ? cnpj : cpf;
+
+    var rg            = f(&quot;docRg&quot;);
+    var rgOrgao       = f(&quot;docRgOrgao&quot;);
+    var rgUf          = f(&quot;docRgUf&quot;);
+    var dtNascimento  = f(&quot;dtNascimento&quot;);
+    var estadoCivil   = f(&quot;estadoCivil&quot;);
+    var numDependentes= f(&quot;numDependentes&quot;) || &quot;0&quot;;
+
+    var inscEstadual  = f(&quot;docInscricaoEstadual&quot;);
+    var inscMunicipal = f(&quot;docInscricaoMunicipal&quot;);
+
+    var endereco      = f(&quot;endereco&quot;);
+    var numero        = f(&quot;numero&quot;);
+    var complemento   = f(&quot;complemento&quot;).substring(0, 40);
+    var bairro        = f(&quot;bairro&quot;);
+    var cidade        = f(&quot;cidade&quot;);
+    var estado        = f(&quot;estado&quot;);
+    var cep           = f(&quot;cep&quot;);
+    var codMunicipio  = f(&quot;codMunicipio&quot;);
+
+    var telefone      = f(&quot;telefone&quot;);
+    var celular       = f(&quot;celular&quot;);
+    var emailCr       = f(&quot;emailCr&quot;) || f(&quot;emailAdministrativo&quot;) || f(&quot;emailComercial&quot;);
+
+
+    var estrangeiro       = f(&quot;hiddenToggleEstrangeiro&quot;) === &quot;on&quot;;
+    var docEstrangeiro    = f(&quot;docEstrangeiro&quot;);
+    var nacionalidade     = estrangeiro ? &quot;1&quot; : &quot;0&quot;;
+
+    var contribuinte  = f(&quot;icms&quot;)           || &quot;0&quot;;
+    var simplesNac    = f(&quot;simplesNacional&quot;) || &quot;0&quot;;
+    var retencaoIss   = f(&quot;hiddenIss&quot;) === &quot;on&quot; ? &quot;1&quot; : &quot;0&quot;;
+
+    // Código de Receita IRRF → FCFO.CODRECEITA
+    // hiddenCodIrrf é a âncora confiável; fallback para o próprio codIrrf
+    var codReceita    = f(&quot;hiddenCodIrrf&quot;) || f(&quot;codIrrf&quot;) || &quot;&quot;;
+
+    // Natureza de Rendimentos → FCFO.IDNATRENDIMENTO
+    // idNatRendimento guarda o PK numérico (IDNATRENDIMENTO) vindo do select via data-idnat
+    // codNaturezaRendimento guarda o CODNATRENDIMENTO alfanumérico — NÃO usar aqui (causaria FK violation)
+    var natRendimento = f(&quot;idNatRendimento&quot;) || &quot;&quot;;
+
+    var mapPagrec = { &quot;1&quot;: &quot;2&quot;, &quot;2&quot;: &quot;1&quot;, &quot;3&quot;: &quot;3&quot; };
+    var pagrec = mapPagrec[classificacao] || &quot;1&quot;;
+
+    // Converte data para o formato AAAA-MM-DDTHH:mm:ss 
+    var dtNascimentoRM = &quot;&quot;;
+    if (dtNascimento) {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dtNascimento)) {
+            dtNascimentoRM = dtNascimento + &quot;T00:00:00&quot;;
+        } else {
+            var partesDt = dtNascimento.split(&quot;/&quot;);
+            if (partesDt.length === 3) {
+                dtNascimentoRM = partesDt[2] + &quot;-&quot; + partesDt[1] + &quot;-&quot; + partesDt[0] + &quot;T00:00:00&quot;;
+            }
+        }
+    }
+
+    log.info(&quot;[ST16] Iniciando — categoria=&quot; + categoria + &quot; | nomeRM=&quot; + nomeRM + &quot; | cgc=&quot; + cgc + &quot; | rg=&quot; + rg);
+    log.info(&quot;[ST16] PF — dtNascimento=&quot; + dtNascimento + &quot; | dtNascimentoRM=&quot; + dtNascimentoRM + &quot; | estadoCivil=&quot; + estadoCivil + &quot; | rgOrgao=&quot; + rgOrgao + &quot; | rgUf=&quot; + rgUf + &quot; | numDependentes=&quot; + numDependentes);
+    log.info(&quot;[ST16] Endereço — rua=&quot; + endereco + &quot; | num=&quot; + numero + &quot; | bairro=&quot; + bairro + &quot; | cidade=&quot; + cidade + &quot; | estado=&quot; + estado + &quot; | cep=&quot; + cep + &quot; | codMunicipio=&quot; + codMunicipio);
+
+
+    if (categoria === &quot;F&quot; &amp;&amp; !rg) {
+        throw new Error(&quot;[ST16] Pessoa Física: campo &apos;RG (Cédula de Identidade)&apos; está vazio no formulário. Preencha o campo RG e reenvie.&quot;);
+    }
+    if (categoria === &quot;F&quot; &amp;&amp; !dtNascimentoRM) {
+        throw new Error(&quot;[ST16] Pessoa Física: campo &apos;Data de Nascimento&apos; está vazio ou em formato inválido (esperado DD/MM/AAAA). Preencha e reenvie.&quot;);
+    }
+    if (categoria === &quot;F&quot; &amp;&amp; !estadoCivil) {
+        throw new Error(&quot;[ST16] Pessoa Física: campo &apos;Estado Civil&apos; está vazio. Preencha e reenvie.&quot;);
+    }
+
+
+    function chamarRM(dataServerName, xml, coligadaOverride) {
+        var col = coligadaOverride || COLIGADA;
+        log.info(&quot;[ST16] Chamando ds_saveRecordRM → &quot; + dataServerName + &quot; | coligada=&quot; + col);
+
+        var c = [
+            DatasetFactory.createConstraint(&quot;pDataServerName&quot;, dataServerName, dataServerName, ConstraintType.MUST),
+            DatasetFactory.createConstraint(&quot;pXML&quot;,            xml,            xml,            ConstraintType.MUST),
+            DatasetFactory.createConstraint(&quot;pCodcoligada&quot;,    col,            col,            ConstraintType.MUST)
+        ];
+
+        var ds = DatasetFactory.getDataset(&quot;ds_saveRecordRM&quot;, null, c, null);
+
+        if (!ds || !ds.values || !ds.values.length) {
+            throw new Error(&quot;[ST16] ds_saveRecordRM não retornou dados. DataServer=&quot; + dataServerName);
+        }
+
+        var row    = ds.values[0];
+   
+        var status = String(row[0] || &quot;&quot;).trim();
+        var msg    = String(row[1] || &quot;&quot;).trim();
+        var result = String(row[2] || &quot;&quot;).trim();
+
+        log.info(&quot;[ST16] ds_saveRecordRM STATUS=&quot; + status + &quot; | MENSAGEM=&quot; + msg);
+
+        if (status !== &quot;SUCCESS&quot;) {
+            throw new Error(&quot;[ST16][RM] &quot; + msg);
+        }
+
+
+        if (result &amp;&amp; result !== &quot;null&quot;) {
+            var obj = JSON.parse(result);
+            return String(obj.codigo || &quot;&quot;).trim();
+        }
+
+        return &quot;&quot;;
+    }
+    var xmlCfoPF = &quot;&quot;;
+    if (categoria === &quot;F&quot;) {
+        xmlCfoPF =
+            &quot;&lt;CIDENTIDADE&gt;&quot;   + x(rg)             + &quot;&lt;/CIDENTIDADE&gt;&quot; +
+            &quot;&lt;DTNASCIMENTO&gt;&quot;  + x(dtNascimentoRM) + &quot;&lt;/DTNASCIMENTO&gt;&quot; +
+            &quot;&lt;ESTADOCIVIL&gt;&quot;   + x(estadoCivil)    + &quot;&lt;/ESTADOCIVIL&gt;&quot; +
+            &quot;&lt;CI_ORGAO&gt;&quot;      + x(rgOrgao)        + &quot;&lt;/CI_ORGAO&gt;&quot; +
+            &quot;&lt;CI_UF&gt;&quot;         + x(rgUf)           + &quot;&lt;/CI_UF&gt;&quot; +
+            &quot;&lt;NUMDEPENDENTES&gt;&quot;+ x(numDependentes) + &quot;&lt;/NUMDEPENDENTES&gt;&quot;;
+    }
+
+    var xmlCfo =
+        &quot;&lt;FinCFOBR&gt;&quot; +
+            &quot;&lt;FCFO&gt;&quot; +
+                &quot;&lt;CODCOLIGADA&gt;0&lt;/CODCOLIGADA&gt;&quot; +
+                &quot;&lt;CODCFO&gt;-1&lt;/CODCFO&gt;&quot; +
+                &quot;&lt;NOME&gt;&quot;           + x(nomeRM)       + &quot;&lt;/NOME&gt;&quot; +
+                &quot;&lt;NOMEFANTASIA&gt;&quot;   + x(nomeFantasia)  + &quot;&lt;/NOMEFANTASIA&gt;&quot; +
+                &quot;&lt;CGCCFO&gt;&quot;         + x(cgc)           + &quot;&lt;/CGCCFO&gt;&quot; +
+                &quot;&lt;INSCRESTADUAL&gt;&quot;  + x(inscEstadual)  + &quot;&lt;/INSCRESTADUAL&gt;&quot; +
+                &quot;&lt;INSCRMUNICIPAL&gt;&quot; + x(inscMunicipal) + &quot;&lt;/INSCRMUNICIPAL&gt;&quot; +
+                &quot;&lt;PAGREC&gt;&quot;         + pagrec            + &quot;&lt;/PAGREC&gt;&quot; +
+                &quot;&lt;RUA&gt;&quot;            + x(endereco)      + &quot;&lt;/RUA&gt;&quot; +
+                &quot;&lt;NUMERO&gt;&quot;         + x(numero)        + &quot;&lt;/NUMERO&gt;&quot; +
+                &quot;&lt;COMPLEMENTO&gt;&quot;    + x(complemento)   + &quot;&lt;/COMPLEMENTO&gt;&quot; +
+                &quot;&lt;BAIRRO&gt;&quot;         + x(bairro)        + &quot;&lt;/BAIRRO&gt;&quot; +
+                &quot;&lt;CIDADE&gt;&quot;         + x(cidade)        + &quot;&lt;/CIDADE&gt;&quot; +
+                &quot;&lt;CODETD&gt;&quot;         + x(estado)        + &quot;&lt;/CODETD&gt;&quot; +
+                &quot;&lt;CEP&gt;&quot;            + x(cep)           + &quot;&lt;/CEP&gt;&quot; +
+                &quot;&lt;CODMUNICIPIO&gt;&quot;   + x(codMunicipio)  + &quot;&lt;/CODMUNICIPIO&gt;&quot; +
+                &quot;&lt;TELEFONE&gt;&quot;       + x(telefone)      + &quot;&lt;/TELEFONE&gt;&quot; +
+                &quot;&lt;TELEX&gt;&quot;          + x(celular)       + &quot;&lt;/TELEX&gt;&quot; +
+                &quot;&lt;EMAIL&gt;&quot;          + x(emailCr)       + &quot;&lt;/EMAIL&gt;&quot; +
+                &quot;&lt;CODTCF&gt;&quot;         + x(tipo)          + &quot;&lt;/CODTCF&gt;&quot; +
+                &quot;&lt;ATIVO&gt;1&lt;/ATIVO&gt;&quot; +
+                &quot;&lt;CODCOLTCF&gt;0&lt;/CODCOLTCF&gt;&quot; +
+                &quot;&lt;PESSOAFISOUJUR&gt;&quot; + x(categoria)     + &quot;&lt;/PESSOAFISOUJUR&gt;&quot; +
+                &quot;&lt;PAIS&gt;Brasil&lt;/PAIS&gt;&quot; +
+                &quot;&lt;CONTRIBUINTE&gt;&quot;       + contribuinte  + &quot;&lt;/CONTRIBUINTE&gt;&quot; +
+                &quot;&lt;CONTRIBUINTEISS&gt;&quot;    + retencaoIss   + &quot;&lt;/CONTRIBUINTEISS&gt;&quot; +
+                &quot;&lt;IDCFO&gt;0&lt;/IDCFO&gt;&quot; +
+                &quot;&lt;OPTANTEPELOSIMPLES&gt;&quot; + simplesNac    + &quot;&lt;/OPTANTEPELOSIMPLES&gt;&quot; +
+                &quot;&lt;TIPORUA&gt;1&lt;/TIPORUA&gt;&quot; +
+                &quot;&lt;TIPOBAIRRO&gt;1&lt;/TIPOBAIRRO&gt;&quot; +
+                &quot;&lt;REGIMEISS&gt;N&lt;/REGIMEISS&gt;&quot; +
+                &quot;&lt;RETENCAOISS&gt;&quot;        + retencaoIss   + &quot;&lt;/RETENCAOISS&gt;&quot; +
+                &quot;&lt;IDPAIS&gt;1&lt;/IDPAIS&gt;&quot; +
+                &quot;&lt;NACIONALIDADE&gt;&quot;      + nacionalidade + &quot;&lt;/NACIONALIDADE&gt;&quot; +
+                (estrangeiro ? &quot;&lt;DOCUMENTOESTRANGEIRO&gt;&quot; + x(docEstrangeiro) + &quot;&lt;/DOCUMENTOESTRANGEIRO&gt;&quot; : &quot;&quot;) +
+                (codReceita    ? &quot;&lt;CODRECEITA&gt;&quot;      + x(codReceita)    + &quot;&lt;/CODRECEITA&gt;&quot;      : &quot;&quot;) +
+                (natRendimento ? &quot;&lt;IDNATRENDIMENTO&gt;&quot; + x(natRendimento) + &quot;&lt;/IDNATRENDIMENTO&gt;&quot; : &quot;&quot;) +
+                &quot;&lt;TIPORENDIMENTO&gt;000&lt;/TIPORENDIMENTO&gt;&quot; +
+                xmlCfoPF +
+            &quot;&lt;/FCFO&gt;&quot; +
+        &quot;&lt;/FinCFOBR&gt;&quot;;
+
+    var codCfo = chamarRM(&quot;FinCFODataBR&quot;, xmlCfo);
+
+    if (!codCfo) {
+        throw new Error(&quot;[ST16] CODCFO não retornado pelo RM após criação do CFO.&quot;);
+    }
+
+    log.info(&quot;[ST16] CFO criado com sucesso. CODCFO=&quot; + codCfo);
+    hAPI.setCardValue(&quot;codCfoRm&quot;, codCfo);
+
+
+    for (var i = 1; i &lt;= 5; i++) {
+        var bancoCod  = f(&quot;hiddenBanco&quot; + i + &quot;Cod&quot;);
+        var bancoDesc = f(&quot;hiddenBanco&quot; + i + &quot;Desc&quot;);
+        var agencia   = f(&quot;hiddenBanco&quot; + i + &quot;Agencia&quot;);
+        var conta     = f(&quot;hiddenBanco&quot; + i + &quot;Conta&quot;);
+
+        log.info(&quot;[ST16] Banco &quot; + i + &quot; — cod=&quot; + bancoCod + &quot; | agencia=&quot; + agencia + &quot; | conta=&quot; + conta + &quot; | desc=&quot; + bancoDesc);
+
+        if (!bancoCod &amp;&amp; !agencia &amp;&amp; !conta) {
+            log.info(&quot;[ST16] Banco &quot; + i + &quot; sem dados — ignorando.&quot;);
+            continue;
+        }
+
+        var agNum = agencia.length &gt; 1 ? agencia.slice(0, -1) : agencia;
+        var agDig = agencia.length &gt; 1 ? agencia.slice(-1)    : &quot;0&quot;;
+        var ctNum = conta.length   &gt; 1 ? conta.slice(0, -1)   : conta;
+        var ctDig = conta.length   &gt; 1 ? conta.slice(-1)      : &quot;0&quot;;
+
+        var ativo = (i === 1) ? &quot;1&quot; : &quot;0&quot;;
+
+        for (var ci = 0; ci &lt; COLIGADAS_BANCO.length; ci++) {
+            var colAtual = COLIGADAS_BANCO[ci];
+
+            var xmlBanco =
+                &quot;&lt;FDadosPgto&gt;&quot; +
+                    &quot;&lt;CODCOLIGADA&gt;&quot;  + colAtual                                                          + &quot;&lt;/CODCOLIGADA&gt;&quot; +
+                    &quot;&lt;CODCOLCFO&gt;0&lt;/CODCOLCFO&gt;&quot; +
+                    &quot;&lt;CODCFO&gt;&quot;       + x(codCfo)                                                         + &quot;&lt;/CODCFO&gt;&quot; +
+                    &quot;&lt;IDPGTO&gt;&quot; + i + &quot;&lt;/IDPGTO&gt;&quot; +
+                    &quot;&lt;DESCRICAO&gt;&quot;    + x(&quot;Conta &quot; + i + (bancoDesc ? &quot; - &quot; + bancoDesc : &quot;&quot;))            + &quot;&lt;/DESCRICAO&gt;&quot; +
+                    &quot;&lt;FORMAPAGAMENTO&gt;I&lt;/FORMAPAGAMENTO&gt;&quot; +
+                    &quot;&lt;FAVORECIDO&gt;&quot;   + x(nomeRM)                                                         + &quot;&lt;/FAVORECIDO&gt;&quot; +
+                    &quot;&lt;CGCFAVORECIDO&gt;&quot;+ x(cgc)                                                            + &quot;&lt;/CGCFAVORECIDO&gt;&quot; +
+                    &quot;&lt;ATIVO&gt;&quot; + ativo + &quot;&lt;/ATIVO&gt;&quot; +
+                    &quot;&lt;NUMEROBANCO&gt;&quot;  + x(bancoCod)                                                       + &quot;&lt;/NUMEROBANCO&gt;&quot; +
+                    &quot;&lt;CODIGOAGENCIA&gt;&quot;+ x(agNum)                                                          + &quot;&lt;/CODIGOAGENCIA&gt;&quot; +
+                    &quot;&lt;DIGITOAGENCIA&gt;&quot;+ x(agDig)                                                          + &quot;&lt;/DIGITOAGENCIA&gt;&quot; +
+                    &quot;&lt;NOMEAGENCIA&gt;&quot;  + x(bancoDesc)                                                      + &quot;&lt;/NOMEAGENCIA&gt;&quot; +
+                    &quot;&lt;CONTACORRENTE&gt;&quot;+ x(ctNum)                                                          + &quot;&lt;/CONTACORRENTE&gt;&quot; +
+                    &quot;&lt;DIGITOCONTA&gt;&quot;  + x(ctDig)                                                          + &quot;&lt;/DIGITOCONTA&gt;&quot; +
+                    &quot;&lt;TIPOCONTA&gt;1&lt;/TIPOCONTA&gt;&quot; +
+                &quot;&lt;/FDadosPgto&gt;&quot;;
+
+            try {
+                chamarRM(&quot;FinDadosPgtoDataBR&quot;, xmlBanco, colAtual);
+                log.info(&quot;[ST16] Conta &quot; + i + &quot; / Coligada &quot; + colAtual + &quot; salva com sucesso.&quot;);
+            } catch (eBanco) {
+                log.warn(&quot;[ST16] Falha conta &quot; + i + &quot; / Coligada &quot; + colAtual + &quot;: &quot; + eBanco);
+            }
+        }
+    }
+
+    log.info(&quot;[ST16] Concluído. CODCFO=&quot; + codCfo);
+}
+
+
+
+function x(s) {
+    return (s || &quot;&quot;).toString()
+        .replace(/&amp;/g,  &quot;&amp;amp;&quot;)
+        .replace(/&lt;/g,  &quot;&amp;lt;&quot;)
+        .replace(/&gt;/g,  &quot;&amp;gt;&quot;)
+        .replace(/&quot;/g,  &quot;&amp;quot;&quot;);
+}
+</eventDescription>
     </WorkflowProcessEvent>
     <WorkflowProcessEvent>
       <workflowProcessEventPK>
@@ -1007,41 +1248,51 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
-        <version>56</version>
-=======
-        <version>48</version>
->>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
+        <version>84</version>
         <linkSequence>17</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
-      <positionX>327</positionX>
-      <positionY>452</positionY>
+      <positionX>330</positionX>
+      <positionY>353</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
-        <version>56</version>
-=======
-        <version>48</version>
->>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
+        <version>84</version>
+        <linkSequence>17</linkSequence>
+        <bendSequence>2</bendSequence>
+      </processLinkBendPK>
+      <positionX>413</positionX>
+      <positionY>353</positionY>
+    </ProcessLinkBend>
+    <ProcessLinkBend>
+      <processLinkBendPK>
+        <companyId>1</companyId>
+        <processId>CadastrodeFornecedor</processId>
+        <version>84</version>
         <linkSequence>25</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
-      <positionX>503</positionX>
+      <positionX>484</positionX>
       <positionY>485</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
-        <version>56</version>
-=======
-        <version>48</version>
->>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
+        <version>84</version>
+        <linkSequence>25</linkSequence>
+        <bendSequence>2</bendSequence>
+      </processLinkBendPK>
+      <positionX>484</positionX>
+      <positionY>626</positionY>
+    </ProcessLinkBend>
+    <ProcessLinkBend>
+      <processLinkBendPK>
+        <companyId>1</companyId>
+        <processId>CadastrodeFornecedor</processId>
+        <version>84</version>
         <linkSequence>28</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1052,11 +1303,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
-        <version>56</version>
-=======
-        <version>48</version>
->>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
+        <version>84</version>
         <linkSequence>28</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1067,11 +1314,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
-        <version>56</version>
-=======
-        <version>48</version>
->>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
+        <version>84</version>
         <linkSequence>29</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1082,11 +1325,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
-        <version>56</version>
-=======
-        <version>48</version>
->>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
+        <version>84</version>
         <linkSequence>29</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1097,30 +1336,18 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
-        <version>56</version>
-=======
-        <version>48</version>
->>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
+        <version>84</version>
         <linkSequence>30</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
       <positionX>538</positionX>
-<<<<<<< HEAD
       <positionY>106</positionY>
-=======
-      <positionY>108</positionY>
->>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
-        <version>56</version>
-=======
-        <version>48</version>
->>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
+        <version>84</version>
         <linkSequence>30</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1131,11 +1358,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
-        <version>56</version>
-=======
-        <version>48</version>
->>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
+        <version>84</version>
         <linkSequence>30</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
@@ -1146,59 +1369,45 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
-        <version>56</version>
+        <version>84</version>
         <linkSequence>31</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
-      <positionX>578</positionX>
-      <positionY>626</positionY>
-=======
-        <version>48</version>
-        <linkSequence>31</linkSequence>
-        <bendSequence>1</bendSequence>
-      </processLinkBendPK>
-      <positionX>638</positionX>
-      <positionY>628</positionY>
->>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
+      <positionX>636</positionX>
+      <positionY>627</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
-        <version>56</version>
+        <version>84</version>
         <linkSequence>31</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
-      <positionX>578</positionX>
-=======
-        <version>48</version>
-        <linkSequence>31</linkSequence>
-        <bendSequence>2</bendSequence>
-      </processLinkBendPK>
-      <positionX>638</positionX>
->>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
+      <positionX>636</positionX>
       <positionY>676</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastrodeFornecedor</processId>
-<<<<<<< HEAD
-        <version>56</version>
+        <version>84</version>
         <linkSequence>31</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
-      <positionX>413</positionX>
-=======
-        <version>48</version>
-        <linkSequence>31</linkSequence>
-        <bendSequence>3</bendSequence>
-      </processLinkBendPK>
-      <positionX>470</positionX>
->>>>>>> 30689b86068675d3c8ee6ddb62bbea69706c42c9
+      <positionX>325</positionX>
       <positionY>676</positionY>
+    </ProcessLinkBend>
+    <ProcessLinkBend>
+      <processLinkBendPK>
+        <companyId>1</companyId>
+        <processId>CadastrodeFornecedor</processId>
+        <version>84</version>
+        <linkSequence>31</linkSequence>
+        <bendSequence>4</bendSequence>
+      </processLinkBendPK>
+      <positionX>325</positionX>
+      <positionY>450</positionY>
     </ProcessLinkBend>
   </list>
   <list/>

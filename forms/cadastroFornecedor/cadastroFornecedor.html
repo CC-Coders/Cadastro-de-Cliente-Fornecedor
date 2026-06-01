@@ -9,30 +9,27 @@
    <script type="text/javascript" src="/portal/resources/js/mustache/mustache-min.js"></script>
    <script type="text/javascript" src="/style-guide/js/fluig-style-guide.min.js" charset="utf-8"></script>
    <script type="text/javascript" src="/webdesk/vcXMLRPC.js"></script>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
-   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.19.9/docxtemplater.js"></script>
-   <script src="https://unpkg.com/pizzip@3.0.6/dist/pizzip.js"></script>
-   <script src="https://unpkg.com/pizzip@3.0.6/dist/pizzip-utils.js"></script>
-   <!-- Selectize -->
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.default.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"integrity="sha512-pHVGpX7F/27yZ0ISY+VVjyULApbDlD0/X0rgGbTqCE7WFW5MezNTWG/dnhtbBuICzsd0WQPgpE4REBLv+UqChw=="crossorigin="anonymous"></script>
+   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"integrity="sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI"crossorigin="anonymous"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"integrity="sha512-Qlv6VSKh1gDKGoJbnyA5RMXYcvnpIqhO++MhIM2fStMcGT9i2T//tSwYFlcyoRRDcDZ+TYHpH8azBBCyhpSeqw=="crossorigin="anonymous"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.19.9/docxtemplater.js"integrity="sha512-njndxa1i/gaQc5wHL9qDeVj5WOiQF7nsbHPYGwESlkVwCCAiye5qArUx0f4KTaWEhLH4MnolpdJi+Db4VgwzrQ=="crossorigin="anonymous"></script>
+   <script src="https://unpkg.com/pizzip@3.0.6/dist/pizzip.js"integrity="sha384-wRKRXbqgdfSnyFoOeJ6TToAO/sOeYhxOKkDjv8ygTv5xE2xg+j35STKtvFmqJBVd"crossorigin="anonymous"></script>
+   <script src="https://unpkg.com/pizzip@3.0.6/dist/pizzip-utils.js"integrity="sha384-Dh/6zZQ8mLh8GDFPF1eyGaHnJS3uZ3ML8pLfkO+ZamHYl1HbEalOzV75AuBSFNga"crossorigin="anonymous"></script>
    <!-- Formulário -->
-   <link rel="stylesheet" href="cadastroFornecedor.css"/>
-   <link rel="stylesheet" href="footer.css"/>
-   <link rel="stylesheet" href="header.css"/>
-   <link rel="stylesheet" href="paginacao.css"/>
-   <link rel="stylesheet" href="dark.css">
-   <link rel="stylesheet" href="mobile.css">
-   <script src="mobile.js"></script>
-   <script src="Functions.js"></script>
-   <script src="Script.js"></script>
-   <script src="api.js"></script>
-   <script src="ui.js"></script>
-   <script src="validation.js"></script>
-   <script src="upload.js"></script>
-   <script src="events.js"></script>
+   <link rel="stylesheet" href="css/cadastroFornecedor.css"/>
+   <link rel="stylesheet" href="css/footer.css"/>
+   <link rel="stylesheet" href="css/header.css"/>
+   <link rel="stylesheet" href="css/paginacao.css"/>
+   <link rel="stylesheet" href="css/dark.css">
+   <link rel="stylesheet" href="css/mobile.css">
+   <script src="js/mobile.js"></script>
+   <script src="js/Functions.js"></script>
+   <script src="js/Script.js"></script>
+   <script src="js/api.js"></script>
+   <script src="js/ui.js"></script>
+   <script src="js/validation.js"></script>
+   <script src="js/upload.js"></script>
+   <script src="js/events.js"></script>
    <title>Cadastro de Fornecedor</title>
 </head>
 
@@ -73,7 +70,8 @@
             <input type="hidden" id="anxLgpdId" name="anxLgpdId"/>
             <input type="hidden" id="tipoDescricao" name="tipoDescricao">
             <input type="hidden" id="tipoSelecionado" name="tipoSelecionado">
-            <!-- Grupos de mercadoria adicionais (2–10). -->
+            <input type="hidden" id="hiddenEstadoValor" name="hiddenEstadoValor"/>
+            <input type="hidden" id="hiddenGrupoMercadoria1" name="hiddenGrupoMercadoria1"/>
             <input type="hidden" id="hiddenGrupoMercadoria2" name="hiddenGrupoMercadoria2"/>
             <input type="hidden" id="hiddenGrupoMercadoria3" name="hiddenGrupoMercadoria3"/>
             <input type="hidden" id="hiddenGrupoMercadoria4" name="hiddenGrupoMercadoria4"/>
@@ -83,7 +81,6 @@
             <input type="hidden" id="hiddenGrupoMercadoria8" name="hiddenGrupoMercadoria8"/>
             <input type="hidden" id="hiddenGrupoMercadoria9" name="hiddenGrupoMercadoria9"/>
             <input type="hidden" id="hiddenGrupoMercadoria10" name="hiddenGrupoMercadoria10"/>
-            <!-- CNAEs secundários adicionais (1–5) -->
             <input type="hidden" id="hiddenCnaeSecundario1" name="hiddenCnaeSecundario1"/>
             <input type="hidden" id="hiddenCnaeSecundario2" name="hiddenCnaeSecundario2"/>
             <input type="hidden" id="hiddenCnaeSecundario3" name="hiddenCnaeSecundario3"/>
@@ -123,6 +120,44 @@
                   </tbody>
                </table>
             </div>
+
+            <!-- TABELA RELATÓRIO: CNAEs (principal + secundários) -->
+            <div id="relCnaesHidden" name="relCnaesHidden">
+               <table id="tbRelCnaes" tablename="tbRelCnaes" noaddbutton="true" nodeletebutton="true">
+                  <thead>
+                     <tr>
+                        <th>Tipo</th>
+                        <th>Codigo</th>
+                        <th>Descricao</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <tr>
+                        <td><input type="hidden" name="relCnaeTipo"     class="relCnaeTipo"/></td>
+                        <td><input type="hidden" name="relCnaeCodigo"   class="relCnaeCodigo"/></td>
+                        <td><input type="hidden" name="relCnaeDescricao" class="relCnaeDescricao"/></td>
+                     </tr>
+                  </tbody>
+               </table>
+            </div>
+
+            <!-- TABELA RELATÓRIO: Grupos de Mercadoria -->
+            <div id="relGruposHidden" name="relGruposHidden">
+               <table id="tbRelGrupos" tablename="tbRelGrupos" noaddbutton="true" nodeletebutton="true">
+                  <thead>
+                     <tr>
+                        <th>Sequencia</th>
+                        <th>Descricao</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <tr>
+                        <td><input type="hidden" name="relGmSeq"       class="relGmSeq"/></td>
+                        <td><input type="hidden" name="relGmDescricao" class="relGmDescricao"/></td>
+                     </tr>
+                  </tbody>
+               </table>
+            </div>
          </div>
          <!-- CABEÇALHO -->
          <header>
@@ -132,12 +167,12 @@
                <div class="step" style="display: block">FIM</div>
             </div>
          </header>
-         <main class="page-wrap" id="preCadastro">
+         <main class="page-wrap" id="preCadastro" style="visibility:hidden">
             <!-- PRÉ-CADASTRO -->
             <div class="step-panel step-1 active" id="divPreCadastro">
                <div class="page-header step-1" name="divHeaderPreCad" id="divHeaderPreCad">
                   <div class="page-header-icon"><i class="flaticon flaticon-account-circle"></i></div>
-                  <div class="page-header-info">
+                  <div class="page-header-info" style="margin-bottom: 17px;margin-top: 5px;">
                      <div class="page-header-title">Dados Base — Identificação e Endereço</div>
                      <div class="page-header-sub">Informe a classificação e os dados comerciais do cadastro.</div>
                      <div class="step-badge step-1">Etapa 1 de 3 — Dados Base</div>
@@ -151,8 +186,8 @@
                         <span class="section-arrow open">▼</span>
                      </div>
                   </button>
-                  <div class="section-body">
-                     <div class="grid g2">
+                  <div class="section-body" style="display:block">
+                     <div class="grid g3">
                         <div class="fg" id="divClassificacao" name="divClassificacao">
                            <label for="classificacao">Classificação</label>
                            <select id="classificacao" name="classificacao" class="form-control" required>
@@ -174,24 +209,6 @@
                            <label for="tipo">Tipo</label>
                            <select id="tipo" name="tipo" class="form-control" required>
                               <option value="">Selecione...</option>
-                           </select>
-                        </div>
-                        <div class="fg" id="divClassificacaoOperacional" name="divClassificacaoOperacional">
-                           <label for="classificacaoOperacional">Classificação Operacional</label>
-                           <select id="classificacaoOperacional" name="classificacaoOperacional" class="form-control" required>
-                              <option value="">Selecione...</option>
-                              <option value="Obra / Construção Civil">Obra / Construção Civil</option>
-                              <option value="Mineração">Mineração</option>
-                              <option value="Infraestrutura Viária">Infraestrutura Viária</option>
-                              <option value="Pavimentação e Terraplanagem">Pavimentação e Terraplanagem</option>
-                              <option value="Saneamento e Drenagem">Saneamento e Drenagem</option>
-                              <option value="Aluguel de Equipamentos">Aluguel de Equipamentos</option>
-                              <option value="Transporte e Logística">Transporte e Logística</option>
-                              <option value="Fornecimento de Materiais">Fornecimento de Materiais</option>
-                              <option value="Serviços Administrativos">Serviços Administrativos</option>
-                              <option value="Tecnologia e Sistemas">Tecnologia e Sistemas</option>
-                              <option value="Consultoria e Assessoria">Consultoria e Assessoria</option>
-                              <option value="Seguro e Benefícios">Seguro e Benefícios</option>
                            </select>
                         </div>
                      </div>
@@ -217,7 +234,7 @@
                      </div>
                   </div>
                </div>
-               <div class="section" id="divDadosComerciais">
+               <div class="section" id="divDadosComerciais" style="display:none">
                   <button type="button" class="section-head" onclick="toggleSection(this)">
                      <div class="section-head-left">
                         <div class="section-num">2</div>
@@ -261,15 +278,94 @@
                            <label for="razaoSocial">Razão Social</label>
                            <input type="text" id="razaoSocial" name="razaoSocial" placeholder="Razão Social" class="form-control" required/>
                         </div>
+                        <div class="fg" id="divNome">
+                           <label for="nome">Nome</label>
+                           <input type="text" id="nome" name="nome" placeholder="Nome" class="form-control" required/>
+                        </div>
                         <div class="fg" id="divNomeFantasia">
                            <label for="nomeFantasia">Nome Fantasia</label>
                            <input type="text" id="nomeFantasia" name="nomeFantasia" placeholder="Nome Fantasia" class="form-control" required/>
                         </div>
+                     </div>
+                     <div id="divDadosPF" style="display:none">
+                        <div class="divider"></div>
+                        <div class="grid g3">
+                           <div class="fg" id="divDtNascimento">
+                              <label for="dtNascimento">Data de Nascimento</label>
+                              <input type="date" id="dtNascimento" name="dtNascimento" class="form-control"/>
+                           </div>
+                           <div class="fg" id="divEstadoCivil">
+                              <label for="estadoCivil">Estado Civil</label>
+                              <div class="select-wrap">
+                                 <select id="estadoCivil" name="estadoCivil" class="form-control">
+                                    <option value="">Selecione...</option>
+                                    <option value="S">Solteiro(a)</option>
+                                    <option value="C">Casado(a)</option>
+                                    <option value="D">Divorciado(a)</option>
+                                    <option value="V">Viúvo(a)</option>
+                                    <option value="P">Separado(a)</option>
+                                    <option value="U">União Estável</option>
+                                 </select>
+                              </div>
+                           </div>
+                           <div class="fg" id="divDocRgOrgao">
+                              <label for="docRgOrgao">Órgão Emissor do RG</label>
+                              <input type="text" id="docRgOrgao" name="docRgOrgao" placeholder="Ex: SSP" class="form-control" maxlength="20"/>
+                           </div>
+                           <div class="fg" id="divDocRgUf">
+                              <label for="docRgUf">UF Emissora do RG</label>
+                              <div class="select-wrap">
+                                 <select id="docRgUf" name="docRgUf" class="form-control">
+                                    <option value="">Selecione...</option>
+                                    <option value="AC">Acre (AC)</option>
+                                    <option value="AL">Alagoas (AL)</option>
+                                    <option value="AM">Amazonas (AM)</option>
+                                    <option value="AP">Amapá (AP)</option>
+                                    <option value="BA">Bahia (BA)</option>
+                                    <option value="CE">Ceará (CE)</option>
+                                    <option value="DF">Distrito Federal (DF)</option>
+                                    <option value="ES">Espírito Santo (ES)</option>
+                                    <option value="GO">Goiás (GO)</option>
+                                    <option value="MA">Maranhão (MA)</option>
+                                    <option value="MG">Minas Gerais (MG)</option>
+                                    <option value="MS">Mato Grosso do Sul (MS)</option>
+                                    <option value="MT">Mato Grosso (MT)</option>
+                                    <option value="PA">Pará (PA)</option>
+                                    <option value="PB">Paraíba (PB)</option>
+                                    <option value="PE">Pernambuco (PE)</option>
+                                    <option value="PI">Piauí (PI)</option>
+                                    <option value="PR">Paraná (PR)</option>
+                                    <option value="RJ">Rio de Janeiro (RJ)</option>
+                                    <option value="RN">Rio Grande do Norte (RN)</option>
+                                    <option value="RO">Rondônia (RO)</option>
+                                    <option value="RR">Roraima (RR)</option>
+                                    <option value="RS">Rio Grande do Sul (RS)</option>
+                                    <option value="SC">Santa Catarina (SC)</option>
+                                    <option value="SE">Sergipe (SE)</option>
+                                    <option value="SP">São Paulo (SP)</option>
+                                    <option value="TO">Tocantins (TO)</option>
+                                 </select>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="section" id="divEndereco" style="display:none">
+                  <button type="button" class="section-head" onclick="toggleSection(this)">
+                     <div class="section-head-left">
+                        <div class="section-num">3</div>
+                        <span class="section-name">Endereço</span>
+                        <span class="section-arrow open">▼</span>
+                     </div>
+                  </button>
+                  <div class="section-body">
+                     <div class="grid g3" id="docEndereco">
                         <div class="fg" id="divCep">
                            <label for="cep">CEP</label>
                            <input type="text" id="cep" name="cep" placeholder="00000-000" class="form-control" required/>
                         </div>
-                        <div class="fg" id="divEndereco">
+                        <div class="fg" id="divEnderecoRua">
                            <label for="endereco">Endereço</label>
                            <input type="text" id="endereco" name="endereco" placeholder="Rua, Avenida, Rodovia..." class="form-control" required/>
                         </div>
@@ -287,13 +383,17 @@
                         </div>
                         <div class="fg" id="divCidade">
                            <label for="cidade">Cidade</label>
-                           <input type="text" id="cidade" name="cidade" placeholder="Cidade" class="form-control" required/>
+                           <div class="select-wrap">
+                              <select id="cidade" name="cidade" class="form-control" required>
+                                 <option value="">Selecione a cidade...</option>
+                              </select>
+                           </div>
+                           <input type="hidden" id="codMunicipio" name="codMunicipio"/>
+                           <input type="hidden" id="nomeCidadeSalva" name="nomeCidadeSalva"/>
                         </div>
                         <div class="fg" id="divPais">
                            <label for="pais">País</label>
-                           <!-- Modo nacional: readonly, fixado em Brasil -->
                            <input type="text" id="pais" name="pais" placeholder="País" class="form-control" required readonly/>
-                           <!-- Modo estrangeiro: select populado via dataset GPAIS (sem Brasil) -->
                            <div class="select-wrap" id="divSelectPaisEstrangeiro" style="display:none">
                               <select id="selectPaisEstrangeiro" name="selectPaisEstrangeiro" class="form-control">
                                  <option value="">Selecione o país...</option>
@@ -302,7 +402,11 @@
                         </div>
                         <div class="fg" id="divEstado">
                            <label for="estado">Estado</label>
-                           <input type="text" id="estado" name="estado" placeholder="UF" class="form-control" required/>
+                           <div class="select-wrap">
+                              <select id="estado" name="estado" class="form-control" required>
+                                 <option value="">Selecione o estado...</option>
+                              </select>
+                           </div>
                         </div>
                      </div>
                   </div>
@@ -312,7 +416,7 @@
             <div class="step-panel step-2" id="divDadosCadastrais" name="divDadosCadastrais" style="display: none">
                <div class="page-header step-2" id="divHeaderDadosCadastrais">
                   <div class="page-header-icon"><i class="animaliaicon animaliaicon-file-text icon" aria-hidden="true"></i></div>
-                  <div class="page-header-info">
+                  <div class="page-header-info" style="margin-bottom: 17px;margin-top: 5px;">
                      <div class="page-header-title">Dados Cadastrais</div>
                      <div class="page-header-sub">Complete os dados fiscais, bancários, condições comerciais e informações de contato do cliente ou fornecedor.</div>
                      <div class="step-badge step-2">Etapa 2 de 3 — Dados Cadastrais</div>
@@ -321,29 +425,23 @@
                <div class="section" id="divDadosFiscais">
                   <button type="button" class="section-head" onclick="toggleSection(this)">
                      <div class="section-head-left">
-                        <div class="section-num">3</div>
+                        <div class="section-num">4</div>
                         <span class="section-name">Dados Fiscais</span>
                         <span class="section-arrow open">▼</span>
                      </div>
                   </button>
                   <div class="section-body">
-                     <div class="grid g4" id="divIrrfRow">
+                     <div class="grid g2" id="divIrrfRow">
                         <div class="fg" id="divIcms">
                            <label for="icms">Contribuinte ICMS</label>
-                           <select id="icms" name="icms" class="form-control" required>
-                              <option value="">Selecione...</option>
-                              <option value="0">Não Contribuinte</option>
-                              <option value="1">Contribuinte</option>
-                              <option value="2">Isento</option>
-                           </select>
-                        </div>
-                        <div class="fg" id="divSimplesNacional">
-                           <label for="simplesNacional">Simples Nacional</label>
-                           <select id="simplesNacional" name="simplesNacional" class="form-control" required>
-                              <option value="">Selecione...</option>
-                              <option value="1">Sim</option>
-                              <option value="0">Não</option>
-                           </select>
+                           <div class="select-wrap">
+                              <select id="icms" name="icms" class="form-control" required>
+                                 <option value="">Selecione...</option>
+                                 <option value="0">Não Contribuinte, pode ou não possuir IE no Cadastro de Contribuintes</option>
+                                 <option value="1">Contribuinte ICMS</option>
+                                 <option value="2">Contribuinte isento de Inscrição no Cadastro de Contribuintes do ICMS</option>
+                              </select>
+                           </div>
                         </div>
                         <div class="fg" id="divDescricaoIrrf">
                            <label for="selectDescricaoIrrf">Código de Receita IRRF</label>
@@ -354,70 +452,99 @@
                            </div>
                            <input type="hidden" id="hiddenCodIrrf" name="hiddenCodIrrf">
                         </div>
-                        <div class="fg" id="divIrrf">
-                           <label for="irrf">Alíquota IRRF (%)</label>
-                           <input type="number" id="irrf" name="irrf" class="form-control" readonly/>
+                     </div>
+                     <div class="retencao-box" id="divSimplesNacional">
+                        <div class="retencao-content">
+                           <div class="retencao-text">
+                              <strong>Optante pelo Simples Nacional?</strong>
+                              <small>Empresa enquadrada no regime tributário do Simples Nacional.</small>
+                           </div>
+                           <div class="retencao-toggle">
+                              <span class="retencao-label">Não</span>
+                              <div class="switch switch-success">
+                                 <input class="switch-input" type="checkbox" id="toggleSimplesNacional" name="toggleSimplesNacional"/>
+                                 <label class="switch-button" for="toggleSimplesNacional">Simples Nacional</label>
+                              </div>
+                              <input type="hidden" id="hiddenToggleSimplesNacional" name="hiddenToggleSimplesNacional"/>
+                              <input type="hidden" id="simplesNacional" name="simplesNacional" value="0"/>
+                              <span class="retencao-label">Sim</span>
+                           </div>
                         </div>
                      </div>
                      <div class="divider"></div>
-                     <div class="grid g3">
+                     <div class="grid g2">
                      <div class="fg" id="divNaturezaRendimento">
                         <label for="naturezaRendimento">Natureza de Rendimentos</label>
                         <select id="naturezaRendimento" name="naturezaRendimento" class="form-control" required>
                            <option value="">Selecione...</option>
                         </select>
-                        <input type="hidden" id="codNaturezaRendimento"name="codNaturezaRendimento">
+                        <input type="hidden" id="codNaturezaRendimento" name="codNaturezaRendimento">
+                        <input type="hidden" id="idNatRendimento"      name="idNatRendimento">
                      </div>
                         <div class="fg" id="divRegimeFiscal">
                            <label for="regimeFiscal">Regime Fiscal</label>
                            <select id="regimeFiscal" name="regimeFiscal" class="form-control" required>
                               <option value="">Selecione...</option>
-                              <option value="Lucro Real">Lucro Real</option>
-                              <option value="Lucro Presumido">Lucro Presumido</option>
-                              <option value="Lucro Arbitrado">Lucro Arbitrado</option>
-                              <option value="Simples Nacional">Simples Nacional</option>
-                              <option value="MEI — Microempreendedor Individual">MEI — Microempreendedor Individual</option>
-                              <option value="Imune / Isento">Imune / Isento</option>
-                              <option value="Pessoa Física">Pessoa Física</option>
+                              <option value="01">Lucro Real</option>
+                              <option value="02">Lucro Presumido</option>
+                              <option value="03">Lucro Arbitrado</option>
+                              <option value="04">Simples Nacional</option>
+                              <option value="05">MEI — Microempreendedor Individual</option>
+                              <option value="06">Imune / Isento</option>
+                              <option value="07">Pessoa Física</option>
                            </select>
                         </div>
-                        <!-- <div class="fg" id="divTipoDocEmitido">
-                           <label for="tipoDocEmitido">Tipo de Documento Emitido</label>
-                           <select id="tipoDocEmitido" name="tipoDocEmitido" class="form-control" required>
-                              <option value="">Selecione...</option>
-                              <option value="NF-e">NF-e — Nota Fiscal Eletrônica</option>
-                              <option value="NFS-e">NFS-e — Nota Fiscal de Serviços Eletrônica</option>
-                              <option value="CT-e">CT-e — Conhecimento de Transporte Eletrônico</option>
-                              <option value="NF-3e">NF-3e — Nota Fiscal de Energia Elétrica</option>
-                              <option value="MDF-e">MDF-e — Manifesto Eletrônico de Documentos Fiscais</option>
-                              <option value="Recibo / RPA">Recibo / RPA</option>
-                              <option value="Fatura / Boleto">Fatura / Boleto</option>
-                              <option value="Não emite documento fiscal">Não emite documento fiscal</option>
-                           </select>
-                        </div> -->
+                     </div>
+                     <!-- Toggle de Dependentes — visível apenas para Pessoa Física -->
+                     <div class="retencao-box" id="divDependentesBox" style="display:none">
+                        <div class="retencao-content">
+                           <div class="retencao-text">
+                              <strong>Possui dependentes?</strong>
+                              <small>Informe se o cadastrado possui dependentes para fins de apuração de IRRF.</small>
+                           </div>
+                           <div class="retencao-toggle">
+                              <span class="retencao-label">Não</span>
+                              <div class="switch switch-success">
+                                 <input class="switch-input" type="checkbox" id="toggleDependentes" name="toggleDependentes"/>
+                                 <label class="switch-button" for="toggleDependentes">Possui dependentes</label>
+                              </div>
+                              <input type="hidden" id="hiddenToggleDependentes" name="hiddenToggleDependentes"/>
+                              <span class="retencao-label">Sim</span>
+                           </div>
+                        </div>
+                     </div>
+                     <!-- Painel de quantidade — separado do toggle, mesmo padrão de divRetencoesPanel -->
+                     <div id="divNumDependentesInput" class="retencoes-box field-hidden">
+                        <div class="retencoes-title">
+                           <i class="flaticon flaticon-user"></i>
+                           <span>QUANTIDADE DE DEPENDENTES</span>
+                        </div>
+                        <div class="grid g3">
+                           <div class="fg">
+                              <input type="number" id="numDependentes" name="numDependentes" class="form-control" min="1" value="0"/>
+                           </div>
+                        </div>
                      </div>
                      <div class="divider"></div>
                      <div id="divMoedaGrupoMercadoria">
-                        <div class="fg" id="divGrupoMercadoriaPrincipal">
-                           <label for="grupoMercadoria1">Grupo de Mercadoria</label>
-                           <div class="input-btn-row">
+                        <div class="grid g2">
+                           <div class="fg" id="divGrupoMercadoriaPrincipal">
+                              <label for="grupoMercadoria1">Grupo de Mercadoria</label>
                               <div class="select-wrap">
                                  <select id="grupoMercadoria1" name="grupoMercadoria1" class="form-control grupo-mercadoria" required>
                                     <option value="">Selecione...</option>
                                  </select>
                               </div>
-                              <div id="divBtnAddGrupoMercadoria">
-                                 <button type="button" class="btn btn-warning btn-grupo-mercadoria" id="btn-add-grupo-mercadoria">Adicionar</button>
-                              </div>
+                           </div>
+                           <div class="fg" style="align-self: flex-end;">
+                              <button type="button" class="btn btn-warning btn-grupo-mercadoria" id="btn-add-grupo-mercadoria">Adicionar</button>
                            </div>
                         </div>
                      </div>
                      <div id="grupo-mercadoria-wrap"></div>
                      <div class="divider"></div>
                      <div class="cnae-box">
-                        <div class="cnae-header"><i class="flaticon flaticon-document"></i>
-                           <span>CNAE — CLASSIFICAÇÃO NACIONAL DE ATIVIDADES ECONÔMICAS</span>
-                        </div>
+                        <span>CNAE — CLASSIFICAÇÃO NACIONAL DE ATIVIDADES ECONÔMICAS</span>
                         <div class="fg" id="divCnaePrincipal">
                            <label for="cnaePrincipal">CNAE Principal</label>
                            <div class="input-btn-row">
@@ -448,9 +575,7 @@
                         </div>
                      </div>
                      <div id="divRetencoesPanel" name="divRetencoesPanel" class="retencoes-box field-hidden">
-                        <div class="retencoes-title"><i class="flaticon flaticon-document"></i>
-                           <span>SELECIONE OS IMPOSTOS QUE SERÃO RETIDOS:</span>
-                        </div>
+                        <span>SELECIONE OS IMPOSTOS QUE SERÃO RETIDOS:</span>
                         <!-- Mensagem de erro colocada aqui, fora dos cards individuais -->
                         <small id="erroMinimoImposto" class="help-block erro-validacao" style="display:none">
                            Selecione pelo menos um imposto.
@@ -495,7 +620,7 @@
                <div class="section" id="divDadosBancarios">
                   <button type="button" class="section-head" onclick="toggleSection(this)">
                      <div class="section-head-left">
-                        <div class="section-num">4</div>
+                        <div class="section-num">5</div>
                         <span class="section-name">Dados Bancários</span>
                         <span class="section-arrow open">▼</span>
                      </div>
@@ -570,12 +695,14 @@
                      <input type="hidden" id="hiddenBanco5Desc" name="hiddenBanco5Desc">
                      <input type="hidden" id="hiddenBanco5Agencia" name="hiddenBanco5Agencia">
                      <input type="hidden" id="hiddenBanco5Conta" name="hiddenBanco5Conta">
+                     <!-- Campo preenchido automaticamente pelo servicetask16 após o cadastro no RM -->
+                     <input type="hidden" id="codCfoRm" name="codCfoRm">
                   </div>
                </div>
                <div class="section" id="divContatos">
                   <button type="button" class="section-head" onclick="toggleSection(this)">
                      <div class="section-head-left">
-                        <div class="section-num">5</div>
+                        <div class="section-num">6</div>
                         <span class="section-name">Contatos</span>
                         <span class="section-arrow open">▼</span>
                      </div>
@@ -615,17 +742,16 @@
             <div class="step-panel step-3" id="divDocumentacao" name="divDocumentacao" style="display: none">
                <div class="page-header step-3" id="divHeaderDocumentacao" name="divHeaderDocumentacao">
                   <div class="page-header-icon"><i class="flaticon flaticon-cloud-download icon-lg" aria-hidden="true"></i></div>
-                  <div class="page-header-info">
+                  <div class="page-header-info" style="margin-bottom: 17px;margin-top: 5px;">
                      <div class="page-header-title">Documentação — Anexos Obrigatórios</div>
                      <div class="page-header-sub">Anexe os documentos obrigatórios para validação do cadastro do cliente / fornecedor.</div>
                      <div class="step-badge step-3">Etapa 3 de 3 — Documentação</div>
                   </div>
                </div>
-               <!-- ANEXOS DE DOCUMENTOS -->
                <div class="section" id="divAnexosDocumentos" name="divAnexosDocumentos">
                   <button type="button" class="section-head" onclick="toggleSection(this)">
                      <div class="section-head-left">
-                        <div class="section-num">6</div>
+                        <div class="section-num">7</div>
                         <span class="section-name">Anexos de Documentos</span>
                         <span class="section-arrow open">▼</span>
                      </div>
@@ -722,11 +848,11 @@
                   </div>
                </div>
             </div>
-            <!-- HISTÓRICO DE DECISÃO -->
+            <!-- HISTÓRICO E DECISÃO -->
             <div class="step-panel step-4" id="paginaHistorico" style="display: none">
                <div class="page-header step-4" id="divHeaderHistorico">
                   <div class="page-header-icon"><i class="flaticon flaticon-clock icon-md" aria-hidden="true"></i></div>
-                  <div class="page-header-info">
+                  <div class="page-header-info" style="margin-bottom: 17px;margin-top: 5px;">
                      <div class="page-header-title">Histórico e Decisão</div>
                      <div class="page-header-sub">Consulte o andamento do processo e registre sua decisão.</div>
                      <div class="step-badge step-4">Etapa de tomada de decisão do processo</div>
@@ -819,8 +945,7 @@
                         <div class="step-connector-line"></div>
                      </div>
                      <!-- Historico e decisão -->
-                     <button type="button" class="step-item" id="nav-step-HistoricoDecisao" style="display: none"
-                        onclick="goToStep(4)">
+                     <button type="button" class="step-item" id="nav-step-HistoricoDecisao" style="display: none"onclick="goToStep(4)">
                         <div class="step-circle"><i class="animaliaicon animaliaicon-clock-clockwise icon-md" aria-hidden="true"></i></div>
                         <div class="step-info">
                            <span class="step-label">ETAPA DECISÃO</span>
@@ -836,5 +961,4 @@
       </form>
    </div>
 </body>
-
 </html>

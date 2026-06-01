@@ -1,0 +1,948 @@
+<![CDATA[
+<FinCFOBR >
+<FCFO>
+    <CODCOLIGADA>0</CODCOLIGADA>
+    <CODCFO>-1</CODCFO>
+    <NOMEFANTASIA>VOTO</NOMEFANTASIA>
+    <NOME>VOTORANTIM CIMENTOS DO BRASIL LTDA</NOME>
+    <CGCCFO>30.024.617/0001-08</CGCCFO>
+    <INSCRESTADUAL>130099325</INSCRESTADUAL>
+    <PAGREC>1</PAGREC>
+    <RUA>BR-163/164 </RUA>
+    <NUMERO>S/N</NUMERO>
+    <COMPLEMENTO>KM 480,5</COMPLEMENTO>
+    <BAIRRO>Tombador</BAIRRO>
+    <CIDADE>Nobres</CIDADE>
+    <CODETD>MT</CODETD>
+    <CEP>78460-000</CEP>
+    <TELEFONE>(65) 3617-2190</TELEFONE>
+    <TELEX>69 9965-1688</TELEX>
+    <EMAIL>vendas@itaucimentos.com.br</EMAIL>
+    <CONTATO>Jose Luis</CONTATO>
+    <CODTCF>001</CODTCF>
+    <ATIVO>1</ATIVO>
+    <CODCOLTCF>0</CODCOLTCF>
+    <CODMUNICIPIO>05903</CODMUNICIPIO>
+    <PESSOAFISOUJUR>J</PESSOAFISOUJUR>
+    <PAIS>Brasil</PAIS>
+    <CONTRIBUINTE>0</CONTRIBUINTE>
+    <CONTRIBUINTEISS>0</CONTRIBUINTEISS>
+    <IDCFO>2170</IDCFO>
+    <OPTANTEPELOSIMPLES>0</OPTANTEPELOSIMPLES>
+    <TIPORUA>34</TIPORUA>
+    <TIPOBAIRRO>1</TIPOBAIRRO>
+    <REGIMEISS>N</REGIMEISS>
+    <RETENCAOISS>0</RETENCAOISS>
+    <IDPAIS>1</IDPAIS>
+    <NACIONALIDADE>0</NACIONALIDADE>
+    <TIPORENDIMENTO>000</TIPORENDIMENTO>
+</FCFO>
+<FCFOCOMPL>
+    <CODCOLIGADA>0</CODCOLIGADA>
+    <CODCFO>-1</CODCFO>
+    <REIDI>0</REIDI>
+    <VALIDAFF>0</VALIDAFF>
+</FCFOCOMPL>
+</FinCFOBR>
+]]>
+
+<!-- fornecedor estrangeiro -->
+<PAIS>0</PAIS>
+<DOCUMENTOESTRANGEIRO>0</DOCUMENTOESTRANGEIRO>
+<CODETD>EX</CODETD>
+
+
+<!-- dados de pagamento -->
+		<FDadosPgto>
+		    <CODCOLIGADA>1</CODCOLIGADA>
+		    <CODCOLCFO>0</CODCOLCFO>
+		    <CODCFO>038748</CODCFO>
+		    <IDPGTO>-1</IDPGTO>
+		    <DESCRICAO>TESTE</DESCRICAO>
+		    <FORMAPAGAMENTO>I</FORMAPAGAMENTO>
+		    <FAVORECIDO>Gustavo Soares Reis</FAVORECIDO>
+		    <CGCFAVORECIDO>62.028.409/0001-73</CGCFAVORECIDO>
+		    <ATIVO>1</ATIVO>
+		    <NUMEROBANCO>001</NUMEROBANCO>
+		    <CODIGOAGENCIA>1234</CODIGOAGENCIA>
+		    <DIGITOAGENCIA>5</DIGITOAGENCIA>
+		    <NOMEAGENCIA>BANCO ITAÚ S/A.</NOMEAGENCIA>
+		    <CONTACORRENTE>0001</CONTACORRENTE>
+		    <DIGITOCONTA>1</DIGITOCONTA>
+		    <TIPOCONTA>1</TIPOCONTA>
+		</FDadosPgto>
+
+
+
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tot="http://www.totvs.com/">
+<soapenv:Header/>
+<soapenv:Body>
+     <tot:ReadRecord>
+         <!--Optional:-->
+         <tot:DataServerName>FinDADOSPGTODataBR</tot:DataServerName>
+         <!--Optional:-->
+         <tot:PrimaryKey>1;0;000009;1</tot:PrimaryKey>
+         <!--Optional:-->
+         <tot:Contexto>CODCOLIGADA=1;CODSISTEMA=T</tot:Contexto>
+     </tot:ReadRecord>
+</soapenv:Body>
+</soapenv:Envelope>
+
+
+
+
+
+<![CDATA[<FinCFOBR xmlns="http://tempuri.org/FinCFOBR.xsd">
+  <xs:schema id="FinCFOBR" targetNamespace="http://tempuri.org/FinCFOBR.xsd" xmlns:mstns="http://tempuri.org/FinCFOBR.xsd" xmlns="http://tempuri.org/FinCFOBR.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" attributeFormDefault="qualified" elementFormDefault="qualified">
+    <xs:element name="FinCFOBR" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msdata:EnforceConstraints="False">
+      <xs:complexType>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element name="FCFO">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="CODEXTERNO" msdata:Caption="Código externo de integração com Protheus" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="25" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CODCOLIGADA" msdata:Caption="Coligada" type="xs:short" default="0" />
+                <xs:element name="CODCFO" msdata:Caption="Cliente/Fornecedor">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="25" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CODLOJA" msdata:Caption="Código da loja de integração com Protheus" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="8" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CODFILIALINTEGRACAO" msdata:Caption="Código de filial de integração com Protheus" type="xs:int" minOccurs="0" />
+                <xs:element name="NOMEFANTASIA" msdata:Caption="Nome Fantasia/Social">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="100" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="NOME" msdata:Caption="Nome">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="100" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CGCCFO" msdata:Caption="CPF/CNPJ" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="20" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="INSCRESTADUAL" msdata:Caption="Inscrição Estadual" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="20" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="PAGREC" msdata:Caption="Classificação" type="xs:short" />
+                <xs:element name="RUA" msdata:Caption="Rua" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="100" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="NUMERO" msdata:Caption="Número" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="8" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="COMPLEMENTO" msdata:Caption="Complemento" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="60" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="BAIRRO" msdata:Caption="Bairro" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="80" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CIDADE" msdata:Caption="Cidade" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="32" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CODETD" msdata:Caption="Estado" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="2" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CEP" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="9" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="TELEFONE" msdata:Caption="Telefone" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="15" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="RUAPGTO" msdata:Caption="Rua de Pagamento" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="100" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="NUMEROPGTO" msdata:Caption="Número de Pagamento" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="8" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="COMPLEMENTOPGTO" msdata:Caption="Complemento de Pgto." minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="60" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="BAIRROPGTO" msdata:Caption="Bairro de Pagamento" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="80" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CIDADEPGTO" msdata:Caption="Cidade de Pagamento" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="32" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CODETDPGTO" msdata:Caption="Estado de Pagamento" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="2" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CEPPGTO" msdata:Caption="CEP de Pagamento" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="9" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="TELEFONEPGTO" msdata:Caption="Telefone de Pagamento" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="15" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="RUAENTREGA" msdata:Caption="Rua de Entrega" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="100" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="NUMEROENTREGA" msdata:Caption="Número de Entrega" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="8" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="COMPLEMENTREGA" msdata:Caption="Complemento de Entrega" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="60" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="BAIRROENTREGA" msdata:Caption="Bairro de Entrega" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="80" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CIDADEENTREGA" msdata:Caption="Cidade de Entrega" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="32" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CODETDENTREGA" msdata:Caption="Estado de Entrega" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="2" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CEPENTREGA" msdata:Caption="CEP de Entrega" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="9" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="TELEFONEENTREGA" msdata:Caption="Telefone de Entrega" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="15" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="FAX" msdata:Caption="Fax" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="15" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="TELEX" msdata:Caption="Celular" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="15" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="EMAIL" msdata:Caption="E-Mail" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="250" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CONTATO" msdata:Caption="Contato" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="40" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CODTCF" msdata:Caption="Tipo de Cliente/Fornecedor" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="25" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="ATIVO" msdata:Caption="Ativo" type="xs:short" default="1" />
+                <xs:element name="LIMITECREDITO" msdata:Caption="Limite de Crédito" type="xs:decimal" minOccurs="0" />
+                <xs:element name="VALORULTIMOLAN" msdata:Caption="Valor Últ. Lançamento" type="xs:decimal" default="0" minOccurs="0" />
+                <xs:element name="DATAULTALTERACAO" msdata:Caption="Data de Alteração" msdata:DateTimeMode="Unspecified" type="xs:dateTime" default="2026-05-25T00:00:00-03:00" minOccurs="0" />
+                <xs:element name="DATACRIACAO" msdata:Caption="Data de Criação" msdata:DateTimeMode="Unspecified" type="xs:dateTime" default="2026-05-25T00:00:00-03:00" minOccurs="0" />
+                <xs:element name="DATAULTMOVIMENTO" msdata:Caption="Dt. Última Mov. Financeira" msdata:DateTimeMode="Unspecified" type="xs:dateTime" minOccurs="0" />
+                <xs:element name="CAMPOLIVRE" msdata:Caption="Campo Livre" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="40" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CAMPOALFAOP1" msdata:Caption="" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="40" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CAMPOALFAOP2" msdata:Caption="" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="40" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CAMPOALFAOP3" msdata:Caption="" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="40" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="VALOROP1" msdata:Caption="" type="xs:decimal" minOccurs="0" />
+                <xs:element name="VALOROP2" msdata:Caption="" type="xs:decimal" minOccurs="0" />
+                <xs:element name="VALOROP3" msdata:Caption="" type="xs:decimal" minOccurs="0" />
+                <xs:element name="DATAOP1" msdata:Caption="" msdata:DateTimeMode="Unspecified" type="xs:dateTime" minOccurs="0" />
+                <xs:element name="DATAOP2" msdata:Caption="" msdata:DateTimeMode="Unspecified" type="xs:dateTime" minOccurs="0" />
+                <xs:element name="DATAOP3" msdata:Caption="" msdata:DateTimeMode="Unspecified" type="xs:dateTime" minOccurs="0" />
+                <xs:element name="CODTRA" msdata:Caption="Transportadora 1" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="5" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CHAPA" msdata:Caption="Chapa do Funcionário" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="16" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="DTINICATIVIDADES" msdata:Caption="Data Início das Ativ." msdata:DateTimeMode="Unspecified" type="xs:dateTime" minOccurs="0" />
+                <xs:element name="PATRIMONIO" msdata:Caption="Patrimônio" type="xs:decimal" minOccurs="0" />
+                <xs:element name="NUMFUNCIONARIOS" msdata:Caption="Número de Funcionários" type="xs:int" minOccurs="0" />
+                <xs:element name="CODCOLTCF" msdata:Caption="Coligada do Tipo de Cli/For" type="xs:short" minOccurs="0" />
+                <xs:element name="FAXDEDICADO" msdata:Caption="Fax Dedicado" type="xs:short" default="0" minOccurs="0" />
+                <xs:element name="CODMUNICIPIO" msdata:Caption="Cód. Município" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="20" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="INSCRMUNICIPAL" msdata:Caption="Inscrição Municipal" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="20" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="PESSOAFISOUJUR" msdata:Caption="Categoria">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="1" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CONTATOPGTO" msdata:Caption="Contato de Pagamento" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="40" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CONTATOENTREGA" msdata:Caption="Contato de Entrega" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="40" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="PAIS" msdata:Caption="País" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="20" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="PAISPAGTO" msdata:Caption="País de Pagamento" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="20" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="PAISENTREGA" msdata:Caption="País de Entrega" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="20" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="ULTIMODOCUMENTO" msdata:Caption="Último Documento" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="40" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CONTRIBUINTE" msdata:Caption="Contribuinte ICMS" type="xs:short" default="0" minOccurs="0" />
+                <xs:element name="CFOIMOB" msdata:Caption="Bloqueado" type="xs:short" minOccurs="0" />
+                <xs:element name="CIDENTIDADE" msdata:Caption="Cédula de Identidade" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="20" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CI_ORGAO" msdata:Caption="Órgão Emissor CI" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="15" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CI_UF" msdata:Caption="Estado Emissor CI" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="2" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="FAXENTREGA" msdata:Caption="Fax de Entrega" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="15" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="EMAILENTREGA" msdata:Caption="E-Mail de Entrega" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="250" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="FAXPGTO" msdata:Caption="Fax de Pagamento" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="15" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="EMAILPGTO" msdata:Caption="E-Mail de Pagamento" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="250" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="VALFRETE" msdata:Caption="Valor do Frete" type="xs:decimal" minOccurs="0" />
+                <xs:element name="TPTOMADOR" msdata:Caption="Tipo de Tomador" type="xs:short" minOccurs="0" />
+                <xs:element name="CONTRIBUINTEISS" msdata:Caption="Contribuinte ISS" type="xs:short" minOccurs="0" />
+                <xs:element name="NUMDEPENDENTES" msdata:Caption="Número de Dependentes" type="xs:int" minOccurs="0" />
+                <xs:element name="ESTADOCIVIL" msdata:Caption="Estado Civil" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="1" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="PRODUTORRURAL" msdata:Caption="Produtor Rural" default="F" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="1" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="USUARIOALTERACAO" msdata:Caption="Usuário Alteração" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="20" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="SUFRAMA" msdata:Caption="Inscrição no SUFRAMA" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="14" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CODMUNICIPIOPGTO" msdata:Caption="Cód. Município Pagamento" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="20" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CODMUNICIPIOENTREGA" msdata:Caption="Cód. Município Entrega" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="20" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="ORGAOPUBLICO" msdata:Caption="Órgão Público" type="xs:short" minOccurs="0" />
+                <xs:element name="TELEFONECOMERCIAL" msdata:Caption="Telefone Comercial" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="15" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CAIXAPOSTAL" msdata:Caption="Caixa Postal" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="10" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CAIXAPOSTALENTREGA" msdata:Caption="Caixa Postal de Entrega" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="10" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CAIXAPOSTALPAGAMENTO" msdata:Caption="Caixa Postal de Pagamento" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="10" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CATEGORIAAUTONOMO" msdata:Caption="Categoria do Autônomo" type="xs:short" minOccurs="0" />
+                <xs:element name="CBOAUTONOMO" msdata:Caption="CBO Autônomo" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="10" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CIAUTONOMO" msdata:Caption="Número do Contribuinte" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="11" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="IDCFO" msdata:Caption="Ref." type="xs:int" default="0" />
+                <xs:element name="VROUTRASDEDUCOESIRRF" msdata:Caption="Valor Outras Deduções" type="xs:decimal" minOccurs="0" />
+                <xs:element name="CODRECEITA" msdata:Caption="Código da Receita" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="10" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="RAMOATIV" msdata:Caption="Ramo de Atividade" type="xs:int" minOccurs="0" />
+                <xs:element name="OPTANTEPELOSIMPLES" msdata:Caption="Optante pelo Simples" type="xs:short" minOccurs="0" />
+                <xs:element name="TIPORUA" msdata:Caption="Tipo de Rua" type="xs:short" minOccurs="0" />
+                <xs:element name="TIPOBAIRRO" msdata:Caption="Tipo de Bairro" type="xs:short" minOccurs="0" />
+                <xs:element name="REGIMEISS" msdata:Caption="Regime de ISS" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="1" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="RETENCAOISS" msdata:Caption="Retenção de ISS" type="xs:short" minOccurs="0" />
+                <xs:element name="DTNASCIMENTO" msdata:Caption="Data de Nascimento" msdata:DateTimeMode="Unspecified" type="xs:dateTime" minOccurs="0" />
+                <xs:element name="USUARIOCRIACAO" msdata:Caption="Código do Usuário" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="20" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="TIPORUAPGTO" msdata:Caption="Tipo de Rua de Pagamento" type="xs:short" minOccurs="0" />
+                <xs:element name="TIPOBAIRROPGTO" msdata:Caption="Tipo de Bairro de Pgto." type="xs:short" minOccurs="0" />
+                <xs:element name="TIPORUAENTREGA" msdata:Caption="Tipo de Rua de Entrega" type="xs:short" minOccurs="0" />
+                <xs:element name="TIPOBAIRROENTREGA" msdata:Caption="Tipo de Bairro de Entrega" type="xs:short" minOccurs="0" />
+                <xs:element name="PORTE" msdata:Caption="Porte da Empresa" type="xs:short" minOccurs="0" />
+                <xs:element name="CEPCAIXAPOSTAL" msdata:Caption="CEP C. Post." type="xs:string" minOccurs="0" />
+                <xs:element name="NIT" type="xs:string" minOccurs="0" />
+                <xs:element name="CODPAGTOGPS" msdata:Caption="Código de Pagamento GPS" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="5" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="TIPOOPCOMBUSTIVEL" msdata:Caption="Tipo Oper. Combustível" type="xs:string" minOccurs="0" />
+                <xs:element name="CODCONTAGER" msdata:Caption="Conta Gerencial" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="40" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="IDPAIS" msdata:Caption="Identificador do País" type="xs:short" minOccurs="0" />
+                <xs:element name="IDPAISPGTO" msdata:Caption="Identificador do País de Pagamento" type="xs:short" minOccurs="0" />
+                <xs:element name="IDPAISENTREGA" msdata:Caption="Identificador do País de Entrega" type="xs:short" minOccurs="0" />
+                <xs:element name="NUMDIASATRASO" msdata:Caption="Número" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="6" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="DESCTIPORUA" msdata:Caption="" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="36" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="TIPOCONTRIBUINTEINSS" msdata:Caption="Tipo de Contribuinte no INSS" type="xs:short" minOccurs="0" />
+                <xs:element name="NACIONALIDADE" msdata:Caption="Nacionalidade" type="xs:int" default="0" minOccurs="0" />
+                <xs:element name="CODCOLCFOFISCAL" msdata:Caption="Coligada da Classificação Fiscal" type="xs:short" minOccurs="0" />
+                <xs:element name="IDCFOFISCAL" msdata:Caption="Classificação Fiscal" type="xs:int" minOccurs="0" />
+                <xs:element name="CALCULAAVP" msdata:Caption="Usar Ajuste a Valor Presente" type="xs:short" default="0" minOccurs="0" />
+                <xs:element name="CODUSUARIOACESSO" msdata:Caption="Usuário de acesso" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="20" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="RECCREATEDBY" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="50" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="RECCREATEDON" msdata:DateTimeMode="Unspecified" type="xs:dateTime" minOccurs="0" />
+                <xs:element name="RECMODIFIEDBY" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="50" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="RECMODIFIEDON" msdata:DateTimeMode="Unspecified" type="xs:dateTime" minOccurs="0" />
+                <xs:element name="EMAILFISCAL" msdata:Caption="E-Mail Fiscal" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="250" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="IDINTEGRACAO" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="100" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="INDNATRET" msdata:Caption="Natureza da Retenção na Fonte" type="xs:string" minOccurs="0" />
+                <xs:element name="TIPORENDIMENTO" msdata:Caption="Tipo de Rendimento" type="xs:string" default="000" minOccurs="0" />
+                <xs:element name="FORMATRIBUTACAO" msdata:Caption="Forma de Tributação" type="xs:string" default="00" minOccurs="0" />
+                <xs:element name="NIF" msdata:Caption="Número de Identificação Fiscal" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="50" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="SITUACAONIF" msdata:Caption="Situação do NIF" type="xs:short" default="0" minOccurs="0" />
+                <xs:element name="DOCUMENTOESTRANGEIRO" msdata:Caption="Documentos Estrangeiros" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="30" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="ISTOTVSMESSAGE" type="xs:string" minOccurs="0" />
+                <xs:element name="INOVAR_AUTO" msdata:Caption="Gerar rotina Inovar Auto" type="xs:int" default="0" minOccurs="0" />
+                <xs:element name="FILIALFINANCEIRA" msdata:Caption="Filial Financeira" type="xs:int" minOccurs="0" />
+                <xs:element name="TOMADORFOLHA" msdata:Caption="Tomador de serviços folha" type="xs:string" minOccurs="0" />
+                <xs:element name="CNAEPREP" msdata:Caption="Atividade Econômica (CNAE 2.0)" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="7" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="PERCENTACIDTRAB" msdata:Caption="Aliq. RAT" type="xs:decimal" minOccurs="0" />
+                <xs:element name="APLICFORMULA" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="1" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="FORMULAVALDEDUCAOVARIAVEL" msdata:Caption="Fórmula Valor de Outras Deduções Variáveis" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="8" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CODCOLFORMULA" type="xs:short" minOccurs="0" />
+                <xs:element name="CODCFOCOLINTEGRACAO" msdata:Caption="Cód. Coligada Fornecedor" type="xs:string" minOccurs="0" />
+                <xs:element name="CODCFOINTEGRACAO" msdata:Caption="Fornecedor" type="xs:string" minOccurs="0" />
+                <xs:element name="DIGVERIFICDEBAUTOMATICO" msdata:Caption="Dígito Verificador do Débido Automático" type="xs:string" minOccurs="0" />
+                <xs:element name="TIPOCLIENTE" msdata:Caption="Tipo de Cliente" type="xs:string" minOccurs="0" />
+                <xs:element name="TIPOCONTROLEPONTO" msdata:Caption="Registro de Ponto" type="xs:short" minOccurs="0" />
+                <xs:element name="CODFILIALOBRA" msdata:Caption="Filial" type="xs:int" minOccurs="0" />
+                <xs:element name="FAP" type="xs:decimal" minOccurs="0" />
+                <xs:element name="CONSIDERAFILIALOBRA" msdata:Caption="Considera Dados da Filial" type="xs:short" minOccurs="0" />
+                <xs:element name="CODCOLIGADAFILIALOBRA" type="xs:short" minOccurs="0" />
+                <xs:element name="OBRAPROPRIA" msdata:Caption="Obra Própria" type="xs:short" minOccurs="0" />
+                <xs:element name="ENTIDADEEXECUTORAPAA" msdata:Caption="Entidade executora do Programa de Aquisição de Alimentos – PAA" type="xs:short" default="0" minOccurs="0" />
+                <xs:element name="APOSENTADOOUPENSIONISTA" msdata:Caption="Aposentado/Pensionista" type="xs:short" minOccurs="0" />
+                <xs:element name="CODCATEGORIAESOCIAL" msdata:Caption="Código da categoria eSocial" type="xs:int" minOccurs="0" />
+                <xs:element name="CODIGOCAEPF" msdata:Caption="Cadastro de Atividade Econômica da Pessoa Física" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="18" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="SOCIOCOOPERADO" msdata:Caption="Sócio Cooperado" type="xs:short" default="0" minOccurs="0" />
+                <xs:element name="IDNATRENDIMENTO" msdata:Caption="Natureza de Rendimento" type="xs:int" minOccurs="0" />
+                <xs:element name="CONTRIBUINTE_IBS_CBS" msdata:Caption="Contribuinte IBS/CBS" type="xs:short" default="0" minOccurs="0" />
+                <xs:element name="CONTEVENTOCONTAB" type="xs:short" minOccurs="0" />
+                <xs:element name="CODCOLCONTAGER" type="xs:short" minOccurs="0" />
+                <xs:element name="CODPROF" type="xs:int" minOccurs="0" />
+                <xs:element name="EMPRESA" type="xs:string" minOccurs="0" />
+                <xs:element name="CODCARGO" type="xs:string" minOccurs="0" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="FCFOCOMPL">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="CODCOLIGADA" type="xs:short" default="0" />
+                <xs:element name="CODCFO" type="xs:string" />
+                <xs:element name="RECCREATEDBY" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="50" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="RECCREATEDON" msdata:DateTimeMode="Unspecified" type="xs:dateTime" minOccurs="0" />
+                <xs:element name="RECMODIFIEDBY" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="50" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="RECMODIFIEDON" msdata:DateTimeMode="Unspecified" type="xs:dateTime" minOccurs="0" />
+                <xs:element name="COMPPS" type="xs:string" minOccurs="0" />
+                <xs:element name="COMPRPS" type="xs:string" minOccurs="0" />
+                <xs:element name="MOTBLOQ" type="xs:string" minOccurs="0" />
+                <xs:element name="MOTIVOBLOQUEIO" type="xs:string" minOccurs="0" />
+                <xs:element name="NAOUSARCALCSIMPIRPF" type="xs:string" minOccurs="0" />
+                <xs:element name="REIDI" type="xs:string" minOccurs="0" />
+                <xs:element name="VALIDAFF" type="xs:string" minOccurs="0" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="FCFOMX">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="CODCOLIGADA" type="xs:short" default="0" />
+                <xs:element name="CODCFO">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="25" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="PRIMEIRONOME" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="40" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="SOBRENOMEPAI" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="40" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="SOBRENOMEMAE" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="40" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="CURP" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="18" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="NUMEROINTERNO" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="15" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="NUMEROINTERNOENTREGA" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="15" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="NUMEROINTERNOPGTO" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="15" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="NSS" type="xs:string" minOccurs="0" />
+                <xs:element name="RECCREATEDBY" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="50" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="RECCREATEDON" msdata:DateTimeMode="Unspecified" type="xs:dateTime" minOccurs="0" />
+                <xs:element name="RECMODIFIEDBY" minOccurs="0">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:maxLength value="50" />
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="RECMODIFIEDON" msdata:DateTimeMode="Unspecified" type="xs:dateTime" minOccurs="0" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:complexType>
+      <xs:unique name="FinCFOKey1" msdata:PrimaryKey="true">
+        <xs:selector xpath=".//mstns:FCFO" />
+        <xs:field xpath="mstns:CODCOLIGADA" />
+        <xs:field xpath="mstns:CODCFO" />
+      </xs:unique>
+      <xs:unique name="Constraint1" msdata:PrimaryKey="true">
+        <xs:selector xpath=".//mstns:FCFOCOMPL" />
+        <xs:field xpath="mstns:CODCOLIGADA" />
+        <xs:field xpath="mstns:CODCFO" />
+      </xs:unique>
+      <xs:unique name="FCFOMX_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+        <xs:selector xpath=".//mstns:FCFOMX" />
+        <xs:field xpath="mstns:CODCOLIGADA" />
+        <xs:field xpath="mstns:CODCFO" />
+      </xs:unique>
+      <xs:keyref name="FK_FCFO_FCFOMX" refer="FinCFOKey1">
+        <xs:selector xpath=".//mstns:FCFOMX" />
+        <xs:field xpath="mstns:CODCOLIGADA" />
+        <xs:field xpath="mstns:CODCFO" />
+      </xs:keyref>
+      <xs:keyref name="FK_FCFO_FCFOCOMPL" refer="FinCFOKey1" msdata:AcceptRejectRule="Cascade">
+        <xs:selector xpath=".//mstns:FCFOCOMPL" />
+        <xs:field xpath="mstns:CODCOLIGADA" />
+        <xs:field xpath="mstns:CODCFO" />
+      </xs:keyref>
+    </xs:element>
+  </xs:schema>
+</FinCFOBR>]]>

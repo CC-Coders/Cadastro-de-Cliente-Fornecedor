@@ -59,15 +59,12 @@ function exibirErroCampo(campoId, mensagem) {
    const $container = $campo.closest(".fg");
    const mensagemId = "erro-" + campoId;
 
-   // remove qualquer erro antigo do mesmo campo
    $("#" + mensagemId).remove();
    $container.find(".erro-validacao").remove();
 
    $container.addClass("has-erro");
    $campo.attr("aria-invalid", "true");
 
-   // Se o campo está dentro de um .input-btn-row, insere o erro APÓS a linha
-   // (não entre o campo e o botão "Adicionar")
    const $inputBtnRow = $campo.closest(".input-btn-row");
    const $insertAfter = $inputBtnRow.length ? $inputBtnRow : $campo;
 
@@ -114,8 +111,12 @@ function validarDocumentosPorCategoria() {
 
    if (categoria === "F") {
       return validarListaCampos([
-         { id: "docCpf", label: "CPF" },
-         { id: "docRg", label: "RG" }
+         { id: "docCpf",        label: "CPF"                  },
+         { id: "docRg",         label: "RG"                   },
+         { id: "dtNascimento",  label: "Data de Nascimento"   },
+         { id: "estadoCivil",   label: "Estado Civil"         },
+         { id: "docRgOrgao",    label: "Órgão Emissor do RG"  },
+         { id: "docRgUf",       label: "UF Emissora do RG"    }
       ]);
    }
 
@@ -184,21 +185,20 @@ function validarPreCadastro(exibirToast) {
       { id: "classificacaoOperacional", label: "Classificação Operacional" }
    ];
 
-   // Campos comuns a ambos os modos
    const camposEndereco = [
-      { id: "razaoSocial",  label: "Razão Social" },
-      { id: "nomeFantasia", label: "Nome Fantasia" },
-      { id: "endereco",     label: "Endereço"      },
-      { id: "numero",       label: "Número"        },
-      { id: "bairro",       label: "Bairro"        },
-      { id: "cidade",       label: "Cidade"        }
+      { id: "nome",         label: "Nome"          },
+      { id: "razaoSocial",  label: "Razão Social"  },
+      { id: "nomeFantasia", label: "Nome Fantasia"  },
+      { id: "endereco",     label: "Endereço"       },
+      { id: "numero",       label: "Número"         },
+      { id: "bairro",       label: "Bairro"         },
+      { id: "cidade",       label: "Cidade"         }
    ];
 
    if (modoEstrangeiro) {
-      // Modo estrangeiro: valida select de país; CEP e Estado são opcionais
       camposEndereco.push({ id: "selectPaisEstrangeiro", label: "País" });
    } else {
-      // Modo nacional: valida CEP, campo País (input readonly) e Estado
+
       camposEndereco.push({ id: "cep",    label: "CEP"    }, { id: "pais",   label: "País"   }, { id: "estado", label: "Estado" });
    }
 
@@ -208,18 +208,48 @@ function validarPreCadastro(exibirToast) {
    if (!validarDocumentosPorCategoria())     valido = false;
    if (!validarListaCampos(camposEndereco))  valido = false;
 
-   if (!valido && exibirToast) {
-      FLUIGC.toast({
-         title: "Atenção",
-         message: "Preencha todos os campos obrigatórios para avançar.",
-         type: "warning",
-         timeout: 3000
-      });
-   }
+   if (!valido && exibirToast) _toastCamposObrigatorios();
 
    return valido;
 }
-function validarDadosCadastrais() {
+
+const PARES_IMPOSTO = [
+   { hidden: "#hiddenIss",       nativo: "#iss"       },
+   { hidden: "#hiddenInss",      nativo: "#inss"      },
+   { hidden: "#hiddenInputIrrf", nativo: "#inputIrrf" },
+   { hidden: "#hiddenCsll",      nativo: "#csll"      },
+   { hidden: "#hiddenPis",       nativo: "#pis"       },
+   { hidden: "#hiddenCofins",    nativo: "#cofins"    }
+];
+function _retencaoAtiva() {
+   return $("#hiddenToggleRetencao").val() === "on" || $("#toggleRetencao").is(":checked");
+}
+function _toastCamposObrigatorios() {
+   FLUIGC.toast({
+      title: "Atenção",
+      message: "Preencha todos os campos obrigatórios para avançar.",
+      type: "warning",
+      timeout: 3000
+   });
+}
+function validarDadosBancarios() {
+
+   if (!$("#divDadosBancarios").is(":visible")) return true;
+
+   let valido = true;
+
+   $("#dados-bancarios-cards .bank-card").each(function (index) {
+      const numero = index + 1;
+      const s      = numero === 1 ? "" : String(numero);
+
+      if (!validarCampoObrigatorio("selectBancoNome" + s, "Nome do Banco (Conta " + numero + ")")) valido = false;
+      if (!validarCampoObrigatorio("agencia"          + s, "Agência (Conta " + numero + ")"))       valido = false;
+      if (!validarCampoObrigatorio("conta"            + s, "Conta (Conta " + numero + ")"))         valido = false;
+   });
+
+   return valido;
+}
+function validarDadosCadastrais(exibirToast) {
    limparErrosDadosCadastrais();
 
    const camposFiscais = [{
@@ -230,10 +260,7 @@ function validarDadosCadastrais() {
          id: "selectDescricaoIrrf",
          label: "Código de Receita IRRF"
       },
-      {
-         id: "simplesNacional",
-         label: "Simples Nacional"
-      },
+
       {
          id: "naturezaRendimento",
          label: "Natureza de Rendimentos"
@@ -266,20 +293,6 @@ function validarDadosCadastrais() {
       }
    ];
 
-   const camposFinanceiros = [
-      {
-         id: "banco",
-         label: "Banco"
-      },
-      {
-         id: "agencia",
-         label: "Agência"
-      },
-      {
-         id: "conta",
-         label: "Conta"
-      }
-   ];
 
    const camposContato = [
       {
@@ -301,20 +314,7 @@ function validarDadosCadastrais() {
    if (!validarListaCampos(camposFiscais)) valido = false;
    if (!validarListaCampos(camposComerciais)) valido = false;
 
-   // Verifica o toggle via hidden field E via nativo (OR) — cobre tanto a situação
-   // onde o Fluig restaura só o checkbox nativo quanto onde o JS já populou o hidden
-   const retencaoAtiva = $("#hiddenToggleRetencao").val() === "on"
-                      || $("#toggleRetencao").is(":checked");
-
-   if (retencaoAtiva) {
-      const PARES_IMPOSTO = [
-         { hidden: "#hiddenIss",       nativo: "#iss"       },
-         { hidden: "#hiddenInss",      nativo: "#inss"      },
-         { hidden: "#hiddenInputIrrf", nativo: "#inputIrrf" },
-         { hidden: "#hiddenCsll",      nativo: "#csll"      },
-         { hidden: "#hiddenPis",       nativo: "#pis"       },
-         { hidden: "#hiddenCofins",    nativo: "#cofins"    }
-      ];
+   if (_retencaoAtiva()) {
       const algumSelecionado = PARES_IMPOSTO.some(function (p) {
          return $(p.hidden).val() === "on" || $(p.nativo).is(":checked");
       });
@@ -326,32 +326,21 @@ function validarDadosCadastrais() {
       }
    }
 
-   // Cliente não tem dados bancários — pula validação bancária
-   const isCliente = ($("#classificacao").val() || "") === "1";
-   if (!isCliente && !validarListaCampos(camposFinanceiros)) valido = false;
+   if (!validarDadosBancarios()) valido = false;
 
    if (!validarListaCampos(camposContato)) valido = false;
+
+   if (!valido && exibirToast) _toastCamposObrigatorios();
 
    return valido;
 }
 function validarPainelRetencaoVisual() {
-   const ativo = $("#hiddenToggleRetencao").val() === "on"
-              || $("#toggleRetencao").is(":checked");
-
-   if (!ativo) {
+   if (!_retencaoAtiva()) {
       $("#divRetencoesPanel").removeClass("retencao-erro");
       $("#erroMinimoImposto").hide();
       return true;
    }
 
-   const PARES_IMPOSTO = [
-      { hidden: "#hiddenIss",       nativo: "#iss"       },
-      { hidden: "#hiddenInss",      nativo: "#inss"      },
-      { hidden: "#hiddenInputIrrf", nativo: "#inputIrrf" },
-      { hidden: "#hiddenCsll",      nativo: "#csll"      },
-      { hidden: "#hiddenPis",       nativo: "#pis"       },
-      { hidden: "#hiddenCofins",    nativo: "#cofins"    }
-   ];
    const algumSelecionado = PARES_IMPOSTO.some(function (p) {
       return $(p.hidden).val() === "on" || $(p.nativo).is(":checked");
    });
@@ -382,7 +371,7 @@ function validarEtapaAtual(exibirToast) {
    }
 
    if (paginaAtual === 3) {
-      // Cliente não tem step 3 — nunca deve chegar aqui, mas por segurança retorna true
+
       if (($("#classificacao").val() || "") === "1") return true;
       return validarDocumentacao(exibirToast);
    }
@@ -430,7 +419,7 @@ function controlarDocumentacaoPorCategoria() {
    $containerDocs.removeClass("grid-pf");
    $containerConf.removeClass("grid-pf");
 }
-function validarDocumentacao() {
+function validarDocumentacao(exibirToast) {
    let valido = true;
    const categoria = ($("#categoria").val() || "").trim();
 
@@ -447,6 +436,15 @@ function validarDocumentacao() {
          valido = false;
       }
    });
+
+   if (!valido && exibirToast) {
+      FLUIGC.toast({
+         title: "Atenção",
+         message: "Anexe todos os documentos obrigatórios para avançar.",
+         type: "warning",
+         timeout: 3000
+      });
+   }
 
    return valido;
 }
@@ -470,6 +468,7 @@ function limparErrosPreCadastro() {
       "docCnpj",
       "docRg",
       "docInscricaoEstadual",
+      "nome",
       "razaoSocial",
       "nomeFantasia",
       "cep",
@@ -490,16 +489,12 @@ function limparErrosDadosCadastrais() {
    const camposDadosCadastrais = [
       "icms",
       "selectDescricaoIrrf",
-      "simplesNacional",
       "naturezaRendimento",
       "regimeFiscal",
       "tipoDocEmitido",
 
       "grupoMercadoria1",
       "cnaePrincipal",
-      "banco",
-      "agencia",
-      "conta",
       "telefone",
       "telComercial",
       "celular",
@@ -510,6 +505,14 @@ function limparErrosDadosCadastrais() {
    ];
    camposDadosCadastrais.forEach(function (campoId) {
       limparErroCampo(campoId);
+   });
+
+   $("#dados-bancarios-cards .bank-card").each(function (index) {
+      const numero = index + 1;
+      const s = numero === 1 ? "" : String(numero);
+      limparErroCampo("selectBancoNome" + s);
+      limparErroCampo("agencia" + s);
+      limparErroCampo("conta" + s);
    });
 }
 function aplicarStatusCampo(campoId, valido) {
@@ -559,10 +562,10 @@ function validarCPF(cpf) {
    return resto == Number.parseInt(cpf.substring(10, 11));
 }
 function validarCNPJ(cnpj) {
-   cnpj = cnpj.replaceAll(/[^\d]+/g, '');
 
+   cnpj = cnpj.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
    if (cnpj.length !== 14) return false;
-
+   if (/[A-Z]/.test(cnpj)) return true;
    if (/^(\d)\1+$/.test(cnpj)) return false;
 
    let tamanho = cnpj.length - 2;
