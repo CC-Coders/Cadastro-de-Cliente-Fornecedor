@@ -1,0 +1,198 @@
+.wizard-progress {
+	display: flex;
+	width: calc(100% - 24px);
+	margin: 8px 12px 10px 12px;
+	font-family: "Inter", sans-serif;
+	z-index: 20;
+	position: fixed;
+	top: 0;
+	left: 0;
+	overflow: hidden;
+	border-radius: 14px;
+	background: #fff;
+}
+
+.step {
+	position: relative;
+	flex: 1;
+	padding: 16px 20px;
+	background: linear-gradient(145deg, #f0f0f0, #dcdcdc);
+	color: #333;
+	text-align: center;
+	font-weight: 600;
+	clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%, 20px 50%);
+	margin-left: -20px;
+	z-index: 1;
+	transition: all 0.3s ease;
+	letter-spacing: 0.5px;
+	box-shadow: inset 0 0 0 rgba(0, 0, 0, 0);
+}
+
+/*Primeira etapa*/
+.step:first-child {
+	margin-left: 0;
+	clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%);
+	border-top-left-radius: 14px;
+	border-bottom-left-radius: 14px;
+}
+
+/*Última etapa */
+.step:last-child {
+	border-top-right-radius: 14px;
+	border-bottom-right-radius: 14px;
+	clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 0, 100% 100%, calc(100% - 20px) 100%, 0 100%, 20px 50%);
+}
+
+/* Etapa ativa */
+.step.active {
+	background: linear-gradient(135deg, #ffe259, #ffa751);
+	color: #000;
+	z-index: 2;
+	box-shadow: 0 8px 16px rgba(255, 193, 7, 0.25);
+	transform: scale(1.02);
+}
+
+/* Etapa concluída*/
+.step.completed {
+	background: linear-gradient(to right, #43cea2, #185a9d);
+	color: white;
+}
+
+/* Hover para qualquer etapa (menos ativa) */
+.step:not(.active):hover {
+	box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+	transform: translateY(-2px);
+}
+
+@media (max-width: 767px) {
+	.wizard-progress {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: thin;
+		scrollbar-color: #ffa751 #f0f0f0;
+	}
+
+	.wizard-progress::-webkit-scrollbar {
+		height: 4px;
+	}
+
+	.wizard-progress::-webkit-scrollbar-track {
+		background: #f0f0f0;
+	}
+
+	.wizard-progress::-webkit-scrollbar-thumb {
+		background: #ffa751;
+		border-radius: 2px;
+	}
+
+	.step-container {
+		min-width: max-content;
+		padding-bottom: 8px;
+	}
+
+	.step {
+		flex-shrink: 0;
+	}
+}
+
+
+/* ─── PAGE-HEADER ────────────────────────────────────────────────────────────
+   Seletor de ID (#divHeaderPreCad) garante especificidade máxima (100 pts),
+   vencendo qualquer regra de classe do fluig-style-guide.min.css.
+   As classes .page-header / .page-header-* são mantidas como fallback genérico.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.page-header,
+#divHeaderPreCad {
+    display:        flex !important;
+    flex-direction: row !important;
+    flex-wrap:      nowrap !important;
+    align-items:    center !important;
+    text-align:     left !important;
+    gap: 20px;
+    padding: 6px 16px !important;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #fffaf5, #ffffff) !important;
+    border: 1px solid #f1e2d6 !important;
+    border-left: 4px solid #f37021 !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07) !important;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s ease;
+}
+
+/* hover */
+.page-header:hover,
+#divHeaderPreCad:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.11) !important;
+}
+
+/* ícone */
+.page-header-icon,
+#divHeaderPreCad .page-header-icon {
+  width: 66px !important;
+  height: 66px !important;
+  min-width: 66px !important;
+  flex-shrink: 0 !important;
+
+  border-radius: 20px;
+  background: linear-gradient(135deg, #ffe8d6, #ffd2b5) !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  font-size: 30px;
+  color: #c45a1c;
+
+  box-shadow: 0 5px 14px rgba(0,0,0,0.10);
+  transition: all 0.25s ease;
+}
+
+#divHeaderPreCad .page-header-icon:hover {
+  transform: scale(1.06);
+}
+
+/* área de texto */
+.page-header-info,
+#divHeaderPreCad .page-header-info {
+  min-width: 0 !important;
+  flex: 1 !important;
+  text-align: left !important;
+}
+
+/* título */
+.page-header-title,
+#divHeaderPreCad .page-header-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #2c2018;
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
+  text-align: left !important;
+}
+
+/* subtítulo */
+.page-header-sub,
+#divHeaderPreCad .page-header-sub {
+  font-size: 14px;
+  color: #7a6252;
+  margin-bottom: 10px;
+  line-height: 1.5;
+  text-align: left !important;
+}
+
+/* badge */
+.step-badge,
+#divHeaderPreCad .step-badge {
+  display: inline-block !important;
+  padding: 7px 15px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffe259, #ffa751) !important;
+  color: #2a2018 !important;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+  text-align: left !important;
+}

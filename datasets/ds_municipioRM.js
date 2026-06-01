@@ -1,14 +1,24 @@
+// Aceita constraint opcional CODETDMUNICIPIO para filtrar por estado.
+// Exemplo de chamada JS:
+//   var c = [DatasetFactory.createConstraint("CODETDMUNICIPIO","SP","SP",ConstraintType.MUST)];
+//   DatasetFactory.getDataset("ds_municipioRM", null, c, null);
 function createDataset(fields, constraints, sortFields) {
     try {
         var constraints = getConstraints(constraints);
 
         var query = "";
-        query += "SELECT DESCRICAO ";
-        query += "FROM TTB2 ";
-        query += "WHERE CODCOLIGADA = 1 ";
-        query += "ORDER BY DESCRICAO";
+        query += "SELECT CODMUNICIPIO, CODETDMUNICIPIO, NOMEMUNICIPIO ";
+        query += "FROM GMUNICIPIO ";
 
-        var retorno = executaQuery(query, [], "/jdbc/RM");
+        var params = [];
+        if (constraints.CODETDMUNICIPIO) {
+            query += "WHERE CODETDMUNICIPIO = ? ";
+            params.push({ type: "string", value: constraints.CODETDMUNICIPIO });
+        }
+
+        query += "ORDER BY NOMEMUNICIPIO";
+
+        var retorno = executaQuery(query, params, "/jdbc/RM");
 
         return returnDataset("SUCCESS", "", JSON.stringify(retorno));
 

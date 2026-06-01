@@ -1,23 +1,4 @@
-// GRUPO DE MERCADORIA
-function obterOpcoesGrupoMercadoria(valorSalvo) {
-   // Tenta usar o dataset do RM; fallback para o array estático se não disponível
-   var grupos = (typeof carregarGruposMercadoria === "function") ? carregarGruposMercadoria() : [];
 
-   if (grupos.length) {
-      var html = '<option value="">Selecione...</option>';
-      grupos.forEach(function (g) {
-         var sel = (valorSalvo && valorSalvo === g.desc) ? ' selected' : '';
-         html += '<option value="' + g.desc + '"' + sel + '>' + g.desc + "</option>";
-      });
-      return html;
-   }
-
-   // Fallback estático (quando dataset ainda não carregou)
-   var opcoesHtml = (typeof OPCOES_GRUPO_MERCADORIA !== "undefined" ? OPCOES_GRUPO_MERCADORIA : []).map(function (opcao) {
-      return '<option value="' + opcao + '">' + opcao + "</option>";
-   }).join("");
-   return '<option value="">Selecione...</option>' + opcoesHtml;
-}
 function adicionarGrupoMercadoria() {
    const $wrap = $("#grupo-mercadoria-wrap");
    const quantidadeAtual = $wrap.find(".grupo-mercadoria-item").length;
@@ -42,9 +23,8 @@ function adicionarGrupoMercadoria() {
                <select
                   id="grupoMercadoria${numero}"
                   name="grupoMercadoria${numero}"
-                  class="form-control grupo-mercadoria"
-               >
-                  ${obterOpcoesGrupoMercadoria()}
+                  class="form-control grupo-mercadoria">
+                  ${_gerarOptionsGrupoMercadoria()}
                </select>
             </div>
          </div>
@@ -59,39 +39,42 @@ function adicionarGrupoMercadoria() {
 
    $wrap.append(html);
 
-   // Aplica Selectize no novo select recém-adicionado
-   if (typeof inicializarSelectize === "function") {
-      inicializarSelectize("#grupoMercadoria" + numero);
-   }
-
    sincronizarCamposDinamicosHidden();
    controlarBotaoAdicionarGrupoMercadoria();
 }
-function reordenarGruposMercadoria() {
-   // index + 2 porque o item fixo do HTML é o "Grupo de Mercadoria 1"
-   $("#grupo-mercadoria-wrap .grupo-mercadoria-item").each(function (index) {
-      const numero = index + 2;
-
-      $(this).attr("id", "grupo-mercadoria-item-" + numero);
-
-      $(this).find("label")
-         .attr("for", "grupoMercadoria" + numero)
-         .text("Grupo de Mercadoria " + numero);
-
-      $(this).find("select")
-         .attr("id", "grupoMercadoria" + numero)
-         .attr("name", "grupoMercadoria" + numero);
+function _reordenarItens(seletorLista, prefixoItem, prefixoCampo, textoLabel, seletorCampo, offset) {
+   offset = offset || 1;
+   $(seletorLista).each(function (index) {
+      const numero = index + offset;
+      const $item = $(this);
+      $item.attr("id", prefixoItem + numero);
+      $item.find("label")
+         .attr("for", prefixoCampo + numero)
+         .text(textoLabel + " " + numero);
+      $item.find(seletorCampo)
+         .attr("id",   prefixoCampo + numero)
+         .attr("name", prefixoCampo + numero);
    });
 }
-function controlarBotaoAdicionarGrupoMercadoria() {
-   const quantidadeTotal = 1 + $("#grupo-mercadoria-wrap .grupo-mercadoria-item").length;
-   const $botao = $("#btn-add-grupo-mercadoria");
 
-   if (quantidadeTotal >= LIMITE_GRUPO_MERCADORIA) {
-      $botao.prop("disabled", true).addClass("disabled");
-   } else {
-      $botao.prop("disabled", false).removeClass("disabled");
-   }
+function reordenarGruposMercadoria() {
+   _reordenarItens(
+      "#grupo-mercadoria-wrap .grupo-mercadoria-item",
+      "grupo-mercadoria-item-",
+      "grupoMercadoria",
+      "Grupo de Mercadoria",
+      "select",
+      2
+   );
+}
+function _controlarBotaoAdicionar(quantidade, limite, $botao) {
+   const atingiu = quantidade >= limite;
+   $botao.prop("disabled", atingiu).toggleClass("disabled", atingiu);
+}
+
+function controlarBotaoAdicionarGrupoMercadoria() {
+   const total = 1 + $("#grupo-mercadoria-wrap .grupo-mercadoria-item").length;
+   _controlarBotaoAdicionar(total, LIMITE_GRUPO_MERCADORIA, $("#btn-add-grupo-mercadoria"));
 }
 
 
@@ -112,8 +95,8 @@ function adicionarCnae() {
 
    const numero = quantidadeAtual + 1;
    const html = `
-    <div class="grid g3 cnae-secundario-item" id="cnae-secundario-${numero}" style="margin-bottom:12px;">
-      <div class="fg span2">
+    <div class="grid g2 cnae-secundario-item" id="cnae-secundario-${numero}" style="margin-bottom:12px;">
+      <div class="fg">
         <label for="cnaeSecundario${numero}">CNAE Secundário ${numero}</label>
         <input type="text" id="cnaeSecundario${numero}" name="cnaeSecundario${numero}" placeholder="0000-0/00" maxlength="9" class="cnae-secundario form-control">
       </div>
@@ -129,42 +112,28 @@ function adicionarCnae() {
    sincronizarCamposDinamicosHidden();
 }
 function reordenarCnaesSecundarios() {
-   $("#cnae-secundarios-wrap .cnae-secundario-item").each(function (index) {
-      const numero = index + 1;
-
-      $(this).attr("id", "cnae-secundario-" + numero);
-      $(this).find("label")
-         .attr("for", "cnaeSecundario" + numero)
-         .text("CNAE Secundário " + numero);
-      $(this).find("input")
-         .attr("id", "cnaeSecundario" + numero)
-         .attr("name", "cnaeSecundario" + numero);
-   });
+   _reordenarItens(
+      "#cnae-secundarios-wrap .cnae-secundario-item",
+      "cnae-secundario-",
+      "cnaeSecundario",
+      "CNAE Secundário",
+      "input",
+      1
+   );
 }
 function controlarBotaoAdicionarCnae() {
-   const quantidadeAtual = $("#cnae-secundarios-wrap .cnae-secundario-item").length;
-   const $botao = $("#btn-add-cnae");
-
-   if (quantidadeAtual >= LIMITE_CNAE_SECUNDARIO) {
-      $botao.prop("disabled", true).addClass("disabled");
-   } else {
-      $botao.prop("disabled", false).removeClass("disabled");
-   }
+   const total = $("#cnae-secundarios-wrap .cnae-secundario-item").length;
+   _controlarBotaoAdicionar(total, LIMITE_CNAE_SECUNDARIO, $("#btn-add-cnae"));
 }
 
 
 // HISTÓRICO DE DECISÃO — TIMELINE
 async function asyncMontaHistorico() {
-   $("#divLinhasHistorico").empty();
-
-   let linhasHistorico = getLinhasHistorico();
-   linhasHistorico = linhasHistorico.reverse();
-
+   const $hist = $("#divLinhasHistorico");
+   $hist.empty();
+   let linhasHistorico = getLinhasHistorico().reverse();
    for (const linha of linhasHistorico) {
-      const html = geraHtmlHistorico(linha);
-
-      $("#divLinhasHistorico").append(html);
-
+      $hist.append(geraHtmlHistorico(linha));
       try {
          $(".divImageUser:last").append(await promiseBuscaImagemUsuario(linha.USUARIO));
       } catch (error_) {
@@ -251,7 +220,8 @@ function inicializarMascaras() {
    $("#docCpf").mask("000.000.000-00");
    $("#docCnpj").mask("AA.AAA.AAA/AAAA-00");
    $("#docRg").mask("00.000.000-0");
-   $("#docInscricaoEstadual").mask("00000000000000");
+   $("#docInscricaoEstadual").mask("000.000.000.000");
+   $("#docInscricaoMunicipal").mask("000.000.000.000");
    $("#cep").mask("00000-000");
    $("#numero").mask("000000");
    $("#telefone, #telComercial, #celular").on("input", function () {
@@ -267,7 +237,6 @@ function inicializarMascaras() {
 
    inicializarMascarasBancarias();
 }
-
 function aplicarMascaraCnae($campo) {
    let valor = $campo.val().replaceAll(/\D/g, "");
 
@@ -634,15 +603,29 @@ function inicializarSnapshotEdicaoValidacao() {
    $("#snapshotEdicaoValidacao").val(JSON.stringify(snapshot));
 }
 function sincronizarCamposDinamicosHidden() {
-   for (let i = 2; i <= LIMITE_GRUPO_MERCADORIA; i++) {
+
+   let ufAtual = ($("#estado").val() || "").trim();
+   if (ufAtual) {
+      $("#hiddenEstadoValor").val(ufAtual);
+   }
+
+   let cidadeAtual = ($("#cidade").val() || "").trim();
+   if (cidadeAtual) {
+      $("#nomeCidadeSalva").val(cidadeAtual);
+   }
+
+   for (let i = 1; i <= LIMITE_GRUPO_MERCADORIA; i++) {
       const $select = $("#grupoMercadoria" + i);
       const $hidden = $("#hiddenGrupoMercadoria" + i);
 
       if (!$hidden.length) continue;
 
-      // Só atualiza se o campo existir na tela
       if ($select.length) {
-         $hidden.val(($select.val() || "").trim());
+         const grpVal = ($select.val() || "").trim();
+
+         if (grpVal || !globalThis._formRestaurando) {
+            $hidden.val(grpVal);
+         }
       }
    }
 
@@ -652,7 +635,6 @@ function sincronizarCamposDinamicosHidden() {
 
       if (!$hidden.length) continue;
 
-      // Só atualiza se o campo existir na tela
       if ($campo.length) {
          $hidden.val(($campo.val() || "").trim());
       }
@@ -660,7 +642,31 @@ function sincronizarCamposDinamicosHidden() {
 }
 
 
-// DATASETS — CARREGAMENTO VIA DatasetFactory
+function _parsearDataset(ds, nomeDataset) {
+   if (!ds?.values?.length) {
+      console.warn("[Dataset] " + (nomeDataset || "?") + " vazio ou indisponível.");
+      return [];
+   }
+   let row      = ds.values[0];
+   let status   = (row.STATUS   || "").toString().trim();
+   let mensagem = (row.MENSAGEM || "").toString().trim();
+   let result   = (row.RESULT   || "").toString().trim();
+   if (status === "ERRO") {
+      console.error("[Dataset] " + (nomeDataset || "?") + " retornou ERRO: " + mensagem);
+      return [];
+   }
+   if (!result || result === "null") {
+      console.warn("[Dataset] " + (nomeDataset || "?") + " RESULT vazio.");
+      return [];
+   }
+   try {
+      let  parsed = JSON.parse(result);
+      return Array.isArray(parsed) ? parsed : [];
+   } catch (e) {
+      console.error("[Dataset] " + (nomeDataset || "?") + " erro ao parsear RESULT:", e);
+      return [];
+   }
+}
 function carregarTiposClienteFornecedor() {
 
    let select = $("#tipo");
@@ -675,19 +681,14 @@ function carregarTiposClienteFornecedor() {
    select.empty();
    select.append('<option value="">Selecione...</option>');
 
-   let ds = DatasetFactory.getDataset(
-      "ds_tipoClienteFornecedorRM",
-      null,
-      null,
-      null
+   let itens = _parsearDataset(
+      DatasetFactory.getDataset("ds_tipoClienteFornecedorRM", null, null, null),
+      "ds_tipoClienteFornecedorRM"
    );
 
-   if (!ds?.values?.length) {
-      console.warn("Dataset ds_tipoClienteFornecedorRM vazio.");
-      return;
-   }
+   if (!itens.length) return;
 
-   ds.values.forEach(function (item) {
+   itens.forEach(function (item) {
       let codigo = (item.CODTCF || "").toString().trim();
       let descricao = (item.DESCRICAO || "").toString().trim();
 
@@ -719,18 +720,23 @@ function carregarNaturezaRendimento() {
 
    select.find("option:not(:first)").remove();
 
-   let ds = DatasetFactory.getDataset("naturezaRendimento", null, null, null);
+   let itens = _parsearDataset(
+      DatasetFactory.getDataset("naturezaRendimento", null, null, null),
+      "naturezaRendimento"
+   );
 
-   if (!ds?.values?.length) {
-      console.warn("Dataset naturezaRendimento vazio.");
-      return;
-   }
+   if (!itens.length) return;
 
-   ds.values.forEach(function (item) {
-      let cod  = (item.CODNATRENDIMENTO    || "").toString().trim();
-      let desc = (item.DESCRICAORENDIMENTO || "").toString().trim();
+   itens.forEach(function (item) {
+      let idNat = (item.IDNATRENDIMENTO    || "").toString().trim();
+      let cod   = (item.CODNATRENDIMENTO   || "").toString().trim();
+      let desc  = (item.DESCRICAORENDIMENTO|| "").toString().trim();
       if (cod) {
-         select.append('<option value="' + cod + '">' + cod + " — " + desc + "</option>");
+         select.append(
+            '<option value="' + cod + '" data-idnat="' + idNat + '">' +
+            cod + " — " + desc +
+            "</option>"
+         );
       }
    });
 
@@ -738,25 +744,18 @@ function carregarNaturezaRendimento() {
       select.val(valorSalvo);
    }
 
-   // mantém hidden sincronizado
    $("#codNaturezaRendimento").val(select.val() || "");
+   $("#idNatRendimento").val(
+      select.find("option:selected").data("idnat") || ""
+   );
 }
 
-
-// DATASET IRRF (FIRRF / RM)
-// Cache único com todos os registros; filtragem feita no cliente.
-// Evita dependência de ConstraintType e múltiplas chamadas ao servidor.
 let _cacheIrrf = null;
 
-// Carrega as opções do select #selectDescricaoIrrf.
-// Busca todos os registros uma única vez e filtra pelo tipo de pessoa da categoria.
-//   preservarValor = true  → restaura o CODRECEITA salvo (carregamento inicial do form)
-//   preservarValor = false → limpa seleção (ao trocar categoria)
 function carregarOpcoesIrrf(preservarValor) {
    let pessoaTipo = ($("#categoria").val() || "").trim().toUpperCase();
    let select     = $("#selectDescricaoIrrf");
-   // hiddenCodIrrf é a âncora confiável: Fluig restaura inputs hidden corretamente,
-   // enquanto selects dinâmicos perdem o valor se as opções ainda não existem no DOM.
+
    let valorSalvo = preservarValor
       ? ($("#hiddenCodIrrf").val() || select.attr("value") || select.val() || "").trim()
       : "";
@@ -771,30 +770,21 @@ function carregarOpcoesIrrf(preservarValor) {
       return;
    }
 
-   let ds = DatasetFactory.getDataset("ds_irrfRM", null, null, null);
+   let itens = _parsearDataset(
+      DatasetFactory.getDataset("ds_irrfRM", null, null, null),
+      "ds_irrfRM"
+   );
 
-   // Aceita tanto array JS (.length) quanto coleção Java (.size())
-   let tamanho = ds?.values
-      ? (ds.values.length !== undefined ? ds.values.length : (ds.values.size ? ds.values.size() : 0))
-      : 0;
+   if (!itens.length) return;
 
-   if (!ds?.values || tamanho === 0) {
-      console.warn("[ds_irrfRM] Dataset vazio ou indisponível.", ds);
-      return;
-   }
-
-   _cacheIrrf = ds.values;
-   _popularSelectIrrf(ds.values, pessoaTipo, valorSalvo);
+   _cacheIrrf = itens;
+   _popularSelectIrrf(itens, pessoaTipo, valorSalvo);
 }
 
-// Popula o select filtrando pelo pessoaTipo no cliente.
-// Exibe "CODRECEITA — DESCRICAO"; value = CODRECEITA; data-aliquota = ALIQUOTA.
-// O dataset retorna colunas com alias lowercase (codreceita, descricao, aliquota, tipo).
 function _popularSelectIrrf(lista, pessoaTipo, valorSalvo) {
    let select = $("#selectDescricaoIrrf");
    select.find("option:not(:first)").remove();
 
-   // Log do primeiro item para diagnosticar os nomes de propriedade reais
    if (lista.length > 0) {
       console.log("[ds_irrfRM] primeiro item:", JSON.stringify(lista[0]));
    }
@@ -802,7 +792,6 @@ function _popularSelectIrrf(lista, pessoaTipo, valorSalvo) {
    for (const element of lista) {
       let item = element;
 
-      // Tenta uppercase e lowercase para compatibilidade com qualquer versão deployada do dataset
       let cod  = String(item.codreceita   || item.CODRECEITA    || "").trim();
       let desc = String(item.descricao    || item.DESCRICAO     || "").trim();
       let aliq = String(item.aliquota     || item.ALIQUOTA      || "0").trim();
@@ -810,10 +799,6 @@ function _popularSelectIrrf(lista, pessoaTipo, valorSalvo) {
 
       if (!cod) continue;
 
-      // Filtra por tipo de pessoa:
-      //   "A" (Ambos) → sempre inclui
-      //   pessoaTipo vazio → inclui tudo (sem categoria definida)
-      //   caso contrário → inclui apenas o tipo correspondente + Ambos
       if (pessoaTipo && tipo && tipo !== "A" && tipo !== pessoaTipo) continue;
 
       let opt = $("<option></option>")
@@ -830,38 +815,30 @@ function _popularSelectIrrf(lista, pessoaTipo, valorSalvo) {
          $("#irrf").val(selecionado.attr("data-aliquota") || "");
       }
    }
-
-   // mantém hidden sincronizado (idêntico ao padrão de codNaturezaRendimento)
    $("#hiddenCodIrrf").val(select.val() || "");
 }
 
-
-// DATASET DE PAÍSES (GPAIS / RM)
-// Cache evita múltiplas chamadas ao servidor após a primeira carga
 let _cacheListaPaises = null;
 
-// Carrega a lista de países do dataset ds_paisRM e popula o select de países estrangeiros.
-// Na primeira chamada, executa a query e armazena em cache.
-// Nas chamadas seguintes, usa o cache direto.
+
 function carregarPaisesEstrangeiros() {
    if (_cacheListaPaises !== null) {
       _popularSelectPaises(_cacheListaPaises);
       return;
    }
 
-   let ds = DatasetFactory.getDataset("ds_paisRM", null, null, null);
+   let itens = _parsearDataset(
+      DatasetFactory.getDataset("ds_paisRM", null, null, null),
+      "ds_paisRM"
+   );
 
-   if (!ds || !ds.values || !ds.values.length) {
-      console.warn("Dataset ds_paisRM vazio ou indisponível.");
-      return;
-   }
+   if (!itens.length) return;
 
-   _cacheListaPaises = ds.values;
-   _popularSelectPaises(ds.values);
+   _cacheListaPaises = itens;
+   _popularSelectPaises(itens);
 }
 
-// Popula o select #selectPaisEstrangeiro com a lista recebida.
-// Restaura o valor salvo em #pais quando diferente de Brasil.
+
 function _popularSelectPaises(paises) {
    let select = $("#selectPaisEstrangeiro");
    let valorSalvo = ($("#pais").val() || "").trim();
@@ -874,38 +851,253 @@ function _popularSelectPaises(paises) {
       select.append('<option value="' + nome + '">' + nome + "</option>");
    });
 
-   // Restaura país salvo (quando form é reaberto já com estrangeiro marcado)
    if (valorSalvo && valorSalvo !== "Brasil") {
       select.val(valorSalvo);
    }
+}
 
-   // Aplica Selectize no select de país
-   if (typeof inicializarSelectize === "function") {
-      inicializarSelectize("#selectPaisEstrangeiro");
+let _listaEstadosRM    = null;
+let _cacheMunicipiosRM = {}; 
+
+function _normalizarTexto(str) {
+   return (str || "")
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .toLowerCase()
+      .trim();
+}
+
+function carregarEstadosRM() {
+   if (_listaEstadosRM !== null) return _listaEstadosRM;
+   try {
+      console.log("[RM-ESTADO] Chamando dataset ds_estadoRM...");
+      let itens = _parsearDataset(
+         DatasetFactory.getDataset("ds_estadoRM", null, null, null),
+         "ds_estadoRM"
+      );
+      let lista = [];
+      for (let i = 0; i < itens.length; i++) {
+         let row    = itens[i];
+         let codetd = (row.CODETD || row.codetd || "").toString().trim();
+         let nome   = (row.NOME   || row.nome   || "").toString().trim();
+         console.log("[RM-ESTADO] row[" + i + "]:", JSON.stringify(row), "→ codetd:", codetd, "nome:", nome);
+         if (codetd) lista.push({ codetd: codetd, nome: nome });
+      }
+      console.log("[RM-ESTADO] Total de estados carregados:", lista.length);
+      if (lista.length > 0) console.log("[RM-ESTADO] Primeira linha:", lista[0]);
+      _listaEstadosRM = lista;
+   } catch (e) {
+      console.error("[RM-ESTADO] ERRO ao carregar estados:", e);
+      _listaEstadosRM = [];
+   }
+   return _listaEstadosRM;
+}
+
+function popularSelectEstado() {
+   let lista = carregarEstadosRM();
+   let $sel  = $("#estado");
+   let salvo = $sel.attr("value") || $sel.val();
+
+   $sel.empty().append('<option value="">Selecione o estado...</option>');
+   lista.forEach(function (item) {
+      $('<option></option>')
+         .val(item.codetd)
+         .text(item.nome + " (" + item.codetd + ")")
+         .appendTo($sel);
+   });
+
+   if (salvo) {
+      $sel.val(salvo);
+      if (!$sel.val()) {
+         console.warn("[Estado] Valor salvo '" + salvo + "' não encontrado nas opções.");
+      }
+   }
+}
+
+
+function carregarMunicipiosPorUF(uf) {
+   if (!uf) return [];
+   if (_cacheMunicipiosRM[uf] !== undefined) {
+      console.log("[RM-MUNICIPIO] Cache hit para UF=" + uf + " (" + _cacheMunicipiosRM[uf].length + " municípios)");
+      return _cacheMunicipiosRM[uf];
+   }
+   try {
+      console.log("[RM-MUNICIPIO] Chamando dataset ds_municipioRM para UF=" + uf + "...");
+      let MUST = (typeof ConstraintType === "undefined") ? 1 : ConstraintType.MUST;
+      console.log("[RM-MUNICIPIO] ConstraintType disponível?", typeof ConstraintType, "| MUST:", MUST);
+      let constraints = [
+         DatasetFactory.createConstraint("CODETDMUNICIPIO", uf, uf, MUST)
+      ];
+      let itens = _parsearDataset(
+         DatasetFactory.getDataset("ds_municipioRM", null, constraints, null),
+         "ds_municipioRM"
+      );
+      let lista = [];
+      for (let i = 0; i < itens.length; i++) {
+         let row  = itens[i];
+         let cod  = (row.CODMUNICIPIO    || row.codmunicipio    || "").toString().trim();
+         let ufR  = (row.CODETDMUNICIPIO || row.codetdmunicipio || "").toString().trim();
+         let nome = (row.NOMEMUNICIPIO   || row.nomemunicipio   || "").toString().trim();
+         if (i === 0) console.log("[RM-MUNICIPIO] row[0]:", JSON.stringify(row), "→ cod:", cod, "nome:", nome);
+         if (cod || nome) lista.push({ cod: cod, uf: ufR, nome: nome });
+      }
+      console.log("[RM-MUNICIPIO] Total municípios para UF=" + uf + ":", lista.length);
+      if (lista.length > 0) console.log("[RM-MUNICIPIO] Primeiro município:", lista[0]);
+      _cacheMunicipiosRM[uf] = lista;
+   } catch (e) {
+      console.error("[RM-MUNICIPIO] ERRO para UF=" + uf + ":", e);
+      _cacheMunicipiosRM[uf] = [];
+   }
+   return _cacheMunicipiosRM[uf];
+}
+
+function popularSelectMunicipio(uf) {
+   let $sel  = $("#cidade");
+   let salvo = $sel.attr("value") || $sel.val();
+
+   $sel.empty().append('<option value="">Selecione a cidade...</option>');
+   $("#codMunicipio").val("");
+
+   if (!uf) return;
+
+   let lista = carregarMunicipiosPorUF(uf);
+   lista.forEach(function (item) {
+      $('<option></option>')
+         .val(item.nome)
+         .data("cod", item.cod)
+         .text(item.nome)
+         .appendTo($sel);
+   });
+
+   if (salvo) {
+      $sel.val(salvo);
+      let $opt = $sel.find("option:selected");
+      if ($opt.val()) $("#codMunicipio").val($opt.data("cod") || "");
+   }
+}
+
+function preencherEnderecoRM(uf, nomeCidade) {
+   console.log("[RM-ENDERECO] preencherEnderecoRM chamado — uf:", uf, "| cidade:", nomeCidade);
+
+   let qtdEstados = $("#estado option").length;
+   console.log("[RM-ENDERECO] Opções no select #estado:", qtdEstados);
+   if (qtdEstados <= 1) {
+      console.log("[RM-ENDERECO] Select vazio — chamando popularSelectEstado()");
+      popularSelectEstado();
+      console.log("[RM-ENDERECO] Após popular, opções no #estado:", $("#estado option").length);
+   }
+
+   if (uf) {
+      $("#estado").val(uf);
+
+      $("#hiddenEstadoValor").val(uf);
+      let estadoSetado = $("#estado").val();
+      console.log("[RM-ENDERECO] #estado.val() após setar '" + uf + "':", estadoSetado);
+      if (!estadoSetado) {
+         console.warn("[RM-ENDERECO] ATENÇÃO: valor '" + uf + "' não encontrado nas opções do select #estado.");
+         console.log("[RM-ENDERECO] Opções disponíveis:", $("#estado option").map(function(){ return $(this).val(); }).get());
+      }
+      popularSelectMunicipio(uf);
+      limparErroCampo("estado");
+   }
+
+   if (nomeCidade) {
+      let $selCidade  = $("#cidade");
+      let alvo        = _normalizarTexto(nomeCidade);
+      let nomeAchado  = "";
+      let codAchado   = "";
+      let totalOpcoes = $selCidade.find("option").length;
+
+      console.log("[RM-ENDERECO] Buscando cidade '" + nomeCidade + "' (normalizado: '" + alvo + "') entre " + totalOpcoes + " opções...");
+
+      // Tentativa exata
+      $selCidade.find("option").each(function () {
+         if (_normalizarTexto($(this).text()) === alvo) {
+            nomeAchado = $(this).val();
+            codAchado  = $(this).data("cod") || "";
+            return false;
+         }
+      });
+
+      if (!nomeAchado) {
+         console.log("[RM-ENDERECO] Match exato não encontrado — tentando match parcial...");
+         $selCidade.find("option").each(function () {
+            let t = _normalizarTexto($(this).text());
+            if (t.includes(alvo) || alvo.includes(t)) {
+               nomeAchado = $(this).val();
+               codAchado  = $(this).data("cod") || "";
+               return false;
+            }
+         });
+      }
+
+      if (nomeAchado) {
+         console.log("[RM-ENDERECO] Cidade encontrada:", nomeAchado, "| CODMUNICIPIO:", codAchado);
+      } else {
+         console.warn("[RM-ENDERECO] CIDADE NÃO ENCONTRADA para '" + nomeCidade + "'. Primeiras 5 opções do select:",
+            $selCidade.find("option").slice(0, 5).map(function(){ return $(this).text(); }).get()
+         );
+      }
+
+      $selCidade.val(nomeAchado);
+      if (nomeAchado) {
+         $("#codMunicipio").val(codAchado);
+         $("#nomeCidadeSalva").val(nomeAchado);
+         limparErroCampo("cidade");
+      }
+
+   }
+
+   console.log("[RM-ENDERECO] Resultado final — estado:", $("#estado").val(), "| cidade:", $("#cidade").val(), "| codMunicipio:", $("#codMunicipio").val());
+}
+
+function restaurarEnderecoRM() {
+
+   let uf = (
+      $("#hiddenEstadoValor").val() ||
+      $("#estado").val()            ||
+      ""
+   ).trim();
+
+   let nomeSalvo = ($("#nomeCidadeSalva").val() || "").trim();
+
+   if (!uf) return; 
+
+   if (!$("#estado").val()) {
+      $("#estado").val(uf);
+   }
+
+   popularSelectMunicipio(uf);
+
+   if (nomeSalvo) {
+      $("#cidade").val(nomeSalvo);
+      let $opt = $("#cidade").find("option:selected");
+      if ($opt.val()) {
+         $("#codMunicipio").val($opt.data("cod") || "");
+      }
    }
 }
 
 
 // DADOS BANCÁRIOS
 let LIMITE_CONTAS_BANCARIAS = 5;
-
-// Cache global de bancos do RM (ds_bancoRM)
-var _listaBancosRM = null;
+let _listaBancosRM = null;
 
 function carregarBancosRM() {
    if (_listaBancosRM !== null) return _listaBancosRM;
    _listaBancosRM = [];
    try {
-      var ds = DatasetFactory.getDataset("ds_bancoRM", null, null, null);
-      if (ds && ds.values && ds.values.length) {
-         ds.values.forEach(function (item) {
-            var cod  = (item.NUMBANCO || "").toString().trim();
-            var nome = (item.NOME    || "").toString().trim();
-            if (cod || nome) {
-               _listaBancosRM.push({ cod: cod, nome: nome });
-            }
-         });
-      }
+      let itens = _parsearDataset(
+         DatasetFactory.getDataset("ds_bancoRM", null, null, null),
+         "ds_bancoRM"
+      );
+      itens.forEach(function (item) {
+         let cod  = (item.NUMBANCO || "").toString().trim();
+         let nome = (item.NOME    || "").toString().trim();
+         if (cod || nome) {
+            _listaBancosRM.push({ cod: cod, nome: nome });
+         }
+      });
    } catch (e) {
       console.warn("Erro ao carregar ds_bancoRM:", e);
    }
@@ -913,73 +1105,57 @@ function carregarBancosRM() {
 }
 
 function _gerarOptionsBanco() {
-   var bancos = carregarBancosRM();
-   var html = '<option value="">Selecione o banco...</option>';
+   let bancos = carregarBancosRM();
+   let html = '<option value="">Selecione o banco...</option>';
    bancos.forEach(function (b) {
-      var nomeEsc = b.nome.replace(/"/g, "&quot;");
-      html += '<option value="' + b.cod + '" data-nome="' + nomeEsc + '">' + b.cod + " — " + b.nome + "</option>";
+      let nomeEsc = b.nome.replaceAll('"', "&quot;");
+      html += '<option value="' + b.cod + '" data-nome="' + nomeEsc + '">' + b.nome + "</option>";
    });
    return html;
 }
 
-// Cache e carregamento dos grupos de mercadoria (TTB2)
-var _listaGruposMercadoria = null;
+let _listaGruposMercadoria = null;
 
 function carregarGruposMercadoria() {
    if (_listaGruposMercadoria !== null) return _listaGruposMercadoria;
    _listaGruposMercadoria = [];
    try {
-      var ds = DatasetFactory.getDataset("ds_grupoMercadoriaRM", null, null, null);
-      if (ds && ds.values && ds.values.length) {
-         ds.values.forEach(function (item) {
-            var desc = (item.DESCRICAO || "").toString().trim();
-            if (desc) {
-               _listaGruposMercadoria.push({ desc: desc });
-            }
-         });
-      }
+      let itens = _parsearDataset(
+         DatasetFactory.getDataset("ds_grupoMercadoriaRM", null, null, null),
+         "ds_grupoMercadoriaRM"
+      );
+      itens.forEach(function (item) {
+         let desc = (item.DESCRICAO || "").toString().trim();
+         if (desc) {
+            _listaGruposMercadoria.push({ desc: desc });
+         }
+      });
    } catch (e) {
       console.warn("Erro ao carregar ds_grupoMercadoriaRM:", e);
    }
    return _listaGruposMercadoria;
 }
 
-// Popula todos os selects de grupo de mercadoria existentes no DOM
 function popularSelectsGrupoMercadoria() {
-   var grupos = carregarGruposMercadoria();
-   var optsHtml = '<option value="">Selecione...</option>';
-   grupos.forEach(function (g) {
-      optsHtml += '<option value="' + g.desc + '">' + g.desc + "</option>";
-   });
+   const optsHtml = _gerarOptionsGrupoMercadoria();
 
    $(".grupo-mercadoria").each(function () {
-      var valorAtual = $(this).val();
+      let valorAtual = $(this).attr("value") || $(this).val();
       $(this).empty().append(optsHtml);
       if (valorAtual) $(this).val(valorAtual);
    });
 }
 
-// Retorna o HTML de options para um novo select de grupo de mercadoria
 function _gerarOptionsGrupoMercadoria(valorSalvo) {
-   var grupos = carregarGruposMercadoria();
-   var html = '<option value="">Selecione...</option>';
+   let grupos = carregarGruposMercadoria();
+   let html = '<option value="">Selecione...</option>';
    grupos.forEach(function (g) {
-      var sel = (valorSalvo && valorSalvo === g.desc) ? ' selected' : '';
+      let sel = (valorSalvo && valorSalvo === g.desc) ? ' selected' : '';
       html += '<option value="' + g.desc + '"' + sel + '>' + g.desc + "</option>";
    });
    return html;
 }
 
-function _opcoesCondicaoPagamento() {
-   let opts = [
-      "À Vista", "7 dias", "14 dias", "15 dias", "21 dias",
-      "28 dias", "30 dias", "45 dias", "60 dias", "90 dias",
-      "30/60 dias", "30/60/90 dias", "30/60/90/120 dias",
-      "Depósito Bancário", "Transferência Bancária", "PIX", "Boleto Bancário"
-   ];
-   return '<option value="">Selecione...</option>' +
-      opts.map(function (o) { return '<option value="' + o + '">' + o + "</option>"; }).join("");
-}
 function _sufixoBancario(numero) {
    return numero === 1 ? "" : String(numero);
 }
@@ -999,19 +1175,19 @@ function _gerarHtmlCardBancario(numero) {
       '</div>' +
       '<div class="grid g3">' +
 
-      // NOME DO BANCO — select populado via ds_bancoRM
+      // NOME DO BANCO
       '<div class="fg span2"><label for="selectBancoNome' + s + '">Nome do Banco</label>' +
       '<div class="select-wrap">' +
       '<select id="selectBancoNome' + s + '" class="form-control banco-select">' + optsBanco + '</select>' +
       '</div>' +
-      // hidden anchors para persistência no Fluig
+  
       '<input type="hidden" id="banco' + s + '" name="banco' + s + '" class="banco-cod">' +
       '<input type="hidden" id="bancoDescricao' + s + '" name="bancoDescricao' + s + '" class="banco-descricao">' +
       '</div>' +
 
-      // CÓDIGO DO BANCO — exibição readonly, preenchido automaticamente pelo select
+      // CÓDIGO DO BANCO 
       '<div class="fg"><label>Código do Banco</label>' +
-      '<input type="text" id="bancoCodExibicao' + s + '" class="form-control" placeholder="Automático" readonly></div>' +
+      '<input type="text" id="bancoCodExibicao' + s + '" class="form-control" placeholder="000" readonly></div>' +
 
       // AGÊNCIA
       '<div class="fg"><label for="agencia' + s + '">Agência</label>' +
@@ -1026,8 +1202,6 @@ function _gerarHtmlCardBancario(numero) {
 }
 function inicializarDadosBancarios() {
    let $wrap = $("#dados-bancarios-cards");
-
-   // Lê dos hidden fields individuais (persistência confiável entre atividades)
    let dadosSalvos = [];
    for (let i = 1; i <= LIMITE_CONTAS_BANCARIAS; i++) {
       let cod     = ($("#hiddenBanco" + i + "Cod"     ).val() || "").trim();
@@ -1043,8 +1217,7 @@ function inicializarDadosBancarios() {
          });
       }
    }
-
-   // Fallback: tenta ler do child table se os hidden fields estiverem vazios
+   
    if (!dadosSalvos.length) {
       $("#tableDadosBancarios tbody tr").each(function () {
          let cod     = ($(this).find(".dbBanco"  ).val() || "").trim();
@@ -1068,23 +1241,19 @@ function inicializarDadosBancarios() {
          let numero = index + 1;
          $wrap.append(_gerarHtmlCardBancario(numero));
          let s = _sufixoBancario(numero);
-
-         // Restaura o select de banco (tenta pelo código; fallback pelo nome)
          let $selectBanco = $("#selectBancoNome" + s);
          if (d.cod) {
             $selectBanco.val(d.cod);
          }
          if (!$selectBanco.val() && d.desc) {
-            // Tenta encontrar option pelo nome salvo
             $selectBanco.find("option").each(function () {
                let texto = $(this).text();
-               if (texto.indexOf(d.desc) !== -1) {
+               if (texto.includes(d.desc)) {
                   $selectBanco.val($(this).val());
                   return false;
                }
             });
          }
-         // Sincroniza hidden fields a partir do select restaurado
          let codRestaurado  = $selectBanco.val() || d.cod;
          let descRestaurado = $selectBanco.find("option:selected").data("nome") || d.desc;
          $("#banco"          + s).val(codRestaurado);
@@ -1103,11 +1272,6 @@ function inicializarDadosBancarios() {
       $wrap.append(_gerarHtmlCardBancario(1));
    }
 
-   // Aplica Selectize em todos os selects de banco renderizados
-   if (typeof inicializarSelectize === "function") {
-      inicializarSelectize(".banco-select");
-   }
-
    controlarBotaoAdicionarConta();
    atualizarCamposBancariosRm();
 }
@@ -1124,14 +1288,7 @@ function adicionarContaBancaria() {
       return;
    }
 
-   let novoNumero = quantidade + 1;
-   let novoS = _sufixoBancario(novoNumero);
-   $wrap.append(_gerarHtmlCardBancario(novoNumero));
-
-   // Aplica Selectize no select de banco recém-criado
-   if (typeof inicializarSelectize === "function") {
-      inicializarSelectize("#selectBancoNome" + novoS);
-   }
+   $wrap.append(_gerarHtmlCardBancario(quantidade + 1));
 
    sincronizarTabelaBancaria();
    controlarBotaoAdicionarConta();
@@ -1175,7 +1332,6 @@ function sincronizarTabelaBancaria() {
       let agencia   = ($("#agencia"           + s).val() || "").replace(/\D/g, "");
       let conta     = ($("#conta"             + s).val() || "").replace(/\D/g, "");
 
-      // child table (RM integration)
       $tbody.append(
          "<tr>" +
          '<td><input type="hidden" name="dbBanco"             class="dbBanco"             value="' + banco     + '"></td>' +
@@ -1185,7 +1341,6 @@ function sincronizarTabelaBancaria() {
          "</tr>"
       );
 
-      // hidden fields individuais (persistência confiável entre atividades)
       if (numero <= LIMITE_CONTAS_BANCARIAS) {
          $("#hiddenBanco" + numero + "Cod"     ).val(banco);
          $("#hiddenBanco" + numero + "Desc"    ).val(bancoDesc);
@@ -1194,7 +1349,6 @@ function sincronizarTabelaBancaria() {
       }
    });
 
-   // limpa os hidden dos slots não utilizados
    let usados = $("#dados-bancarios-cards .bank-card").length;
    for (let i = usados + 1; i <= LIMITE_CONTAS_BANCARIAS; i++) {
       $("#hiddenBanco" + i + "Cod"     ).val("");
@@ -1205,29 +1359,71 @@ function sincronizarTabelaBancaria() {
 
    atualizarCamposBancariosRm();
 }
-function controlarBotaoAdicionarConta() {
-   let quantidade = $("#dados-bancarios-cards .bank-card").length;
-   let $botao = $("#btn-add-conta-bancaria");
 
-   if (quantidade >= LIMITE_CONTAS_BANCARIAS) {
-      $botao.prop("disabled", true).addClass("disabled");
-   } else {
-      $botao.prop("disabled", false).removeClass("disabled");
+function sincronizarTabelasRelatorio() {
+   
+   let $cnaeTbody    = $("#tbRelCnaes tbody");
+   let $cnaeTemplate = $cnaeTbody.find("tr:first").clone();
+   $cnaeTbody.empty();
+
+   let cnaePrincipalVal = ($("#cnaePrincipal").val() || "").trim();
+   if (cnaePrincipalVal) {
+      let $rowP = $cnaeTemplate.clone();
+      $rowP.find(".relCnaeTipo").val("P");
+      $rowP.find(".relCnaeCodigo").val(cnaePrincipalVal.split(" ")[0] || cnaePrincipalVal);
+      $rowP.find(".relCnaeDescricao").val(cnaePrincipalVal);
+      $cnaeTbody.append($rowP);
    }
+
+   for (let ci = 1; ci <= 5; ci++) {
+      let cnaeSecVal = ($("#hiddenCnaeSecundario" + ci).val() || "").trim();
+      if (cnaeSecVal) {
+         let $rowS = $cnaeTemplate.clone();
+         $rowS.find(".relCnaeTipo").val("S");
+         $rowS.find(".relCnaeCodigo").val(cnaeSecVal.split(" ")[0] || cnaeSecVal);
+         $rowS.find(".relCnaeDescricao").val(cnaeSecVal);
+         $cnaeTbody.append($rowS);
+      }
+   }
+
+   if ($cnaeTbody.find("tr").length === 0) {
+      $cnaeTbody.append($cnaeTemplate);
+   }
+
+   let $gmTbody    = $("#tbRelGrupos tbody");
+   let $gmTemplate = $gmTbody.find("tr:first").clone();
+   $gmTbody.empty();
+
+   for (let gi = 1; gi <= 10; gi++) {
+      let gmVal = ($("#hiddenGrupoMercadoria" + gi).val() || "").trim();
+      if (gmVal) {
+         let $rowG = $gmTemplate.clone();
+         $rowG.find(".relGmSeq").val(gi);
+         $rowG.find(".relGmDescricao").val(gmVal);
+         $gmTbody.append($rowG);
+      }
+   }
+
+   if ($gmTbody.find("tr").length === 0) {
+      $gmTbody.append($gmTemplate);
+   }
+}
+
+function controlarBotaoAdicionarConta() {
+   const total = $("#dados-bancarios-cards .bank-card").length;
+   _controlarBotaoAdicionar(total, LIMITE_CONTAS_BANCARIAS, $("#btn-add-conta-bancaria"));
 }
 
 
 // BEFORE SEND VALIDATE
-// Declarado em window para que o Fluig encontre o hook pelo nome global.
-// Com "let" a função fica no escopo do script mas não em window.beforeSendValidate,
-// e o Fluig não a reconhece — resultando em envio sem validação.
-window.beforeSendValidate = function (numState, nextState) {
+globalThis.beforeSendValidate = function (numState, nextState) {
 
    $("#tipoSelecionado").val($("#tipo").val() || "");
    $("#tipoDescricao").val($("#tipo option:selected").text() || "");
 
    sincronizarCamposDinamicosHidden();
    sincronizarTabelaBancaria();
+   sincronizarTabelasRelatorio();
 
    let acao = "";
 
@@ -1235,61 +1431,28 @@ window.beforeSendValidate = function (numState, nextState) {
    else if (numState == 11) acao = "validacao";
    else if (numState == 27) acao = "correcao";
    else if (numState == 16) acao = "integracao";
-   else if (numState == 22) acao = "fim";
 
    function valor(campo) {
       const el = document.getElementsByName(campo)[0] || document.getElementById(campo);
       return el ? String(el.value || "").trim() : "";
    }
 
-   function marcarErro(campo, mensagem) {
-      const $campo = $("#" + campo);
-      const $container = $campo.closest(".fg");
-      const mensagemId = "erro-" + campo;
-
-      $("#" + mensagemId).remove();
-
-      $container.addClass("has-erro");
-      $campo.attr("aria-invalid", "true");
-
-      $campo.after(
-         '<small class="help-block erro-validacao" id="' + mensagemId + '">' +
-         mensagem +
-         "</small>"
-      );
-   }
-   function obrigatorio(campo, label) {
-      const v = valor(campo);
-
-      if (!v || v == "null" || v == "undefined") {
-         marcarErro(campo, "Campo '" + label + "' é obrigatório.");
-         return false;
-      }
-
-      return true;
-   }
-
    let valido = true;
-   // step com o primeiro erro encontrado (para navegação automática)
    let primeiroStepComErro = null;
-   // Cliente não tem step 3 (Documentação)
    const isCliente = valor("classificacao") === "1";
 
-   if (acao == "inicio" || acao == "correcao") {
-      // Navega a cada step antes de validar, pois validarCampoObrigatorio
-      // ignora campos invisíveis — sem isso os steps ocultos nunca são checados.
+   function _validarTodasEtapas() {
       goToStep(1, false);
+      abrirDadosComerciais();
       if (!validarPreCadastro()) {
          valido = false;
          if (primeiroStepComErro === null) primeiroStepComErro = 1;
       }
-
       goToStep(2, false);
       if (!validarDadosCadastrais()) {
          valido = false;
          if (primeiroStepComErro === null) primeiroStepComErro = 2;
       }
-
       if (!isCliente) {
          goToStep(3, false);
          if (!validarDocumentacao()) {
@@ -1297,42 +1460,28 @@ window.beforeSendValidate = function (numState, nextState) {
             if (primeiroStepComErro === null) primeiroStepComErro = 3;
          }
       }
+   }
+
+   if (acao == "inicio" || acao == "correcao") {
+      _validarTodasEtapas();
    }
 
    if (acao == "validacao") {
       const decisao = valor("selectDecisao");
 
-      if (!obrigatorio("observacaoValidacao", "Observações")) valido = false;
-      if (!obrigatorio("selectDecisao", "Ação")) valido = false;
+      if (!validarCampoObrigatorio("observacaoValidacao", "Observações")) valido = false;
+      if (!validarCampoObrigatorio("selectDecisao", "Ação")) valido = false;
 
       if (decisao && decisao != "enviarRm" && decisao != "Correcao") {
-         marcarErro("selectDecisao", "Selecione uma ação: Aprovar (Enviar ao RM) ou Reprovar (Correção).");
+         exibirErroCampo("selectDecisao", "Selecione uma ação: Aprovar (Enviar ao RM) ou Reprovar (Correção).");
          valido = false;
       }
 
-      goToStep(1, false);
-      if (!validarPreCadastro()) {
-         valido = false;
-         if (primeiroStepComErro === null) primeiroStepComErro = 1;
-      }
-
-      goToStep(2, false);
-      if (!validarDadosCadastrais()) {
-         valido = false;
-         if (primeiroStepComErro === null) primeiroStepComErro = 2;
-      }
-
-      if (!isCliente) {
-         goToStep(3, false);
-         if (!validarDocumentacao()) {
-            valido = false;
-            if (primeiroStepComErro === null) primeiroStepComErro = 3;
-         }
-      }
+      _validarTodasEtapas();
    }
 
    if (!valido) {
-      // Navega ao step com o primeiro erro para o usuário ver os avisos inline
+
       if (primeiroStepComErro !== null) {
          goToStep(primeiroStepComErro, false);
       }
@@ -1340,5 +1489,6 @@ window.beforeSendValidate = function (numState, nextState) {
       return false;
    }
 
+   goToStep(1, false);
    return true;
 };

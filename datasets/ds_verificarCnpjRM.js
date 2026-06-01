@@ -2,11 +2,39 @@ function createDataset(fields, constraints, sortFields) {
     try {
         var constraints = getConstraints(constraints);
 
+        lancaErroSeConstraintsObrigatoriasNaoInformadas(constraints, ["CGCFOR"]);
+
+        // Normaliza: remove pontuação (aceita CNPJ com ou sem formatação)
+        var cgc = String(constraints["CGCFOR"] || "").replace(/[^0-9A-Za-z]/g, "").toUpperCase();
+
+        if (!cgc) {
+            return returnDataset("ERRO", "CGCFOR não informado", null);
+        }
+
         var query = "";
-        query += "SELECT DESCRICAO ";
-        query += "FROM TTB2 ";
-        query += "WHERE CODCOLIGADA = 1 ";
-        query += "ORDER BY DESCRICAO";
+        query += "SELECT TOP 1 ";
+        query += "    f.CODCFO, ";
+        query += "    f.CODCOLIGADA, ";
+        query += "    f.NOME, ";
+        query += "    ISNULL(f.NOMEFANTASIA, '')                       AS NOMEFANTASIA, ";
+        query += "    f.CGCCFO, ";
+        query += "    ISNULL(f.ENDCOBC, '')                            AS LOGRADOURO, ";
+        query += "    ISNULL(f.NUMERO, '')                             AS NUMERO, ";
+        query += "    ISNULL(f.COMPLEMENTO, '')                        AS COMPLEMENTO, ";
+        query += "    ISNULL(f.BAIRRO, '')                             AS BAIRRO, ";
+        query += "    ISNULL(f.CEP, '')                                AS CEP, ";
+        query += "    ISNULL(m.CODETDMUNICIPIO, ISNULL(f.CI_UF, ''))  AS CODUF, ";
+        query += "    ISNULL(m.NOMEMUNICIPIO, '')                      AS NOMEMUNICIPIO, ";
+        query += "    ISNULL(f.EMAIL, '')                              AS EMAIL, ";
+        query += "    ISNULL(f.TELEFONE, '')                           AS TELEFONE, ";
+        query += "    ISNULL(f.INSCRESTADUAL, '')                      AS INSCESTADUAL, ";
+        query += "    ISNULL(f.INSCRMUNICIPAL, '')                     AS INSCMUNICIPAL ";
+        query += "FROM FCFO f ";
+        query += "LEFT JOIN GMUNICIPIO m ON m.CODMUNICIPIO = f.CODMUNICIPIO ";
+        query += "WHERE REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(f.CGCCFO,'.',''),(char(47)),''),(char(45)),''),' ',''),',','') = '" + cgc + "' ";
+        query += "ORDER BY ";
+        query += "    CASE WHEN f.BAIRRO IS NOT NULL AND f.BAIRRO <> '' THEN 0 ELSE 1 END ASC, ";
+        query += "    f.CODCOLIGADA ASC";
 
         var retorno = executaQuery(query, [], "/jdbc/RM");
 
@@ -134,22 +162,4 @@ function executaQuery(query, constraints, dataSorce) {
             conn.close();
         }
     }
-}
-function getDateFimMes() {
-    var date = new Date();
-    var mes = date.getMonth();
-    var ano = date.getFullYear();
-
-    var dateEndMonth = new Date(ano, (mes), 0);
-
-    var dia = dateEndMonth.getDate();
-    if (dia < 10) {
-        dia = "0" + dia;
-    }
-
-    if (mes < 10) {
-        mes = "0" + mes;
-    }
-
-    return [ano, mes, dia].join("-");
 }
