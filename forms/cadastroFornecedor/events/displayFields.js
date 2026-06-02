@@ -1,24 +1,18 @@
 function displayFields(form, customHTML) {
    var numActivity = getValue("WKNumState");
-
-   // form.setValue("atividade") deve rodar ANTES de qualquer try/catch,
-   // garantindo que o campo chegue ao cliente mesmo se getFormMode falhar.
    form.setValue("atividade", numActivity);
-
-   // form.getFormMode() pode não existir em todas as versões do Fluig.
-   // O try/catch impede que um eventual NoSuchMethod quebre todo o evento.
-   // formMode é injetado via customHTML (client-side) — não via form.setValue,
-   // pois assim não persiste no banco nem interfere no processamento do formulário.
    var formMode = "";
    try {
       formMode = String(form.getFormMode() || "");
    } catch (e) {
-      // getFormMode indisponível neste contexto — formMode permanece ""
    }
 
+   var ehView = (formMode == "VIEW");
    var acao = "";
 
-   if (numActivity == 0 || numActivity == 4) {
+   if (ehView) {
+      acao = "view";
+   } else if (numActivity == 0 || numActivity == 4) {
       acao = "inicio";
    } else if (numActivity == 11) {
       acao = "validacao";
@@ -61,6 +55,17 @@ function displayFields(form, customHTML) {
          "<script>" +
          "$(document).ready(function(){ " +
          "$('#divSelectDecisao').hide();" +
+         "});" +
+         "</script>"
+      );
+   }
+   if (acao == "view") {
+      customHTML.append(
+         "<script>" +
+         "$(document).ready(function(){ " +
+         "setTimeout(function(){ " +
+         "if (typeof configurarModoView === 'function') { configurarModoView(); }" +
+         "}, 300);" +
          "});" +
          "</script>"
       );
