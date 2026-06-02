@@ -1,5 +1,147 @@
-// VISIBILIDADE CONDICIONAL DE CAMPOS
+(function () {
+   "use strict";
 
+   var $overlay    = null;   
+   var $currentSel = null;   
+
+
+   function _build() {
+      if ($overlay) return;
+      $overlay = $([
+         '<div id="sso-root">',
+         '  <div class="sso-backdrop"></div>',
+         '  <div class="sso-panel">',
+         '    <input class="sso-input" type="text" placeholder="Pesquisar..." autocomplete="off"/>',
+         '    <ul class="sso-list"></ul>',
+         '  </div>',
+         '</div>'
+      ].join(""));
+      $("body").append($overlay);
+      $overlay.find(".sso-backdrop").on("click", _close);
+      $overlay.find(".sso-input").on("input", function () { _filter($(this).val()); });
+
+      $overlay.find(".sso-list").on("click", ".sso-option", function () {
+         if (!$currentSel) return;
+         $currentSel.val($(this).data("val")).trigger("change");
+         _close();
+      });
+
+      $(document).on("keydown.ssoGlobal", function (e) {
+         if (!$overlay || !$overlay.hasClass("sso-open")) return;
+         if (e.key === "Escape") { _close(); return; }
+
+         var $vis = $overlay.find(".sso-option:visible");
+         var $foc = $overlay.find(".sso-option.sso-focused");
+
+         if (e.key === "ArrowDown") {
+            e.preventDefault();
+            var ni = $vis.index($foc) + 1;
+            if (ni < $vis.length) {
+               $foc.removeClass("sso-focused");
+               $vis.eq(ni).addClass("sso-focused")[0].scrollIntoView({ block: "nearest" });
+            }
+         } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            var pi = $vis.index($foc) - 1;
+            if (pi >= 0) {
+               $foc.removeClass("sso-focused");
+               $vis.eq(pi).addClass("sso-focused")[0].scrollIntoView({ block: "nearest" });
+            }
+         } else if (e.key === "Enter") {
+            e.preventDefault();
+            var $f = $overlay.find(".sso-option.sso-focused:visible");
+            if ($f.length) $f.trigger("click");
+         }
+      });
+
+      $(window).on("scroll.sso resize.sso", function () {
+         if ($overlay && $overlay.hasClass("sso-open") && $currentSel) {
+            _position($currentSel);
+         }
+      });
+   }
+   function _open($sel) {
+      _build();
+
+      if ($currentSel && $currentSel.is($sel) && $overlay.hasClass("sso-open")) {
+         _close();
+         return;
+      }
+
+      $currentSel = $sel;
+      var valorAtual = $sel.val();
+
+      var $list = $overlay.find(".sso-list").empty();
+      $overlay.find(".sso-input").val("");
+
+      $sel.find("option").each(function () {
+         var val = $(this).val();
+         var txt = $(this).text().trim();
+         if (txt === "" || val === "") return;
+         var isSel = (val === valorAtual);
+         var $li   = $('<li class="sso-option' + (isSel ? " sso-selected" : "") + '"></li>')
+                        .data("val", val).text(txt);
+         $list.append($li);
+      });
+
+      _position($sel);
+      $overlay.addClass("sso-open");
+      $overlay.find(".sso-input").focus();
+
+      var $sel2 = $overlay.find(".sso-option.sso-selected");
+      if ($sel2.length) { $sel2[0].scrollIntoView({ block: "nearest" }); }
+   }
+
+   function _close() {
+      if ($overlay) $overlay.removeClass("sso-open");
+      $currentSel = null;
+   }
+
+
+   function _filter(q) {
+      var lower = (q || "").toLowerCase();
+      var $opts = $overlay.find(".sso-option");
+      $opts.removeClass("sso-focused").each(function () {
+         $(this).toggle($(this).text().toLowerCase().indexOf(lower) !== -1);
+      });
+      $overlay.find(".sso-option:visible:first").addClass("sso-focused");
+   }
+
+   function _position($sel) {
+      var rect   = $sel[0].getBoundingClientRect();
+      var $panel = $overlay.find(".sso-panel");
+      $panel.css({
+         top  : (rect.bottom + 3) + "px",
+         left : rect.left + "px",
+         width: Math.max(rect.width, 220) + "px",
+         bottom: "auto"
+      });
+   }
+
+   window.aplicarBuscaSelect = function (seletor) {
+      $(document)
+         .off("mousedown.sso",   seletor)
+         .off("keydown.ssoSel",  seletor)
+         .on("mousedown.sso", seletor, function (e) {
+            var $sel = $(this);
+            if ($sel.hasClass("campo-bloqueado") || $sel.prop("disabled")) return;
+            e.preventDefault();
+            _open($sel);
+         })
+         .on("keydown.ssoSel", seletor, function (e) {
+            var $sel = $(this);
+            if ($sel.hasClass("campo-bloqueado") || $sel.prop("disabled")) return;
+            if (e.key === " " || e.key === "ArrowDown" || e.key === "ArrowUp" ||
+                (e.altKey && e.key === "ArrowDown")) {
+               e.preventDefault();
+               _open($sel);
+            }
+         });
+   };
+
+})();
+
+// VISIBILIDADE CONDICIONAL DE CAMPOS
 function controlarCamposClassificacao() {
    const classificacao = ($("#classificacao").val() || "").trim();
    const isCliente = classificacao === "1";
@@ -280,21 +422,27 @@ function resetarRetencao() {
 }
 
 
-function getStepsVisiveis() {
-   return Object.keys(NAV_MAP)
-      .map(Number)
-      .filter(function (step) {
-         return $(NAV_MAP[step]).is(":visible");
-      });
-}
-function getStepAtual() {
-   let stepAtual = 1;
 
-   Object.keys(NAV_MAP).forEach(function (step) {
-      if ($(NAV_MAP[step]).hasClass("active")) {
-         stepAtual = Number.parseInt(step, 10);
+function getStepsVisiveis() {
+   var visiveis = [];
+
+   for (var step = 1; step <= 4; step++) {
+      if ($(NAV_MAP[step]).is(":visible")) {
+         visiveis.push(step);
       }
-   });
+   }
+
+   return visiveis;
+}
+
+function getStepAtual() {
+   var stepAtual = 1;
+
+   for (var step = 1; step <= 4; step++) {
+      if ($(NAV_MAP[step]).hasClass("active")) {
+         stepAtual = step;
+      }
+   }
 
    return stepAtual;
 }
@@ -315,13 +463,16 @@ function goToStep(step, animar) {
 
    $(".step-item").removeClass("active done");
 
-   getStepsVisiveis().forEach(function (itemStep) {
+
+   var visiveis = getStepsVisiveis();
+   for (var i = 0; i < visiveis.length; i++) {
+      var itemStep = visiveis[i];
       if (itemStep < step) {
          $(NAV_MAP[itemStep]).addClass("done");
       } else if (itemStep === step) {
          $(NAV_MAP[itemStep]).addClass("active");
       }
-   });
+   }
 
    atualizarSetas();
 
@@ -374,104 +525,242 @@ function toggleSection(el) {
    }
 }
 
-const CONTAINERS_INICIO = ["#divPreCadastro", "#divDadosCadastrais", "#divDocumentacao"];
 
+const SELETOR_ETAPAS = "#divPreCadastro, #divDadosCadastrais, #divDocumentacao";
 function bloquearTudoInicio() {
-   const containers = CONTAINERS_INICIO;
+   var $etapas = $(SELETOR_ETAPAS);
 
-   containers.forEach(function (container) {
-      const $container = $(container);
 
-      $container
-         .find("input:not([type='hidden']), textarea")
-         .prop("readonly", true)
-         .addClass("campo-readonly");
+   $etapas.find("input:not([type='hidden']), textarea")
+      .prop("readonly", true)
+      .addClass("campo-readonly");
 
-      $container
-         .find("select, input[type='checkbox'], input[type='radio']")
-         .prop("disabled", false)
-         .addClass("campo-bloqueado");
 
-      $container
-         .find(".switch, .switch-button, .retencao-box, .retencao-item, .cnae-box, .select-wrap")
-         .addClass("campo-bloqueado");
+   $etapas.find("select, input[type='checkbox'], input[type='radio']")
+      .prop("disabled", false)
+      .addClass("campo-bloqueado");
 
-      $container
-         .find(".upload-area")
-         .addClass("disabled-upload campo-bloqueado")
-         .off("click");
 
-      $container
-         .find("button:not(.section-head):not(.btn-visualizar-anexo)")
-         .addClass("btn-bloqueado")
-         .attr("tabindex", "-1");
+   $etapas.find(".switch, .switch-button, .retencao-box, .retencao-item, .cnae-box, .select-wrap")
+      .addClass("campo-bloqueado");
 
-      $container
-         .find(".upload-file-remove")
-         .addClass("btn-bloqueado")
-         .attr("tabindex", "-1");
-   });
+
+   $etapas.find(".upload-area")
+      .addClass("disabled-upload campo-bloqueado")
+      .off("click");
+
+   $etapas.find("button:not(.section-head):not(.btn-visualizar-anexo)")
+      .addClass("btn-bloqueado")
+      .attr("tabindex", "-1");
+
+
+   $etapas.find(".upload-file-remove")
+      .addClass("btn-bloqueado")
+      .attr("tabindex", "-1");
 }
+
 function habilitarTudoInicio() {
-   const containers = CONTAINERS_INICIO;
+   var $etapas = $(SELETOR_ETAPAS);
 
-   containers.forEach(function (container) {
-      const $container = $(container);
+   $etapas.find("input:not([type='hidden']), select, textarea")
+      .prop("disabled", false)
+      .prop("readonly", false)
+      .removeClass("campo-bloqueado campo-readonly");
 
-      $container
-         .find("input:not([type='hidden']), select, textarea")
-         .prop("disabled", false)
-         .prop("readonly", false)
-         .removeClass("campo-bloqueado campo-readonly");
+   $etapas.find("input[type='checkbox'], input[type='radio']")
+      .prop("disabled", false)
+      .removeClass("campo-bloqueado");
 
-      $container
-         .find("input[type='checkbox'], input[type='radio']")
-         .prop("disabled", false)
-         .removeClass("campo-bloqueado");
+   $etapas.find(".switch, .switch-button, .retencao-box, .retencao-item, .cnae-box, .select-wrap, .upload-area")
+      .removeClass("campo-bloqueado disabled-upload");
 
-      $container
-         .find(".switch, .switch-button, .retencao-box, .retencao-item, .cnae-box, .select-wrap, .upload-area")
-         .removeClass("campo-bloqueado disabled-upload");
-
-      $container
-         .find("button, .upload-file-remove")
-         .removeClass("btn-bloqueado")
-         .removeAttr("tabindex");
-   });
+   $etapas.find("button, .upload-file-remove")
+      .removeClass("btn-bloqueado")
+      .removeAttr("tabindex");
 
    inicializarUploadsFluig();
 }
 
 function ehModoView() {
-   return $("body").hasClass("modo-view") ||
-          ($("#formMode").val() || "").toUpperCase() === "VIEW";
+   return ($("#formMode").val() || "").toUpperCase() === "VIEW";
 }
+
+
+// MODO VIEW (visualização / histórico do processo)
+function configurarModoView() {
+
+   document.documentElement.setAttribute("data-device", "desktop");
+   $("body").removeClass("fluig-mobile");
+   $("body").removeClass("menu-open-mobile");
+
+
+   $("#btnEditarCamposInicio").hide();
+   $("#btnAprovar").hide();
+   $("#btnReprovar").hide();
+   $("#divSelectDecisao").hide();
+
+
+   $(".stepper-nav-wrap").css("display", "");
+   $("#btn-voltar").css("display", "");
+   $("#btn-avancar").css("display", "");
+
+
+   $("#observacaoValidacao").prop("readonly", true).addClass("campo-readonly");
+
+   ajustarCamposView();
+   setTimeout(ajustarCamposView, 400);
+   setTimeout(ajustarCamposView, 1000);
+   setTimeout(ajustarCamposView, 2000);
+   setTimeout(ajustarCamposView, 3000);
+}
+
+
+function ajustarCamposView() {
+
+
+   if (typeof controlarDocumentacaoPorCategoria === "function") {
+      controlarDocumentacaoPorCategoria();
+   }
+   if (typeof restaurarUploadsSalvos === "function") {
+      restaurarUploadsSalvos();
+   }
+
+   resolverSpansView();
+
+
+   expandirTudoView();
+
+
+   bloquearTudoInicio();
+
+   
+   normalizarSelectsView();
+
+   $("#preCadastro span.form-control").addClass("campo-readonly");
+}
+
+
+function expandirTudoView() {
+
+
+   $(".section-body").show();
+   $(".section-arrow").addClass("open").text("▲");
+
+
+   $("#divDadosComerciais").show();
+   $("#divEndereco").show();
+   $("#divMoedaGrupoMercadoria").show();
+   $("#grupo-mercadoria-wrap").show();
+   $("#divDadosBancarios").show();
+   $(".cnae-box").show();
+   $(".cnae-box").prev(".divider").show();
+   $(".cnae-box").next(".divider").show();
+
+
+   $("#preCadastro").find("input:not([type='hidden']), span.form-control, textarea").each(function () {
+      var $campo = $(this);
+      var valor;
+
+      if ($campo.is("span")) {
+         valor = $campo.text().trim();
+      } else {
+         valor = ($campo.val() || "").trim();
+      }
+
+      if (valor !== "" && valor !== "Selecione...") {
+         $campo.closest(".fg, .cnae-box, .retencao-box, .bank-card").show();
+      }
+   });
+
+
+   $("#preCadastro .upload-area.uploaded").closest(".fg").show();
+}
+function normalizarSelectsView() {
+   $("#formSolicitacao select").each(function () {
+      var $select = $(this);
+
+
+      $select.removeAttr("size");
+      $select.removeAttr("multiple");
+      $select.prop("size", 0);
+      this.style.setProperty("display", "none", "important");
+
+      var texto = "";
+      var $opcao = $select.find("option:selected");
+      if ($opcao.val()) {
+         texto = $opcao.text().trim();
+      }
+
+
+      var $input = $select.data("viewInput");
+      if (!$input || $input.length === 0) {
+         $input = $('<input type="text" class="form-control campo-readonly" readonly tabindex="-1">');
+         $select.after($input);
+         $select.data("viewInput", $input);
+      }
+      $input.val(texto);
+   });
+}
+
+function resolverSpansView() {
+   mostrarTextoDoSpan("tipo",                $("#tipoSelecionado").val());
+   mostrarTextoDoSpan("naturezaRendimento",  $("#codNaturezaRendimento").val());
+   mostrarTextoDoSpan("selectDescricaoIrrf", $("#hiddenCodIrrf").val());
+   mostrarTextoDoSpan("estado",              $("#hiddenEstadoValor").val());
+   mostrarTextoDoSpan("cidade",              $("#nomeCidadeSalva").val());
+
+
+   var i;
+   for (i = 1; i <= 9; i++) {
+      mostrarTextoDoSpan("grupoMercadoria" + i, $("#hiddenGrupoMercadoria" + i).val());
+   }
+}
+
+function mostrarTextoDoSpan(idCampo, valorSalvo) {
+   var $span = $("#" + idCampo);
+
+
+   if ($span.length === 0) return;
+   if (!$span.is("span")) return;
+
+   var $options = $span.children("option");
+   if ($options.length === 0) return;
+
+   valorSalvo = (valorSalvo || "").trim();
+
+   var texto = "";
+   $options.each(function () {
+      if (String($(this).attr("value")) === String(valorSalvo)) {
+         texto = $(this).text();
+         return false;
+      }
+   });
+
+   $span.empty().text(texto);
+}
+
 function controlarEdicaoInicioValidacao() {
-   const atividade = Number($("#atividade").val() || 0);
-   const formMode  = ($("#formMode").val() || "").toUpperCase();
-
-   const ehHistorico      = formMode === "VIEW";
+   var atividade = Number($("#atividade").val() || 0);
+   var formMode  = ($("#formMode").val() || "").toUpperCase();
 
 
-   const ATIVIDADES_EDITAVEIS = [
-      ATIVIDADES.INICIO_0,
-      ATIVIDADES.INICIO,
-      ATIVIDADES.CORRECAO,
-      ATIVIDADES.INTEGRACAO
-   ];
+   if (formMode === "VIEW") {
+      configurarModoView();
+      return;
+   }
 
 
-   const ehSomenteLeitura = ehHistorico ||
-                            atividade === ATIVIDADES.ERRO_INTEGRACAO ||
-                            (!ATIVIDADES_EDITAVEIS.includes(atividade) && atividade !== ATIVIDADES.VALIDACAO);
-
-
-   if (atividade !== ATIVIDADES.VALIDACAO && !ehSomenteLeitura) {
+   if (atividade === ATIVIDADES.INICIO_0 ||
+       atividade === ATIVIDADES.INICIO ||
+       atividade === ATIVIDADES.CORRECAO ||
+       atividade === ATIVIDADES.INTEGRACAO) {
       $("#btnEditarCamposInicio").hide();
       return;
    }
 
+ 
    bloquearTudoInicio();
+
 
    if (atividade === ATIVIDADES.VALIDACAO) {
       $("#btnEditarCamposInicio").show();
@@ -483,34 +772,9 @@ function controlarEdicaoInicioValidacao() {
             .addClass("btn-success")
             .text("Edição liberada");
       });
-   } else {
-      $("body").addClass("modo-view");
-      $("#btnEditarCamposInicio").hide();
-      $("#btnAprovar, #btnReprovar, #divSelectDecisao").hide();
-      $("#observacaoValidacao").prop("readonly", true).addClass("campo-readonly");
-      goToStep(1, false);
-
-      setTimeout(function () {
-         let $hdr = $("#divHeaderPreCad");
-         $hdr.css({
-            "display":        "flex",
-            "flex-direction": "row",
-            "flex-wrap":      "nowrap",
-            "align-items":    "center",
-            "text-align":     "left"
-         });
-         $hdr.find(".page-header-info").css({
-            "flex":       "1",
-            "min-width":  "0",
-            "text-align": "left"
-         });
-         $hdr.find(".page-header-title, .page-header-sub, .step-badge").css("text-align", "left");
-         $(".stepper-nav-wrap").css("display", "flex");
-         $(".stepper-wrap").css({ "display": "block", "overflow-x": "auto" });
-         $(".stepper").css({ "display": "flex", "visibility": "visible" });
-         $(".step-item").css({ "display": "flex", "visibility": "visible", "pointer-events": "auto" });
-         $(".step-connector").css({ "display": "flex", "visibility": "visible" });
-         $("#btn-voltar, #btn-avancar").css({ "display": "inline-flex", "visibility": "visible", "pointer-events": "auto" });
-      }, 150);
+      return;
    }
+   $("#btnEditarCamposInicio").hide();
+   $("#btnAprovar, #btnReprovar, #divSelectDecisao").hide();
+   $("#observacaoValidacao").prop("readonly", true).addClass("campo-readonly");
 }

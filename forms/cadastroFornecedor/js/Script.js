@@ -1,148 +1,4 @@
 
-(function () {
-   "use strict";
-
-   var $overlay    = null;   
-   var $currentSel = null;   
-
-
-   function _build() {
-      if ($overlay) return;
-      $overlay = $([
-         '<div id="sso-root">',
-         '  <div class="sso-backdrop"></div>',
-         '  <div class="sso-panel">',
-         '    <input class="sso-input" type="text" placeholder="Pesquisar..." autocomplete="off"/>',
-         '    <ul class="sso-list"></ul>',
-         '  </div>',
-         '</div>'
-      ].join(""));
-      $("body").append($overlay);
-      $overlay.find(".sso-backdrop").on("click", _close);
-      $overlay.find(".sso-input").on("input", function () { _filter($(this).val()); });
-
-      $overlay.find(".sso-list").on("click", ".sso-option", function () {
-         if (!$currentSel) return;
-         $currentSel.val($(this).data("val")).trigger("change");
-         _close();
-      });
-
-      $(document).on("keydown.ssoGlobal", function (e) {
-         if (!$overlay || !$overlay.hasClass("sso-open")) return;
-         if (e.key === "Escape") { _close(); return; }
-
-         var $vis = $overlay.find(".sso-option:visible");
-         var $foc = $overlay.find(".sso-option.sso-focused");
-
-         if (e.key === "ArrowDown") {
-            e.preventDefault();
-            var ni = $vis.index($foc) + 1;
-            if (ni < $vis.length) {
-               $foc.removeClass("sso-focused");
-               $vis.eq(ni).addClass("sso-focused")[0].scrollIntoView({ block: "nearest" });
-            }
-         } else if (e.key === "ArrowUp") {
-            e.preventDefault();
-            var pi = $vis.index($foc) - 1;
-            if (pi >= 0) {
-               $foc.removeClass("sso-focused");
-               $vis.eq(pi).addClass("sso-focused")[0].scrollIntoView({ block: "nearest" });
-            }
-         } else if (e.key === "Enter") {
-            e.preventDefault();
-            var $f = $overlay.find(".sso-option.sso-focused:visible");
-            if ($f.length) $f.trigger("click");
-         }
-      });
-
-      $(window).on("scroll.sso resize.sso", function () {
-         if ($overlay && $overlay.hasClass("sso-open") && $currentSel) {
-            _position($currentSel);
-         }
-      });
-   }
-   function _open($sel) {
-      _build();
-
-      if ($currentSel && $currentSel.is($sel) && $overlay.hasClass("sso-open")) {
-         _close();
-         return;
-      }
-
-      $currentSel = $sel;
-      var valorAtual = $sel.val();
-
-      var $list = $overlay.find(".sso-list").empty();
-      $overlay.find(".sso-input").val("");
-
-      $sel.find("option").each(function () {
-         var val = $(this).val();
-         var txt = $(this).text().trim();
-         if (txt === "" || val === "") return;
-         var isSel = (val === valorAtual);
-         var $li   = $('<li class="sso-option' + (isSel ? " sso-selected" : "") + '"></li>')
-                        .data("val", val).text(txt);
-         $list.append($li);
-      });
-
-      _position($sel);
-      $overlay.addClass("sso-open");
-      $overlay.find(".sso-input").focus();
-
-      var $sel2 = $overlay.find(".sso-option.sso-selected");
-      if ($sel2.length) { $sel2[0].scrollIntoView({ block: "nearest" }); }
-   }
-
-   function _close() {
-      if ($overlay) $overlay.removeClass("sso-open");
-      $currentSel = null;
-   }
-
-
-   function _filter(q) {
-      var lower = (q || "").toLowerCase();
-      var $opts = $overlay.find(".sso-option");
-      $opts.removeClass("sso-focused").each(function () {
-         $(this).toggle($(this).text().toLowerCase().indexOf(lower) !== -1);
-      });
-      $overlay.find(".sso-option:visible:first").addClass("sso-focused");
-   }
-
-   function _position($sel) {
-      var rect   = $sel[0].getBoundingClientRect();
-      var $panel = $overlay.find(".sso-panel");
-      $panel.css({
-         top  : (rect.bottom + 3) + "px",
-         left : rect.left + "px",
-         width: Math.max(rect.width, 220) + "px",
-         bottom: "auto"
-      });
-   }
-
-   window.aplicarBuscaSelect = function (seletor) {
-      $(document)
-         .off("mousedown.sso",   seletor)
-         .off("keydown.ssoSel",  seletor)
-         .on("mousedown.sso", seletor, function (e) {
-            var $sel = $(this);
-            if ($sel.hasClass("campo-bloqueado") || $sel.prop("disabled")) return;
-            e.preventDefault();
-            _open($sel);
-         })
-         .on("keydown.ssoSel", seletor, function (e) {
-            var $sel = $(this);
-            if ($sel.hasClass("campo-bloqueado") || $sel.prop("disabled")) return;
-            if (e.key === " " || e.key === "ArrowDown" || e.key === "ArrowUp" ||
-                (e.altKey && e.key === "ArrowDown")) {
-               e.preventDefault();
-               _open($sel);
-            }
-         });
-   };
-
-})();
-
-
 globalThis.LIMITE_CNAE_SECUNDARIO = globalThis.LIMITE_CNAE_SECUNDARIO || 5;
 globalThis.LIMITE_GRUPO_MERCADORIA = 9;
 
@@ -162,7 +18,7 @@ const NAV_MAP = {
    4: "#nav-step-HistoricoDecisao"
 };
 
-
+const TIPOS_COM_RETENCAO = [];
 const OPCOES_GRUPO_MERCADORIA = [
    "Materiais de Construção",
    "Equipamentos e Máquinas",
@@ -195,7 +51,6 @@ $(document).ready(function () {
    popularSelectEstado();            
    bindEventos();
    aplicarLayoutMobile();
-   aplicarBuscaSelect("#formSolicitacao select");
    inicializarUploadsFluig();
 
    try {
@@ -313,12 +168,10 @@ function fecharDadosComerciais(animar) {
    }
 }
 function abrirDadosComerciais() {
-   ["#divDadosComerciais", "#divEndereco"].forEach(function (id) {
-      var $sec = $(id);
-      $sec.find(".section-body").show();
-      $sec.find(".section-arrow").addClass("open").text("▲");
-      $sec.stop(true, true).slideDown(300);
-   });
+   var $secoes = $("#divDadosComerciais, #divEndereco");
+   $secoes.find(".section-body").show();
+   $secoes.find(".section-arrow").addClass("open").text("▲");
+   $secoes.stop(true, true).slideDown(300);
 }
 function sincronizarEstadoInicial() {
    const funcoesIniciais = [
@@ -337,13 +190,13 @@ function sincronizarEstadoInicial() {
       atualizarLayoutStepper             
    ];
 
-   funcoesIniciais.forEach(function (funcao) {
+   for (var i = 0; i < funcoesIniciais.length; i++) {
       try {
-         funcao();
+         funcoesIniciais[i]();
       } catch (error_) {
          console.error("Erro ao sincronizar estado inicial:", error_);
       }
-   });
+   }
 
 
    setTimeout(function () {
@@ -375,9 +228,6 @@ function sincronizarEstadoInicial() {
             var $optCidade = $("#cidade").find("option:selected");
             if ($optCidade.val()) {
                $("#codMunicipio").val($optCidade.data("cod") || "");
-               console.log("[1200ms] Cidade restaurada:", nomeSalvo);
-            } else {
-               console.warn("[1200ms] Cidade '" + nomeSalvo + "' não encontrada nas opções do select.");
             }
          }
       }
@@ -385,7 +235,6 @@ function sincronizarEstadoInicial() {
       var valorGrupo1 = ($("#hiddenGrupoMercadoria1").val() || "").trim();
       if (valorGrupo1 && !$("#grupoMercadoria1").val()) {
          $("#grupoMercadoria1").val(valorGrupo1);
-         console.log("[1200ms] Grupo de mercadoria 1 restaurado:", valorGrupo1);
       }
 
    }, 1200);
@@ -409,13 +258,6 @@ function _checkboxAtivo($el) {
    const attrValue   = ($el.attr("value")   || "").toLowerCase();
    const isChecked   = $el.is(":checked");
 
-   console.log("[restaurarCheckboxesSalvos] fallback #" + $el.attr("id"),
-      "| is(:checked):", isChecked,
-      "| attr(checked):", attrChecked,
-      "| attr(value):",   attrValue,
-      "| val():",         $el.val()
-   );
-
    return isChecked ||
           attrChecked === "checked" || attrChecked === "on" || attrChecked === "true" ||
           attrValue   === "on"      || attrValue   === "true";
@@ -431,12 +273,13 @@ function restaurarCheckboxesSalvos() {
    }
 
 
-   ["iss", "inss", "inputIrrf", "csll", "pis", "cofins"].forEach(function (id) {
-      const $cb = $("#" + id);
+   var impostos = ["iss", "inss", "inputIrrf", "csll", "pis", "cofins"];
+   for (var i = 0; i < impostos.length; i++) {
+      var $cb = $("#" + impostos[i]);
       if (_checkboxAtivo($cb)) {
          $cb.prop("checked", true).closest(".retencao-item").addClass("ativo");
       }
-   });
+   }
 
 
    const $toggleEst = $("#toggleEstrangeiro");
@@ -500,14 +343,14 @@ function restaurarCnaesSecundariosSalvos() {
 
 
    $("#cnae-secundarios-wrap .cnae-secundario-item").remove();
-   cnaesSalvos.forEach(function (valor, index) {
+
+   for (let i = 0; i < cnaesSalvos.length; i++) {
       adicionarCnae();
 
-      const campo = $("#cnaeSecundario" + (index + 1));
-
-      campo.val(valor);
+      const campo = $("#cnaeSecundario" + (i + 1));
+      campo.val(cnaesSalvos[i]);
       aplicarMascaraCnae(campo);
-   });
+   }
 
    sincronizarCamposDinamicosHidden();
 }
@@ -551,13 +394,8 @@ function atualizarLayoutStepper() {
       .toggleClass("stepper-3", !historicoVisivel);
 }
 function destacarBotao(botaoSelecionado) {
-   $("#btnAprovar, #btnReprovar")
-      .removeClass("btn-primary")
-      .addClass(function () {
-         return this.id === "btnAprovar" ? "btn-success" : "btn-danger";
-      });
+   $("#btnAprovar").removeClass("btn-primary").addClass("btn-success");
+   $("#btnReprovar").removeClass("btn-primary").addClass("btn-danger");
 
-   $(botaoSelecionado)
-      .removeClass("btn-success btn-danger")
-      .addClass("btn-primary");
+   $(botaoSelecionado).removeClass("btn-success btn-danger").addClass("btn-primary");
 }
