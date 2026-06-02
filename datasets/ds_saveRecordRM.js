@@ -33,23 +33,39 @@ function createDataset(fields, constraints, sortFields) {
         }
 
         log.error("[ds_saveRecordRM] RM retornou erro: " + resultado);
-        return returnDataset("ERRO", String(resultado), null);
+        return returnDataset("ERRO", _limparMensagemRM(String(resultado)), null);
 
     } catch (error) {
-        if (typeof error == "object") {
-            var mensagem = "";
-            var keys = Object.keys(error);
-            for (var i = 0; i < keys.length; i++) {
-                mensagem += (keys[i] + ": " + error[keys[i]]) + " - ";
-            }
-            log.info("Erro ao executar Dataset ds_saveRecordRM:");
-            log.dir(error);
-            log.info(mensagem);
-            return returnDataset("ERRO", mensagem, null);
+        var msg = "";
+        if (error && error.javaException) {
+            msg = error.javaException.getMessage();
+        } else if (error && error.message) {
+            msg = String(error.message);
         } else {
-            return returnDataset("ERRO", String(error), null);
+            msg = String(error);
         }
+        log.error("[ds_saveRecordRM] Exceção: " + msg);
+        return returnDataset("ERRO", _limparMensagemRM(msg), null);
     }
+}
+
+
+function _limparMensagemRM(texto) {
+    var msg = String(texto || "").trim();
+
+    msg = msg.replace(/^Error:\s*/i, "");
+
+
+    var idx = msg.indexOf("===");
+    if (idx > 0) msg = msg.substring(0, idx).trim();
+
+    idx = msg.indexOf(" em RM.");
+    if (idx > 0) msg = msg.substring(0, idx).trim();
+
+    idx = msg.search(/\n\s*(at|em)\s+/);
+    if (idx > 0) msg = msg.substring(0, idx).trim();
+
+    return msg || String(texto || "Erro desconhecido no RM.");
 }
 
 
