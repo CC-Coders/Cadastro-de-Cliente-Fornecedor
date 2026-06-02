@@ -700,15 +700,36 @@ function carregarTiposClienteFornecedor() {
    });
 
    if (valorSalvo) {
-      select.val(valorSalvo);
+      _aplicarValorCampo(select, valorSalvo);
 
-      if (select.val()) {
+      if (select.is("select") && select.val()) {
          select.trigger("change");
-      } else {
-         console.warn("Tipo salvo não encontrado nas options:", valorSalvo);
       }
    }
 }
+// Aplica o valor num campo que pode ser <select> (edição) ou <span> (VIEW).
+// Em VIEW o Fluig converte <select> em <span>; as <option> injetadas pelo JS
+// viram texto visível (lista bagunçada). Aqui, no span, limpamos tudo e exibimos
+// apenas o texto da opção correspondente ao valor salvo.
+function _aplicarValorCampo($el, valor) {
+   if (!$el || !$el.length) return;
+
+   if ($el.is("select")) {
+      $el.val(valor);
+      return;
+   }
+
+   // <span> (modo VIEW): localiza o texto da opção do valor e substitui o conteúdo
+   var texto = "";
+   $el.children("option").each(function () {
+      if (String($(this).attr("value")) === String(valor)) {
+         texto = $(this).text();
+         return false;
+      }
+   });
+   $el.empty().text(texto || "");
+}
+
 function carregarNaturezaRendimento() {
    let select = $("#naturezaRendimento");
    let valorSalvo = (
@@ -741,10 +762,11 @@ function carregarNaturezaRendimento() {
    });
 
    if (valorSalvo) {
-      select.val(valorSalvo);
+      _aplicarValorCampo(select, valorSalvo);
    }
 
-   $("#codNaturezaRendimento").val(select.val() || "");
+   // Em VIEW (span) select.val() é vazio — preserva o valorSalvo no hidden
+   $("#codNaturezaRendimento").val(select.is("select") ? (select.val() || "") : valorSalvo);
    $("#idNatRendimento").val(
       select.find("option:selected").data("idnat") || ""
    );
@@ -809,13 +831,14 @@ function _popularSelectIrrf(lista, pessoaTipo, valorSalvo) {
    }
 
    if (valorSalvo) {
-      select.val(valorSalvo);
+      _aplicarValorCampo(select, valorSalvo);
       let selecionado = select.find("option:selected");
       if (selecionado.length && selecionado.val()) {
          $("#irrf").val(selecionado.attr("data-aliquota") || "");
       }
    }
-   $("#hiddenCodIrrf").val(select.val() || "");
+   // Em VIEW (span) select.val() é vazio — preserva o valorSalvo no hidden
+   $("#hiddenCodIrrf").val(select.is("select") ? (select.val() || "") : valorSalvo);
 }
 
 let _cacheListaPaises = null;

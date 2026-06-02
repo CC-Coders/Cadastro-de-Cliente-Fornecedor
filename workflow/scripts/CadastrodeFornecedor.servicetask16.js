@@ -52,11 +52,11 @@ function servicetask16(attempt, message) {
     var simplesNac    = f("simplesNacional") || "0";
     var retencaoIss   = f("hiddenIss") === "on" ? "1" : "0";
 
-    // Código de Receita IRRF → FCFO.CODRECEITA
+    // Código de Receita IRRF ? FCFO.CODRECEITA
     // hiddenCodIrrf é a âncora confiável; fallback para o próprio codIrrf
     var codReceita    = f("hiddenCodIrrf") || f("codIrrf") || "";
 
-    // Natureza de Rendimentos → FCFO.IDNATRENDIMENTO
+    // Natureza de Rendimentos ? FCFO.IDNATRENDIMENTO
     // idNatRendimento guarda o PK numérico (IDNATRENDIMENTO) vindo do select via data-idnat
     // codNaturezaRendimento guarda o CODNATRENDIMENTO alfanumérico — NÃO usar aqui (causaria FK violation)
     var natRendimento = f("idNatRendimento") || "";
@@ -95,7 +95,7 @@ function servicetask16(attempt, message) {
 
     function chamarRM(dataServerName, xml, coligadaOverride) {
         var col = coligadaOverride || COLIGADA;
-        log.info("[ST16] Chamando ds_saveRecordRM → " + dataServerName + " | coligada=" + col);
+        log.info("[ST16] Chamando ds_saveRecordRM ? " + dataServerName + " | coligada=" + col);
 
         var c = [
             DatasetFactory.createConstraint("pDataServerName", dataServerName, dataServerName, ConstraintType.MUST),
