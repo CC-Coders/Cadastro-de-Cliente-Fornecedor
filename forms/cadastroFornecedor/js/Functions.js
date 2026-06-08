@@ -235,6 +235,10 @@ function inicializarMascaras() {
       aplicarMascaraCnae($(this));
    });
 
+   // Data de nascimento não pode ser futura — limita o seletor ao dia de hoje.
+   var hoje = new Date().toISOString().split("T")[0];
+   $("#dtNascimento").attr("max", hoje);
+
    inicializarMascarasBancarias();
 }
 function aplicarMascaraCnae($campo) {
@@ -261,7 +265,8 @@ function inicializarMascarasBancarias() {
    });
 
    $(document).on("input", ".banco-conta", function () {
-      let valor = $(this).val().replaceAll(/\D/g, "").slice(0, 6);
+      // Conta limitada a 16 dígitos. O último dígito vira verificador.
+      let valor = $(this).val().replaceAll(/\D/g, "").slice(0, 16);
       if (valor.length > 1) valor = valor.replace(/(\d+)(\d)$/, "$1-$2");
       $(this).val(valor);
       sincronizarTabelaBancaria();
@@ -450,18 +455,8 @@ const CAMPOS_AUDITORIA_EDICAO = [{
       tipo: "checkbox"
    },
    {
-      id: "iss",
-      label: "Retenção ISS",
-      tipo: "checkbox"
-   },
-   {
       id: "inss",
       label: "Retenção INSS",
-      tipo: "checkbox"
-   },
-   {
-      id: "inputIrrf",
-      label: "Retenção IRRF",
       tipo: "checkbox"
    },
    {
@@ -707,10 +702,8 @@ function carregarTiposClienteFornecedor() {
       }
    }
 }
+
 // Aplica o valor num campo que pode ser <select> (edição) ou <span> (VIEW).
-// Em VIEW o Fluig converte <select> em <span>; as <option> injetadas pelo JS
-// viram texto visível (lista bagunçada). Aqui, no span, limpamos tudo e exibimos
-// apenas o texto da opção correspondente ao valor salvo.
 function _aplicarValorCampo($el, valor) {
    if (!$el || !$el.length) return;
 
@@ -729,7 +722,6 @@ function _aplicarValorCampo($el, valor) {
    });
    $el.empty().text(texto || "");
 }
-
 function carregarNaturezaRendimento() {
    let select = $("#naturezaRendimento");
    let valorSalvo = (
@@ -807,8 +799,14 @@ function _popularSelectIrrf(lista, pessoaTipo, valorSalvo) {
    let select = $("#selectDescricaoIrrf");
    select.find("option:not(:first)").remove();
 
-   if (lista.length > 0) {
-      console.log("[ds_irrfRM] primeiro item:", JSON.stringify(lista[0]));
+   // Códigos de Receita IRRF permitidos por tipo de pessoa.
+   //   Pessoa Física (F): 3208, 0001
+   //   Pessoa Jurídica (J): 1708, 17081, 0001
+   let codigosPermitidos = [];
+   if (pessoaTipo === "F") {
+      codigosPermitidos = ["3208", "0001"];
+   } else if (pessoaTipo === "J") {
+      codigosPermitidos = ["1708", "17081", "0001"];
    }
 
    for (const element of lista) {
@@ -817,11 +815,11 @@ function _popularSelectIrrf(lista, pessoaTipo, valorSalvo) {
       let cod  = String(item.codreceita   || item.CODRECEITA    || "").trim();
       let desc = String(item.descricao    || item.DESCRICAO     || "").trim();
       let aliq = String(item.aliquota     || item.ALIQUOTA      || "0").trim();
-      let tipo = String(item.PESSOAFISOUJUR || item.pessoafisoujur || item.tipo || item.PESSOAFIOUJUR || "").trim().toUpperCase();
 
       if (!cod) continue;
 
-      if (pessoaTipo && tipo && tipo !== "A" && tipo !== pessoaTipo) continue;
+      // Mostra apenas os códigos permitidos para a categoria selecionada.
+      if (codigosPermitidos.length && codigosPermitidos.indexOf(cod) === -1) continue;
 
       let opt = $("<option></option>")
          .val(cod)

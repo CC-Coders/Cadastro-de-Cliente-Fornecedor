@@ -51,6 +51,12 @@ $(document).ready(function () {
    popularSelectEstado();            
    bindEventos();
    aplicarLayoutMobile();
+
+   // Ativa a busca/pesquisa dentro dos selects (digitar para filtrar as opções).
+   if (typeof aplicarBuscaSelect === "function") {
+      aplicarBuscaSelect("#formSolicitacao select");
+   }
+
    inicializarUploadsFluig();
 
    try {
@@ -95,13 +101,26 @@ $(document).ready(function () {
          seta.text(seta.hasClass("open") ? "▲" : "▼");
       });
 
-   let cnpjJaConsultado = "";
+   // Controles globais (em globalThis) para que as funções de limpeza possam
+   // resetá-los — assim, ao redigitar o MESMO documento duplicado, ele re-verifica.
+   globalThis._cnpjJaConsultado = "";
    $(document).on("input", "#docCnpj", function () {
       let cnpj = normalizarCnpj($(this).val());
 
-      if (cnpj.length === 14 && cnpj !== cnpjJaConsultado) {
-         cnpjJaConsultado = cnpj;
+      if (cnpj.length === 14 && cnpj !== globalThis._cnpjJaConsultado) {
+         globalThis._cnpjJaConsultado = cnpj;
          buscarCnpj(cnpj);
+      }
+   });
+
+   // Mesma trava do CNPJ, agora para CPF: ao completar 11 dígitos, verifica no RM.
+   globalThis._cpfJaConsultado = "";
+   $(document).on("input", "#docCpf", function () {
+      let cpf = ($(this).val() || "").replace(/\D/g, "");
+
+      if (cpf.length === 11 && cpf !== globalThis._cpfJaConsultado) {
+         globalThis._cpfJaConsultado = cpf;
+         verificarCpfDuplicado(cpf);
       }
    });
 
@@ -273,7 +292,7 @@ function restaurarCheckboxesSalvos() {
    }
 
 
-   var impostos = ["iss", "inss", "inputIrrf", "csll", "pis", "cofins"];
+   var impostos = ["inss", "csll", "pis", "cofins"];
    for (var i = 0; i < impostos.length; i++) {
       var $cb = $("#" + impostos[i]);
       if (_checkboxAtivo($cb)) {

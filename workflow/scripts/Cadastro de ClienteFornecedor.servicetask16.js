@@ -11,10 +11,9 @@ function servicetask16(attempt, message) {
     var classificacao = f("classificacao");   
     var tipo          = f("tipo");            
 
-    var nome          = f("nome");
     var razaoSocial   = f("razaoSocial");
     var nomeFantasia  = f("nomeFantasia");
-    var nomeRM        = (categoria === "J") ? razaoSocial : nome;
+    var nomeRM        = razaoSocial;
 
     var cnpj          = f("docCnpj").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
     var cpf           = f("docCpf").replace(/\D/g, "");
@@ -50,21 +49,13 @@ function servicetask16(attempt, message) {
 
     var contribuinte  = f("icms")           || "0";
     var simplesNac    = f("simplesNacional") || "0";
-    var retencaoIss   = f("hiddenIss") === "on" ? "1" : "0";
-
-    // Código de Receita IRRF ? FCFO.CODRECEITA
-    // hiddenCodIrrf é a âncora confiável; fallback para o próprio codIrrf
+    var retencaoIss   = "0";
     var codReceita    = f("hiddenCodIrrf") || f("codIrrf") || "";
-
-    // Natureza de Rendimentos ? FCFO.IDNATRENDIMENTO
-    // idNatRendimento guarda o PK numérico (IDNATRENDIMENTO) vindo do select via data-idnat
-    // codNaturezaRendimento guarda o CODNATRENDIMENTO alfanumérico — NÃO usar aqui (causaria FK violation)
     var natRendimento = f("idNatRendimento") || "";
 
     var mapPagrec = { "1": "2", "2": "1", "3": "3" };
     var pagrec = mapPagrec[classificacao] || "1";
 
-    // Converte data para o formato AAAA-MM-DDTHH:mm:ss 
     var dtNascimentoRM = "";
     if (dtNascimento) {
         if (/^\d{4}-\d{2}-\d{2}$/.test(dtNascimento)) {
@@ -76,10 +67,6 @@ function servicetask16(attempt, message) {
             }
         }
     }
-
-    log.info("[ST16] Iniciando — categoria=" + categoria + " | nomeRM=" + nomeRM + " | cgc=" + cgc + " | rg=" + rg);
-    log.info("[ST16] PF — dtNascimento=" + dtNascimento + " | dtNascimentoRM=" + dtNascimentoRM + " | estadoCivil=" + estadoCivil + " | rgOrgao=" + rgOrgao + " | rgUf=" + rgUf + " | numDependentes=" + numDependentes);
-    log.info("[ST16] Endereço — rua=" + endereco + " | num=" + numero + " | bairro=" + bairro + " | cidade=" + cidade + " | estado=" + estado + " | cep=" + cep + " | codMunicipio=" + codMunicipio);
 
 
     if (categoria === "F" && !rg) {
@@ -247,7 +234,6 @@ function servicetask16(attempt, message) {
         }
     }
 
-    log.info("[ST16] Concluído. CODCFO=" + codCfo);
 }
 
 

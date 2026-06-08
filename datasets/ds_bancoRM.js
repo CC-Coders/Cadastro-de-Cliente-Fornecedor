@@ -18,9 +18,6 @@ function createDataset(fields, constraints, sortFields) {
             for (var i = 0; i < keys.length; i++) {
                 mensagem += (keys[i] + ": " + error[keys[i]]) + " - ";
             }
-            log.info("Erro ao executar Dataset:");
-            log.dir(error);
-            log.info(mensagem);
 
             return returnDataset("ERRO", mensagem, null);
         } else {

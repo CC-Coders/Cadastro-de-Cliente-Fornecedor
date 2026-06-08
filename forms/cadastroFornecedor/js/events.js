@@ -1,6 +1,5 @@
 
 $(globalThis).on("load", function () {
-
    setTimeout(function () {
       const cnpj = ($("#docCnpj").val() || "").replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
       const hiddenExiste = $("#hiddenCnaeSecundario1").length > 0;
@@ -15,10 +14,10 @@ $(globalThis).on("load", function () {
       }
 
    }, 300);
-
 });
 
 let categoriaAnterior = "";
+
 function bindEventos() {
    bindEventosCamposBasicos();
    bindEventosDocumentos();
@@ -34,7 +33,6 @@ function bindEventos() {
    bindEventosDecisao();               
    bindEventosDadosBancarios();        
 }
-
 function bindEventosDadosBancarios() {
    $(document).on("click", "#btn-add-conta-bancaria", adicionarContaBancaria);
 
@@ -66,7 +64,6 @@ function bindEventosDadosBancarios() {
       }
    });
 }
-
 function bindEventosDecisao() {
    $("#btnAprovar").on("click", function () {
       $("#selectDecisao").val("enviarRm").trigger("change");
@@ -78,22 +75,6 @@ function bindEventosDecisao() {
       destacarBotao(this);
    });
 }
-
-function existeAnexoIncluido() {
-   let anexos = [
-      "anxCartaoCnpj",
-      "anxCompBanco",
-      "anxContrato",
-      "anxRgCpf",
-      "anxCompEndereco",
-
-   ];
-
-   return anexos.some(function (id) {
-      return ($("#" + id).val() || "").trim() !== "";
-   });
-}
-
 function bindEventoTrocaCategoriaComAnexos() {
    categoriaAnterior = ($("#categoria").val() || "").trim();
    $("#categoria")
@@ -143,108 +124,14 @@ function bindEventoTrocaCategoriaComAnexos() {
          categoriaAnterior = novaCategoria;
       });
 }
-
-function excluirTodosAnexosDoProcesso() {
-   const $p = parent.$;
-
-   parent.__remocaoEmLoteAnexos = true;
-
-   const $linhas = $p("#attachmentsTable tbody tr").filter(function () {
-      return !$p(this).is("[data-empty-message]");
-   });
-
-   $linhas.each(function () {
-      const $checkbox = $p(this).find("input[type='checkbox']").first();
-
-      if ($checkbox.length) {
-         $checkbox.prop("checked", true).trigger("click").trigger("change");
-      }
-   });
-
-   const $btnExcluir = $p(
-      "#ecm-navigation-delete, #ecm-navigation-remove, .ecm-navigation-delete, [title*='Excluir'], [title*='Remover']"
-   ).filter(":visible").first();
-
-   if ($btnExcluir.length) {
-      $btnExcluir.click();
-   } else {
-      removerTodosAnexosUmPorUmSemPerguntar();
-   }
-
-   confirmarModaisRemocaoEmLote();
-
-   setTimeout(function () {
-      limparTodosUploadsVisuais();
-      ocultarToastsRemocaoAnexos();
-      parent.__remocaoEmLoteAnexos = false;
-   }, 2500);
+function bindEventosCamposDinamicos() {
+   $(document).on(
+      "change input",
+      "select[name^='grupoMercadoria'], input[name^='cnaeSecundario']",
+      sincronizarCamposDinamicosHidden
+   );
+   sincronizarCamposDinamicosHidden();
 }
-
-function confirmarModaisRemocaoEmLote() {
-   const $p = parent.$;
-   let tentativas = 0;
-
-   const intervalo = setInterval(function () {
-      tentativas++;
-
-      const $modal = $p(".modal:visible, .fluig-modal:visible").last();
-
-      if ($modal.length) {
-         $modal
-            .find("button:contains('Sim'), .btn-primary, button:contains('Confirmar')")
-            .filter(":visible")
-            .first()
-            .click();
-      }
-
-      ocultarToastsRemocaoAnexos();
-
-      if (tentativas >= 20) {
-         clearInterval(intervalo);
-      }
-   }, 250);
-}
-
-function removerTodosAnexosUmPorUmSemPerguntar() {
-   const $p = parent.$;
-
-   const $linhas = $p("#attachmentsTable tbody tr").filter(function () {
-      return !$p(this).is("[data-empty-message]");
-   });
-
-   $linhas.each(function () {
-      const $btn = $p(this)
-         .find(".fluigicon-trash, .flaticon-trash, [title*='Excluir'], [title*='Remover'], [data-remove]")
-         .first();
-
-      if ($btn.length) {
-         $btn.click();
-      }
-   });
-}
-
-function ocultarToastsRemocaoAnexos() {
-   const $p = parent.$;
-
-   $p(".toast, .alert, .fluig-toast, .notification")
-      .filter(function () {
-         const texto = $p(this).text().toLowerCase();
-         return texto.includes("anexo foi removido") ||
-            texto.includes("anexo removido");
-      })
-      .remove();
-}
-
-function limparTodosUploadsVisuais() {
-   $(".upload-area").removeClass("uploaded upload-error");
-   $(".upload-file-status").hide().empty();
-
-   Object.values(MAPA_HIDDEN_ANEXOS).forEach(function (hiddenId) {
-      $("#" + hiddenId).val("");
-      $("#" + hiddenId + "Id").val("");
-   });
-}
-
 function bindEventosCamposBasicos() {
    $(document).on("input change", ".form-control[required]", function () {
       limparErroCampoObrigatorioPreenchido(this);
@@ -270,18 +157,6 @@ function bindEventosCamposBasicos() {
    $("#tipo").on("change", controlarRetencaoPorTipo);
    $("#classificacao").on("change", controlarCamposClassificacao);
 }
-
-function limparErroCampoObrigatorioPreenchido(campo) {
-   const id = campo.id;
-   if (["docCpf", "docCnpj"].includes(id)) {
-      return;
-   }
-   const valor = ($(campo).val() || "").toString().trim();
-   if (valor) {
-      limparErroCampo(id);
-   }
-}
-
 function bindEventosDocumentos() {
    $("#docCnpj").on("input", function () {
       validarDocumentoDigitado({
@@ -298,6 +173,30 @@ function bindEventosDocumentos() {
          mensagemErro: "CPF inválido.",
          validador: validarCPF
       });
+   });
+
+   $("#docRg").on("input", function () {
+      validarDocumentoDigitado({
+         campoId: "docRg",
+         tamanhoMinimo: 9,
+         mensagemErro: "RG inválido.",
+         validador: validarRG
+      });
+   });
+
+   // Data de nascimento não pode ser futura.
+   // change = seleção no calendário | input/blur = digitação manual.
+   $("#dtNascimento").on("change input blur", function () {
+      const valor = $(this).val();
+      const hoje  = new Date().toISOString().split("T")[0];
+
+      if (valor && valor > hoje) {
+         exibirErroCampo("dtNascimento", "A data de nascimento não pode ser futura.");
+         aplicarStatusCampo("dtNascimento", false);
+      } else {
+         limparErroCampo("dtNascimento");
+         aplicarStatusCampo("dtNascimento", valor ? true : null);
+      }
    });
    $("#toggleEstrangeiro")
       .off("change.estrangeiro")
@@ -334,25 +233,6 @@ function bindEventosDocumentos() {
 
    $("#docCnpj").on("blur keyup", controlarAlertaCnpj);
 }
-
-function validarDocumentoDigitado(config) {
-   const valor = $("#" + config.campoId).val() || "";
-   const numeros = valor.replaceAll(/\D/g, "");
-
-   if (!valor || numeros.length < config.tamanhoMinimo) {
-      limparErroCampo(config.campoId);
-      aplicarStatusCampo(config.campoId, null);
-      return;
-   }
-   if (config.validador(valor)) {
-      limparErroCampo(config.campoId);
-      aplicarStatusCampo(config.campoId, true);
-      return;
-   }
-   exibirErroCampo(config.campoId, config.mensagemErro);
-   aplicarStatusCampo(config.campoId, false);
-}
-
 function bindEventosEndereco() {
    $("#cep").on("blur", function () {
       const cep = ($(this).val() || "").replaceAll(/\D/g, "");
@@ -403,8 +283,6 @@ function bindEventosEndereco() {
       if (nome) limparErroCampo("cidade");
    });
 }
-
-
 function bindEventosRetencao() {
 
    $("#toggleRetencao").on("change", function () {
@@ -413,9 +291,7 @@ function bindEventosRetencao() {
    });
 
    const MAP_HIDDEN_IMPOSTO = {
-      iss:       "#hiddenIss",
       inss:      "#hiddenInss",
-      inputIrrf: "#hiddenInputIrrf",
       csll:      "#hiddenCsll",
       pis:       "#hiddenPis",
       cofins:    "#hiddenCofins"
@@ -434,8 +310,6 @@ function bindEventosRetencao() {
       validarPainelRetencaoVisual();
    });
 }
-
-
 function bindEventosDependentes() {
    $("#toggleDependentes")
       .off("change.dependentes")
@@ -453,7 +327,6 @@ function bindEventosSimplesNacional() {
          $("#simplesNacional").val(ativo ? "1" : "0");
       });
 }
-
 function bindEventosCnaeSecundario() {
 
    $("#btn-add-cnae").off("click.cnae").on("click.cnae", adicionarCnae);
@@ -469,7 +342,6 @@ function bindEventosCnaeSecundario() {
       }
    });
 }
-
 function bindEventosGrupoMercadoria() {
    $("#btn-add-grupo-mercadoria").off("click.grupo").on("click.grupo", function () {
       adicionarGrupoMercadoria();
@@ -487,7 +359,6 @@ function bindEventosGrupoMercadoria() {
       controlarBotaoAdicionarGrupoMercadoria();
    });
 }
-
 function bindEventosUpload() {
 
    $(document).off("click", ".upload-file-remove");
@@ -524,6 +395,68 @@ function bindEventosUpload() {
       });
    });
 }
+function existeAnexoIncluido() {
+   let anexos = [
+      "anxCartaoCnpj",
+      "anxCompBanco",
+      "anxContrato",
+      "anxRgCpf",
+      "anxCompEndereco",
+
+   ];
+
+   return anexos.some(function (id) {
+      return ($("#" + id).val() || "").trim() !== "";
+   });
+}
+
+function ocultarToastsRemocaoAnexos() {
+   const $p = parent.$;
+
+   $p(".toast, .alert, .fluig-toast, .notification")
+      .filter(function () {
+         const texto = $p(this).text().toLowerCase();
+         return texto.includes("anexo foi removido") ||
+            texto.includes("anexo removido");
+      })
+      .remove();
+}
+function limparTodosUploadsVisuais() {
+   $(".upload-area").removeClass("uploaded upload-error");
+   $(".upload-file-status").hide().empty();
+
+   Object.values(MAPA_HIDDEN_ANEXOS).forEach(function (hiddenId) {
+      $("#" + hiddenId).val("");
+      $("#" + hiddenId + "Id").val("");
+   });
+}
+function limparErroCampoObrigatorioPreenchido(campo) {
+   const id = campo.id;
+   if (["docCpf", "docCnpj"].includes(id)) {
+      return;
+   }
+   const valor = ($(campo).val() || "").toString().trim();
+   if (valor) {
+      limparErroCampo(id);
+   }
+}
+function validarDocumentoDigitado(config) {
+   const valor = $("#" + config.campoId).val() || "";
+   const numeros = valor.replaceAll(/\D/g, "");
+
+   if (!valor || numeros.length < config.tamanhoMinimo) {
+      limparErroCampo(config.campoId);
+      aplicarStatusCampo(config.campoId, null);
+      return;
+   }
+   if (config.validador(valor)) {
+      limparErroCampo(config.campoId);
+      aplicarStatusCampo(config.campoId, true);
+      return;
+   }
+   exibirErroCampo(config.campoId, config.mensagemErro);
+   aplicarStatusCampo(config.campoId, false);
+}
 
 function aguardarRemocaoConfirmada(config) {
    let tentativas = 0;
@@ -548,12 +481,79 @@ function aguardarRemocaoConfirmada(config) {
       }
    }, 300);
 }
+function confirmarModaisRemocaoEmLote() {
+   const $p = parent.$;
+   let tentativas = 0;
 
-function bindEventosCamposDinamicos() {
-   $(document).on(
-      "change input",
-      "select[name^='grupoMercadoria'], input[name^='cnaeSecundario']",
-      sincronizarCamposDinamicosHidden
-   );
-   sincronizarCamposDinamicosHidden();
+   const intervalo = setInterval(function () {
+      tentativas++;
+
+      const $modal = $p(".modal:visible, .fluig-modal:visible").last();
+
+      if ($modal.length) {
+         $modal
+            .find("button:contains('Sim'), .btn-primary, button:contains('Confirmar')")
+            .filter(":visible")
+            .first()
+            .click();
+      }
+
+      ocultarToastsRemocaoAnexos();
+
+      if (tentativas >= 20) {
+         clearInterval(intervalo);
+      }
+   }, 250);
+}
+function removerTodosAnexosUmPorUmSemPerguntar() {
+   const $p = parent.$;
+
+   const $linhas = $p("#attachmentsTable tbody tr").filter(function () {
+      return !$p(this).is("[data-empty-message]");
+   });
+
+   $linhas.each(function () {
+      const $btn = $p(this)
+         .find(".fluigicon-trash, .flaticon-trash, [title*='Excluir'], [title*='Remover'], [data-remove]")
+         .first();
+
+      if ($btn.length) {
+         $btn.click();
+      }
+   });
+}
+function excluirTodosAnexosDoProcesso() {
+   const $p = parent.$;
+
+   parent.__remocaoEmLoteAnexos = true;
+
+   const $linhas = $p("#attachmentsTable tbody tr").filter(function () {
+      return !$p(this).is("[data-empty-message]");
+   });
+
+   $linhas.each(function () {
+      const $checkbox = $p(this).find("input[type='checkbox']").first();
+
+      if ($checkbox.length) {
+         $checkbox.prop("checked", true).trigger("click").trigger("change");
+      }
+   });
+
+   const $btnExcluir = $p(
+      "#ecm-navigation-delete, #ecm-navigation-remove, .ecm-navigation-delete, [title*='Excluir'], [title*='Remover']"
+   ).filter(":visible").first();
+
+   if ($btnExcluir.length) {
+      $btnExcluir.click();
+   } else {
+      removerTodosAnexosUmPorUmSemPerguntar();
+   }
+
+   confirmarModaisRemocaoEmLote();
+
+   setTimeout(function () {
+      limparTodosUploadsVisuais();
+      ocultarToastsRemocaoAnexos();
+      parent.__remocaoEmLoteAnexos = false;
+   }, 2500);
 }

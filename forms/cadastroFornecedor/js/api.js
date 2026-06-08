@@ -57,10 +57,8 @@ function limpaCamposEndereco() {
    $("#codMunicipio").val("");
    $("#nomeCidadeSalva").val("");
 }
-
-
+// API SINTEGRA — ViaCEP
 const TOKEN_CNPJ_API = "ZnB1ou61tGsZ17GIOZENAO1Ahua03Mrb";
-
 function normalizarCnpj(cnpj) {
    return String(cnpj || "")
       .replace(/[^a-zA-Z0-9]/g, "")
@@ -73,7 +71,6 @@ function buscarCnpj(cnpj) {
       return;
    }
 
-
    var dadosRM = _verificarCnpjNoRM(cnpj);
 
    if (dadosRM === undefined) {
@@ -81,14 +78,15 @@ function buscarCnpj(cnpj) {
    }
 
    if (dadosRM !== null) {
-      preencherDadosCnpjRM(dadosRM);
+
+      limparCamposCnpj();
       FLUIGC.toast({
-         title: "Cadastro localizado no RM",
-         message: "CNPJ já cadastrado — RM.",
-         type: "warning",
-         timeout: 5000
+         title: "CNPJ já cadastrado",
+         message: "Este CNPJ já está cadastrado no RM. O cadastro não pode ser duplicado.",
+         type: "danger",
+         timeout: 6000
       });
-      return; 
+      return;
    }
 
    $.ajax({
@@ -123,7 +121,89 @@ function buscarCnpj(cnpj) {
       }
    });
 }
+function limparCamposCnpj() {
+   $("#docCnpj").val("");
+   $("#razaoSocial").val("");
+   $("#nomeFantasia").val("");
+   $("#docInscricaoEstadual").val("");
+   $("#docInscricaoMunicipal").val("");
+   $("#endereco").val("");
+   $("#numero").val("");
+   $("#complemento").val("");
+   $("#bairro").val("");
+   $("#cep").val("");
+   $("#telefone").val("");
+   $("#emailCr").val("");
+   $("#cnaePrincipal").val("");
 
+   $("#estado").val("");
+   $("#cidade").empty().append('<option value="">Selecione a cidade...</option>');
+   $("#codMunicipio").val("");
+   $("#nomeCidadeSalva").val("");
+   $("#hiddenEstadoValor").val("");
+
+   $("#cnae-secundarios-wrap").empty();
+
+   // Reseta o controle para que redigitar o MESMO CNPJ re-dispare a verificação.
+   globalThis._cnpjJaConsultado = "";
+   $("#docCnpj").focus();
+}
+
+// Verifica se o CPF já está cadastrado no RM (mesma trava do CNPJ duplicado).
+// Pessoa Física não tem consulta externa — só verifica o RM.
+function verificarCpfDuplicado(cpf) {
+   cpf = (cpf || "").replace(/\D/g, "");
+   if (cpf.length !== 11) {
+      return;
+   }
+
+   // Reutiliza a verificação no RM (o dataset busca por CGCCFO — serve CPF e CNPJ).
+   var dadosRM = _verificarCnpjNoRM(cpf);
+
+   if (dadosRM === undefined) {
+      return;  // dataset com problema — toast já exibido
+   }
+
+   if (dadosRM !== null) {
+      // CPF já cadastrado → trava: limpa os campos e avisa.
+      limparCamposCpf();
+      FLUIGC.toast({
+         title: "CPF já cadastrado",
+         message: "Este CPF já está cadastrado no RM. O cadastro não pode ser duplicado.",
+         type: "danger",
+         timeout: 6000
+      });
+   }
+}
+
+// Limpa o CPF e os campos de Pessoa Física relacionados.
+function limparCamposCpf() {
+   $("#docCpf").val("");
+   $("#docRg").val("");
+   $("#docRgOrgao").val("");
+   $("#docRgUf").val("");
+   $("#dtNascimento").val("");
+   $("#estadoCivil").val("");
+   $("#razaoSocial").val("");
+   $("#nomeFantasia").val("");
+   $("#endereco").val("");
+   $("#numero").val("");
+   $("#complemento").val("");
+   $("#bairro").val("");
+   $("#cep").val("");
+   $("#telefone").val("");
+   $("#emailCr").val("");
+
+   $("#estado").val("");
+   $("#cidade").empty().append('<option value="">Selecione a cidade...</option>');
+   $("#codMunicipio").val("");
+   $("#nomeCidadeSalva").val("");
+   $("#hiddenEstadoValor").val("");
+
+   // Reseta o controle para que redigitar o MESMO CPF re-dispare a verificação.
+   globalThis._cpfJaConsultado = "";
+   $("#docCpf").focus();
+}
 function _verificarCnpjNoRM(cnpj) {
    try {
       var ds = DatasetFactory.getDataset(
@@ -145,10 +225,6 @@ function _verificarCnpjNoRM(cnpj) {
          return undefined;
       }
 
-  
-      // _parsearDataset devolve [] tanto em ERRO quanto em resultado vazio.
-      // Usamos o STATUS para distinguir: ERRO → bloqueia Sintegrapi (undefined),
-      // vazio → CNPJ não cadastrado no RM (null).
       var dsStatus = (ds.values[0].STATUS || "").toString().trim();
       if (dsStatus === "ERRO") {
          var dsMensagem = (ds.values[0].MENSAGEM || "erro desconhecido").toString().trim();
@@ -175,10 +251,8 @@ function _verificarCnpjNoRM(cnpj) {
       return undefined;   
    }
 }
-
-
 function preencherDadosCnpjRM(data) {
-   $("#razaoSocial").val(data.NOME          || "");
+   $("#razaoSocial").val(data.NOME           || "");
    $("#nomeFantasia").val(data.NOMEFANTASIA  || "");
    $("#endereco").val(data.LOGRADOURO        || "");
    $("#numero").val(data.NUMERO              || "");
@@ -248,7 +322,6 @@ function preencherDadosCnpj(data) {
       _buscarInscricaoEstadualSintegra(cnpjLimpo, data.uf || "");
    }
 }
-
 function _buscarInscricaoEstadualSintegra(cnpj, uf) {
    $.ajax({
       url: "https://api.sintegrapi.com.br/consultas/v2/sintegra/" + cnpj,
@@ -311,8 +384,6 @@ function formatarCep(cep) {
    if (cep.length !== 8) return cep;
    return cep.replace(/^(\d{5})(\d{3})$/, "$1-$2");
 }
-
-
 function formatarTelefone(tel) {
    const d = String(tel || "").replace(/\D/g, "");
    if (d.length === 11) return d.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");

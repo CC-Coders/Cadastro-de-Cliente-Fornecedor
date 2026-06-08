@@ -27,7 +27,7 @@ function createDataset(fields, constraints, sortFields) {
 
         if (resultado != null && resultado.indexOf(";") >= 1) {
             var partes    = resultado.split(";");
-            var codGerado = partes[partes.length - 1].trim();
+            var codGerado = partes[partes.length - 1].trim() +'';
             log.info("[ds_saveRecordRM] Sucesso — codigo=" + codGerado);
             return returnDataset("SUCCESS", "Registro criado com sucesso.", JSON.stringify({ codigo: codGerado }));
         }

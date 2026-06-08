@@ -194,7 +194,7 @@
                               <option value="">Selecione...</option>
                               <option value="1">Cliente</option>
                               <option value="2">Fornecedor</option>
-                              <option value="3">Cliente / Fornecedor</option>
+                              <option value="3">Ambos</option>
                            </select>
                         </div>
                         <div class="fg" id="divCategoria" name="divCategoria">
@@ -276,15 +276,11 @@
                         </div>
                         <div class="fg" id="divRazaoSocial">
                            <label for="razaoSocial">Razão Social</label>
-                           <input type="text" id="razaoSocial" name="razaoSocial" placeholder="Razão Social" class="form-control" required/>
-                        </div>
-                        <div class="fg" id="divNome">
-                           <label for="nome">Nome</label>
-                           <input type="text" id="nome" name="nome" placeholder="Nome" class="form-control" required/>
+                           <input type="text" id="razaoSocial" name="razaoSocial" placeholder="Razão Social" class="form-control" maxlength="100" required/>
                         </div>
                         <div class="fg" id="divNomeFantasia">
                            <label for="nomeFantasia">Nome Fantasia</label>
-                           <input type="text" id="nomeFantasia" name="nomeFantasia" placeholder="Nome Fantasia" class="form-control" required/>
+                           <input type="text" id="nomeFantasia" name="nomeFantasia" placeholder="Nome Fantasia" class="form-control" maxlength="100" required/>
                         </div>
                      </div>
                      <div id="divDadosPF" style="display:none">
@@ -415,7 +411,7 @@
             <!-- DADOS CADASTRAIS -->
             <div class="step-panel step-2" id="divDadosCadastrais" name="divDadosCadastrais" style="display: none">
                <div class="page-header step-2" id="divHeaderDadosCadastrais">
-                  <div class="page-header-icon"><i class="animaliaicon animaliaicon-file-text icon" aria-hidden="true"></i></div>
+                  <div class="page-header-icon"><i class="flaticon flaticon-file-person icon-lg" aria-hidden="true"></i></div>
                   <div class="page-header-info" style="margin-bottom: 17px;margin-top: 5px;">
                      <div class="page-header-title">Dados Cadastrais</div>
                      <div class="page-header-sub">Complete os dados fiscais, bancários, condições comerciais e informações de contato do cliente ou fornecedor.</div>
@@ -533,7 +529,7 @@
                      <div id="divMoedaGrupoMercadoria">
                         <div class="grid g2">
                            <div class="fg" id="divGrupoMercadoriaPrincipal">
-                              <label for="grupoMercadoria1">Grupo de Mercadoria</label>
+                              <label for="grupoMercadoria1">Grupo de Mercadoria 1</label>
                               <div class="select-wrap">
                                  <select id="grupoMercadoria1" name="grupoMercadoria1" class="form-control grupo-mercadoria" required>
                                     <option value="">Selecione...</option>
@@ -586,16 +582,8 @@
                         </small>
                         <div class="grid g3 retencoes-grid">
                            <label class="retencao-item">
-                              <input type="checkbox" id="iss" name="iss"/>
-                              <span>ISS</span>
-                           </label>
-                           <label class="retencao-item">
                               <input type="checkbox" id="inss" name="inss"/>
                               <span>INSS</span>
-                           </label>
-                           <label class="retencao-item">
-                              <input type="checkbox" id="inputIrrf" name="inputIrrf"/>
-                              <span>IRRF</span>
                            </label>
                            <label class="retencao-item">
                               <input type="checkbox" id="csll" name="csll"/>
@@ -613,9 +601,7 @@
                      </div>
                      <!-- Hidden anchors para checkboxes de retenção — Fluig não restaura
                           element.checked automaticamente; lemos estes campos no window.load -->
-                     <input type="hidden" id="hiddenIss"       name="hiddenIss"/>
                      <input type="hidden" id="hiddenInss"      name="hiddenInss"/>
-                     <input type="hidden" id="hiddenInputIrrf" name="hiddenInputIrrf"/>
                      <input type="hidden" id="hiddenCsll"      name="hiddenCsll"/>
                      <input type="hidden" id="hiddenPis"       name="hiddenPis"/>
                      <input type="hidden" id="hiddenCofins"    name="hiddenCofins"/>
@@ -950,7 +936,7 @@
                      </div>
                      <!-- Historico e decisão -->
                      <button type="button" class="step-item" id="nav-step-HistoricoDecisao" style="display: none"onclick="goToStep(4)">
-                        <div class="step-circle"><i class="animaliaicon animaliaicon-clock-clockwise icon-md" aria-hidden="true"></i></div>
+                        <div class="step-circle"><i class="flaticon flaticon-clock icon-md" aria-hidden="true"></i></div>
                         <div class="step-info">
                            <span class="step-label">ETAPA DECISÃO</span>
                            <span class="step-name">Historico</span>
