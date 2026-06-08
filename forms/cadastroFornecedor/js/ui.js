@@ -301,10 +301,12 @@ function controlarEnderecoEstrangeiro(ativo) {
       $("#cep").prop("required", false);
 
       $("#endereco, #bairro").prop("readonly", false);
-      $("#pais").hide().prop("required", false);
-      $("#divSelectPaisEstrangeiro").show();
-      $("#selectPaisEstrangeiro").prop("required", true);
-      carregarPaisesEstrangeiros();
+      // Fornecedor estrangeiro não informa País no formulário.
+      // No RM o endereço estrangeiro vai apenas como Exterior (Estado "EX").
+      $("#divPais").hide();
+      $("#pais").prop("required", false);
+      $("#divSelectPaisEstrangeiro").hide();
+      $("#selectPaisEstrangeiro").prop("required", false);
 
       const $estado = $("#estado");
       if (!$estado.find("option[value='EX']").length) {
@@ -342,6 +344,7 @@ function controlarEnderecoEstrangeiro(ativo) {
       $("#cep").prop("required", true);
 
       $("#endereco, #bairro").prop("readonly", true);
+      $("#divPais").show();
       $("#divSelectPaisEstrangeiro").hide();
       $("#selectPaisEstrangeiro").prop("required", false);
       $("#pais").show().prop("required", true);

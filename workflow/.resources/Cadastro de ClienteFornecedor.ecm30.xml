@@ -28,7 +28,7 @@
     <processDefinitionVersionPK>
       <companyId>1</companyId>
       <processId>Cadastro de Cliente/Fornecedor</processId>
-      <version>1</version>
+      <version>38</version>
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
     <formId>0</formId>
@@ -59,8 +59,8 @@
       <deadlineTime>0</deadlineTime>
       <joint>false</joint>
       <agreementPercentage>0</agreementPercentage>
-      <engineAllocationId>Usuário</engineAllocationId>
-      <engineAllocationConfiguration>&lt;AssignmentController&gt;&lt;User&gt;gustavo.reis&lt;/User&gt;&lt;/AssignmentController&gt;</engineAllocationConfiguration>
+      <engineAllocationId></engineAllocationId>
+      <engineAllocationConfiguration></engineAllocationConfiguration>
       <selectColleague>1</selectColleague>
       <initialState>true</initialState>
       <notifyAuthorityDelay>true</notifyAuthorityDelay>
@@ -429,7 +429,7 @@
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
         <expressionOrder>1</expressionOrder>
-        <version>1</version>
+        <version>38</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;Correcao&quot;</condition>
@@ -441,7 +441,7 @@
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
         <expressionOrder>2</expressionOrder>
-        <version>1</version>
+        <version>38</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;enviarRm&quot;</condition>
@@ -645,26 +645,6 @@
     var docEstrangeiro    = f(&quot;docEstrangeiro&quot;);
     var nacionalidade     = estrangeiro ? &quot;1&quot; : &quot;0&quot;;
 
-    // País / IDPAIS / Estado para o RM:
-    //  - Nacional   -&gt; Brasil (IDPAIS = 1), estado = UF informada
-    //  - Estrangeiro -&gt; país informado, IDPAIS buscado no GPAIS, estado = &quot;EX&quot;
-    // O RM valida país x estado; estado &quot;EX&quot; (exterior) exige país estrangeiro.
-    var nomePaisRM = &quot;Brasil&quot;;
-    var idPaisRM   = &quot;1&quot;;
-    if (estrangeiro) {
-        var paisInformado = f(&quot;pais&quot;);
-        idPaisRM = buscarIdPaisRM(paisInformado);
-        if (!idPaisRM) {
-            throw new Error(&quot;[ST16] País estrangeiro &apos;&quot; + paisInformado + &quot;&apos; não encontrado no cadastro de países do RM (GPAIS).&quot;);
-        }
-        nomePaisRM = paisInformado;
-        estado     = &quot;EX&quot;;   // código de exterior no RM
-    }
-
-    log.info(&quot;[ST16] Endereço/País -&gt; estrangeiro=&quot; + estrangeiro +
-             &quot; | pais=&apos;&quot; + nomePaisRM + &quot;&apos; | idPais=&quot; + idPaisRM +
-             &quot; | estado=&quot; + estado + &quot; | cidade=&apos;&quot; + cidade + &quot;&apos;&quot;);
-
     var contribuinte  = f(&quot;icms&quot;)           || &quot;0&quot;;
     var simplesNac    = f(&quot;simplesNacional&quot;) || &quot;0&quot;;
     var retencaoIss   = &quot;0&quot;;
@@ -771,7 +751,7 @@
                 &quot;&lt;ATIVO&gt;1&lt;/ATIVO&gt;&quot; +
                 &quot;&lt;CODCOLTCF&gt;0&lt;/CODCOLTCF&gt;&quot; +
                 &quot;&lt;PESSOAFISOUJUR&gt;&quot; + x(categoria)     + &quot;&lt;/PESSOAFISOUJUR&gt;&quot; +
-                &quot;&lt;PAIS&gt;&quot; + x(nomePaisRM) + &quot;&lt;/PAIS&gt;&quot; +
+                &quot;&lt;PAIS&gt;Brasil&lt;/PAIS&gt;&quot; +
                 &quot;&lt;CONTRIBUINTE&gt;&quot;       + contribuinte  + &quot;&lt;/CONTRIBUINTE&gt;&quot; +
                 &quot;&lt;CONTRIBUINTEISS&gt;&quot;    + retencaoIss   + &quot;&lt;/CONTRIBUINTEISS&gt;&quot; +
                 &quot;&lt;IDCFO&gt;0&lt;/IDCFO&gt;&quot; +
@@ -780,7 +760,7 @@
                 &quot;&lt;TIPOBAIRRO&gt;1&lt;/TIPOBAIRRO&gt;&quot; +
                 &quot;&lt;REGIMEISS&gt;N&lt;/REGIMEISS&gt;&quot; +
                 &quot;&lt;RETENCAOISS&gt;&quot;        + retencaoIss   + &quot;&lt;/RETENCAOISS&gt;&quot; +
-                &quot;&lt;IDPAIS&gt;&quot; + idPaisRM + &quot;&lt;/IDPAIS&gt;&quot; +
+                &quot;&lt;IDPAIS&gt;1&lt;/IDPAIS&gt;&quot; +
                 &quot;&lt;NACIONALIDADE&gt;&quot;      + nacionalidade + &quot;&lt;/NACIONALIDADE&gt;&quot; +
                 (estrangeiro ? &quot;&lt;DOCUMENTOESTRANGEIRO&gt;&quot; + x(docEstrangeiro) + &quot;&lt;/DOCUMENTOESTRANGEIRO&gt;&quot; : &quot;&quot;) +
                 (codReceita    ? &quot;&lt;CODRECEITA&gt;&quot;      + x(codReceita)    + &quot;&lt;/CODRECEITA&gt;&quot;      : &quot;&quot;) +
@@ -863,33 +843,99 @@ function x(s) {
         .replace(/&gt;/g,  &quot;&amp;gt;&quot;)
         .replace(/&quot;/g,  &quot;&amp;quot;&quot;);
 }
-
-function buscarIdPaisRM(nomePais) {
+</eventDescription>
+    </WorkflowProcessEvent>
+    <WorkflowProcessEvent>
+      <workflowProcessEventPK>
+        <companyId>1</companyId>
+        <eventId>afterProcessFinish</eventId>
+        <processId>CadastroClienteFornecedor</processId>
+        <version>1</version>
+      </workflowProcessEventPK>
+      <eventDescription>function afterProcessFinish(colleagueId, processId, threadSequence, userList) {
     try {
-        var alvo = String(nomePais || &quot;&quot;).trim().toUpperCase();
-        if (!alvo) return &quot;&quot;;
-
-        var ds = DatasetFactory.getDataset(&quot;ds_paisRM&quot;, null, null, null);
-        if (!ds || !ds.values || !ds.values.length) {
-            log.warn(&quot;[ST16] ds_paisRM não retornou dados.&quot;);
-            return &quot;&quot;;
-        }
-        var result = String(ds.values[0][2] || &quot;&quot;).trim();
-        if (!result || result === &quot;null&quot;) return &quot;&quot;;
-
-        var paises = JSON.parse(result);
-        for (var i = 0; i &lt; paises.length; i++) {
-            var nome = String(paises[i].NOMEPAI || &quot;&quot;).trim().toUpperCase();
-            if (nome === alvo) {
-                return String(paises[i].IDPAIS || &quot;&quot;).trim();
-            }
+        var solicitante = hAPI.getCardValue(&quot;solicitante&quot;);
+        if (!solicitante) {
+            solicitante = colleagueId;
         }
 
-        log.warn(&quot;[ST16] País &apos;&quot; + nomePais + &quot;&apos; não encontrado em GPAIS.&quot;);
-        return &quot;&quot;;
+        var email = buscaEmailUsuarioFluig(solicitante);
+        if (!email) {
+            log.warn(&quot;[E-MAIL] Solicitante sem e-mail cadastrado: &quot; + solicitante);
+            return;
+        }
+
+        var link = URL_FLUIG + &quot;/portal/p/1/pageworkflowview?app_ecm_workflowview_detailsProcessInstanceID=&quot; + processId;
+
+        var corpoEmail = &quot;&quot;;
+        corpoEmail += &quot;Olá, &lt;br&gt;&quot;;
+        corpoEmail += &quot;Sua solicitação nº &quot; + processId + &quot; de &lt;b&gt;Cadastro de Cliente/Fornecedor&lt;/b&gt; foi &lt;b&gt;finalizada&lt;/b&gt;.&lt;br&gt;&quot;;
+        corpoEmail += &quot;&lt;br&gt;&quot;;
+        corpoEmail += &quot;Para consultar os detalhes, &lt;a href=&apos;&quot; + link + &quot;&apos;&gt;clique aqui&lt;/a&gt;.&quot;;
+
+        enviarEmailFluig(email, &quot;Cadastro de Cliente/Fornecedor finalizado - #&quot; + processId, corpoEmail);
     } catch (e) {
-        log.warn(&quot;[ST16] Erro ao buscar IDPAIS: &quot; + e);
-        return &quot;&quot;;
+        log.error(&quot;[E-MAIL] Erro ao notificar finalização: &quot; + e);
+    }
+}
+
+
+
+// NOTIFICAÇÃO POR E-MAIL 
+var URL_FLUIG = &quot;http://fluig.castilho.com.br:1010&quot;;             // Produção
+// var URL_FLUIG = &quot;http://homologacao.castilho.com.br:2020&quot;;   // Homologação
+
+
+function buscaEmailUsuarioFluig(login) {
+    var c1 = DatasetFactory.createConstraint(&quot;login&quot;, login, login, ConstraintType.MUST);
+    var dataset = DatasetFactory.getDataset(&quot;colleague&quot;, null, [c1], null);
+
+    if (dataset != null &amp;&amp; dataset.rowsCount &gt; 0) {
+        return dataset.getValue(0, &quot;mail&quot;);
+    }
+
+    return null;
+}
+
+
+function enviarEmailFluig(email, assunto, corpoEmail) {
+    var data = {
+        &quot;to&quot;: email,
+        from: &quot;fluig@construtoracastilho.com.br&quot;,
+        &quot;subject&quot;: assunto,
+        &quot;templateId&quot;: &quot;TPL_PADRAO_CASTILHO&quot;,
+        &quot;dialectId&quot;: &quot;pt_BR&quot;,
+        &quot;param&quot;: {
+            &quot;CORPO_EMAIL&quot;: corpoEmail,
+            &quot;SERVER_URL&quot;: URL_FLUIG,
+            &quot;TENANT_ID&quot;: &quot;1&quot;
+        }
+    };
+
+    var clientService = fluigAPI.getAuthorizeClientService();
+    var requestData = {
+        companyId: getValue(&quot;WKCompany&quot;) + &apos;&apos;,
+        serviceCode: &apos;ServicoFluig&apos;,
+        endpoint: &apos;/api/public/alert/customEmailSender&apos;,
+        method: &apos;post&apos;,
+        params: data,
+        options: {
+            encoding: &apos;UTF-8&apos;,
+            mediaType: &apos;application/json&apos;,
+            useSSL: true
+        },
+        headers: {
+            &quot;Content-Type&quot;: &apos;application/json;charset=UTF-8&apos;
+        }
+    };
+
+    var vo = clientService.invoke(JSONUtil.toJSON(requestData));
+
+    if (vo.getResult() == null || vo.getResult().isEmpty()) {
+        throw new Exception(&quot;Retorno do envio de e-mail está vazio&quot;);
+    } else {
+        log.info(&quot;[E-MAIL] Enviado para &quot; + email + &quot; | assunto: &quot; + assunto);
+        return vo.getResult();
     }
 }
 </eventDescription>
@@ -905,11 +951,16 @@ function buscarIdPaisRM(nomePais) {
     var atividadeAtual = Number(getValue(&quot;WKNumState&quot;));
     var completTask = getValue(&quot;WKCompletTask&quot;) == &quot;true&quot;;
 
+    log.info(&quot;[E-MAIL-DEBUG] beforeTaskSave | atividade=&quot; + atividadeAtual + &quot; | colleagueId=&quot; + colleagueId + &quot; | completTask=&quot; + completTask + &quot; | WKUser=&quot; + getValue(&quot;WKUser&quot;));
+
     if (!completTask) {
         return;
     }
 
     if (atividadeAtual == 0 || atividadeAtual == 4) {
+        if (!hAPI.getCardValue(&quot;solicitante&quot;)) {
+            hAPI.setCardValue(&quot;solicitante&quot;, colleagueId);
+        }
         adicionarHistorico(colleagueId, &quot;Solicitação&quot;, &quot;Enviado&quot;, &quot;Solicitação enviada para validação.&quot;);
         return;
     }
@@ -929,12 +980,13 @@ function buscarIdPaisRM(nomePais) {
             acao = &quot;Validação&quot;;
         }
 
+
+        var motivoCorrecao = observacao;
+
         if (!observacao) {
             observacao = &quot;Decisão registrada na etapa de validação.&quot;;
         }
 
-        // Compara o snapshot tirado no início da Validação com os valores atuais.
-        // Se o validador editou algum campo do solicitante, as diferenças aparecem no histórico.
         var alteracoes = montarAlteracoesEdicaoValidacao();
 
         if (alteracoes) {
@@ -943,7 +995,11 @@ function buscarIdPaisRM(nomePais) {
 
         adicionarHistorico(colleagueId, atividade, acao, observacao);
 
-        // Limpa campos transitórios para não vazar para a próxima atividade.
+        if (decisao == &quot;Correcao&quot;) {
+            notificarSolicitanteCorrecao(motivoCorrecao, userList, colleagueId);
+        }
+
+
         hAPI.setCardValue(&quot;observacaoValidacao&quot;, &quot;&quot;);
         hAPI.setCardValue(&quot;selectDecisao&quot;, &quot;&quot;);
         hAPI.setCardValue(&quot;snapshotEdicaoValidacao&quot;, &quot;&quot;);
@@ -1003,9 +1059,7 @@ function montarAlteracoesEdicaoValidacao() {
         return &quot;&quot;;
     }
 
-    // Lista completa de campos auditáveis: [id do campo no card, rótulo legível].
-    // Campos hidden (hiddenBancoNCod, hiddenCnaeSecundarioN etc.) são usados porque
-    // são a fonte de verdade dos campos dinâmicos (ver Functions.js — sincronizarTabelaBancaria).
+
     var campos = [
         [&quot;classificacao&quot;, &quot;Classificação&quot;],
         [&quot;categoria&quot;, &quot;Categoria&quot;],
@@ -1111,8 +1165,6 @@ function montarAlteracoesEdicaoValidacao() {
         var antigo = String(snapshot[campo] || &quot;&quot;).trim();
         var novo = String(hAPI.getCardValue(campo) || &quot;&quot;).trim();
 
-        // Campos de checkbox armazenam valores variados (&quot;on&quot;, &quot;true&quot;, &quot;1&quot;, &quot;Sim&quot; etc.).
-        // Normaliza para &quot;Sim&quot;/&quot;Não&quot; antes de comparar para evitar falsos-positivos.
         if (isCampoCheckboxAuditoria(campo)) {
             antigo = normalizarCheckboxAuditoria(antigo);
             novo = normalizarCheckboxAuditoria(novo);
@@ -1130,8 +1182,6 @@ function montarAlteracoesEdicaoValidacao() {
     return &quot;&lt;br&gt;&lt;br&gt;&lt;b&gt;Alterações realizadas:&lt;/b&gt;&lt;br&gt;• &quot; + alteracoes.join(&quot;&lt;br&gt;• &quot;);
 }
 
-// Retorna true para os campos cujo valor é booleano/checkbox.
-// Esses campos precisam de normalização antes da comparação de auditoria.
 function isCampoCheckboxAuditoria(campo) {
     return [
         &quot;toggleEstrangeiro&quot;,
@@ -1145,8 +1195,7 @@ function isCampoCheckboxAuditoria(campo) {
     ].indexOf(campo) &gt;= 0;
 }
 
-// Converte qualquer representação booleana para &quot;Sim&quot; ou &quot;Não&quot;.
-// Necessário porque o Fluig persiste checkboxes como &quot;on&quot;, &quot;true&quot;, &quot;1&quot; ou string vazia.
+
 function normalizarCheckboxAuditoria(valor) {
     var v = String(valor || &quot;&quot;).toLowerCase().trim();
 
@@ -1156,40 +1205,125 @@ function normalizarCheckboxAuditoria(valor) {
 
     return &quot;Não&quot;;
 }
+
+
+
+// var URL_FLUIG = &quot;http://fluig.castilho.com.br:1010&quot;;             // Produção
+var URL_FLUIG = &quot;http://homologacao.castilho.com.br:2020&quot;;   // Homologação
+
+function notificarSolicitanteCorrecao(motivo, userList, colleagueId) {
+    try {
+        // 1) Fonte primária: card &quot;solicitante&quot; (salvo na abertura, p/ processos novos).
+        var solicitante = hAPI.getCardValue(&quot;solicitante&quot;);
+        log.info(&quot;[E-MAIL] solicitante (card) = &apos;&quot; + solicitante + &quot;&apos;&quot;);
+
+        // 2) Fallback: destinatário da próxima atividade (a correção volta ao solicitante).
+        if (!solicitante &amp;&amp; userList != null) {
+            try {
+                if (userList.size() &gt; 0) {
+                    solicitante = String(userList.get(0));
+                    log.info(&quot;[E-MAIL] fallback userList[0] = &apos;&quot; + solicitante + &quot;&apos;&quot;);
+                }
+            } catch (eu) {
+                log.warn(&quot;[E-MAIL] erro ao ler userList: &quot; + eu);
+            }
+        }
+
+        // 3) Último recurso: quem está movendo a tarefa.
+        if (!solicitante) {
+            solicitante = colleagueId;
+            log.info(&quot;[E-MAIL] fallback colleagueId = &apos;&quot; + solicitante + &quot;&apos;&quot;);
+        }
+
+        var email = buscaEmailUsuarioFluig(solicitante);
+        log.info(&quot;[E-MAIL] e-mail encontrado para &apos;&quot; + solicitante + &quot;&apos; = &apos;&quot; + email + &quot;&apos;&quot;);
+
+        if (!email) {
+            log.warn(&quot;[E-MAIL] Solicitante sem e-mail cadastrado: &quot; + solicitante);
+            return;
+        }
+
+        if (!motivo) {
+            motivo = &quot;Sem observação informada.&quot;;
+        }
+
+        var numProcesso = getValue(&quot;WKNumProces&quot;);
+        var link = URL_FLUIG + &quot;/portal/p/1/pageworkflowview?app_ecm_workflowview_detailsProcessInstanceID=&quot; + numProcesso;
+
+        var corpoEmail = &quot;&quot;;
+        corpoEmail += &quot;Olá, &lt;br&gt;&quot;;
+        corpoEmail += &quot;Sua solicitação nº &quot; + numProcesso + &quot; de &lt;b&gt;Cadastro de Cliente/Fornecedor&lt;/b&gt; foi enviada para &lt;b&gt;CORREÇÃO DE CADASTRO&lt;/b&gt; pela equipe de validação.&lt;br&gt;&quot;;
+        corpoEmail += &quot;&lt;br&gt;&quot;;
+        corpoEmail += &quot;&lt;b&gt;Motivo / Observação:&lt;/b&gt;&lt;br&gt;&quot; + motivo + &quot;&lt;br&gt;&quot;;
+        corpoEmail += &quot;&lt;br&gt;&quot;;
+        corpoEmail += &quot;Para realizar os ajustes, &lt;a href=&apos;&quot; + link + &quot;&apos;&gt;clique aqui&lt;/a&gt;.&quot;;
+
+        enviarEmailFluig(email, &quot;Cadastro de Cliente/Fornecedor enviado para CORREÇÃO - #&quot; + numProcesso, corpoEmail);
+    } catch (e) {
+        log.error(&quot;[E-MAIL] Erro ao notificar correção: &quot; + e);
+        if (e.javaException) {
+            log.error(&quot;[E-MAIL] Causa (Java): &quot; + e.javaException);
+        }
+    }
+}
+
+
+function buscaEmailUsuarioFluig(login) {
+    var c1 = DatasetFactory.createConstraint(&quot;login&quot;, login, login, ConstraintType.MUST);
+    var dataset = DatasetFactory.getDataset(&quot;colleague&quot;, null, [c1], null);
+
+    if (dataset != null &amp;&amp; dataset.rowsCount &gt; 0) {
+        return dataset.getValue(0, &quot;mail&quot;);
+    }
+
+    return null;
+}
+
+
+function enviarEmailFluig(email, assunto, corpoEmail) {
+    var data = {
+        &quot;to&quot;: email,
+        from: &quot;fluig@construtoracastilho.com.br&quot;,
+        &quot;subject&quot;: assunto,
+        &quot;templateId&quot;: &quot;TPL_PADRAO_CASTILHO&quot;,
+        &quot;dialectId&quot;: &quot;pt_BR&quot;,
+        &quot;param&quot;: {
+            &quot;CORPO_EMAIL&quot;: corpoEmail,
+            &quot;SERVER_URL&quot;: URL_FLUIG,
+            &quot;TENANT_ID&quot;: &quot;1&quot;
+        }
+    };
+
+    var clientService = fluigAPI.getAuthorizeClientService();
+    var requestData = {
+        companyId: getValue(&quot;WKCompany&quot;) + &apos;&apos;,
+        serviceCode: &apos;ServicoFluig&apos;,
+        endpoint: &apos;/api/public/alert/customEmailSender&apos;,
+        method: &apos;post&apos;,
+        params: data,
+        options: {
+            encoding: &apos;UTF-8&apos;,
+            mediaType: &apos;application/json&apos;,
+            useSSL: true
+        },
+        headers: {
+            &quot;Content-Type&quot;: &apos;application/json;charset=UTF-8&apos;
+        }
+    };
+
+    log.info(&quot;[E-MAIL] Chamando customEmailSender | to=&quot; + email + &quot; | company=&quot; + getValue(&quot;WKCompany&quot;));
+
+    var vo = clientService.invoke(JSONUtil.toJSON(requestData));
+    log.info(&quot;[E-MAIL] Retorno customEmailSender: &quot; + (vo == null ? &quot;null&quot; : vo.getResult()));
+
+    if (vo == null || vo.getResult() == null || vo.getResult().isEmpty()) {
+        throw new Exception(&quot;Retorno do envio de e-mail está vazio&quot;);
+    } else {
+        log.info(&quot;[E-MAIL] Enviado para &quot; + email + &quot; | assunto: &quot; + assunto);
+        return vo.getResult();
+    }
+}
 </eventDescription>
-    </WorkflowProcessEvent>
-    <WorkflowProcessEvent>
-      <workflowProcessEventPK>
-        <companyId>1</companyId>
-        <eventId>ENG_LITERALS</eventId>
-        <processId>CadastroClienteFornecedor</processId>
-        <version>1</version>
-      </workflowProcessEventPK>
-      <eventDescription>process.description=CadastrodeFornecedor
-process.category=
-process.instructions=</eventDescription>
-    </WorkflowProcessEvent>
-    <WorkflowProcessEvent>
-      <workflowProcessEventPK>
-        <companyId>1</companyId>
-        <eventId>ESP_LITERALS</eventId>
-        <processId>CadastroClienteFornecedor</processId>
-        <version>1</version>
-      </workflowProcessEventPK>
-      <eventDescription>process.description=CadastrodeFornecedor
-process.category=
-process.instructions=</eventDescription>
-    </WorkflowProcessEvent>
-    <WorkflowProcessEvent>
-      <workflowProcessEventPK>
-        <companyId>1</companyId>
-        <eventId>POR_LITERALS</eventId>
-        <processId>CadastroClienteFornecedor</processId>
-        <version>1</version>
-      </workflowProcessEventPK>
-      <eventDescription>process.description=CadastrodeFornecedor
-process.category=
-process.instructions=</eventDescription>
     </WorkflowProcessEvent>
   </list>
   <list/>
@@ -1282,7 +1416,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>1</version>
+        <version>38</version>
         <linkSequence>17</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1293,7 +1427,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>1</version>
+        <version>38</version>
         <linkSequence>17</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1304,7 +1438,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>1</version>
+        <version>38</version>
         <linkSequence>25</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1315,7 +1449,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>1</version>
+        <version>38</version>
         <linkSequence>25</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1326,7 +1460,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>1</version>
+        <version>38</version>
         <linkSequence>28</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1337,7 +1471,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>1</version>
+        <version>38</version>
         <linkSequence>28</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1348,7 +1482,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>1</version>
+        <version>38</version>
         <linkSequence>29</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1359,7 +1493,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>1</version>
+        <version>38</version>
         <linkSequence>29</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1370,7 +1504,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>1</version>
+        <version>38</version>
         <linkSequence>30</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1381,7 +1515,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>1</version>
+        <version>38</version>
         <linkSequence>30</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1392,7 +1526,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>1</version>
+        <version>38</version>
         <linkSequence>30</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
@@ -1403,7 +1537,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>1</version>
+        <version>38</version>
         <linkSequence>31</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1414,7 +1548,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>1</version>
+        <version>38</version>
         <linkSequence>31</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1425,7 +1559,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>1</version>
+        <version>38</version>
         <linkSequence>31</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
@@ -1436,7 +1570,7 @@ process.instructions=</eventDescription>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>1</version>
+        <version>38</version>
         <linkSequence>31</linkSequence>
         <bendSequence>4</bendSequence>
       </processLinkBendPK>

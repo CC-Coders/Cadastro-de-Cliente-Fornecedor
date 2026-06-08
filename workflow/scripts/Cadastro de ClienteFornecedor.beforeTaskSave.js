@@ -2,11 +2,16 @@ function beforeTaskSave(colleagueId, nextSequenceId, userList) {
     var atividadeAtual = Number(getValue("WKNumState"));
     var completTask = getValue("WKCompletTask") == "true";
 
+    log.info("[E-MAIL-DEBUG] beforeTaskSave | atividade=" + atividadeAtual + " | colleagueId=" + colleagueId + " | completTask=" + completTask + " | WKUser=" + getValue("WKUser"));
+
     if (!completTask) {
         return;
     }
 
     if (atividadeAtual == 0 || atividadeAtual == 4) {
+        if (!hAPI.getCardValue("solicitante")) {
+            hAPI.setCardValue("solicitante", colleagueId);
+        }
         adicionarHistorico(colleagueId, "Solicitação", "Enviado", "Solicitação enviada para validação.");
         return;
     }
@@ -26,12 +31,13 @@ function beforeTaskSave(colleagueId, nextSequenceId, userList) {
             acao = "Validação";
         }
 
+
+        var motivoCorrecao = observacao;
+
         if (!observacao) {
             observacao = "Decisão registrada na etapa de validação.";
         }
 
-        // Compara o snapshot tirado no início da Validação com os valores atuais.
-        // Se o validador editou algum campo do solicitante, as diferenças aparecem no histórico.
         var alteracoes = montarAlteracoesEdicaoValidacao();
 
         if (alteracoes) {
@@ -40,7 +46,11 @@ function beforeTaskSave(colleagueId, nextSequenceId, userList) {
 
         adicionarHistorico(colleagueId, atividade, acao, observacao);
 
-        // Limpa campos transitórios para não vazar para a próxima atividade.
+        if (decisao == "Correcao") {
+            notificarSolicitanteCorrecao(motivoCorrecao, userList, colleagueId);
+        }
+
+
         hAPI.setCardValue("observacaoValidacao", "");
         hAPI.setCardValue("selectDecisao", "");
         hAPI.setCardValue("snapshotEdicaoValidacao", "");
@@ -100,9 +110,7 @@ function montarAlteracoesEdicaoValidacao() {
         return "";
     }
 
-    // Lista completa de campos auditáveis: [id do campo no card, rótulo legível].
-    // Campos hidden (hiddenBancoNCod, hiddenCnaeSecundarioN etc.) são usados porque
-    // são a fonte de verdade dos campos dinâmicos (ver Functions.js — sincronizarTabelaBancaria).
+
     var campos = [
         ["classificacao", "Classificação"],
         ["categoria", "Categoria"],
@@ -208,8 +216,6 @@ function montarAlteracoesEdicaoValidacao() {
         var antigo = String(snapshot[campo] || "").trim();
         var novo = String(hAPI.getCardValue(campo) || "").trim();
 
-        // Campos de checkbox armazenam valores variados ("on", "true", "1", "Sim" etc.).
-        // Normaliza para "Sim"/"Não" antes de comparar para evitar falsos-positivos.
         if (isCampoCheckboxAuditoria(campo)) {
             antigo = normalizarCheckboxAuditoria(antigo);
             novo = normalizarCheckboxAuditoria(novo);
@@ -227,8 +233,6 @@ function montarAlteracoesEdicaoValidacao() {
     return "<br><br><b>Alterações realizadas:</b><br>• " + alteracoes.join("<br>• ");
 }
 
-// Retorna true para os campos cujo valor é booleano/checkbox.
-// Esses campos precisam de normalização antes da comparação de auditoria.
 function isCampoCheckboxAuditoria(campo) {
     return [
         "toggleEstrangeiro",
@@ -242,8 +246,7 @@ function isCampoCheckboxAuditoria(campo) {
     ].indexOf(campo) >= 0;
 }
 
-// Converte qualquer representação booleana para "Sim" ou "Não".
-// Necessário porque o Fluig persiste checkboxes como "on", "true", "1" ou string vazia.
+
 function normalizarCheckboxAuditoria(valor) {
     var v = String(valor || "").toLowerCase().trim();
 
@@ -252,4 +255,122 @@ function normalizarCheckboxAuditoria(valor) {
     }
 
     return "Não";
+}
+
+
+
+// var URL_FLUIG = "http://fluig.castilho.com.br:1010";             // Produção
+var URL_FLUIG = "http://homologacao.castilho.com.br:2020";   // Homologação
+
+function notificarSolicitanteCorrecao(motivo, userList, colleagueId) {
+    try {
+        // 1) Fonte primária: card "solicitante" (salvo na abertura, p/ processos novos).
+        var solicitante = hAPI.getCardValue("solicitante");
+        log.info("[E-MAIL] solicitante (card) = '" + solicitante + "'");
+
+        // 2) Fallback: destinatário da próxima atividade (a correção volta ao solicitante).
+        if (!solicitante && userList != null) {
+            try {
+                if (userList.size() > 0) {
+                    solicitante = String(userList.get(0));
+                    log.info("[E-MAIL] fallback userList[0] = '" + solicitante + "'");
+                }
+            } catch (eu) {
+                log.warn("[E-MAIL] erro ao ler userList: " + eu);
+            }
+        }
+
+        // 3) Último recurso: quem está movendo a tarefa.
+        if (!solicitante) {
+            solicitante = colleagueId;
+            log.info("[E-MAIL] fallback colleagueId = '" + solicitante + "'");
+        }
+
+        var email = buscaEmailUsuarioFluig(solicitante);
+        log.info("[E-MAIL] e-mail encontrado para '" + solicitante + "' = '" + email + "'");
+
+        if (!email) {
+            log.warn("[E-MAIL] Solicitante sem e-mail cadastrado: " + solicitante);
+            return;
+        }
+
+        if (!motivo) {
+            motivo = "Sem observação informada.";
+        }
+
+        var numProcesso = getValue("WKNumProces");
+        var link = URL_FLUIG + "/portal/p/1/pageworkflowview?app_ecm_workflowview_detailsProcessInstanceID=" + numProcesso;
+
+        var corpoEmail = "";
+        corpoEmail += "Olá, <br>";
+        corpoEmail += "Sua solicitação nº " + numProcesso + " de <b>Cadastro de Cliente/Fornecedor</b> foi enviada para <b>CORREÇÃO DE CADASTRO</b> pela equipe de validação.<br>";
+        corpoEmail += "<br>";
+        corpoEmail += "<b>Motivo / Observação:</b><br>" + motivo + "<br>";
+        corpoEmail += "<br>";
+        corpoEmail += "Para realizar os ajustes, <a href='" + link + "'>clique aqui</a>.";
+
+        enviarEmailFluig(email, "Cadastro de Cliente/Fornecedor enviado para CORREÇÃO - #" + numProcesso, corpoEmail);
+    } catch (e) {
+        log.error("[E-MAIL] Erro ao notificar correção: " + e);
+        if (e.javaException) {
+            log.error("[E-MAIL] Causa (Java): " + e.javaException);
+        }
+    }
+}
+
+
+function buscaEmailUsuarioFluig(login) {
+    var c1 = DatasetFactory.createConstraint("login", login, login, ConstraintType.MUST);
+    var dataset = DatasetFactory.getDataset("colleague", null, [c1], null);
+
+    if (dataset != null && dataset.rowsCount > 0) {
+        return dataset.getValue(0, "mail");
+    }
+
+    return null;
+}
+
+
+function enviarEmailFluig(email, assunto, corpoEmail) {
+    var data = {
+        "to": email,
+        from: "fluig@construtoracastilho.com.br",
+        "subject": assunto,
+        "templateId": "TPL_PADRAO_CASTILHO",
+        "dialectId": "pt_BR",
+        "param": {
+            "CORPO_EMAIL": corpoEmail,
+            "SERVER_URL": URL_FLUIG,
+            "TENANT_ID": "1"
+        }
+    };
+
+    var clientService = fluigAPI.getAuthorizeClientService();
+    var requestData = {
+        companyId: getValue("WKCompany") + '',
+        serviceCode: 'ServicoFluig',
+        endpoint: '/api/public/alert/customEmailSender',
+        method: 'post',
+        params: data,
+        options: {
+            encoding: 'UTF-8',
+            mediaType: 'application/json',
+            useSSL: true
+        },
+        headers: {
+            "Content-Type": 'application/json;charset=UTF-8'
+        }
+    };
+
+    log.info("[E-MAIL] Chamando customEmailSender | to=" + email + " | company=" + getValue("WKCompany"));
+
+    var vo = clientService.invoke(JSONUtil.toJSON(requestData));
+    log.info("[E-MAIL] Retorno customEmailSender: " + (vo == null ? "null" : vo.getResult()));
+
+    if (vo == null || vo.getResult() == null || vo.getResult().isEmpty()) {
+        throw new Exception("Retorno do envio de e-mail está vazio");
+    } else {
+        log.info("[E-MAIL] Enviado para " + email + " | assunto: " + assunto);
+        return vo.getResult();
+    }
 }

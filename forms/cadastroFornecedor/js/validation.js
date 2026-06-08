@@ -110,7 +110,7 @@ function validarDocumentosPorCategoria() {
    const estrangeiro = $("#toggleEstrangeiro").is(":checked");
 
    if (categoria === "F") {
-      return validarListaCampos([
+      let valido = validarListaCampos([
          { id: "docCpf",        label: "CPF"                  },
          { id: "docRg",         label: "RG"                   },
          { id: "dtNascimento",  label: "Data de Nascimento"   },
@@ -118,6 +118,23 @@ function validarDocumentosPorCategoria() {
          { id: "docRgOrgao",    label: "Órgão Emissor do RG"  },
          { id: "docRgUf",       label: "UF Emissora do RG"    }
       ]);
+
+      // Data de nascimento não pode ser futura (bloqueia o envio).
+      const dtNasc = $("#dtNascimento").val();
+      const hoje   = new Date().toISOString().split("T")[0];
+      if (dtNasc && dtNasc > hoje) {
+         exibirErroCampo("dtNascimento", "A data de nascimento não pode ser futura.");
+         valido = false;
+      }
+
+      // RG inválido também bloqueia o envio.
+      const rg = $("#docRg").val();
+      if (rg && !validarRG(rg)) {
+         exibirErroCampo("docRg", "RG inválido.");
+         valido = false;
+      }
+
+      return valido;
    }
 
    if (categoria === "J" && estrangeiro) {
@@ -186,7 +203,6 @@ function validarPreCadastro(exibirToast) {
    ];
 
    const camposEndereco = [
-      { id: "nome",         label: "Nome"          },
       { id: "razaoSocial",  label: "Razão Social"  },
       { id: "nomeFantasia", label: "Nome Fantasia"  },
       { id: "endereco",     label: "Endereço"       },
@@ -195,10 +211,9 @@ function validarPreCadastro(exibirToast) {
       { id: "cidade",       label: "Cidade"         }
    ];
 
-   if (modoEstrangeiro) {
-      camposEndereco.push({ id: "selectPaisEstrangeiro", label: "País" });
-   } else {
-
+   // Fornecedor estrangeiro não tem País/CEP/Estado no formulário (vai como Exterior no RM).
+   // Só exige esses campos quando NÃO for estrangeiro.
+   if (!modoEstrangeiro) {
       camposEndereco.push({ id: "cep",    label: "CEP"    }, { id: "pais",   label: "País"   }, { id: "estado", label: "Estado" });
    }
 
@@ -214,9 +229,7 @@ function validarPreCadastro(exibirToast) {
 }
 
 const PARES_IMPOSTO = [
-   { hidden: "#hiddenIss",       nativo: "#iss"       },
    { hidden: "#hiddenInss",      nativo: "#inss"      },
-   { hidden: "#hiddenInputIrrf", nativo: "#inputIrrf" },
    { hidden: "#hiddenCsll",      nativo: "#csll"      },
    { hidden: "#hiddenPis",       nativo: "#pis"       },
    { hidden: "#hiddenCofins",    nativo: "#cofins"    }
@@ -468,7 +481,6 @@ function limparErrosPreCadastro() {
       "docCnpj",
       "docRg",
       "docInscricaoEstadual",
-      "nome",
       "razaoSocial",
       "nomeFantasia",
       "cep",
@@ -560,6 +572,17 @@ function validarCPF(cpf) {
    if (resto == 10 || resto == 11) resto = 0;
 
    return resto == Number.parseInt(cpf.substring(10, 11));
+}
+function validarRG(rg) {
+   // O RG não tem dígito verificador nacional (varia por estado). Validamos só
+   // o formato: precisa ter os 9 dígitos da máscara (00.000.000-0) e não ser
+   // uma sequência repetida (ex.: 00000000-0).
+   rg = (rg || "").replace(/\D/g, "");
+
+   if (rg.length !== 9) return false;
+   if (/^(\d)\1+$/.test(rg)) return false;
+
+   return true;
 }
 function validarCNPJ(cnpj) {
 
