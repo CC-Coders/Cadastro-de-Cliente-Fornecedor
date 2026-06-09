@@ -340,8 +340,11 @@ function salvarFcfoAuxiliar(codCfo, coligada) {
     }
 
     // ── 2) FCFO_AUXILIAR_CNAE (principal + secundários) ───────────────────────
+    // Coluna "PRICIPAL" (sic) — grafia exatamente conforme o DDL da tabela
+    // (mesmo typo da FCFO_AUXILIAR_GRUPO_MERCADORIA). Usar "PRINCIPAL" aqui
+    // causa "Invalid column name" e a tabela fica vazia.
     var sqlCnae =
-        "INSERT INTO FCFO_AUXILIAR_CNAE (CODCFO, CODCOLIGADA, CODIGO, DESCRICAO, PRINCIPAL)" +
+        "INSERT INTO FCFO_AUXILIAR_CNAE (CODCFO, CODCOLIGADA, CODIGO, DESCRICAO, PRICIPAL)" +
         " VALUES (?,?,?,?,?)";
 
     var cnaePrincVal = fv("cnaePrincipal");
