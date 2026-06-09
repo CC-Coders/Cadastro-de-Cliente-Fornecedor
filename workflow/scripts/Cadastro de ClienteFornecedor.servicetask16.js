@@ -448,6 +448,7 @@ function _buscarCodTb2Fat(descricao) {
     var stmt = null;
     try {
         var ic = new javax.naming.InitialContext();
+        // TTB2 é tabela NATIVA do RM -> /jdbc/RM (correto, não trocar).
         var ds = ic.lookup("/jdbc/RM");
         conn = ds.getConnection();
         stmt = conn.prepareStatement(
@@ -485,7 +486,11 @@ function _execSql(sql, params) {
     var stmt = null;
     try {
         var ic = new javax.naming.InitialContext();
-        var ds = ic.lookup("/jdbc/RM");
+        // As tabelas FCFO_AUXILIAR* ficam no banco CUSTOM da Castilho
+        // (Castilho_Custom / castilho_custom_homol), acessado por /jdbc/CastilhoCustom.
+        // NÃO usar /jdbc/RM aqui: nesse datasource as tabelas não existem
+        // e o INSERT falharia com "Invalid object name 'FCFO_AUXILIAR'".
+        var ds = ic.lookup("/jdbc/CastilhoCustom");
         conn = ds.getConnection();
         stmt = conn.prepareStatement(sql);
 
