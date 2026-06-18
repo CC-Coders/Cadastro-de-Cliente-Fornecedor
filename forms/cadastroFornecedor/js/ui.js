@@ -232,12 +232,22 @@ function controlarCamposCategoria() {
       $("#cnaePrincipal").prop("required", false).val("");
       $("#cnae-secundarios-wrap").empty();
 
+      // PF não tem Contribuinte ICMS nem Regime Fiscal — oculta e não exige.
+      $("#divIcms, #divRegimeFiscal").hide();
+      $("#icms, #regimeFiscal").prop("required", false).val("");
+      limparErroCampo("icms");
+      limparErroCampo("regimeFiscal");
+
       aplicarAsteriscoObrigatorio();
       return;
    }
 
    $("#divDadosPF").hide();
    $("#dtNascimento, #estadoCivil, #docRgOrgao, #docRgUf").prop("required", false);
+
+   // Não-PF (PJ): Contribuinte ICMS e Regime Fiscal voltam a valer.
+   $("#divIcms, #divRegimeFiscal").show();
+   $("#icms, #regimeFiscal").prop("required", true);
 
 
    $("#divDependentesBox").hide();
@@ -400,6 +410,27 @@ function controlarRetencaoPorTipo() {
    }
 
    resetarRetencao();
+}
+
+// Identifica os tipos "RDO" (ex.: "020 - RDO - RESUMO DE DESPESAS DA OBRA").
+// Usa \bRDO\b para casar "RDO" como palavra isolada e não pegar "ACORDO" etc.
+function _ehTipoRDO() {
+   var texto = ($("#tipo option:selected").text() || "").toUpperCase();
+   return /\bRDO\b/.test(texto);
+}
+
+// RDO não tem Natureza de Rendimentos — oculta e não exige nesse tipo.
+function controlarNaturezaPorTipo() {
+   if (_ehTipoRDO()) {
+      $("#divNaturezaRendimento").hide();
+      $("#naturezaRendimento").prop("required", false).val("");
+      $("#codNaturezaRendimento").val("");
+      $("#idNatRendimento").val("");
+      limparErroCampo("naturezaRendimento");
+   } else {
+      $("#divNaturezaRendimento").show();
+      $("#naturezaRendimento").prop("required", true);
+   }
 }
 function controlarPainelRetencoes() {
    const $painel = $("#divRetencoesPanel");
