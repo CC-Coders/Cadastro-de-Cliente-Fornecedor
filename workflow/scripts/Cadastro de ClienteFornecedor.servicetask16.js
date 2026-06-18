@@ -1,3 +1,14 @@
+/**
+ * Atividade de serviço da INTEGRAÇÃO com o RM (TOTVS). A partir dos dados do
+ * formulário:
+ *   1) cria o Cliente/Fornecedor (FCFO) via DataServer FinCFODataBR;
+ *   2) grava as contas bancárias (FinDadosPgtoDataBR) em todas as coligadas;
+ *   3) popula as tabelas auxiliares (FCFO_AUXILIAR*) no banco custom.
+ * Lança erro (e cai em ERRO_INTEGRACAO) se o RM recusar a criação do CFO.
+ *
+ * @param {number} attempt - número da tentativa de execução
+ * @param {string} message - mensagem de contexto da automação
+ */
 function servicetask16(attempt, message) {
 
     var COLIGADA = "1";

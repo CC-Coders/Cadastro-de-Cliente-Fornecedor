@@ -1,4 +1,8 @@
 // UPLOAD DO FLUIG
+/**
+ * Integra as áreas de upload customizadas com o componente nativo de anexos do
+ * Fluig: liga cada "upload-area" ao input de arquivo correspondente.
+ */
 function inicializarUploadsFluig() {
    $(".upload-area").each(function () {
       const $area = $(this);

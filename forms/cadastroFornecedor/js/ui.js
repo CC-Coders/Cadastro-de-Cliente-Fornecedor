@@ -142,6 +142,10 @@
 })();
 
 // VISIBILIDADE CONDICIONAL DE CAMPOS
+/**
+ * Ajusta o formulário conforme a Classificação (Cliente / Fornecedor / Ambos):
+ * Cliente oculta CNAE, grupo de mercadoria e a etapa de Documentação.
+ */
 function controlarCamposClassificacao() {
    const classificacao = ($("#classificacao").val() || "").trim();
    const isCliente = classificacao === "1";
@@ -204,6 +208,11 @@ function controlarCamposClassificacao() {
    aplicarAsteriscoObrigatorio();
 }
 
+/**
+ * Ajusta o formulário conforme a Categoria (Pessoa Física/Jurídica) e a flag
+ * de estrangeiro: exibe/oculta documentos (CPF/CNPJ/RG), bloco de dados de PF,
+ * CNAE, Contribuinte ICMS e Regime Fiscal, e define o que é obrigatório.
+ */
 function controlarCamposCategoria() {
    const categoria = $("#categoria").val();
    const estrangeiro = $("#toggleEstrangeiro").is(":checked");
@@ -303,6 +312,13 @@ function controlarCamposDependentes() {
 
 let _cidadeSelectOriginalHtml = null;
 
+/**
+ * Alterna o bloco de endereço entre nacional e estrangeiro. No modo estrangeiro
+ * oculta CEP/País, fixa o estado como "EX" (Exterior) e torna Cidade um campo de
+ * texto livre; ao desativar, restaura o endereço nacional padrão.
+ *
+ * @param {boolean} ativo - true para endereço estrangeiro
+ */
 function controlarEnderecoEstrangeiro(ativo) {
    const $estadoWrap = $("#divEstado .select-wrap");
 
@@ -621,6 +637,11 @@ function ehModoView() {
 
 
 // MODO VIEW (visualização / histórico do processo)
+/**
+ * Configura a tela em modo somente-leitura (histórico/VIEW): expande todas as
+ * seções, resolve os selects que o Fluig converte em span e deixa os campos
+ * cinzas e bloqueados para edição, mostrando os valores salvos.
+ */
 function configurarModoView() {
 
    document.documentElement.setAttribute("data-device", "desktop");

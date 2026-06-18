@@ -57,13 +57,20 @@ function limpaCamposEndereco() {
    $("#codMunicipio").val("");
    $("#nomeCidadeSalva").val("");
 }
-// API SINTEGRA — ViaCEP
+// API SINTEGRA
 const TOKEN_CNPJ_API = "ZnB1ou61tGsZ17GIOZENAO1Ahua03Mrb";
 function normalizarCnpj(cnpj) {
    return String(cnpj || "")
       .replace(/[^a-zA-Z0-9]/g, "")
       .toUpperCase();
 }
+/**
+ * Orquestra a busca de um CNPJ. Primeiro verifica se já existe no RM, para
+ * travar duplicidade sem gastar consulta externa; se não existir, consulta a
+ * API Sintegrapi e preenche os dados cadastrais no formulário.
+ *
+ * @param {string} cnpj - CNPJ informado (com ou sem máscara)
+ */
 function buscarCnpj(cnpj) {
    cnpj = normalizarCnpj(cnpj);
 
@@ -149,23 +156,27 @@ function limparCamposCnpj() {
    $("#docCnpj").focus();
 }
 
-// Verifica se o CPF já está cadastrado no RM (mesma trava do CNPJ duplicado).
-// Pessoa Física não tem consulta externa — só verifica o RM.
+// Verifica se o CPF já está cadastrado no RM
+/**
+ * Verifica se um CPF já existe no RM e, em caso positivo, limpa os campos e
+ * trava o cadastro — evita duplicidade de Pessoa Física.
+ *
+ * @param {string} cpf - CPF informado (com ou sem máscara)
+ */
 function verificarCpfDuplicado(cpf) {
    cpf = (cpf || "").replace(/\D/g, "");
    if (cpf.length !== 11) {
       return;
    }
 
-   // Reutiliza a verificação no RM (o dataset busca por CGCCFO — serve CPF e CNPJ).
+  
    var dadosRM = _verificarCnpjNoRM(cpf);
 
    if (dadosRM === undefined) {
-      return;  // dataset com problema — toast já exibido
+      return;  
    }
 
    if (dadosRM !== null) {
-      // CPF já cadastrado → trava: limpa os campos e avisa.
       limparCamposCpf();
       FLUIGC.toast({
          title: "CPF já cadastrado",
@@ -200,10 +211,15 @@ function limparCamposCpf() {
    $("#nomeCidadeSalva").val("");
    $("#hiddenEstadoValor").val("");
 
-   // Reseta o controle para que redigitar o MESMO CPF re-dispare a verificação.
    globalThis._cpfJaConsultado = "";
    $("#docCpf").focus();
 }
+/**
+ * Consulta o dataset ds_verificarCnpjRM para saber se o CNPJ já existe no RM.
+ *
+ * @param {string} cnpj - CNPJ normalizado
+ * @returns {object|null} dados do CFO encontrado no RM, ou null se não cadastrado
+ */
 function _verificarCnpjNoRM(cnpj) {
    try {
       var ds = DatasetFactory.getDataset(
