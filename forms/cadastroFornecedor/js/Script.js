@@ -88,6 +88,9 @@ $(document).ready(function () {
       let texto = $("#tipo option:selected").text();
       $("#tipoSelecionado").val($(this).val());
       $("#tipoDescricao").val(texto);
+      if (typeof controlarNaturezaPorTipo === "function") {
+         controlarNaturezaPorTipo();
+      }
    });
 
    $("#divDadosComerciais .section-head")
@@ -229,6 +232,15 @@ function sincronizarEstadoInicial() {
          var textoTipo = $("#tipo option:selected").text();
          $("#tipoSelecionado").val(valorTipo);
          $("#tipoDescricao").val(textoTipo);
+      }
+      if (typeof controlarNaturezaPorTipo === "function") {
+         controlarNaturezaPorTipo();
+      }
+      // PF: esconde Contribuinte ICMS e Regime Fiscal ao reabrir (correção/validação).
+      // Em VIEW a categoria vira span e .val() é undefined -> não esconde (mostra tudo).
+      if (($("#categoria").val() || "") === "F") {
+         $("#divIcms, #divRegimeFiscal").hide();
+         $("#icms, #regimeFiscal").prop("required", false);
       }
       var ufSalvo = ($("#hiddenEstadoValor").val() || "").trim();
       if (ufSalvo && !$("#estado").val()) {

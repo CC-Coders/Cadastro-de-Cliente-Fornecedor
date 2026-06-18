@@ -267,7 +267,9 @@ function validarDadosCadastrais(exibirToast) {
 
    const camposFiscais = [{
          id: "icms",
-         label: "Contribuinte ICMS"
+         label: "Contribuinte ICMS",
+         // PF não tem Contribuinte ICMS.
+         skipWhen: function () { return ($("#categoria").val() || "") === "F"; }
       },
       {
          id: "selectDescricaoIrrf",
@@ -276,11 +278,15 @@ function validarDadosCadastrais(exibirToast) {
 
       {
          id: "naturezaRendimento",
-         label: "Natureza de Rendimentos"
+         label: "Natureza de Rendimentos",
+         // RDO não tem Natureza de Rendimentos.
+         skipWhen: function () { return typeof _ehTipoRDO === "function" && _ehTipoRDO(); }
       },
       {
          id: "regimeFiscal",
-         label: "Regime Fiscal"
+         label: "Regime Fiscal",
+         // PF não tem Regime Fiscal.
+         skipWhen: function () { return ($("#categoria").val() || "") === "F"; }
       },
       {
          id: "tipoDocEmitido",
