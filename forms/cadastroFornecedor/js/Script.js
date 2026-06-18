@@ -157,6 +157,10 @@ function controlarBotoesImprimir() {
 }
 
 
+/**
+ * Prepara a tela na abertura: exibe as seções, posiciona no primeiro passo do
+ * stepper e abre o bloco de Dados do Fornecedor.
+ */
 function inicializarTela() {
    $(".section-body").show();
 
@@ -195,6 +199,11 @@ function abrirDadosComerciais() {
    $secoes.find(".section-arrow").addClass("open").text("▲");
    $secoes.stop(true, true).slideDown(300);
 }
+/**
+ * Restaura o estado do formulário ao reabrir uma solicitação (validação,
+ * correção, view): re-seleciona Tipo/Estado, recria grupos de mercadoria e
+ * CNAEs salvos, restaura checkboxes e reaplica as regras de PF e tipo RDO.
+ */
 function sincronizarEstadoInicial() {
    const funcoesIniciais = [
       controlarCamposClassificacao,      
@@ -388,6 +397,10 @@ function restaurarCnaesSecundariosSalvos() {
 
 
 
+/**
+ * Monta a barra de progresso (stepper) do processo, destacando a atividade
+ * atual conforme a etapa do fluxo (Solicitação, Validação, Integração, Correção).
+ */
 function aplicarBarraProcesso() {
    const atividade = Number($("#atividade").val() || 0);
    const formMode  = ($("#formMode").val() || "").toUpperCase();

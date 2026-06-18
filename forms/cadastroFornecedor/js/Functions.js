@@ -662,6 +662,10 @@ function _parsearDataset(ds, nomeDataset) {
       return [];
    }
 }
+/**
+ * Carrega o dataset de Tipos de Cliente/Fornecedor do RM e popula o select
+ * "Tipo", preservando o valor já selecionado quando houver.
+ */
 function carregarTiposClienteFornecedor() {
 
    let select = $("#tipo");
@@ -795,6 +799,14 @@ function carregarOpcoesIrrf(preservarValor) {
    _popularSelectIrrf(itens, pessoaTipo, valorSalvo);
 }
 
+/**
+ * Popula o select de Código de Receita IRRF filtrando as opções por tipo de
+ * pessoa (PF: 3208/0001; PJ: 1708/17081/0001) e preserva o valor já salvo.
+ *
+ * @param {Array}  lista      - lista de códigos IRRF vinda do RM
+ * @param {string} pessoaTipo - "F" (física) ou "J" (jurídica)
+ * @param {string} valorSalvo - código previamente selecionado, se houver
+ */
 function _popularSelectIrrf(lista, pessoaTipo, valorSalvo) {
    let select = $("#selectDescricaoIrrf");
    select.find("option:not(:first)").remove();
@@ -1221,6 +1233,10 @@ function _gerarHtmlCardBancario(numero) {
       '</div></div>'
    );
 }
+/**
+ * Monta os cards de contas bancárias na abertura e restaura as contas já salvas
+ * (banco, agência, conta, condição de pagamento) a partir dos campos hidden.
+ */
 function inicializarDadosBancarios() {
    let $wrap = $("#dados-bancarios-cards");
    let dadosSalvos = [];
@@ -1381,6 +1397,10 @@ function sincronizarTabelaBancaria() {
    atualizarCamposBancariosRm();
 }
 
+/**
+ * Espelha os dados dinâmicos do formulário (CNAEs, grupos de mercadoria e
+ * contas bancárias) nas tabelas-filho usadas no relatório/impressão.
+ */
 function sincronizarTabelasRelatorio() {
    
    let $cnaeTbody    = $("#tbRelCnaes tbody");

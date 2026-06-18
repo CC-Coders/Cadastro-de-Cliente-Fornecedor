@@ -1,3 +1,13 @@
+/**
+ * Evento disparado ao concluir cada atividade do processo.
+ * Registra o histórico da etapa (Solicitação, Validação, Correção) e, quando a
+ * Validação decide por "Correção", notifica o solicitante por e-mail. Só age
+ * quando a tarefa é de fato concluída (WKCompletTask == true).
+ *
+ * @param {string} colleagueId    - usuário que está movimentando a tarefa
+ * @param {string} nextSequenceId - sequência de destino escolhida
+ * @param {java.util.List} userList - responsáveis pela próxima atividade
+ */
 function beforeTaskSave(colleagueId, nextSequenceId, userList) {
     var atividadeAtual = Number(getValue("WKNumState"));
     var completTask = getValue("WKCompletTask") == "true";
@@ -262,6 +272,15 @@ function normalizarCheckboxAuditoria(valor) {
 // var URL_FLUIG = "http://fluig.castilho.com.br:1010";             // Produção
 var URL_FLUIG = "http://homologacao.castilho.com.br:2020";   // Homologação
 
+/**
+ * Notifica o solicitante por e-mail de que o cadastro voltou para CORREÇÃO,
+ * com o motivo informado na validação e o link da solicitação. Resolve o
+ * destinatário em 3 níveis: card "solicitante" -> userList[0] -> colleagueId.
+ *
+ * @param {string} motivo       - observação/motivo registrado na validação
+ * @param {java.util.List} userList - responsáveis pela próxima atividade (correção)
+ * @param {string} colleagueId  - usuário que está movimentando (último recurso)
+ */
 function notificarSolicitanteCorrecao(motivo, userList, colleagueId) {
     try {
         // 1) Fonte primária: card "solicitante" (salvo na abertura, p/ processos novos).
