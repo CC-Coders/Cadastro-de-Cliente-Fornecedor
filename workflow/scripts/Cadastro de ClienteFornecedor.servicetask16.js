@@ -245,10 +245,7 @@ function servicetask16(attempt, message) {
         }
     }
 
-    // ── TABELAS AUXILIARES ────────────────────────────────────────────────────
-    // Popula FCFO_AUXILIAR, FCFO_AUXILIAR_CNAE e FCFO_AUXILIAR_GRUPO_MERCADORIA
-    // com dados extras do formulário que não têm campos nativos no RM.
-    // Erros aqui NÃO interrompem o fluxo — o CFO já foi criado com sucesso.
+    // TABELAS AUXILIARES 
     try {
         salvarFcfoAuxiliar(codCfo, COLIGADA);
     } catch (eAux) {
@@ -268,17 +265,7 @@ function x(s) {
 }
 
 
-// ═══════════════════════════════════════════════════════════════════════════════
 // TABELAS AUXILIARES — FCFO_AUXILIAR / FCFO_AUXILIAR_CNAE / FCFO_AUXILIAR_GRUPO
-// ═══════════════════════════════════════════════════════════════════════════════
-
-/**
- * Popula as três tabelas auxiliares com os dados extras do formulário.
- * Operação idempotente: faz DELETE + INSERT para suportar retentativas.
- *
- * @param {string} codCfo    - CODCFO gerado pelo RM (string numérica)
- * @param {string} coligada  - Código da coligada (ex: "1")
- */
 function salvarFcfoAuxiliar(codCfo, coligada) {
 
     function fv(nome) {
@@ -290,14 +277,11 @@ function salvarFcfoAuxiliar(codCfo, coligada) {
     var numProces   = parseInt(getValue("WKNumProces") || "0", 10);
     var tsAbertura  = new java.sql.Timestamp(new java.util.Date().getTime());
 
-    // Retenções — "S" se o hidden estiver "on", null (SQL NULL) caso contrário.
-    // CHAR(1) NULL: precisa de NULL real, não "" (que viraria espaço em branco).
     var retInss   = fv("hiddenInss")   === "on" ? "S" : null;
     var retCsll   = fv("hiddenCsll")   === "on" ? "S" : null;
     var retPis    = fv("hiddenPis")    === "on" ? "S" : null;
     var retCofins = fv("hiddenCofins") === "on" ? "S" : null;
 
-    // ── Limpeza para retry seguro (as 3 tabelas são independentes no banco) ────
     var pkParams = [
         { t: "int", v: codCfoInt   },
         { t: "int", v: coligadaInt }
@@ -306,7 +290,7 @@ function salvarFcfoAuxiliar(codCfo, coligada) {
     try { _execSql("DELETE FROM FCFO_AUXILIAR_GRUPO_MERCADORIA WHERE CODCFO=? AND CODCOLIGADA=?", pkParams); } catch (_) {}
     try { _execSql("DELETE FROM FCFO_AUXILIAR                  WHERE CODCFO=? AND CODCOLIGADA=?", pkParams); } catch (_) {}
 
-    // ── 1) FCFO_AUXILIAR ──────────────────────────────────────────────────────
+    // FCFO_AUXILIAR 
     try {
         _execSql(
             "INSERT INTO FCFO_AUXILIAR (" +
@@ -322,15 +306,15 @@ function salvarFcfoAuxiliar(codCfo, coligada) {
                 { t: "int", v: codCfoInt   },
                 { t: "int", v: coligadaInt },
                 { t: "int", v: numProces   },
-                { t: "ts",  v: tsAbertura  },                 // DATA_ABERTURA DATETIME NOT NULL
+                { t: "ts",  v: tsAbertura  }, 
                 { t: "str", v: fv("solicitante") || "sistema" },
-                { t: "str", v: fv("regimeFiscal")             },  // código "01".."07" (NOT NULL)
+                { t: "str", v: fv("regimeFiscal")             },  
                 { t: "str", v: retInss    },
                 { t: "str", v: retCsll    },
                 { t: "str", v: retPis     },
                 { t: "str", v: retCofins  },
                 { t: "str", v: fv("emailComercial")     },
-                { t: "str", v: fv("emailCr")            },  // "E-mail Financeiro / Contabilidade"
+                { t: "str", v: fv("emailCr")            },  
                 { t: "str", v: fv("site")               },
                 { t: "str", v: fv("anxCartaoCnpjId")    },
                 { t: "str", v: fv("anxCompBancoId")     },
@@ -350,10 +334,7 @@ function salvarFcfoAuxiliar(codCfo, coligada) {
         log.error("[ST16-AUX] Falha ao inserir FCFO_AUXILIAR (CODCFO=" + codCfo + "): " + eFcfo);
     }
 
-    // ── 2) FCFO_AUXILIAR_CNAE (principal + secundários) ───────────────────────
-    // Coluna "PRICIPAL" (sic) — grafia exatamente conforme o DDL da tabela
-    // (mesmo typo da FCFO_AUXILIAR_GRUPO_MERCADORIA). Usar "PRINCIPAL" aqui
-    // causa "Invalid column name" e a tabela fica vazia.
+    // ── 2) FCFO_AUXILIAR_CNAE
     var sqlCnae =
         "INSERT INTO FCFO_AUXILIAR_CNAE (CODCFO, CODCOLIGADA, CODIGO, DESCRICAO, PRICIPAL)" +
         " VALUES (?,?,?,?,?)";
