@@ -1,8 +1,4 @@
 // UPLOAD DO FLUIG
-/**
- * Integra as áreas de upload customizadas com o componente nativo de anexos do
- * Fluig: liga cada "upload-area" ao input de arquivo correspondente.
- */
 function inicializarUploadsFluig() {
    $(".upload-area").each(function () {
       const $area = $(this);
@@ -101,7 +97,7 @@ function _iniciarObservadorAnexosInvalidos() {
                   return;
                }
 
-               // Ignora a linha vazia que o Fluig insere quando a tabela fica sem itens
+               
                if (Object.hasOwn(node.dataset, "emptyMessage")) {
                   return;
                }
@@ -381,7 +377,7 @@ function limparStatusUpload(config) {
       const aindaExiste = anexoAindaExisteNoFluig(documentId, nomeArquivo);
 
       if (aindaExiste) {
-         return; // clicou em NÃO, mantém o card
+         return; 
       }
 
       limparVisualUploadConfirmado({
