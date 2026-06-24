@@ -7,7 +7,7 @@ function buscarCep(cep) {
       success: function (data) {
          if (data.erro) {
             FLUIGC.toast({
-               message: "CEP não encontrado.",
+               message: "CEP não encontrado!.",
                type: "danger",
                timeout: 3000
             });
@@ -66,6 +66,11 @@ function normalizarCnpj(cnpj) {
 }
 
 function buscarCnpj(cnpj) {
+
+   if (globalThis._preenchendoEdicao || (typeof ehModoEdicao === "function" && ehModoEdicao())) {
+      return;
+   }
+
    cnpj = normalizarCnpj(cnpj);
 
    if (cnpj.length !== 14) {
@@ -105,6 +110,19 @@ function buscarCnpj(cnpj) {
             });
             return;
          }
+
+         var situacaoCnpj = (res.response.situacao_cadastral || "").toString().trim().toUpperCase();
+         if (situacaoCnpj && situacaoCnpj !== "ATIVA") {
+            limparCamposCnpj();
+            FLUIGC.toast({
+               title: "CNPJ inativo ou baixado",
+               message: "Este CNPJ não está ativo na Receita Federal (" + situacaoCnpj + "). Não é possível prosseguir com o cadastro.",
+               type: "danger",
+               timeout: 7000
+            });
+            return;
+         }
+
          preencherDadosCnpj(res.response);
       },
       error: function (xhr) {
@@ -145,14 +163,16 @@ function limparCamposCnpj() {
 
    $("#cnae-secundarios-wrap").empty();
 
-   // Reseta o controle para que redigitar o MESMO CNPJ re-dispare a verificação.
    globalThis._cnpjJaConsultado = "";
    $("#docCnpj").focus();
 }
 
-// Verifica se o CPF já está cadastrado no RM
-
 function verificarCpfDuplicado(cpf) {
+
+   if (globalThis._preenchendoEdicao || (typeof ehModoEdicao === "function" && ehModoEdicao())) {
+      return;
+   }
+
    cpf = (cpf || "").replace(/\D/g, "");
    if (cpf.length !== 11) {
       return;
@@ -176,7 +196,6 @@ function verificarCpfDuplicado(cpf) {
    }
 }
 
-// Limpa o CPF e os campos de Pessoa Física relacionados.
 function limparCamposCpf() {
    $("#docCpf").val("");
    $("#docRg").val("");
@@ -334,16 +353,36 @@ function _buscarInscricaoEstadualSintegra(cnpj, uf) {
 
          const inscricoes = res.inscricoes_estaduais || [];
 
-         const ie = inscricoes.find(function (i) { return i.uf === uf && i.ativa; })
-                 || inscricoes.find(function (i) { return i.uf === uf; })
-                 || inscricoes[0];
+       
+         const ieDoEstado = inscricoes.find(function (i) { return i.uf === uf; });
 
-         if (ie && ie.inscricao_estadual) {
 
-            const ieDigitos = (ie.inscricao_estadual || "").replace(/\D/g, "");
+         if (!ieDoEstado) {
+            $("#docInscricaoEstadual").val("");
+            return;
+         }
+
+        
+      
+         if (ieDoEstado.ativa && ieDoEstado.inscricao_estadual) {
+            const ieDigitos = (ieDoEstado.inscricao_estadual || "").replace(/\D/g, "");
             $("#docInscricaoEstadual").val(ieDigitos).trigger("input");
             if (typeof limparErroCampo === "function") {
                limparErroCampo("docInscricaoEstadual");
+            }
+         } else {
+
+            $("#docInscricaoEstadual").val("");
+
+
+            if (($("#tipo").val() || "").toString().trim() === "001") {
+               limparCamposCnpj();
+               FLUIGC.toast({
+                  title: "Inscrição Estadual",
+                  message: "teste erro IE",
+                  type: "danger",
+                  timeout: 7000
+               });
             }
          }
       },
@@ -379,6 +418,7 @@ function preencherCnaesSecundarios(atividades) {
       inicializarSnapshotEdicaoValidacao();
    }
 }
+
 function formatarCep(cep) {
    cep = String(cep || "").replace(/\D/g, "");
    if (cep.length !== 8) return cep;
