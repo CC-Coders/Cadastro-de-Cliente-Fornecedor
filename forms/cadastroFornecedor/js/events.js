@@ -18,11 +18,6 @@ $(globalThis).on("load", function () {
 
 let categoriaAnterior = "";
 
-/**
- * Ponto único de registro dos eventos do formulário: agrupa o bind de cada
- * seção (campos básicos, documentos, endereço, retenção, dependentes, anexos
- * etc.) para manter a inicialização organizada.
- */
 function bindEventos() {
    bindEventosCamposBasicos();
    bindEventosDocumentos();
@@ -189,8 +184,6 @@ function bindEventosDocumentos() {
       });
    });
 
-   // Data de nascimento não pode ser futura.
-   // change = seleção no calendário | input/blur = digitação manual.
    $("#dtNascimento").on("change input blur", function () {
       const valor = $(this).val();
       const hoje  = new Date().toISOString().split("T")[0];
