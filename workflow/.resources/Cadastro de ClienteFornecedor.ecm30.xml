@@ -4,12 +4,12 @@
       <companyId>1</companyId>
       <processId>CadastroClienteFornecedor</processId>
     </processDefinitionPK>
-    <processDescription>Cadastro de Cliente/Fornecedor</processDescription>
+    <processDescription>Cadastro e Alteração de Cliente/Fornecedor</processDescription>
     <instruction></instruction>
     <active>true</active>
     <publicProcess>true</publicProcess>
     <volumeId>Default</volumeId>
-    <categoryId>Compras e Serviços</categoryId>
+    <categoryId>Suporte</categoryId>
     <managerEngineAllocationId></managerEngineAllocationId>
     <snapshotFrequency>0</snapshotFrequency>
     <baseDay>0</baseDay>
@@ -27,8 +27,8 @@
   <ProcessDefinitionVersion>
     <processDefinitionVersionPK>
       <companyId>1</companyId>
-      <processId>Cadastro de Cliente/Fornecedor</processId>
-      <version>43</version>
+      <processId>Cadastro e Alteração de Cliente/Fornecedor</processId>
+      <version>65</version>
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
     <formId>0</formId>
@@ -429,7 +429,7 @@
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
         <expressionOrder>1</expressionOrder>
-        <version>43</version>
+        <version>65</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;Correcao&quot;</condition>
@@ -441,7 +441,7 @@
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
         <expressionOrder>2</expressionOrder>
-        <version>43</version>
+        <version>65</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;enviarRm&quot;</condition>
@@ -725,13 +725,26 @@
             &quot;&lt;NUMDEPENDENTES&gt;&quot;+ x(numDependentes) + &quot;&lt;/NUMDEPENDENTES&gt;&quot;;&#xd;
     }&#xd;
 &#xd;
+    // Edição: havendo CODCFO de edição, o RM ATUALIZA o registro (não cria).&#xd;
+    // Sem ele, mantém o comportamento de criação (-1 / coligada 0 / IDCFO 0).&#xd;
+    var codcfoEdicao   = f(&quot;codcfoEdicao&quot;);&#xd;
+    var coligadaEdicao = f(&quot;coligadaEdicao&quot;);&#xd;
+    var idcfoEdicao    = f(&quot;idcfoEdicao&quot;);&#xd;
+    var ehEdicao = (codcfoEdicao &amp;&amp; codcfoEdicao !== &quot;-1&quot; &amp;&amp; codcfoEdicao !== &quot;0&quot;);&#xd;
+&#xd;
+    var codcfoXml   = ehEdicao ? codcfoEdicao   : &quot;-1&quot;;&#xd;
+    var coligadaXml = ehEdicao ? coligadaEdicao : &quot;0&quot;;&#xd;
+    var idcfoXml    = ehEdicao ? idcfoEdicao    : &quot;0&quot;;&#xd;
+&#xd;
+    log.info(&quot;[ST16] Modo &quot; + (ehEdicao ? (&quot;EDIÇÃO/UPDATE CODCFO=&quot; + codcfoEdicao) : &quot;CRIAÇÃO de novo CFO&quot;));&#xd;
+&#xd;
     var xmlCfo =&#xd;
         &quot;&lt;FinCFOBR&gt;&quot; +&#xd;
             &quot;&lt;FCFO&gt;&quot; +&#xd;
-                &quot;&lt;CODCOLIGADA&gt;0&lt;/CODCOLIGADA&gt;&quot; +&#xd;
-                &quot;&lt;CODCFO&gt;-1&lt;/CODCFO&gt;&quot; +&#xd;
-                &quot;&lt;NOME&gt;&quot;           + x(nomeRM)       + &quot;&lt;/NOME&gt;&quot; +&#xd;
-                &quot;&lt;NOMEFANTASIA&gt;&quot;   + x(nomeFantasia)  + &quot;&lt;/NOMEFANTASIA&gt;&quot; +&#xd;
+                &quot;&lt;CODCOLIGADA&gt;&quot; + coligadaXml + &quot;&lt;/CODCOLIGADA&gt;&quot; +&#xd;
+                &quot;&lt;CODCFO&gt;&quot; + codcfoXml + &quot;&lt;/CODCFO&gt;&quot; +&#xd;
+                &quot;&lt;NOME&gt;&quot;           + x(nomeFantasia) + &quot;&lt;/NOME&gt;&quot; +&#xd;
+                &quot;&lt;NOMEFANTASIA&gt;&quot;   + x(razaoSocial)  + &quot;&lt;/NOMEFANTASIA&gt;&quot; +&#xd;
                 &quot;&lt;CGCCFO&gt;&quot;         + x(cgc)           + &quot;&lt;/CGCCFO&gt;&quot; +&#xd;
                 &quot;&lt;INSCRESTADUAL&gt;&quot;  + x(inscEstadual)  + &quot;&lt;/INSCRESTADUAL&gt;&quot; +&#xd;
                 &quot;&lt;INSCRMUNICIPAL&gt;&quot; + x(inscMunicipal) + &quot;&lt;/INSCRMUNICIPAL&gt;&quot; +&#xd;
@@ -754,7 +767,7 @@
                 &quot;&lt;PAIS&gt;Brasil&lt;/PAIS&gt;&quot; +&#xd;
                 &quot;&lt;CONTRIBUINTE&gt;&quot;       + contribuinte  + &quot;&lt;/CONTRIBUINTE&gt;&quot; +&#xd;
                 &quot;&lt;CONTRIBUINTEISS&gt;&quot;    + retencaoIss   + &quot;&lt;/CONTRIBUINTEISS&gt;&quot; +&#xd;
-                &quot;&lt;IDCFO&gt;0&lt;/IDCFO&gt;&quot; +&#xd;
+                &quot;&lt;IDCFO&gt;&quot; + idcfoXml + &quot;&lt;/IDCFO&gt;&quot; +&#xd;
                 &quot;&lt;OPTANTEPELOSIMPLES&gt;&quot; + simplesNac    + &quot;&lt;/OPTANTEPELOSIMPLES&gt;&quot; +&#xd;
                 &quot;&lt;TIPORUA&gt;1&lt;/TIPORUA&gt;&quot; +&#xd;
                 &quot;&lt;TIPOBAIRRO&gt;1&lt;/TIPOBAIRRO&gt;&quot; +&#xd;
@@ -772,6 +785,10 @@
 &#xd;
     var codCfo = chamarRM(&quot;FinCFODataBR&quot;, xmlCfo);&#xd;
 &#xd;
+    if (!codCfo &amp;&amp; ehEdicao) {&#xd;
+        codCfo = codcfoEdicao; // na edição o RM pode não devolver o código; reaproveita o informado&#xd;
+    }&#xd;
+&#xd;
     if (!codCfo) {&#xd;
         throw new Error(&quot;[ST16] CODCFO não retornado pelo RM após criação do CFO.&quot;);&#xd;
     }&#xd;
@@ -779,6 +796,109 @@
     log.info(&quot;[ST16] CFO criado com sucesso. CODCFO=&quot; + codCfo);&#xd;
     hAPI.setCardValue(&quot;codCfoRm&quot;, codCfo);&#xd;
 &#xd;
+    try {&#xd;
+        salvarUrlFluigRM(codCfo);&#xd;
+    } catch (eUrl) {&#xd;
+        log.error(&quot;[ST16] Erro ao gravar URL Fluig em FCFOCOMPL (não interrompe): &quot; + eUrl);&#xd;
+    }&#xd;
+&#xd;
+&#xd;
+    var bancosEdicaoJson = f(&quot;bancosEdicaoJson&quot;);&#xd;
+    var ehEdicaoBancos = ehEdicao &amp;&amp; bancosEdicaoJson &amp;&amp; bancosEdicaoJson !== &quot;[]&quot;;&#xd;
+&#xd;
+    if (ehEdicaoBancos) {&#xd;
+        // EDIÇÃO: grava as contas do JSON usando o IDPGTO/ATIVO de cada uma.&#xd;
+        // Contas do RM mantêm o IDPGTO (UPDATE); novas recebem um IDPGTO livre.&#xd;
+        // O boleto existente no RM é mantido (não recriado aqui).&#xd;
+        var contasEd = [];&#xd;
+        try { contasEd = JSON.parse(bancosEdicaoJson); } catch (eJsonEd) {&#xd;
+            log.error(&quot;[ST16] bancosEdicaoJson inválido: &quot; + eJsonEd);&#xd;
+        }&#xd;
+&#xd;
+        var idpgtoBoletoEd = parseInt(f(&quot;idpgtoBoletoEdicao&quot;), 10) || 0;&#xd;
+&#xd;
+        var maxIdEd = idpgtoBoletoEd;&#xd;
+        for (var mi = 0; mi &lt; contasEd.length; mi++) {&#xd;
+            var idn = parseInt(contasEd[mi].idpgto, 10) || 0;&#xd;
+            if (idn &gt; maxIdEd) { maxIdEd = idn; }&#xd;
+        }&#xd;
+        var proxIdEd = maxIdEd + 1;&#xd;
+&#xd;
+        for (var ie = 0; ie &lt; contasEd.length; ie++) {&#xd;
+            var ct = contasEd[ie] || {};&#xd;
+            var ctBanco = String(ct.banco || &quot;&quot;);&#xd;
+            var ctAg    = String(ct.agencia || &quot;&quot;);&#xd;
+            var ctCt    = String(ct.conta || &quot;&quot;);&#xd;
+            var ctDesc  = String(ct.desc || &quot;&quot;);&#xd;
+            if (!ctBanco &amp;&amp; !ctAg &amp;&amp; !ctCt) { continue; }&#xd;
+&#xd;
+            var ctIdp = (String(ct.novo) !== &quot;1&quot; &amp;&amp; (parseInt(ct.idpgto, 10) || 0) &gt; 0)&#xd;
+                        ? parseInt(ct.idpgto, 10) : (proxIdEd++);&#xd;
+            var ctAtivo = (String(ct.ativo) === &quot;0&quot;) ? &quot;0&quot; : &quot;1&quot;;&#xd;
+&#xd;
+            var ctAgNum = ctAg.length &gt; 1 ? ctAg.slice(0, -1) : ctAg;&#xd;
+            var ctAgDig = ctAg.length &gt; 1 ? ctAg.slice(-1)    : &quot;0&quot;;&#xd;
+            var ctCtNum = ctCt.length &gt; 1 ? ctCt.slice(0, -1) : ctCt;&#xd;
+            var ctCtDig = ctCt.length &gt; 1 ? ctCt.slice(-1)    : &quot;0&quot;;&#xd;
+&#xd;
+            for (var ced = 0; ced &lt; COLIGADAS_BANCO.length; ced++) {&#xd;
+                var colEd = COLIGADAS_BANCO[ced];&#xd;
+                var xmlEd =&#xd;
+                    &quot;&lt;FDadosPgto&gt;&quot; +&#xd;
+                        &quot;&lt;CODCOLIGADA&gt;&quot; + colEd + &quot;&lt;/CODCOLIGADA&gt;&quot; +&#xd;
+                        &quot;&lt;CODCOLCFO&gt;0&lt;/CODCOLCFO&gt;&quot; +&#xd;
+                        &quot;&lt;CODCFO&gt;&quot; + x(codCfo) + &quot;&lt;/CODCFO&gt;&quot; +&#xd;
+                        &quot;&lt;IDPGTO&gt;&quot; + ctIdp + &quot;&lt;/IDPGTO&gt;&quot; +&#xd;
+                        &quot;&lt;DESCRICAO&gt;&quot; + x(&quot;Conta &quot; + ctIdp + (ctDesc ? &quot; - &quot; + ctDesc : &quot;&quot;)) + &quot;&lt;/DESCRICAO&gt;&quot; +&#xd;
+                        &quot;&lt;FORMAPAGAMENTO&gt;T&lt;/FORMAPAGAMENTO&gt;&quot; +&#xd;
+                        &quot;&lt;FAVORECIDO&gt;&quot; + x(nomeRM) + &quot;&lt;/FAVORECIDO&gt;&quot; +&#xd;
+                        &quot;&lt;CGCFAVORECIDO&gt;&quot; + x(cgc) + &quot;&lt;/CGCFAVORECIDO&gt;&quot; +&#xd;
+                        &quot;&lt;ATIVO&gt;&quot; + ctAtivo + &quot;&lt;/ATIVO&gt;&quot; +&#xd;
+                        &quot;&lt;NUMEROBANCO&gt;&quot; + x(ctBanco) + &quot;&lt;/NUMEROBANCO&gt;&quot; +&#xd;
+                        &quot;&lt;CODIGOAGENCIA&gt;&quot; + x(ctAgNum) + &quot;&lt;/CODIGOAGENCIA&gt;&quot; +&#xd;
+                        &quot;&lt;DIGITOAGENCIA&gt;&quot; + x(ctAgDig) + &quot;&lt;/DIGITOAGENCIA&gt;&quot; +&#xd;
+                        &quot;&lt;NOMEAGENCIA&gt;&quot; + x(ctDesc) + &quot;&lt;/NOMEAGENCIA&gt;&quot; +&#xd;
+                        &quot;&lt;CONTACORRENTE&gt;&quot; + x(ctCtNum) + &quot;&lt;/CONTACORRENTE&gt;&quot; +&#xd;
+                        &quot;&lt;DIGITOCONTA&gt;&quot; + x(ctCtDig) + &quot;&lt;/DIGITOCONTA&gt;&quot; +&#xd;
+                        &quot;&lt;TIPOCONTA&gt;1&lt;/TIPOCONTA&gt;&quot; +&#xd;
+                    &quot;&lt;/FDadosPgto&gt;&quot;;&#xd;
+                try {&#xd;
+                    chamarRM(&quot;FinDadosPgtoDataBR&quot;, xmlEd, colEd);&#xd;
+                    log.info(&quot;[ST16] (edição) Conta IDPGTO=&quot; + ctIdp + &quot; ativo=&quot; + ctAtivo + &quot; / Coligada &quot; + colEd + &quot; OK.&quot;);&#xd;
+                } catch (eEd) {&#xd;
+                    log.warn(&quot;[ST16] (edição) Falha IDPGTO=&quot; + ctIdp + &quot; / Coligada &quot; + colEd + &quot;: &quot; + eEd);&#xd;
+                }&#xd;
+            }&#xd;
+        }&#xd;
+&#xd;
+        // BOLETO — garante um boleto ATIVO na edição. Reusa o IDPGTO do boleto&#xd;
+        // existente (se houver) para não duplicar; senão usa um IDPGTO livre.&#xd;
+        var idpBoletoEd = (idpgtoBoletoEd &gt; 0) ? idpgtoBoletoEd : (proxIdEd++);&#xd;
+        for (var cbe = 0; cbe &lt; COLIGADAS_BANCO.length; cbe++) {&#xd;
+            var colBolEd = COLIGADAS_BANCO[cbe];&#xd;
+            var xmlBolEd =&#xd;
+                &quot;&lt;FDadosPgto&gt;&quot; +&#xd;
+                    &quot;&lt;CODCOLIGADA&gt;&quot; + colBolEd + &quot;&lt;/CODCOLIGADA&gt;&quot; +&#xd;
+                    &quot;&lt;CODCOLCFO&gt;0&lt;/CODCOLCFO&gt;&quot; +&#xd;
+                    &quot;&lt;CODCFO&gt;&quot; + x(codCfo) + &quot;&lt;/CODCFO&gt;&quot; +&#xd;
+                    &quot;&lt;IDPGTO&gt;&quot; + idpBoletoEd + &quot;&lt;/IDPGTO&gt;&quot; +&#xd;
+                    &quot;&lt;DESCRICAO&gt;Boleto com Código de Barras&lt;/DESCRICAO&gt;&quot; +&#xd;
+                    &quot;&lt;FORMAPAGAMENTO&gt;I&lt;/FORMAPAGAMENTO&gt;&quot; +&#xd;
+                    &quot;&lt;FAVORECIDO&gt;&quot; + x(nomeRM) + &quot;&lt;/FAVORECIDO&gt;&quot; +&#xd;
+                    &quot;&lt;CGCFAVORECIDO&gt;&quot; + x(cgc) + &quot;&lt;/CGCFAVORECIDO&gt;&quot; +&#xd;
+                    &quot;&lt;ATIVO&gt;1&lt;/ATIVO&gt;&quot; +&#xd;
+                &quot;&lt;/FDadosPgto&gt;&quot;;&#xd;
+            try {&#xd;
+                chamarRM(&quot;FinDadosPgtoDataBR&quot;, xmlBolEd, colBolEd);&#xd;
+                log.info(&quot;[ST16] (edição) Boleto IDPGTO=&quot; + idpBoletoEd + &quot; / Coligada &quot; + colBolEd + &quot; OK.&quot;);&#xd;
+            } catch (eBolEd) {&#xd;
+                log.warn(&quot;[ST16] (edição) Falha boleto IDPGTO=&quot; + idpBoletoEd + &quot; / Coligada &quot; + colBolEd + &quot;: &quot; + eBolEd);&#xd;
+            }&#xd;
+        }&#xd;
+&#xd;
+    } else {&#xd;
+&#xd;
+    var idPgto = 0;&#xd;
 &#xd;
     for (var i = 1; i &lt;= 5; i++) {&#xd;
         var bancoCod  = f(&quot;hiddenBanco&quot; + i + &quot;Cod&quot;);&#xd;
@@ -793,12 +913,14 @@
             continue;&#xd;
         }&#xd;
 &#xd;
+        idPgto++;&#xd;
+&#xd;
         var agNum = agencia.length &gt; 1 ? agencia.slice(0, -1) : agencia;&#xd;
         var agDig = agencia.length &gt; 1 ? agencia.slice(-1)    : &quot;0&quot;;&#xd;
         var ctNum = conta.length   &gt; 1 ? conta.slice(0, -1)   : conta;&#xd;
         var ctDig = conta.length   &gt; 1 ? conta.slice(-1)      : &quot;0&quot;;&#xd;
 &#xd;
-        var ativo = (i === 1) ? &quot;1&quot; : &quot;0&quot;;&#xd;
+        var ativo = (idPgto === 1) ? &quot;1&quot; : &quot;0&quot;;&#xd;
 &#xd;
         for (var ci = 0; ci &lt; COLIGADAS_BANCO.length; ci++) {&#xd;
             var colAtual = COLIGADAS_BANCO[ci];&#xd;
@@ -808,9 +930,9 @@
                     &quot;&lt;CODCOLIGADA&gt;&quot;  + colAtual                                                          + &quot;&lt;/CODCOLIGADA&gt;&quot; +&#xd;
                     &quot;&lt;CODCOLCFO&gt;0&lt;/CODCOLCFO&gt;&quot; +&#xd;
                     &quot;&lt;CODCFO&gt;&quot;       + x(codCfo)                                                         + &quot;&lt;/CODCFO&gt;&quot; +&#xd;
-                    &quot;&lt;IDPGTO&gt;&quot; + i + &quot;&lt;/IDPGTO&gt;&quot; +&#xd;
-                    &quot;&lt;DESCRICAO&gt;&quot;    + x(&quot;Conta &quot; + i + (bancoDesc ? &quot; - &quot; + bancoDesc : &quot;&quot;))            + &quot;&lt;/DESCRICAO&gt;&quot; +&#xd;
-                    &quot;&lt;FORMAPAGAMENTO&gt;I&lt;/FORMAPAGAMENTO&gt;&quot; +&#xd;
+                    &quot;&lt;IDPGTO&gt;&quot; + idPgto + &quot;&lt;/IDPGTO&gt;&quot; +&#xd;
+                    &quot;&lt;DESCRICAO&gt;&quot;    + x(&quot;Conta &quot; + idPgto + (bancoDesc ? &quot; - &quot; + bancoDesc : &quot;&quot;))       + &quot;&lt;/DESCRICAO&gt;&quot; +&#xd;
+                    &quot;&lt;FORMAPAGAMENTO&gt;T&lt;/FORMAPAGAMENTO&gt;&quot; +&#xd;
                     &quot;&lt;FAVORECIDO&gt;&quot;   + x(nomeRM)                                                         + &quot;&lt;/FAVORECIDO&gt;&quot; +&#xd;
                     &quot;&lt;CGCFAVORECIDO&gt;&quot;+ x(cgc)                                                            + &quot;&lt;/CGCFAVORECIDO&gt;&quot; +&#xd;
                     &quot;&lt;ATIVO&gt;&quot; + ativo + &quot;&lt;/ATIVO&gt;&quot; +&#xd;
@@ -832,10 +954,37 @@
         }&#xd;
     }&#xd;
 &#xd;
-    // ── TABELAS AUXILIARES ────────────────────────────────────────────────────&#xd;
-    // Popula FCFO_AUXILIAR, FCFO_AUXILIAR_CNAE e FCFO_AUXILIAR_GRUPO_MERCADORIA&#xd;
-    // com dados extras do formulário que não têm campos nativos no RM.&#xd;
-    // Erros aqui NÃO interrompem o fluxo — o CFO já foi criado com sucesso.&#xd;
+    // BOLETO &#xd;
+    idPgto++;&#xd;
+    for (var cb = 0; cb &lt; COLIGADAS_BANCO.length; cb++) {&#xd;
+        var colBoleto = COLIGADAS_BANCO[cb];&#xd;
+&#xd;
+        var xmlBoleto =&#xd;
+            &quot;&lt;FDadosPgto&gt;&quot; +&#xd;
+                &quot;&lt;CODCOLIGADA&gt;&quot;   + colBoleto + &quot;&lt;/CODCOLIGADA&gt;&quot; +&#xd;
+                &quot;&lt;CODCOLCFO&gt;0&lt;/CODCOLCFO&gt;&quot; +&#xd;
+                &quot;&lt;CODCFO&gt;&quot;        + x(codCfo) + &quot;&lt;/CODCFO&gt;&quot; +&#xd;
+                &quot;&lt;IDPGTO&gt;&quot; + idPgto + &quot;&lt;/IDPGTO&gt;&quot; +&#xd;
+                &quot;&lt;DESCRICAO&gt;Boleto com Código de Barras&lt;/DESCRICAO&gt;&quot; +&#xd;
+                &quot;&lt;FORMAPAGAMENTO&gt;I&lt;/FORMAPAGAMENTO&gt;&quot; +&#xd;
+                &quot;&lt;FAVORECIDO&gt;&quot;    + x(nomeRM) + &quot;&lt;/FAVORECIDO&gt;&quot; +&#xd;
+                &quot;&lt;CGCFAVORECIDO&gt;&quot; + x(cgc)    + &quot;&lt;/CGCFAVORECIDO&gt;&quot; +&#xd;
+                &quot;&lt;ATIVO&gt;1&lt;/ATIVO&gt;&quot; +&#xd;
+            &quot;&lt;/FDadosPgto&gt;&quot;;&#xd;
+&#xd;
+        try {&#xd;
+            chamarRM(&quot;FinDadosPgtoDataBR&quot;, xmlBoleto, colBoleto);&#xd;
+            log.info(&quot;[ST16] Boleto / Coligada &quot; + colBoleto + &quot; salvo com sucesso.&quot;);&#xd;
+        } catch (eBoleto) {&#xd;
+            log.warn(&quot;[ST16] Falha boleto / Coligada &quot; + colBoleto + &quot;: &quot; + eBoleto);&#xd;
+        }&#xd;
+    }&#xd;
+&#xd;
+    } // fim do else (criação de novo cadastro)&#xd;
+&#xd;
+    // TABELAS AUXILIARES — gravadas na criação E na edição. Aqui ficam os campos&#xd;
+    // que não vão ao RM (CNAE, grupos, regime, retenções). DELETE + INSERT por&#xd;
+    // CODCFO+CODCOLIGADA, sempre na coligada 1 (igual à leitura no ds_detalhesCfoRM).&#xd;
     try {&#xd;
         salvarFcfoAuxiliar(codCfo, COLIGADA);&#xd;
     } catch (eAux) {&#xd;
@@ -855,17 +1004,7 @@ function x(s) {&#xd;
 }&#xd;
 &#xd;
 &#xd;
-// ═══════════════════════════════════════════════════════════════════════════════&#xd;
 // TABELAS AUXILIARES — FCFO_AUXILIAR / FCFO_AUXILIAR_CNAE / FCFO_AUXILIAR_GRUPO&#xd;
-// ═══════════════════════════════════════════════════════════════════════════════&#xd;
-&#xd;
-/**&#xd;
- * Popula as três tabelas auxiliares com os dados extras do formulário.&#xd;
- * Operação idempotente: faz DELETE + INSERT para suportar retentativas.&#xd;
- *&#xd;
- * @param {string} codCfo    - CODCFO gerado pelo RM (string numérica)&#xd;
- * @param {string} coligada  - Código da coligada (ex: &quot;1&quot;)&#xd;
- */&#xd;
 function salvarFcfoAuxiliar(codCfo, coligada) {&#xd;
 &#xd;
     function fv(nome) {&#xd;
@@ -877,14 +1016,11 @@ function salvarFcfoAuxiliar(codCfo, coligada) {&#xd;
     var numProces   = parseInt(getValue(&quot;WKNumProces&quot;) || &quot;0&quot;, 10);&#xd;
     var tsAbertura  = new java.sql.Timestamp(new java.util.Date().getTime());&#xd;
 &#xd;
-    // Retenções — &quot;S&quot; se o hidden estiver &quot;on&quot;, null (SQL NULL) caso contrário.&#xd;
-    // CHAR(1) NULL: precisa de NULL real, não &quot;&quot; (que viraria espaço em branco).&#xd;
     var retInss   = fv(&quot;hiddenInss&quot;)   === &quot;on&quot; ? &quot;S&quot; : null;&#xd;
     var retCsll   = fv(&quot;hiddenCsll&quot;)   === &quot;on&quot; ? &quot;S&quot; : null;&#xd;
     var retPis    = fv(&quot;hiddenPis&quot;)    === &quot;on&quot; ? &quot;S&quot; : null;&#xd;
     var retCofins = fv(&quot;hiddenCofins&quot;) === &quot;on&quot; ? &quot;S&quot; : null;&#xd;
 &#xd;
-    // ── Limpeza para retry seguro (as 3 tabelas são independentes no banco) ────&#xd;
     var pkParams = [&#xd;
         { t: &quot;int&quot;, v: codCfoInt   },&#xd;
         { t: &quot;int&quot;, v: coligadaInt }&#xd;
@@ -893,7 +1029,7 @@ function salvarFcfoAuxiliar(codCfo, coligada) {&#xd;
     try { _execSql(&quot;DELETE FROM FCFO_AUXILIAR_GRUPO_MERCADORIA WHERE CODCFO=? AND CODCOLIGADA=?&quot;, pkParams); } catch (_) {}&#xd;
     try { _execSql(&quot;DELETE FROM FCFO_AUXILIAR                  WHERE CODCFO=? AND CODCOLIGADA=?&quot;, pkParams); } catch (_) {}&#xd;
 &#xd;
-    // ── 1) FCFO_AUXILIAR ──────────────────────────────────────────────────────&#xd;
+    // FCFO_AUXILIAR &#xd;
     try {&#xd;
         _execSql(&#xd;
             &quot;INSERT INTO FCFO_AUXILIAR (&quot; +&#xd;
@@ -909,15 +1045,15 @@ function salvarFcfoAuxiliar(codCfo, coligada) {&#xd;
                 { t: &quot;int&quot;, v: codCfoInt   },&#xd;
                 { t: &quot;int&quot;, v: coligadaInt },&#xd;
                 { t: &quot;int&quot;, v: numProces   },&#xd;
-                { t: &quot;ts&quot;,  v: tsAbertura  },                 // DATA_ABERTURA DATETIME NOT NULL&#xd;
+                { t: &quot;ts&quot;,  v: tsAbertura  }, &#xd;
                 { t: &quot;str&quot;, v: fv(&quot;solicitante&quot;) || &quot;sistema&quot; },&#xd;
-                { t: &quot;str&quot;, v: fv(&quot;regimeFiscal&quot;)             },  // código &quot;01&quot;..&quot;07&quot; (NOT NULL)&#xd;
+                { t: &quot;str&quot;, v: fv(&quot;regimeFiscal&quot;)             },  &#xd;
                 { t: &quot;str&quot;, v: retInss    },&#xd;
                 { t: &quot;str&quot;, v: retCsll    },&#xd;
                 { t: &quot;str&quot;, v: retPis     },&#xd;
                 { t: &quot;str&quot;, v: retCofins  },&#xd;
                 { t: &quot;str&quot;, v: fv(&quot;emailComercial&quot;)     },&#xd;
-                { t: &quot;str&quot;, v: fv(&quot;emailCr&quot;)            },  // &quot;E-mail Financeiro / Contabilidade&quot;&#xd;
+                { t: &quot;str&quot;, v: fv(&quot;emailCr&quot;)            },  &#xd;
                 { t: &quot;str&quot;, v: fv(&quot;site&quot;)               },&#xd;
                 { t: &quot;str&quot;, v: fv(&quot;anxCartaoCnpjId&quot;)    },&#xd;
                 { t: &quot;str&quot;, v: fv(&quot;anxCompBancoId&quot;)     },&#xd;
@@ -937,7 +1073,7 @@ function salvarFcfoAuxiliar(codCfo, coligada) {&#xd;
         log.error(&quot;[ST16-AUX] Falha ao inserir FCFO_AUXILIAR (CODCFO=&quot; + codCfo + &quot;): &quot; + eFcfo);&#xd;
     }&#xd;
 &#xd;
-    // ── 2) FCFO_AUXILIAR_CNAE (principal + secundários) ───────────────────────&#xd;
+    //FCFO_AUXILIAR_CNAE&#xd;
     var sqlCnae =&#xd;
         &quot;INSERT INTO FCFO_AUXILIAR_CNAE (CODCFO, CODCOLIGADA, CODIGO, DESCRICAO, PRINCIPAL)&quot; +&#xd;
         &quot; VALUES (?,?,?,?,?)&quot;;&#xd;
@@ -949,8 +1085,8 @@ function salvarFcfoAuxiliar(codCfo, coligada) {&#xd;
             _execSql(sqlCnae, [&#xd;
                 { t: &quot;int&quot;, v: codCfoInt                 },&#xd;
                 { t: &quot;int&quot;, v: coligadaInt               },&#xd;
-                { t: &quot;str&quot;, v: cp.codigo                 },   // CODIGO NOT NULL&#xd;
-                { t: &quot;str&quot;, v: cp.descricao || cp.codigo },   // DESCRICAO NOT NULL&#xd;
+                { t: &quot;str&quot;, v: cp.codigo                 },&#xd;
+                { t: &quot;str&quot;, v: cp.descricao || cp.codigo },   &#xd;
                 { t: &quot;int&quot;, v: 1                         }&#xd;
             ]);&#xd;
             log.info(&quot;[ST16-AUX] CNAE principal OK: &quot; + cp.codigo);&#xd;
@@ -977,13 +1113,12 @@ function salvarFcfoAuxiliar(codCfo, coligada) {&#xd;
         }&#xd;
     }&#xd;
 &#xd;
-    // ── 3) FCFO_AUXILIAR_GRUPO_MERCADORIA ─────────────────────────────────────&#xd;
-    // Coluna &quot;PRICIPAL&quot; (sic) — grafia exatamente conforme o DDL da tabela.&#xd;
+    // FCFO_AUXILIAR_GRUPO_MERCADORIA&#xd;
     var sqlGM =&#xd;
         &quot;INSERT INTO FCFO_AUXILIAR_GRUPO_MERCADORIA&quot; +&#xd;
-        &quot; (CODCFO, CODCOLIGADA, CODTB2FAT, DESCRICAO, PRICIPAL) VALUES (?,?,?,?,?)&quot;;&#xd;
+        &quot; (CODCFO, CODCOLIGADA, CODTB2FAT, DESCRICAO, PRINCIPAL) VALUES (?,?,?,?,?)&quot;;&#xd;
 &#xd;
-    var gruposInseridos = {};   // evita violar a PK (CODCFO,CODCOLIGADA,CODTB2FAT)&#xd;
+    var gruposInseridos = {}; &#xd;
     for (var gi = 1; gi &lt;= 9; gi++) {&#xd;
         var gmDesc = fv(&quot;hiddenGrupoMercadoria&quot; + gi);&#xd;
         if (!gmDesc) continue;&#xd;
@@ -1017,11 +1152,6 @@ function salvarFcfoAuxiliar(codCfo, coligada) {&#xd;
 }&#xd;
 &#xd;
 &#xd;
-/**&#xd;
- * Separa &quot;XXXX-X/XX — Descrição&quot; em { codigo, descricao }.&#xd;
- * Suporta &quot;—&quot; (em dash U+2014) e &quot;-&quot; (hífen simples).&#xd;
- * Se não houver separador, o valor inteiro é o código.&#xd;
- */&#xd;
 function _parseCnae(valor) {&#xd;
     var v   = String(valor || &quot;&quot;).trim();&#xd;
     var sep = &quot; — &quot;; // &quot; — &quot;&#xd;
@@ -1036,17 +1166,12 @@ function _parseCnae(valor) {&#xd;
     return { codigo: v, descricao: &quot;&quot; };&#xd;
 }&#xd;
 &#xd;
-&#xd;
-/**&#xd;
- * Retorna o CODTB2FAT da tabela TTB2 do RM pela descrição do grupo de mercadoria.&#xd;
- * Retorna null se não encontrar.&#xd;
- */&#xd;
 function _buscarCodTb2Fat(descricao) {&#xd;
     var conn = null;&#xd;
     var stmt = null;&#xd;
     try {&#xd;
         var ic = new javax.naming.InitialContext();&#xd;
-        // TTB2 é tabela NATIVA do RM -&gt; /jdbc/RM (correto, não trocar).&#xd;
+     &#xd;
         var ds = ic.lookup(&quot;/jdbc/RM&quot;);&#xd;
         conn = ds.getConnection();&#xd;
         stmt = conn.prepareStatement(&#xd;
@@ -1068,27 +1193,13 @@ function _buscarCodTb2Fat(descricao) {&#xd;
 }&#xd;
 &#xd;
 &#xd;
-/**&#xd;
- * Executa um INSERT/UPDATE/DELETE via JDBC na base do RM.&#xd;
- *&#xd;
- * params: array de objetos { t: &quot;str&quot; | &quot;int&quot; | &quot;float&quot; | &quot;ts&quot;, v: value }&#xd;
- *  - &quot;int&quot;   → setInt&#xd;
- *  - &quot;float&quot; → setFloat&#xd;
- *  - &quot;ts&quot;    → setTimestamp (java.sql.Timestamp)&#xd;
- *  - &quot;str&quot;   → setString. Apenas null/undefined viram SQL NULL; &quot;&quot; é preservado&#xd;
- *              como string vazia para não violar colunas NOT NULL (ex: REGIME_FISCAL).&#xd;
- *              Para gravar NULL, passe v: null explicitamente (ex: retenções).&#xd;
- */&#xd;
-function _execSql(sql, params) {&#xd;
+&#xd;
+function _execSql(sql, params, dataSource) {&#xd;
     var conn = null;&#xd;
     var stmt = null;&#xd;
     try {&#xd;
         var ic = new javax.naming.InitialContext();&#xd;
-        // As tabelas FCFO_AUXILIAR* ficam no banco CUSTOM da Castilho&#xd;
-        // (Castilho_Custom / castilho_custom_homol), acessado por /jdbc/CastilhoCustom.&#xd;
-        // NÃO usar /jdbc/RM aqui: nesse datasource as tabelas não existem&#xd;
-        // e o INSERT falharia com &quot;Invalid object name &apos;FCFO_AUXILIAR&apos;&quot;.&#xd;
-        var ds = ic.lookup(&quot;/jdbc/CastilhoCustom&quot;);&#xd;
+        var ds = ic.lookup(dataSource || &quot;/jdbc/CastilhoCustom&quot;);&#xd;
         conn = ds.getConnection();&#xd;
         stmt = conn.prepareStatement(sql);&#xd;
 &#xd;
@@ -1102,7 +1213,6 @@ function _execSql(sql, params) {&#xd;
             } else if (p.t === &quot;ts&quot;) {&#xd;
                 stmt.setTimestamp(pos, p.v);&#xd;
             } else {&#xd;
-                // &quot;str&quot; — só null/undefined → SQL NULL; &quot;&quot; é mantido como &quot;&quot;&#xd;
                 if (p.v === null || p.v === undefined) {&#xd;
                     stmt.setString(pos, null);&#xd;
                 } else {&#xd;
@@ -1117,6 +1227,37 @@ function _execSql(sql, params) {&#xd;
         if (conn != null) try { conn.close(); } catch (_) {}&#xd;
     }&#xd;
 }&#xd;
+&#xd;
+&#xd;
+function salvarUrlFluigRM(codCfo) {&#xd;
+&#xd;
+    // var URL_FLUIG = &quot;http://fluig.castilho.com.br:1010&quot;;       // Produção&#xd;
+    var URL_FLUIG = &quot;http://homologacao.castilho.com.br:2020&quot;;    // Homologação&#xd;
+&#xd;
+    var numProces = getValue(&quot;WKNumProces&quot;);&#xd;
+    var link = URL_FLUIG + &quot;/portal/p/1/pageworkflowview?app_ecm_workflowview_detailsProcessInstanceID=&quot; + numProces;&#xd;
+&#xd;
+    var codCfoInt = parseInt(codCfo, 10);&#xd;
+&#xd;
+    var afetadas = _execSql(&#xd;
+        &quot;UPDATE FCFOCOMPL SET FLUIG = ? WHERE CODCFO = ?&quot;,&#xd;
+        [ { t: &quot;str&quot;, v: link }, { t: &quot;int&quot;, v: codCfoInt } ],&#xd;
+        &quot;/jdbc/RM&quot;&#xd;
+    );&#xd;
+&#xd;
+    if (afetadas &gt; 0) {&#xd;
+        log.info(&quot;[ST16] URL Fluig gravada em FCFOCOMPL.FLUIG (CODCFO=&quot; + codCfo + &quot;): &quot; + link);&#xd;
+        return;&#xd;
+    }&#xd;
+&#xd;
+    log.warn(&quot;[ST16] FCFOCOMPL sem linha para CODCFO=&quot; + codCfo + &quot; — tentando INSERT.&quot;);&#xd;
+    _execSql(&#xd;
+        &quot;INSERT INTO FCFOCOMPL (CODCOLIGADA, CODCFO, FLUIG) VALUES (?, ?, ?)&quot;,&#xd;
+        [ { t: &quot;int&quot;, v: 0 }, { t: &quot;int&quot;, v: codCfoInt }, { t: &quot;str&quot;, v: link } ],&#xd;
+        &quot;/jdbc/RM&quot;&#xd;
+    );&#xd;
+    log.info(&quot;[ST16] URL Fluig inserida em FCFOCOMPL.FLUIG (CODCFO=&quot; + codCfo + &quot;): &quot; + link);&#xd;
+}&#xd;
 </eventDescription>
     </WorkflowProcessEvent>
     <WorkflowProcessEvent>
@@ -1126,7 +1267,8 @@ function _execSql(sql, params) {&#xd;
         <processId>CadastroClienteFornecedor</processId>
         <version>1</version>
       </workflowProcessEventPK>
-      <eventDescription>function afterProcessFinish(colleagueId, processId, threadSequence, userList) {
+      <eventDescription>
+function afterProcessFinish(colleagueId, processId, threadSequence, userList) {
     try {
         var solicitante = hAPI.getCardValue(&quot;solicitante&quot;);
         if (!solicitante) {
@@ -1221,7 +1363,8 @@ function enviarEmailFluig(email, assunto, corpoEmail) {
         <processId>CadastroClienteFornecedor</processId>
         <version>1</version>
       </workflowProcessEventPK>
-      <eventDescription>function beforeTaskSave(colleagueId, nextSequenceId, userList) {
+      <eventDescription>
+function beforeTaskSave(colleagueId, nextSequenceId, userList) {
     var atividadeAtual = Number(getValue(&quot;WKNumState&quot;));
     var completTask = getValue(&quot;WKCompletTask&quot;) == &quot;true&quot;;
 
@@ -1485,6 +1628,7 @@ function normalizarCheckboxAuditoria(valor) {
 // var URL_FLUIG = &quot;http://fluig.castilho.com.br:1010&quot;;             // Produção
 var URL_FLUIG = &quot;http://homologacao.castilho.com.br:2020&quot;;   // Homologação
 
+
 function notificarSolicitanteCorrecao(motivo, userList, colleagueId) {
     try {
         // 1) Fonte primária: card &quot;solicitante&quot; (salvo na abertura, p/ processos novos).
@@ -1503,7 +1647,6 @@ function notificarSolicitanteCorrecao(motivo, userList, colleagueId) {
             }
         }
 
-        // 3) Último recurso: quem está movendo a tarefa.
         if (!solicitante) {
             solicitante = colleagueId;
             log.info(&quot;[E-MAIL] fallback colleagueId = &apos;&quot; + solicitante + &quot;&apos;&quot;);
@@ -1690,7 +1833,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>43</version>
+        <version>65</version>
         <linkSequence>17</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1701,7 +1844,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>43</version>
+        <version>65</version>
         <linkSequence>17</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1712,7 +1855,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>43</version>
+        <version>65</version>
         <linkSequence>25</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1723,7 +1866,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>43</version>
+        <version>65</version>
         <linkSequence>25</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1734,7 +1877,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>43</version>
+        <version>65</version>
         <linkSequence>28</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1745,7 +1888,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>43</version>
+        <version>65</version>
         <linkSequence>28</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1756,7 +1899,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>43</version>
+        <version>65</version>
         <linkSequence>29</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1767,7 +1910,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>43</version>
+        <version>65</version>
         <linkSequence>29</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1778,7 +1921,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>43</version>
+        <version>65</version>
         <linkSequence>30</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1789,7 +1932,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>43</version>
+        <version>65</version>
         <linkSequence>30</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1800,7 +1943,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>43</version>
+        <version>65</version>
         <linkSequence>30</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
@@ -1811,7 +1954,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>43</version>
+        <version>65</version>
         <linkSequence>31</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -1822,7 +1965,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>43</version>
+        <version>65</version>
         <linkSequence>31</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -1833,7 +1976,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>43</version>
+        <version>65</version>
         <linkSequence>31</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
@@ -1844,7 +1987,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>43</version>
+        <version>65</version>
         <linkSequence>31</linkSequence>
         <bendSequence>4</bendSequence>
       </processLinkBendPK>
