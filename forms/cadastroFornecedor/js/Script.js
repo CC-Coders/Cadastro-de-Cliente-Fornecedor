@@ -52,7 +52,7 @@ $(document).ready(function () {
    bindEventos();
    aplicarLayoutMobile();
 
-   // Ativa a busca/pesquisa dentro dos selects (digitar para filtrar as opções).
+   // busca selects
    if (typeof aplicarBuscaSelect === "function") {
       aplicarBuscaSelect("#formSolicitacao select");
    }
@@ -104,8 +104,6 @@ $(document).ready(function () {
          seta.text(seta.hasClass("open") ? "▲" : "▼");
       });
 
-   // Controles globais (em globalThis) para que as funções de limpeza possam
-   // resetá-los — assim, ao redigitar o MESMO documento duplicado, ele re-verifica.
    globalThis._cnpjJaConsultado = "";
    $(document).on("input", "#docCnpj", function () {
       let cnpj = normalizarCnpj($(this).val());
@@ -116,7 +114,7 @@ $(document).ready(function () {
       }
    });
 
-   // Mesma trava do CNPJ, agora para CPF: ao completar 11 dígitos, verifica no RM.
+
    globalThis._cpfJaConsultado = "";
    $(document).on("input", "#docCpf", function () {
       let cpf = ($(this).val() || "").replace(/\D/g, "");
@@ -130,11 +128,46 @@ $(document).ready(function () {
    setTimeout(function () {
       controlarEdicaoInicioValidacao();
       controlarBotoesImprimir();
+      if (typeof aplicarVisibilidadeDocumentacao === "function") {
+         aplicarVisibilidadeDocumentacao();
+      }
+      if (typeof realcarCamposAlterados === "function") {
+         var atvAtual = Number($("#atividade").val() || 0);
+         if (atvAtual === ATIVIDADES.VALIDACAO || atvAtual === ATIVIDADES.CORRECAO) {
+            realcarCamposAlterados();
+         }
+      }
    }, 600);
 
    $("#preCadastro").css("visibility", "visible");
 
+   inicializarTelaSelecao();
 });
+
+
+function inicializarTelaSelecao() {
+   var atividade = Number($("#atividade").val() || 0);
+   var modo = ($("#formMode").val() || "").toUpperCase();
+   var ehAberturaNova = (atividade === ATIVIDADES.INICIO_0 || atividade === ATIVIDADES.INICIO) && modo !== "VIEW";
+
+   if (!ehAberturaNova) {
+      return;
+   }
+
+   $("#formSolicitacao > header, #preCadastro").hide();
+   $("#telaSelecaoInicial").addClass("tsi-ativo");
+
+   $("#btnSelCadastrar").off("click").on("click", function () {
+      $("#telaSelecaoInicial").removeClass("tsi-ativo");
+      $("#formSolicitacao > header, #preCadastro").show();
+   });
+
+   $("#btnSelEditar").off("click").on("click", function () {
+      if (typeof abrirModalEdicao === "function") {
+         abrirModalEdicao();
+      }
+   });
+}
 
 
 function controlarBotoesImprimir() {
@@ -157,10 +190,6 @@ function controlarBotoesImprimir() {
 }
 
 
-/**
- * Prepara a tela na abertura: exibe as seções, posiciona no primeiro passo do
- * stepper e abre o bloco de Dados do Fornecedor.
- */
 function inicializarTela() {
    $(".section-body").show();
 
@@ -199,11 +228,7 @@ function abrirDadosComerciais() {
    $secoes.find(".section-arrow").addClass("open").text("▲");
    $secoes.stop(true, true).slideDown(300);
 }
-/**
- * Restaura o estado do formulário ao reabrir uma solicitação (validação,
- * correção, view): re-seleciona Tipo/Estado, recria grupos de mercadoria e
- * CNAEs salvos, restaura checkboxes e reaplica as regras de PF e tipo RDO.
- */
+
 function sincronizarEstadoInicial() {
    const funcoesIniciais = [
       controlarCamposClassificacao,      
@@ -245,8 +270,7 @@ function sincronizarEstadoInicial() {
       if (typeof controlarNaturezaPorTipo === "function") {
          controlarNaturezaPorTipo();
       }
-      // PF: esconde Contribuinte ICMS e Regime Fiscal ao reabrir (correção/validação).
-      // Em VIEW a categoria vira span e .val() é undefined -> não esconde (mostra tudo).
+      
       if (($("#categoria").val() || "") === "F") {
          $("#divIcms, #divRegimeFiscal").hide();
          $("#icms, #regimeFiscal").prop("required", false);
@@ -397,10 +421,6 @@ function restaurarCnaesSecundariosSalvos() {
 
 
 
-/**
- * Monta a barra de progresso (stepper) do processo, destacando a atividade
- * atual conforme a etapa do fluxo (Solicitação, Validação, Integração, Correção).
- */
 function aplicarBarraProcesso() {
    const atividade = Number($("#atividade").val() || 0);
    const formMode  = ($("#formMode").val() || "").toUpperCase();
