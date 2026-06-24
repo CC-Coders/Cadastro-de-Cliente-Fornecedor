@@ -209,9 +209,7 @@ function servicetask16(attempt, message) {
     var ehEdicaoBancos = ehEdicao && bancosEdicaoJson && bancosEdicaoJson !== "[]";
 
     if (ehEdicaoBancos) {
-        // EDIÇÃO: grava as contas do JSON usando o IDPGTO/ATIVO de cada uma.
-        // Contas do RM mantêm o IDPGTO (UPDATE); novas recebem um IDPGTO livre.
-        // O boleto existente no RM é mantido (não recriado aqui).
+        
         var contasEd = [];
         try { contasEd = JSON.parse(bancosEdicaoJson); } catch (eJsonEd) {
             log.error("[ST16] bancosEdicaoJson inválido: " + eJsonEd);
@@ -273,8 +271,7 @@ function servicetask16(attempt, message) {
             }
         }
 
-        // BOLETO — garante um boleto ATIVO na edição. Reusa o IDPGTO do boleto
-        // existente (se houver) para não duplicar; senão usa um IDPGTO livre.
+    
         var idpBoletoEd = (idpgtoBoletoEd > 0) ? idpgtoBoletoEd : (proxIdEd++);
         for (var cbe = 0; cbe < COLIGADAS_BANCO.length; cbe++) {
             var colBolEd = COLIGADAS_BANCO[cbe];
@@ -382,11 +379,9 @@ function servicetask16(attempt, message) {
         }
     }
 
-    } // fim do else (criação de novo cadastro)
+    } 
 
-    // TABELAS AUXILIARES — gravadas na criação E na edição. Aqui ficam os campos
-    // que não vão ao RM (CNAE, grupos, regime, retenções). DELETE + INSERT por
-    // CODCFO+CODCOLIGADA, sempre na coligada 1 (igual à leitura no ds_detalhesCfoRM).
+   
     try {
         salvarFcfoAuxiliar(codCfo, COLIGADA);
     } catch (eAux) {
