@@ -30,6 +30,7 @@
    <script src="js/validation.js"></script>
    <script src="js/upload.js"></script>
    <script src="js/events.js"></script>
+   <script src="js/edicao.js"></script>
    <title>Cadastro de Fornecedor</title>
 </head>
 
@@ -45,6 +46,16 @@
             <input type="hidden" id="contaRm" name="contaRm"/>
             <input type="hidden" id="mostraHistoricoDecisao" name="mostraHistoricoDecisao"/>
             <input type="hidden" id="snapshotEdicaoValidacao" name="snapshotEdicaoValidacao"/>
+            <!-- Edição de CFO existente: dados do registro selecionado no RM -->
+            <input type="hidden" id="codcfoEdicao" name="codcfoEdicao"/>
+            <input type="hidden" id="coligadaEdicao" name="coligadaEdicao"/>
+            <input type="hidden" id="idcfoEdicao" name="idcfoEdicao"/>
+            <!-- Contas bancárias na edição (JSON): contas do RM + novas, com idpgto/ativo/novo -->
+            <input type="hidden" id="bancosEdicaoJson" name="bancosEdicaoJson"/>
+            <!-- IDPGTO do boleto existente no RM (garante o boleto ativo sem duplicar) -->
+            <input type="hidden" id="idpgtoBoletoEdicao" name="idpgtoBoletoEdicao"/>
+            <!-- Snapshot dos dados originais do RM (para realçar o que foi alterado) -->
+            <input type="hidden" id="snapshotEdicaoRM" name="snapshotEdicaoRM"/>
             <input type="hidden" id="anxCartaoCnpj" name="anxCartaoCnpj"/>
             <input type="hidden" id="anxCompBanco" name="anxCompBanco"/>
             <input type="hidden" id="anxContrato" name="anxContrato"/>
@@ -159,6 +170,28 @@
                </table>
             </div>
          </div>
+
+         <!-- TELA DE SELEÇÃO INICIAL -->
+         <div id="telaSelecaoInicial">
+            <div class="tsi-card">
+               <div class="tsi-icone"><i class="flaticon flaticon-account-circle"></i></div>
+               <div class="tsi-titulo">Cliente/Fornecedor</div>
+               <div class="tsi-sub">Escolha a opção desejada</div>
+               <div class="tsi-botoes">
+                  <button type="button" id="btnSelCadastrar" class="tsi-opcao tsi-opcao-primary">
+                     <span class="tsi-opcao-icone"><i class="flaticon flaticon-file-person"></i></span>
+                     <span class="tsi-opcao-titulo">Cadastrar</span>
+                     <span class="tsi-opcao-desc">Novo cliente ou fornecedor</span>
+                  </button>
+                  <button type="button" id="btnSelEditar" class="tsi-opcao tsi-opcao-secondary">
+                     <span class="tsi-opcao-icone"><i class="flaticon flaticon-edit"></i></span>
+                     <span class="tsi-opcao-titulo">Editar</span>
+                     <span class="tsi-opcao-desc">Alterar cadastro existente</span>
+                  </button>
+               </div>
+            </div>
+         </div>
+
          <!-- CABEÇALHO -->
          <header>
             <div class="wizard-progress">
