@@ -7,10 +7,8 @@ function displayFields(form, customHTML) {
    } catch (e) {
    }
 
-   // Salva o solicitante (quem abriu o processo) no card, logo na abertura.
-   // Preencher aqui (e não no beforeTaskSave) garante a PERSISTÊNCIA do valor:
-   // o campo já vai preenchido quando o formulário é enviado pela 1ª vez.
-   // Mesmo padrão usado em outros processos Castilho (ex.: Parcelas -> campo "nomeusu").
+   form.setValue("formMode", formMode);
+
    if ((numActivity == 0 || numActivity == 4) && formMode == "ADD") { 
       form.setValue("solicitante", getValue("WKUser"));
    }
