@@ -70,7 +70,7 @@ $(document).ready(function () {
          try {
             var $el = tentativas[i]();
             if ($el && $el.length) return $el;
-         } catch (_) { /* cross-origin ou parent inacessível */ }
+         } catch (_) {}
       }
       return null;
    }
