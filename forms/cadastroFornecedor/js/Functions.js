@@ -662,10 +662,6 @@ function _parsearDataset(ds, nomeDataset) {
       return [];
    }
 }
-/**
- * Carrega o dataset de Tipos de Cliente/Fornecedor do RM e popula o select
- * "Tipo", preservando o valor já selecionado quando houver.
- */
 function carregarTiposClienteFornecedor() {
 
    let select = $("#tipo");
@@ -707,7 +703,6 @@ function carregarTiposClienteFornecedor() {
    }
 }
 
-// Aplica o valor num campo que pode ser <select> (edição) ou <span> (VIEW).
 function _aplicarValorCampo($el, valor) {
    if (!$el || !$el.length) return;
 
@@ -716,7 +711,6 @@ function _aplicarValorCampo($el, valor) {
       return;
    }
 
-   // <span> (modo VIEW): localiza o texto da opção do valor e substitui o conteúdo
    var texto = "";
    $el.children("option").each(function () {
       if (String($(this).attr("value")) === String(valor)) {
@@ -799,21 +793,11 @@ function carregarOpcoesIrrf(preservarValor) {
    _popularSelectIrrf(itens, pessoaTipo, valorSalvo);
 }
 
-/**
- * Popula o select de Código de Receita IRRF filtrando as opções por tipo de
- * pessoa (PF: 3208/0001; PJ: 1708/17081/0001) e preserva o valor já salvo.
- *
- * @param {Array}  lista      - lista de códigos IRRF vinda do RM
- * @param {string} pessoaTipo - "F" (física) ou "J" (jurídica)
- * @param {string} valorSalvo - código previamente selecionado, se houver
- */
+
 function _popularSelectIrrf(lista, pessoaTipo, valorSalvo) {
    let select = $("#selectDescricaoIrrf");
    select.find("option:not(:first)").remove();
 
-   // Códigos de Receita IRRF permitidos por tipo de pessoa.
-   //   Pessoa Física (F): 3208, 0001
-   //   Pessoa Jurídica (J): 1708, 17081, 0001
    let codigosPermitidos = [];
    if (pessoaTipo === "F") {
       codigosPermitidos = ["3208", "0001"];
@@ -830,7 +814,6 @@ function _popularSelectIrrf(lista, pessoaTipo, valorSalvo) {
 
       if (!cod) continue;
 
-      // Mostra apenas os códigos permitidos para a categoria selecionada.
       if (codigosPermitidos.length && codigosPermitidos.indexOf(cod) === -1) continue;
 
       let opt = $("<option></option>")
@@ -847,7 +830,7 @@ function _popularSelectIrrf(lista, pessoaTipo, valorSalvo) {
          $("#irrf").val(selecionado.attr("data-aliquota") || "");
       }
    }
-   // Em VIEW (span) select.val() é vazio — preserva o valorSalvo no hidden
+
    $("#hiddenCodIrrf").val(select.is("select") ? (select.val() || "") : valorSalvo);
 }
 
@@ -1233,10 +1216,7 @@ function _gerarHtmlCardBancario(numero) {
       '</div></div>'
    );
 }
-/**
- * Monta os cards de contas bancárias na abertura e restaura as contas já salvas
- * (banco, agência, conta, condição de pagamento) a partir dos campos hidden.
- */
+
 function inicializarDadosBancarios() {
    let $wrap = $("#dados-bancarios-cards");
    let dadosSalvos = [];
@@ -1397,10 +1377,6 @@ function sincronizarTabelaBancaria() {
    atualizarCamposBancariosRm();
 }
 
-/**
- * Espelha os dados dinâmicos do formulário (CNAEs, grupos de mercadoria e
- * contas bancárias) nas tabelas-filho usadas no relatório/impressão.
- */
 function sincronizarTabelasRelatorio() {
    
    let $cnaeTbody    = $("#tbRelCnaes tbody");
