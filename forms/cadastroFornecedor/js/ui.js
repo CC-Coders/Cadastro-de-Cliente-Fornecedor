@@ -142,10 +142,6 @@
 })();
 
 // VISIBILIDADE CONDICIONAL DE CAMPOS
-/**
- * Ajusta o formulário conforme a Classificação (Cliente / Fornecedor / Ambos):
- * Cliente oculta CNAE, grupo de mercadoria e a etapa de Documentação.
- */
 function controlarCamposClassificacao() {
    const classificacao = ($("#classificacao").val() || "").trim();
    const isCliente = classificacao === "1";
@@ -208,11 +204,6 @@ function controlarCamposClassificacao() {
    aplicarAsteriscoObrigatorio();
 }
 
-/**
- * Ajusta o formulário conforme a Categoria (Pessoa Física/Jurídica) e a flag
- * de estrangeiro: exibe/oculta documentos (CPF/CNPJ/RG), bloco de dados de PF,
- * CNAE, Contribuinte ICMS e Regime Fiscal, e define o que é obrigatório.
- */
 function controlarCamposCategoria() {
    const categoria = $("#categoria").val();
    const estrangeiro = $("#toggleEstrangeiro").is(":checked");
@@ -312,13 +303,6 @@ function controlarCamposDependentes() {
 
 let _cidadeSelectOriginalHtml = null;
 
-/**
- * Alterna o bloco de endereço entre nacional e estrangeiro. No modo estrangeiro
- * oculta CEP/País, fixa o estado como "EX" (Exterior) e torna Cidade um campo de
- * texto livre; ao desativar, restaura o endereço nacional padrão.
- *
- * @param {boolean} ativo - true para endereço estrangeiro
- */
 function controlarEnderecoEstrangeiro(ativo) {
    const $estadoWrap = $("#divEstado .select-wrap");
 
@@ -327,8 +311,6 @@ function controlarEnderecoEstrangeiro(ativo) {
       $("#cep").prop("required", false);
 
       $("#endereco, #bairro").prop("readonly", false);
-      // Fornecedor estrangeiro não informa País no formulário.
-      // No RM o endereço estrangeiro vai apenas como Exterior (Estado "EX").
       $("#divPais").hide();
       $("#pais").prop("required", false);
       $("#divSelectPaisEstrangeiro").hide();
@@ -419,34 +401,37 @@ function controlarAlertaCnpj() {
    }
 }
 function controlarRetencaoPorTipo() {
-   const tipo = $("#tipo").val();
-
-   if (TIPOS_COM_RETENCAO.includes(tipo)) {
-      return;
-   }
-
-   resetarRetencao();
+   return;
 }
 
-// Identifica os tipos "RDO" (ex.: "020 - RDO - RESUMO DE DESPESAS DA OBRA").
-// Usa \bRDO\b para casar "RDO" como palavra isolada e não pegar "ACORDO" etc.
 function _ehTipoRDO() {
    var texto = ($("#tipo option:selected").text() || "").toUpperCase();
    return /\bRDO\b/.test(texto);
 }
 
-// RDO não tem Natureza de Rendimentos — oculta e não exige nesse tipo.
 function controlarNaturezaPorTipo() {
-   if (_ehTipoRDO()) {
-      $("#divNaturezaRendimento").hide();
-      $("#naturezaRendimento").prop("required", false).val("");
-      $("#codNaturezaRendimento").val("");
-      $("#idNatRendimento").val("");
-      limparErroCampo("naturezaRendimento");
-   } else {
+   if (ehModoView()) {
       $("#divNaturezaRendimento").show();
-      $("#naturezaRendimento").prop("required", true);
+      return;
    }
+
+   var atividade = Number($("#atividade").val() || 0);
+   var ehValidacao = (atividade === ATIVIDADES.VALIDACAO);
+
+   if (_ehTipoRDO() || !ehValidacao) {
+      $("#divNaturezaRendimento").hide();
+      $("#naturezaRendimento").prop("required", false);
+      limparErroCampo("naturezaRendimento");
+      if (_ehTipoRDO()) {
+         $("#naturezaRendimento").val("");
+         $("#codNaturezaRendimento").val("");
+         $("#idNatRendimento").val("");
+      }
+      return;
+   }
+
+   $("#divNaturezaRendimento").show();
+   $("#naturezaRendimento").prop("required", true);
 }
 function controlarPainelRetencoes() {
    const $painel = $("#divRetencoesPanel");
@@ -472,6 +457,21 @@ function resetarRetencao() {
 }
 
 
+
+
+function ehModoEdicao() {
+   if (globalThis._modoEdicao === true) {
+      return true;
+   }
+   var cod = ($("#codcfoEdicao").val() || "").toString().trim();
+   return cod !== "" && cod !== "-1" && cod !== "0";
+}
+
+
+function aplicarVisibilidadeDocumentacao() {
+   var mostrar = !ehModoEdicao();
+   $("#nav-step-Documentacao, #divDivisaoDocumentacao").toggle(mostrar);
+}
 
 function getStepsVisiveis() {
    var visiveis = [];
@@ -636,12 +636,7 @@ function ehModoView() {
 }
 
 
-// MODO VIEW (visualização / histórico do processo)
-/**
- * Configura a tela em modo somente-leitura (histórico/VIEW): expande todas as
- * seções, resolve os selects que o Fluig converte em span e deixa os campos
- * cinzas e bloqueados para edição, mostrando os valores salvos.
- */
+// MODO VIEW 
 function configurarModoView() {
 
    document.documentElement.setAttribute("data-device", "desktop");
@@ -818,6 +813,9 @@ function controlarEdicaoInicioValidacao() {
 
 
    if (atividade === ATIVIDADES.VALIDACAO) {
+      // Natureza de Rendimentos é preenchida pelo Suprimentos -> sempre editável nesta etapa,
+      // mesmo sem clicar em "Editar campos".
+      $("#naturezaRendimento").prop("disabled", false).removeClass("campo-bloqueado");
       $("#btnEditarCamposInicio").show();
       $("#btnEditarCamposInicio").off("click").on("click", function () {
          habilitarTudoInicio();
