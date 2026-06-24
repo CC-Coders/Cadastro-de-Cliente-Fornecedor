@@ -1,14 +1,3 @@
-/**
- * Atividade de serviço da INTEGRAÇÃO com o RM (TOTVS). A partir dos dados do
- * formulário:
- *   1) cria o Cliente/Fornecedor (FCFO) via DataServer FinCFODataBR;
- *   2) grava as contas bancárias (FinDadosPgtoDataBR) em todas as coligadas;
- *   3) popula as tabelas auxiliares (FCFO_AUXILIAR*) no banco custom.
- * Lança erro (e cai em ERRO_INTEGRACAO) se o RM recusar a criação do CFO.
- *
- * @param {number} attempt - número da tentativa de execução
- * @param {string} message - mensagem de contexto da automação
- */
 function servicetask16(attempt, message) {
 
     var COLIGADA = "1";
@@ -138,13 +127,26 @@ function servicetask16(attempt, message) {
             "<NUMDEPENDENTES>"+ x(numDependentes) + "</NUMDEPENDENTES>";
     }
 
+    // Edição: havendo CODCFO de edição, o RM ATUALIZA o registro (não cria).
+    // Sem ele, mantém o comportamento de criação (-1 / coligada 0 / IDCFO 0).
+    var codcfoEdicao   = f("codcfoEdicao");
+    var coligadaEdicao = f("coligadaEdicao");
+    var idcfoEdicao    = f("idcfoEdicao");
+    var ehEdicao = (codcfoEdicao && codcfoEdicao !== "-1" && codcfoEdicao !== "0");
+
+    var codcfoXml   = ehEdicao ? codcfoEdicao   : "-1";
+    var coligadaXml = ehEdicao ? coligadaEdicao : "0";
+    var idcfoXml    = ehEdicao ? idcfoEdicao    : "0";
+
+    log.info("[ST16] Modo " + (ehEdicao ? ("EDIÇÃO/UPDATE CODCFO=" + codcfoEdicao) : "CRIAÇÃO de novo CFO"));
+
     var xmlCfo =
         "<FinCFOBR>" +
             "<FCFO>" +
-                "<CODCOLIGADA>0</CODCOLIGADA>" +
-                "<CODCFO>-1</CODCFO>" +
-                "<NOME>"           + x(nomeRM)       + "</NOME>" +
-                "<NOMEFANTASIA>"   + x(nomeFantasia)  + "</NOMEFANTASIA>" +
+                "<CODCOLIGADA>" + coligadaXml + "</CODCOLIGADA>" +
+                "<CODCFO>" + codcfoXml + "</CODCFO>" +
+                "<NOME>"           + x(nomeFantasia) + "</NOME>" +
+                "<NOMEFANTASIA>"   + x(razaoSocial)  + "</NOMEFANTASIA>" +
                 "<CGCCFO>"         + x(cgc)           + "</CGCCFO>" +
                 "<INSCRESTADUAL>"  + x(inscEstadual)  + "</INSCRESTADUAL>" +
                 "<INSCRMUNICIPAL>" + x(inscMunicipal) + "</INSCRMUNICIPAL>" +
@@ -167,7 +169,7 @@ function servicetask16(attempt, message) {
                 "<PAIS>Brasil</PAIS>" +
                 "<CONTRIBUINTE>"       + contribuinte  + "</CONTRIBUINTE>" +
                 "<CONTRIBUINTEISS>"    + retencaoIss   + "</CONTRIBUINTEISS>" +
-                "<IDCFO>0</IDCFO>" +
+                "<IDCFO>" + idcfoXml + "</IDCFO>" +
                 "<OPTANTEPELOSIMPLES>" + simplesNac    + "</OPTANTEPELOSIMPLES>" +
                 "<TIPORUA>1</TIPORUA>" +
                 "<TIPOBAIRRO>1</TIPOBAIRRO>" +
@@ -185,6 +187,10 @@ function servicetask16(attempt, message) {
 
     var codCfo = chamarRM("FinCFODataBR", xmlCfo);
 
+    if (!codCfo && ehEdicao) {
+        codCfo = codcfoEdicao; // na edição o RM pode não devolver o código; reaproveita o informado
+    }
+
     if (!codCfo) {
         throw new Error("[ST16] CODCFO não retornado pelo RM após criação do CFO.");
     }
@@ -192,6 +198,109 @@ function servicetask16(attempt, message) {
     log.info("[ST16] CFO criado com sucesso. CODCFO=" + codCfo);
     hAPI.setCardValue("codCfoRm", codCfo);
 
+    try {
+        salvarUrlFluigRM(codCfo);
+    } catch (eUrl) {
+        log.error("[ST16] Erro ao gravar URL Fluig em FCFOCOMPL (não interrompe): " + eUrl);
+    }
+
+
+    var bancosEdicaoJson = f("bancosEdicaoJson");
+    var ehEdicaoBancos = ehEdicao && bancosEdicaoJson && bancosEdicaoJson !== "[]";
+
+    if (ehEdicaoBancos) {
+        // EDIÇÃO: grava as contas do JSON usando o IDPGTO/ATIVO de cada uma.
+        // Contas do RM mantêm o IDPGTO (UPDATE); novas recebem um IDPGTO livre.
+        // O boleto existente no RM é mantido (não recriado aqui).
+        var contasEd = [];
+        try { contasEd = JSON.parse(bancosEdicaoJson); } catch (eJsonEd) {
+            log.error("[ST16] bancosEdicaoJson inválido: " + eJsonEd);
+        }
+
+        var idpgtoBoletoEd = parseInt(f("idpgtoBoletoEdicao"), 10) || 0;
+
+        var maxIdEd = idpgtoBoletoEd;
+        for (var mi = 0; mi < contasEd.length; mi++) {
+            var idn = parseInt(contasEd[mi].idpgto, 10) || 0;
+            if (idn > maxIdEd) { maxIdEd = idn; }
+        }
+        var proxIdEd = maxIdEd + 1;
+
+        for (var ie = 0; ie < contasEd.length; ie++) {
+            var ct = contasEd[ie] || {};
+            var ctBanco = String(ct.banco || "");
+            var ctAg    = String(ct.agencia || "");
+            var ctCt    = String(ct.conta || "");
+            var ctDesc  = String(ct.desc || "");
+            if (!ctBanco && !ctAg && !ctCt) { continue; }
+
+            var ctIdp = (String(ct.novo) !== "1" && (parseInt(ct.idpgto, 10) || 0) > 0)
+                        ? parseInt(ct.idpgto, 10) : (proxIdEd++);
+            var ctAtivo = (String(ct.ativo) === "0") ? "0" : "1";
+
+            var ctAgNum = ctAg.length > 1 ? ctAg.slice(0, -1) : ctAg;
+            var ctAgDig = ctAg.length > 1 ? ctAg.slice(-1)    : "0";
+            var ctCtNum = ctCt.length > 1 ? ctCt.slice(0, -1) : ctCt;
+            var ctCtDig = ctCt.length > 1 ? ctCt.slice(-1)    : "0";
+
+            for (var ced = 0; ced < COLIGADAS_BANCO.length; ced++) {
+                var colEd = COLIGADAS_BANCO[ced];
+                var xmlEd =
+                    "<FDadosPgto>" +
+                        "<CODCOLIGADA>" + colEd + "</CODCOLIGADA>" +
+                        "<CODCOLCFO>0</CODCOLCFO>" +
+                        "<CODCFO>" + x(codCfo) + "</CODCFO>" +
+                        "<IDPGTO>" + ctIdp + "</IDPGTO>" +
+                        "<DESCRICAO>" + x("Conta " + ctIdp + (ctDesc ? " - " + ctDesc : "")) + "</DESCRICAO>" +
+                        "<FORMAPAGAMENTO>T</FORMAPAGAMENTO>" +
+                        "<FAVORECIDO>" + x(nomeRM) + "</FAVORECIDO>" +
+                        "<CGCFAVORECIDO>" + x(cgc) + "</CGCFAVORECIDO>" +
+                        "<ATIVO>" + ctAtivo + "</ATIVO>" +
+                        "<NUMEROBANCO>" + x(ctBanco) + "</NUMEROBANCO>" +
+                        "<CODIGOAGENCIA>" + x(ctAgNum) + "</CODIGOAGENCIA>" +
+                        "<DIGITOAGENCIA>" + x(ctAgDig) + "</DIGITOAGENCIA>" +
+                        "<NOMEAGENCIA>" + x(ctDesc) + "</NOMEAGENCIA>" +
+                        "<CONTACORRENTE>" + x(ctCtNum) + "</CONTACORRENTE>" +
+                        "<DIGITOCONTA>" + x(ctCtDig) + "</DIGITOCONTA>" +
+                        "<TIPOCONTA>1</TIPOCONTA>" +
+                    "</FDadosPgto>";
+                try {
+                    chamarRM("FinDadosPgtoDataBR", xmlEd, colEd);
+                    log.info("[ST16] (edição) Conta IDPGTO=" + ctIdp + " ativo=" + ctAtivo + " / Coligada " + colEd + " OK.");
+                } catch (eEd) {
+                    log.warn("[ST16] (edição) Falha IDPGTO=" + ctIdp + " / Coligada " + colEd + ": " + eEd);
+                }
+            }
+        }
+
+        // BOLETO — garante um boleto ATIVO na edição. Reusa o IDPGTO do boleto
+        // existente (se houver) para não duplicar; senão usa um IDPGTO livre.
+        var idpBoletoEd = (idpgtoBoletoEd > 0) ? idpgtoBoletoEd : (proxIdEd++);
+        for (var cbe = 0; cbe < COLIGADAS_BANCO.length; cbe++) {
+            var colBolEd = COLIGADAS_BANCO[cbe];
+            var xmlBolEd =
+                "<FDadosPgto>" +
+                    "<CODCOLIGADA>" + colBolEd + "</CODCOLIGADA>" +
+                    "<CODCOLCFO>0</CODCOLCFO>" +
+                    "<CODCFO>" + x(codCfo) + "</CODCFO>" +
+                    "<IDPGTO>" + idpBoletoEd + "</IDPGTO>" +
+                    "<DESCRICAO>Boleto com Código de Barras</DESCRICAO>" +
+                    "<FORMAPAGAMENTO>I</FORMAPAGAMENTO>" +
+                    "<FAVORECIDO>" + x(nomeRM) + "</FAVORECIDO>" +
+                    "<CGCFAVORECIDO>" + x(cgc) + "</CGCFAVORECIDO>" +
+                    "<ATIVO>1</ATIVO>" +
+                "</FDadosPgto>";
+            try {
+                chamarRM("FinDadosPgtoDataBR", xmlBolEd, colBolEd);
+                log.info("[ST16] (edição) Boleto IDPGTO=" + idpBoletoEd + " / Coligada " + colBolEd + " OK.");
+            } catch (eBolEd) {
+                log.warn("[ST16] (edição) Falha boleto IDPGTO=" + idpBoletoEd + " / Coligada " + colBolEd + ": " + eBolEd);
+            }
+        }
+
+    } else {
+
+    var idPgto = 0;
 
     for (var i = 1; i <= 5; i++) {
         var bancoCod  = f("hiddenBanco" + i + "Cod");
@@ -206,12 +315,14 @@ function servicetask16(attempt, message) {
             continue;
         }
 
+        idPgto++;
+
         var agNum = agencia.length > 1 ? agencia.slice(0, -1) : agencia;
         var agDig = agencia.length > 1 ? agencia.slice(-1)    : "0";
         var ctNum = conta.length   > 1 ? conta.slice(0, -1)   : conta;
         var ctDig = conta.length   > 1 ? conta.slice(-1)      : "0";
 
-        var ativo = (i === 1) ? "1" : "0";
+        var ativo = (idPgto === 1) ? "1" : "0";
 
         for (var ci = 0; ci < COLIGADAS_BANCO.length; ci++) {
             var colAtual = COLIGADAS_BANCO[ci];
@@ -221,9 +332,9 @@ function servicetask16(attempt, message) {
                     "<CODCOLIGADA>"  + colAtual                                                          + "</CODCOLIGADA>" +
                     "<CODCOLCFO>0</CODCOLCFO>" +
                     "<CODCFO>"       + x(codCfo)                                                         + "</CODCFO>" +
-                    "<IDPGTO>" + i + "</IDPGTO>" +
-                    "<DESCRICAO>"    + x("Conta " + i + (bancoDesc ? " - " + bancoDesc : ""))            + "</DESCRICAO>" +
-                    "<FORMAPAGAMENTO>I</FORMAPAGAMENTO>" +
+                    "<IDPGTO>" + idPgto + "</IDPGTO>" +
+                    "<DESCRICAO>"    + x("Conta " + idPgto + (bancoDesc ? " - " + bancoDesc : ""))       + "</DESCRICAO>" +
+                    "<FORMAPAGAMENTO>T</FORMAPAGAMENTO>" +
                     "<FAVORECIDO>"   + x(nomeRM)                                                         + "</FAVORECIDO>" +
                     "<CGCFAVORECIDO>"+ x(cgc)                                                            + "</CGCFAVORECIDO>" +
                     "<ATIVO>" + ativo + "</ATIVO>" +
@@ -245,7 +356,37 @@ function servicetask16(attempt, message) {
         }
     }
 
-    // TABELAS AUXILIARES 
+    // BOLETO 
+    idPgto++;
+    for (var cb = 0; cb < COLIGADAS_BANCO.length; cb++) {
+        var colBoleto = COLIGADAS_BANCO[cb];
+
+        var xmlBoleto =
+            "<FDadosPgto>" +
+                "<CODCOLIGADA>"   + colBoleto + "</CODCOLIGADA>" +
+                "<CODCOLCFO>0</CODCOLCFO>" +
+                "<CODCFO>"        + x(codCfo) + "</CODCFO>" +
+                "<IDPGTO>" + idPgto + "</IDPGTO>" +
+                "<DESCRICAO>Boleto com Código de Barras</DESCRICAO>" +
+                "<FORMAPAGAMENTO>I</FORMAPAGAMENTO>" +
+                "<FAVORECIDO>"    + x(nomeRM) + "</FAVORECIDO>" +
+                "<CGCFAVORECIDO>" + x(cgc)    + "</CGCFAVORECIDO>" +
+                "<ATIVO>1</ATIVO>" +
+            "</FDadosPgto>";
+
+        try {
+            chamarRM("FinDadosPgtoDataBR", xmlBoleto, colBoleto);
+            log.info("[ST16] Boleto / Coligada " + colBoleto + " salvo com sucesso.");
+        } catch (eBoleto) {
+            log.warn("[ST16] Falha boleto / Coligada " + colBoleto + ": " + eBoleto);
+        }
+    }
+
+    } // fim do else (criação de novo cadastro)
+
+    // TABELAS AUXILIARES — gravadas na criação E na edição. Aqui ficam os campos
+    // que não vão ao RM (CNAE, grupos, regime, retenções). DELETE + INSERT por
+    // CODCFO+CODCOLIGADA, sempre na coligada 1 (igual à leitura no ds_detalhesCfoRM).
     try {
         salvarFcfoAuxiliar(codCfo, COLIGADA);
     } catch (eAux) {
@@ -334,9 +475,9 @@ function salvarFcfoAuxiliar(codCfo, coligada) {
         log.error("[ST16-AUX] Falha ao inserir FCFO_AUXILIAR (CODCFO=" + codCfo + "): " + eFcfo);
     }
 
-    // ── 2) FCFO_AUXILIAR_CNAE
+    //FCFO_AUXILIAR_CNAE
     var sqlCnae =
-        "INSERT INTO FCFO_AUXILIAR_CNAE (CODCFO, CODCOLIGADA, CODIGO, DESCRICAO, PRICIPAL)" +
+        "INSERT INTO FCFO_AUXILIAR_CNAE (CODCFO, CODCOLIGADA, CODIGO, DESCRICAO, PRINCIPAL)" +
         " VALUES (?,?,?,?,?)";
 
     var cnaePrincVal = fv("cnaePrincipal");
@@ -346,8 +487,8 @@ function salvarFcfoAuxiliar(codCfo, coligada) {
             _execSql(sqlCnae, [
                 { t: "int", v: codCfoInt                 },
                 { t: "int", v: coligadaInt               },
-                { t: "str", v: cp.codigo                 },   // CODIGO NOT NULL
-                { t: "str", v: cp.descricao || cp.codigo },   // DESCRICAO NOT NULL
+                { t: "str", v: cp.codigo                 },
+                { t: "str", v: cp.descricao || cp.codigo },   
                 { t: "int", v: 1                         }
             ]);
             log.info("[ST16-AUX] CNAE principal OK: " + cp.codigo);
@@ -374,13 +515,12 @@ function salvarFcfoAuxiliar(codCfo, coligada) {
         }
     }
 
-    // ── 3) FCFO_AUXILIAR_GRUPO_MERCADORIA ─────────────────────────────────────
-    // Coluna "PRICIPAL" (sic) — grafia exatamente conforme o DDL da tabela.
+    // FCFO_AUXILIAR_GRUPO_MERCADORIA
     var sqlGM =
         "INSERT INTO FCFO_AUXILIAR_GRUPO_MERCADORIA" +
-        " (CODCFO, CODCOLIGADA, CODTB2FAT, DESCRICAO, PRICIPAL) VALUES (?,?,?,?,?)";
+        " (CODCFO, CODCOLIGADA, CODTB2FAT, DESCRICAO, PRINCIPAL) VALUES (?,?,?,?,?)";
 
-    var gruposInseridos = {};   // evita violar a PK (CODCFO,CODCOLIGADA,CODTB2FAT)
+    var gruposInseridos = {}; 
     for (var gi = 1; gi <= 9; gi++) {
         var gmDesc = fv("hiddenGrupoMercadoria" + gi);
         if (!gmDesc) continue;
@@ -414,11 +554,6 @@ function salvarFcfoAuxiliar(codCfo, coligada) {
 }
 
 
-/**
- * Separa "XXXX-X/XX — Descrição" em { codigo, descricao }.
- * Suporta "—" (em dash U+2014) e "-" (hífen simples).
- * Se não houver separador, o valor inteiro é o código.
- */
 function _parseCnae(valor) {
     var v   = String(valor || "").trim();
     var sep = " — "; // " — "
@@ -433,17 +568,12 @@ function _parseCnae(valor) {
     return { codigo: v, descricao: "" };
 }
 
-
-/**
- * Retorna o CODTB2FAT da tabela TTB2 do RM pela descrição do grupo de mercadoria.
- * Retorna null se não encontrar.
- */
 function _buscarCodTb2Fat(descricao) {
     var conn = null;
     var stmt = null;
     try {
         var ic = new javax.naming.InitialContext();
-        // TTB2 é tabela NATIVA do RM -> /jdbc/RM (correto, não trocar).
+     
         var ds = ic.lookup("/jdbc/RM");
         conn = ds.getConnection();
         stmt = conn.prepareStatement(
@@ -465,27 +595,13 @@ function _buscarCodTb2Fat(descricao) {
 }
 
 
-/**
- * Executa um INSERT/UPDATE/DELETE via JDBC na base do RM.
- *
- * params: array de objetos { t: "str" | "int" | "float" | "ts", v: value }
- *  - "int"   → setInt
- *  - "float" → setFloat
- *  - "ts"    → setTimestamp (java.sql.Timestamp)
- *  - "str"   → setString. Apenas null/undefined viram SQL NULL; "" é preservado
- *              como string vazia para não violar colunas NOT NULL (ex: REGIME_FISCAL).
- *              Para gravar NULL, passe v: null explicitamente (ex: retenções).
- */
-function _execSql(sql, params) {
+
+function _execSql(sql, params, dataSource) {
     var conn = null;
     var stmt = null;
     try {
         var ic = new javax.naming.InitialContext();
-        // As tabelas FCFO_AUXILIAR* ficam no banco CUSTOM da Castilho
-        // (Castilho_Custom / castilho_custom_homol), acessado por /jdbc/CastilhoCustom.
-        // NÃO usar /jdbc/RM aqui: nesse datasource as tabelas não existem
-        // e o INSERT falharia com "Invalid object name 'FCFO_AUXILIAR'".
-        var ds = ic.lookup("/jdbc/CastilhoCustom");
+        var ds = ic.lookup(dataSource || "/jdbc/CastilhoCustom");
         conn = ds.getConnection();
         stmt = conn.prepareStatement(sql);
 
@@ -499,7 +615,6 @@ function _execSql(sql, params) {
             } else if (p.t === "ts") {
                 stmt.setTimestamp(pos, p.v);
             } else {
-                // "str" — só null/undefined → SQL NULL; "" é mantido como ""
                 if (p.v === null || p.v === undefined) {
                     stmt.setString(pos, null);
                 } else {
@@ -513,4 +628,35 @@ function _execSql(sql, params) {
         if (stmt != null) try { stmt.close(); } catch (_) {}
         if (conn != null) try { conn.close(); } catch (_) {}
     }
+}
+
+
+function salvarUrlFluigRM(codCfo) {
+
+    // var URL_FLUIG = "http://fluig.castilho.com.br:1010";       // Produção
+    var URL_FLUIG = "http://homologacao.castilho.com.br:2020";    // Homologação
+
+    var numProces = getValue("WKNumProces");
+    var link = URL_FLUIG + "/portal/p/1/pageworkflowview?app_ecm_workflowview_detailsProcessInstanceID=" + numProces;
+
+    var codCfoInt = parseInt(codCfo, 10);
+
+    var afetadas = _execSql(
+        "UPDATE FCFOCOMPL SET FLUIG = ? WHERE CODCFO = ?",
+        [ { t: "str", v: link }, { t: "int", v: codCfoInt } ],
+        "/jdbc/RM"
+    );
+
+    if (afetadas > 0) {
+        log.info("[ST16] URL Fluig gravada em FCFOCOMPL.FLUIG (CODCFO=" + codCfo + "): " + link);
+        return;
+    }
+
+    log.warn("[ST16] FCFOCOMPL sem linha para CODCFO=" + codCfo + " — tentando INSERT.");
+    _execSql(
+        "INSERT INTO FCFOCOMPL (CODCOLIGADA, CODCFO, FLUIG) VALUES (?, ?, ?)",
+        [ { t: "int", v: 0 }, { t: "int", v: codCfoInt }, { t: "str", v: link } ],
+        "/jdbc/RM"
+    );
+    log.info("[ST16] URL Fluig inserida em FCFOCOMPL.FLUIG (CODCFO=" + codCfo + "): " + link);
 }
