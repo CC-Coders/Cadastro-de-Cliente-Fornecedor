@@ -105,13 +105,6 @@ function validarCampoObrigatorio(campoId, label) {
 
 
 // VALIDAÇÕES POR SEÇÃO
-/**
- * Valida os documentos conforme a categoria: CPF/RG (PF), CNPJ/IE (PJ) ou
- * documento estrangeiro (PJ estrangeira). Para PF também checa formato do RG
- * e data de nascimento não-futura.
- *
- * @returns {boolean} true se os documentos da categoria estão válidos
- */
 function validarDocumentosPorCategoria() {
    const categoria = ($("#categoria").val() || "").trim();
    const estrangeiro = $("#toggleEstrangeiro").is(":checked");
@@ -195,13 +188,6 @@ function validarListaCampos(campos) {
 
    return valido;
 }
-/**
- * Valida a etapa de Pré-cadastro: classificação, categoria, documentos e
- * endereço, respeitando as regras de PF/PJ e estrangeiro.
- *
- * @param {boolean} exibirToast - se true, exibe o toast de campos obrigatórios
- * @returns {boolean} true se a etapa está válida
- */
 function validarPreCadastro(exibirToast) {
    limparErrosPreCadastro();
 
@@ -225,8 +211,6 @@ function validarPreCadastro(exibirToast) {
       { id: "cidade",       label: "Cidade"         }
    ];
 
-   // Fornecedor estrangeiro não tem País/CEP/Estado no formulário (vai como Exterior no RM).
-   // Só exige esses campos quando NÃO for estrangeiro.
    if (!modoEstrangeiro) {
       camposEndereco.push({ id: "cep",    label: "CEP"    }, { id: "pais",   label: "País"   }, { id: "estado", label: "Estado" });
    }
@@ -276,14 +260,7 @@ function validarDadosBancarios() {
 
    return valido;
 }
-/**
- * Valida a etapa de Dados Cadastrais: campos fiscais (ICMS, IRRF, natureza,
- * regime), comerciais (CNAE, grupo de mercadoria), retenções, dados bancários
- * e contato. As regras de PF e tipo RDO são aplicadas via skipWhen.
- *
- * @param {boolean} exibirToast - se true, exibe o toast de campos obrigatórios
- * @returns {boolean} true se a etapa está válida
- */
+
 function validarDadosCadastrais(exibirToast) {
    limparErrosDadosCadastrais();
 
@@ -301,8 +278,11 @@ function validarDadosCadastrais(exibirToast) {
       {
          id: "naturezaRendimento",
          label: "Natureza de Rendimentos",
-         // RDO não tem Natureza de Rendimentos.
-         skipWhen: function () { return typeof _ehTipoRDO === "function" && _ehTipoRDO(); }
+
+         skipWhen: function () {
+            var ehRDO = typeof _ehTipoRDO === "function" && _ehTipoRDO();
+            return ehRDO || Number($("#atividade").val() || 0) !== ATIVIDADES.VALIDACAO;
+         }
       },
       {
          id: "regimeFiscal",
@@ -394,14 +374,7 @@ function validarPainelRetencaoVisual() {
 
    return algumSelecionado;
 }
-/**
- * Valida apenas a etapa atual do stepper antes de avançar, direcionando
- * para a validação correta do passo (Pré-cadastro, Dados Cadastrais ou
- * Documentação). Clientes pulam a etapa de Documentação.
- *
- * @param {boolean} exibirToast - se true, exibe o toast de campos obrigatórios
- * @returns {boolean} true se a etapa atual está válida
- */
+
 function validarEtapaAtual(exibirToast) {
    if (exibirToast === undefined) {
       exibirToast = true;
@@ -469,6 +442,11 @@ function controlarDocumentacaoPorCategoria() {
    $containerConf.removeClass("grid-pf");
 }
 function validarDocumentacao(exibirToast) {
+   // Na edição não há etapa de Documentação (o CFO já existe no RM com os anexos).
+   if (typeof ehModoEdicao === "function" && ehModoEdicao()) {
+      return true;
+   }
+
    let valido = true;
    const categoria = ($("#categoria").val() || "").trim();
 
@@ -579,14 +557,6 @@ function aplicarStatusCampo(campoId, valido) {
    }
 }
 
-
-// ALGORITMOS DE VALIDAÇÃO DE DOCUMENTOS FISCAIS
-/**
- * Valida um CPF pelos dígitos verificadores (algoritmo da Receita Federal).
- *
- * @param {string} cpf - CPF com ou sem máscara
- * @returns {boolean} true se o CPF é válido
- */
 function validarCPF(cpf) {
    cpf = cpf.replaceAll(/[^\d]+/g, '');
 
@@ -616,9 +586,6 @@ function validarCPF(cpf) {
    return resto == Number.parseInt(cpf.substring(10, 11));
 }
 function validarRG(rg) {
-   // O RG não tem dígito verificador nacional (varia por estado). Validamos só
-   // o formato: precisa ter os 9 dígitos da máscara (00.000.000-0) e não ser
-   // uma sequência repetida (ex.: 00000000-0).
    rg = (rg || "").replace(/\D/g, "");
 
    if (rg.length !== 9) return false;
@@ -626,12 +593,7 @@ function validarRG(rg) {
 
    return true;
 }
-/**
- * Valida um CNPJ pelos dígitos verificadores.
- *
- * @param {string} cnpj - CNPJ com ou sem máscara
- * @returns {boolean} true se o CNPJ é válido
- */
+
 function validarCNPJ(cnpj) {
 
    cnpj = cnpj.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
@@ -680,6 +642,13 @@ function validarHistoricoDecisao(exibirToast) {
 
    if (!validarCampoObrigatorio("observacaoValidacao", "Observações")) valido = false;
    if (!validarCampoObrigatorio("selectDecisao", "Ação")) valido = false;
+
+   // Natureza de Rendimentos: o Suprimentos deve preenchê-la antes de "Enviar ao RM" (exceto RDO).
+   var decisaoVal = ($("#selectDecisao").val() || "").trim();
+   var ehRDOval = typeof _ehTipoRDO === "function" && _ehTipoRDO();
+   if (decisaoVal === "enviarRm" && !ehRDOval) {
+      if (!validarCampoObrigatorio("naturezaRendimento", "Natureza de Rendimentos")) valido = false;
+   }
 
    if (!valido && exibirToast) {
       FLUIGC.toast({
