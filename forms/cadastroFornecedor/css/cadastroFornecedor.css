@@ -1672,3 +1672,351 @@ header {
    background: #ffd9c0;
    color: #a03e00;
 }
+
+/* ============================================================
+   TELA DE SELEÇÃO INICIAL (abertura de um novo processo)
+   ============================================================ */
+#telaSelecaoInicial {
+   display: none;
+}
+#telaSelecaoInicial.tsi-ativo {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   min-height: 70vh;
+   padding: 2.5rem 1rem;
+}
+.tsi-card {
+   max-width: 660px;
+   width: 100%;
+   margin: 0 auto;
+   background: #faf7f3;
+   border: 1px solid #ececec;
+   border-radius: 18px;
+   padding: 3.2rem 2.8rem;
+   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+   text-align: center;
+}
+.tsi-icone {
+   width: 78px;
+   height: 78px;
+   margin: 0 auto 20px;
+   border-radius: 50%;
+   background: #ffece0;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+.tsi-icone i {
+   font-size: 40px;
+   color: #e8821e;
+}
+.tsi-titulo {
+   font-size: 30px;
+   font-weight: 600;
+   color: #2c2c2a;
+   margin-bottom: 8px;
+}
+.tsi-sub {
+   font-size: 16px;
+   color: #6f6f6f;
+   margin-bottom: 38px;
+}
+.tsi-botoes {
+   display: flex;
+   gap: 22px;
+   justify-content: center;
+   flex-wrap: wrap;
+}
+.tsi-opcao {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 6px;
+   width: 230px;
+   padding: 28px 22px;
+   border-radius: 16px;
+   cursor: pointer;
+   border: 1.5px solid #ececec;
+   background: #ffffff;
+   transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.tsi-opcao:hover {
+   transform: translateY(-3px);
+}
+.tsi-opcao-icone {
+   width: 56px;
+   height: 56px;
+   margin-bottom: 8px;
+   border-radius: 50%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+.tsi-opcao-icone i {
+   font-size: 28px;
+}
+.tsi-opcao-titulo {
+   font-size: 19px;
+   font-weight: 600;
+}
+.tsi-opcao-desc {
+   font-size: 13px;
+}
+/* Cadastrar — opção em destaque (laranja) */
+.tsi-opcao-primary {
+   background: #e8821e;
+   border-color: #e8821e;
+}
+.tsi-opcao-primary:hover {
+   background: #d2730f;
+   border-color: #d2730f;
+   box-shadow: 0 8px 22px rgba(232, 130, 30, 0.28);
+}
+.tsi-opcao-primary .tsi-opcao-icone {
+   background: rgba(255, 255, 255, 0.22);
+}
+.tsi-opcao-primary .tsi-opcao-icone i {
+   color: #ffffff;
+}
+.tsi-opcao-primary .tsi-opcao-titulo {
+   color: #ffffff;
+}
+.tsi-opcao-primary .tsi-opcao-desc {
+   color: #ffe6cf;
+}
+/* Editar — opção secundária (contorno) */
+.tsi-opcao-secondary {
+   background: #ffffff;
+   border-color: #e6ddd4;
+}
+.tsi-opcao-secondary:hover {
+   border-color: #e8821e;
+   background: #fffaf5;
+   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.06);
+}
+.tsi-opcao-secondary .tsi-opcao-icone {
+   background: #fff4eb;
+}
+.tsi-opcao-secondary .tsi-opcao-icone i {
+   color: #e8821e;
+}
+.tsi-opcao-secondary .tsi-opcao-titulo {
+   color: #2c2c2a;
+}
+.tsi-opcao-secondary .tsi-opcao-desc {
+   color: #8a8a8a;
+}
+
+/* ============================================================
+   MODAL DE EDIÇÃO — busca de Cliente/Fornecedor
+   ============================================================ */
+#modalEdicaoCfo .modal-dialog {
+   max-width: 1060px;
+   width: 95%;
+}
+#modalEdicaoCfo .modal-content {
+   border: none;
+   border-radius: 16px;
+   overflow: hidden;
+   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+#modalEdicaoCfo .modal-header {
+   background: #faf7f3;
+   border-bottom: none;
+   padding: 18px 26px;
+}
+#modalEdicaoCfo .modal-header .modal-title {
+   font-size: 20px;
+   font-weight: 600;
+   color: #2c2c2a;
+}
+/* Botão de fechar (X) sem o fundo branco */
+#modalEdicaoCfo .modal-header .close,
+#modalEdicaoCfo .modal-header button.close {
+   background: transparent !important;
+   box-shadow: none !important;
+   border: none !important;
+   text-shadow: none;
+   opacity: 0.5;
+}
+#modalEdicaoCfo .modal-header .close:hover {
+   opacity: 1;
+   background: transparent !important;
+}
+#modalEdicaoCfo .modal-body {
+   min-height: 560px;
+   padding: 24px 26px 8px;
+}
+#modalEdicaoCfo .modal-footer {
+   border-top: none;
+   padding: 16px 26px 24px !important;
+}
+/* Botões de ação do modal (ex.: Fechar) — texto branco sobre laranja */
+#modalEdicaoCfo .modal-footer button,
+#modalEdicaoCfo .modal-footer .btn {
+   color: #ffffff !important;
+   background: #e8821e !important;
+   border: none !important;
+}
+#modalEdicaoCfo .modal-footer button:hover,
+#modalEdicaoCfo .modal-footer .btn:hover {
+   background: #d2730f !important;
+}
+/* Fundo escurecido enquanto o modal de edição está aberto (esconde o form atrás) */
+body.modal-edicao-aberto .modal-backdrop {
+   background-color: rgba(0, 0, 0, 0.5) !important;
+   opacity: 1 !important;
+}
+
+.edicao-busca-head {
+   display: flex;
+   align-items: center;
+   gap: 14px;
+   margin-bottom: 22px;
+}
+.edicao-busca-icone {
+   width: 56px;
+   height: 56px;
+   border-radius: 50%;
+   background: #ffece0;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   flex-shrink: 0;
+}
+.edicao-busca-icone i {
+   font-size: 28px;
+   color: #e8821e;
+}
+.edicao-busca-titulo {
+   font-size: 19px;
+   font-weight: 600;
+   color: #2c2c2a;
+}
+.edicao-busca-sub {
+   font-size: 14px;
+   color: #6f6f6f;
+}
+.edicao-busca-row {
+   display: flex;
+   gap: 12px;
+   margin-bottom: 18px;
+}
+.edicao-busca-input {
+   flex: 1;
+   height: 48px;
+   padding: 0 18px;
+   font-size: 15px;
+   color: #2c2c2a;
+   background: #ffffff;
+   border: 1.5px solid #e6ddd4;
+   border-radius: 10px;
+   outline: none;
+   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.edicao-busca-input:focus {
+   border-color: #e8821e;
+   box-shadow: 0 0 0 3px rgba(232, 130, 30, 0.12);
+}
+.edicao-busca-btn {
+   min-width: 130px;
+   height: 48px;
+   font-size: 15px;
+   font-weight: 500;
+   color: #ffffff !important;
+   background: #e8821e;
+   border: none;
+   border-radius: 10px;
+   cursor: pointer;
+   transition: background 0.15s ease;
+}
+.edicao-busca-btn:hover {
+   background: #d2730f;
+}
+.edicao-resultados {
+   max-height: 420px;
+   overflow-y: auto;
+   border: 1px solid #f0ece6;
+   border-radius: 12px;
+}
+.edicao-msg {
+   padding: 44px 16px;
+   text-align: center;
+   color: #9a9a9a;
+   font-size: 14px;
+}
+.edicao-erro {
+   color: #c0392b;
+}
+.edicao-tabela {
+   width: 100%;
+   border-collapse: collapse;
+   font-size: 14px;
+}
+.edicao-tabela thead th {
+   text-align: left;
+   padding: 12px 16px;
+   border-bottom: 2px solid #f0e6da;
+   color: #b06a2c;
+   font-weight: 600;
+   font-size: 12px;
+   text-transform: uppercase;
+   letter-spacing: 0.03em;
+   position: sticky;
+   top: 0;
+   background: #faf7f3;
+}
+.edicao-linha {
+   cursor: pointer;
+   transition: background 0.12s ease;
+}
+.edicao-linha td {
+   padding: 12px 16px;
+   border-bottom: 1px solid #f4efe9;
+   color: #3a3a38;
+}
+.edicao-linha:hover {
+   background: #fff4eb;
+}
+.edicao-linha:hover td:first-child {
+   color: #e8821e;
+   font-weight: 600;
+}
+
+/* Edição — contas bancárias do RM (travadas) e toggle Ativo/Inativo */
+.conta-ativa-toggle {
+   display: inline-flex;
+   align-items: center;
+   gap: 6px;
+   margin-left: auto;
+   font-size: 13px;
+   color: #6f6f6f;
+   cursor: pointer;
+}
+.conta-ativa-toggle input {
+   cursor: pointer;
+}
+.bank-card.conta-inativa {
+   opacity: 0.6;
+}
+.bank-card.conta-inativa .bank-card-title::after {
+   content: " — inativa";
+   color: #c0392b;
+   font-weight: 500;
+}
+
+/* Edição — realce (amarelo) dos campos alterados, visível na Validação/Correção */
+.fg.campo-alterado input,
+.fg.campo-alterado select,
+.fg.campo-alterado textarea,
+.fg.campo-alterado .form-control {
+   background-color: #fff8e1 !important;
+   border-color: #f0c419 !important;
+}
+.fg.campo-alterado label::after {
+   content: " • alterado";
+   color: #b8860b;
+   font-size: 11px;
+   font-weight: 500;
+}
