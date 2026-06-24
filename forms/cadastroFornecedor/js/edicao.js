@@ -1,16 +1,4 @@
-/**
- * edicao.js — Edição de Cliente/Fornecedor existente.
- *
- * Fluxo: tela de seleção -> "Editar" -> modal de busca (CNPJ/CPF/Nome/CODCFO)
- *  -> seleção -> preenche o formulário com os dados do RM -> usuário altera
- *  -> "Enviar" segue o fluxo normal (Validação -> RM), e o servicetask16 faz
- *  UPDATE (usa o CODCFO real gravado nos hidden de edição) em vez de criar.
- */
 
-/**
- * Abre o modal de busca de Cliente/Fornecedor (padrão FLUIGC.modal).
- * Chamado pelo botão "Editar" da tela de seleção inicial.
- */
 function abrirModalEdicao() {
    var corpo = ''
       + '<div class="edicao-busca">'
@@ -50,13 +38,11 @@ function abrirModalEdicao() {
       });
       setTimeout(function () { $('#edicaoTermoBusca').focus(); }, 200);
 
-      // Escurece o fundo enquanto o modal está aberto (esconde o formulário atrás).
       $('body').addClass('modal-edicao-aberto');
       $('#modalEdicaoCfo').off('hidden.bs.modal').on('hidden.bs.modal', function () {
          $('body').removeClass('modal-edicao-aberto');
       });
 
-      // Reforça: não fecha ao clicar fora nem com ESC — apenas pelo X ou Fechar.
       var instModal = $('#modalEdicaoCfo').data('bs.modal');
       if (instModal && instModal.options) {
          instModal.options.backdrop = 'static';
@@ -65,9 +51,6 @@ function abrirModalEdicao() {
    });
 }
 
-/**
- * Consulta o ds_buscarCfoRM com o termo digitado e renderiza a lista de resultados.
- */
 function buscarCfoParaEdicao() {
    var termo = ($('#edicaoTermoBusca').val() || '').trim();
    if (termo.length < 2) {
@@ -107,9 +90,7 @@ function buscarCfoParaEdicao() {
    }
 }
 
-/**
- * Monta a tabela de resultados; cada linha seleciona o CFO ao ser clicada.
- */
+
 function renderizarResultadosEdicao(lista) {
    if (!lista || !lista.length) {
       $('#edicaoResultados').html('<div class="edicao-msg">Nenhum cliente/fornecedor encontrado.</div>');
@@ -146,10 +127,7 @@ function renderizarResultadosEdicao(lista) {
    });
 }
 
-/**
- * Busca os dados completos do CFO (ds_detalhesCfoRM), preenche o formulário,
- * fecha o modal e entra em modo edição.
- */
+
 function selecionarCfoEdicao(codcfo, coligada) {
    $('#edicaoResultados').prepend('<div class="edicao-msg" id="edicaoCarregando">Carregando dados...</div>');
 
@@ -187,29 +165,21 @@ function selecionarCfoEdicao(codcfo, coligada) {
    }
 }
 
-/**
- * Preenche o formulário inteiro a partir dos dados do RM (ds_detalhesCfoRM).
- * Observação sobre a inversão de nomes (igual ao servicetask16):
- *   RM.NOME = nome fantasia | RM.NOMEFANTASIA = razão social.
- */
 function preencherEdicaoCompleta(detalhes) {
    var c = (detalhes && detalhes.cadastro) ? detalhes.cadastro : {};
 
-   // Suprime as verificações de duplicidade (CNPJ/CPF) enquanto carrega os dados:
-   // estamos editando um registro que JÁ existe no RM, então duplicidade é esperada.
    globalThis._preenchendoEdicao = true;
 
-   // --- 1) Classificação / categoria / tipo (primeiro: reconfiguram o formulário) ---
+
    var categoria = (c.CATEGORIA || '').toString().trim().toUpperCase(); // F ou J
    if (categoria) { $('#categoria').val(categoria).trigger('change'); }
 
-   var mapPagrecInv = { '2': '1', '1': '2', '3': '3' }; // inverso do servicetask16
+   var mapPagrecInv = { '2': '1', '1': '2', '3': '3' }; 
    var classif = mapPagrecInv[(c.PAGREC || '').toString().trim()] || '';
    if (classif) { $('#classificacao').val(classif).trigger('change'); }
 
    if (c.CODTCF) { $('#tipo').val(c.CODTCF).trigger('change'); }
 
-   // --- 2) Documento (marca como "já consultado" p/ não redisparar verificação) ---
    var cgc = (c.CGCCFO || '').toString().replace(/\D/g, '');
    if (categoria === 'J') {
       globalThis._cnpjJaConsultado = cgc;
@@ -219,11 +189,11 @@ function preencherEdicaoCompleta(detalhes) {
       $('#docCpf').val(cgc).trigger('input');
    }
 
-   // --- 3) Nome / Fantasia (INVERSÃO) ---
+
    $('#razaoSocial').val(c.NOMEFANTASIA || c.NOME || '');
    $('#nomeFantasia').val(c.NOME || '');
 
-   // --- 4) Endereço ---
+
    $('#endereco').val(c.LOGRADOURO || '');
    $('#numero').val(c.NUMERO || '');
    $('#complemento').val(c.COMPLEMENTO || '');
@@ -237,25 +207,20 @@ function preencherEdicaoCompleta(detalhes) {
       sincronizarCamposDinamicosHidden();
    }
 
-   // --- 5) Contato ---
    $('#telefone').val(_fmtTelEdicao(c.TELEFONE || ''));
    $('#celular').val(_fmtTelEdicao(c.CELULAR || ''));
    $('#emailCr').val(c.EMAIL || '');
 
-   // --- 6) Inscrições ---
    if (c.INSCRESTADUAL) { $('#docInscricaoEstadual').val(c.INSCRESTADUAL).trigger('input'); }
    if (c.INSCRMUNICIPAL) { $('#docInscricaoMunicipal').val(c.INSCRMUNICIPAL).trigger('input'); }
 
-   // --- 7) Fiscal ---
    if (c.CONTRIBUINTE) { $('#icms').val(c.CONTRIBUINTE).trigger('change'); }
 
-   // Código de Receita IRRF — o value do option é o próprio CODRECEITA.
    if (c.CODRECEITA) {
       $('#selectDescricaoIrrf').val(c.CODRECEITA).trigger('change');
       $('#hiddenCodIrrf').val(c.CODRECEITA);
    }
 
-   // Natureza de Rendimentos — o option certo é o que tem data-idnat = IDNATRENDIMENTO.
    if (c.IDNATRENDIMENTO) {
       var $optNat = $('#naturezaRendimento option').filter(function () {
          return String($(this).data('idnat')) === String(c.IDNATRENDIMENTO);
@@ -266,11 +231,9 @@ function preencherEdicaoCompleta(detalhes) {
       $('#idNatRendimento').val(c.IDNATRENDIMENTO);
    }
 
-   // Simples Nacional (toggle com hidden 0/1)
    var simples = (c.OPTANTEPELOSIMPLES || '0').toString().trim();
    $('#simplesNacional').val(simples === '1' ? '1' : '0').trigger('change');
 
-   // --- 8) Pessoa Física ---
    if (categoria === 'F') {
       $('#docRg').val(c.RG || '');
       $('#docRgOrgao').val(c.CI_ORGAO || '');
@@ -280,8 +243,7 @@ function preencherEdicaoCompleta(detalhes) {
       $('#numDependentes').val(c.NUMDEPENDENTES || '0');
    }
 
-   // --- 9) Dados da tabela auxiliar (não vão ao RM): regime, retenções, CNAE, grupos.
-   //        Se não houver registro, os campos ficam em branco para o usuário preencher. ---
+
    var aux = detalhes.auxiliar || {};
 
    // Regime fiscal
@@ -289,7 +251,7 @@ function preencherEdicaoCompleta(detalhes) {
       $('#regimeFiscal').val(aux.REGIME_FISCAL).trigger('change');
    }
 
-   // Retenções (toggle geral + impostos)
+   // Retenções
    var temRetencao = (aux.RETENCAO_INSS === 'S' || aux.RETENCAO_CSLL === 'S' ||
                       aux.RETENCAO_PIS === 'S' || aux.RETENCAO_COFINS === 'S');
    if (temRetencao) {
@@ -302,11 +264,9 @@ function preencherEdicaoCompleta(detalhes) {
       });
    }
 
-   // E-mail comercial / site (também ficam na auxiliar, não no RM)
    if (aux.EMAIL_COMERCIAL) { $('#emailComercial').val(aux.EMAIL_COMERCIAL); }
    if (aux.WEBSITE) { $('#site').val(aux.WEBSITE); }
 
-   // CNAE principal (texto) + secundários
    var cnaes = detalhes.cnaes || [];
    var cnaePrinc = null;
    var cnaesSec = [];
@@ -329,7 +289,6 @@ function preencherEdicaoCompleta(detalhes) {
       preencherCnaesSecundarios(cnaesSec);
    }
 
-   // Grupos de mercadoria (principal + secundários) — o value do select é a descrição
    var grupos = detalhes.grupos || [];
    if (grupos.length) {
       $('#grupoMercadoria1').val((grupos[0].DESCRICAO || '')).trigger('change');
@@ -341,31 +300,21 @@ function preencherEdicaoCompleta(detalhes) {
       }
    }
 
-   // --- 10) Bancos ---
    preencherBancosEdicao(detalhes.bancos || []);
    $('#idpgtoBoletoEdicao').val((detalhes.boletoIdpgto || '').toString());
 
-   // --- 11) Estado de edição (persistido no card) ---
    $('#codcfoEdicao').val((c.CODCFO || '').toString());
    $('#coligadaEdicao').val((c.CODCOLIGADA || '').toString());
    $('#idcfoEdicao').val((c.IDCFO || '').toString());
    globalThis._modoEdicao = true;
 
-   // Libera as verificações de duplicidade para edições manuais posteriores.
-   // setTimeout cobre qualquer disparo assíncrono remanescente dos triggers acima.
    setTimeout(function () {
       globalThis._preenchendoEdicao = false;
-      capturarSnapshotEdicao(); // dados do RM já preenchidos e estáveis = snapshot original
+      capturarSnapshotEdicao();
    }, 800);
 
-   // NOTA: retenções (painel de impostos) e CNAEs secundários ainda não são
-   // restaurados aqui — dependem de comportamento de UI a validar em homologação.
 }
 
-/**
- * Preenche as contas bancárias nos hidden e reconstrói os cards via
- * inicializarDadosBancarios() (que lê os hidden e recria a UI).
- */
 function preencherBancosEdicao(bancos) {
    for (var i = 1; i <= 5; i++) {
       $('#hiddenBanco' + i + 'Cod').val('');
@@ -396,7 +345,6 @@ function preencherBancosEdicao(bancos) {
       });
    }
 
-   // Guarda idpgto/ativo das contas do RM para a UI travar e permitir inativar.
    globalThis._contasRmEdicao = contasRm;
 
    if (typeof inicializarDadosBancarios === 'function') {
@@ -405,29 +353,21 @@ function preencherBancosEdicao(bancos) {
    aplicarBancosEdicaoReadonly();
 }
 
-/**
- * Trava as contas vindas do RM (não editáveis), remove o botão "Remover" e
- * adiciona um toggle "Conta ativa" em cada uma. Contas adicionadas depois pelo
- * usuário permanecem editáveis.
- */
 function aplicarBancosEdicaoReadonly() {
    var contas = globalThis._contasRmEdicao || [];
 
    $('#dados-bancarios-cards .bank-card').each(function (idx) {
       var $card = $(this);
-      if ($card.attr('data-rm') === '1') { return; } // já tratado
+      if ($card.attr('data-rm') === '1') { return; } 
 
       var info = contas[idx] || {};
       $card.attr('data-rm', '1');
       $card.attr('data-idpgto', info.idpgto || '');
 
-      // Campos travados (não pode editar uma conta existente).
       $card.find('select, input[type="text"]').prop('disabled', true).addClass('campo-bloqueado');
 
-      // Não pode remover conta existente — só inativar.
       $card.find('.btn-remove-bank').remove();
 
-      // Toggle "Conta ativa".
       var ativo = String(info.ativo) !== '0';
       if (!$card.find('.chk-conta-ativa').length) {
          $card.find('.bank-card-head').append(
@@ -442,10 +382,7 @@ function aplicarBancosEdicaoReadonly() {
    montarBancosEdicaoJson();
 }
 
-/**
- * Lê todos os cards (do RM + novos) e grava o estado das contas no hidden
- * #bancosEdicaoJson, que o servicetask16 usa na edição (idpgto/ativo/novo).
- */
+
 function montarBancosEdicaoJson() {
    if (!ehModoEdicao()) { return; }
 
@@ -480,7 +417,6 @@ function montarBancosEdicaoJson() {
    $('#bancosEdicaoJson').val(JSON.stringify(contas));
 }
 
-// Campos comparados para realçar o que o solicitante alterou (Validação/Correção).
 var CAMPOS_EDICAO_COMPARAR = [
    'classificacao', 'categoria', 'tipo',
    'docCnpj', 'docCpf',
@@ -497,7 +433,6 @@ function _normValorEdicao(v) {
    return (v || '').toString().replace(/[\s.\-\/()]/g, '').toUpperCase();
 }
 
-/** Captura os valores atuais (vindos do RM) num snapshot persistido no card. */
 function capturarSnapshotEdicao() {
    var snap = {};
    for (var i = 0; i < CAMPOS_EDICAO_COMPARAR.length; i++) {
@@ -507,7 +442,6 @@ function capturarSnapshotEdicao() {
    $('#snapshotEdicaoRM').val(JSON.stringify(snap));
 }
 
-/** Realça (amarelo) os campos cujo valor difere do snapshot original do RM. */
 function realcarCamposAlterados() {
    var raw = ($('#snapshotEdicaoRM').val() || '').toString();
    if (!raw) { return; }
@@ -524,9 +458,6 @@ function realcarCamposAlterados() {
    }
 }
 
-/**
- * Entra em modo edição: revela o formulário e esconde a etapa de Documentação.
- */
 function entrarModoEdicao() {
    globalThis._modoEdicao = true;
 
@@ -538,7 +469,6 @@ function entrarModoEdicao() {
    }
 }
 
-/* Helpers de formatação locais (caem para as funções globais se existirem). */
 function _fmtCepEdicao(cep) {
    if (typeof formatarCep === 'function') { return formatarCep(cep); }
    var d = (cep || '').toString().replace(/\D/g, '');
@@ -549,8 +479,6 @@ function _fmtTelEdicao(tel) {
    return tel;
 }
 
-// Mantém o JSON das contas (#bancosEdicaoJson) atualizado conforme o usuário
-// inativa, edita ou adiciona contas na edição.
 $(function () {
    $(document).on('change', '.chk-conta-ativa', function () {
       $(this).closest('.bank-card').toggleClass('conta-inativa', !$(this).is(':checked'));
