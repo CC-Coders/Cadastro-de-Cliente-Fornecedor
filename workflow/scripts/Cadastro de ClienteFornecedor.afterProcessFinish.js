@@ -1,12 +1,4 @@
-/**
- * Evento disparado quando o processo é finalizado.
- * Notifica o solicitante por e-mail com o link da solicitação concluída.
- *
- * @param {string} colleagueId    - usuário que concluiu a última atividade
- * @param {string} processId      - número da solicitação finalizada
- * @param {number} threadSequence - sequência da thread
- * @param {java.util.List} userList - responsáveis (não utilizado aqui)
- */
+
 function afterProcessFinish(colleagueId, processId, threadSequence, userList) {
     try {
         var solicitante = hAPI.getCardValue("solicitante");
