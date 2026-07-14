@@ -1,57 +1,59 @@
+// INTEGRAÇÃO COM RM: CRIA/ATUALIZA CFO (CLIENTE/FORNECEDOR) E CONTATOS
 function servicetask16(attempt, message) {
 
     var COLIGADA = "1";
     var COLIGADAS_BANCO = ["1", "2", "5", "6", "12", "13"];
 
-    function f(nome) {
+    // Lê um campo do card como string (trim); "" se nulo.
+    function clienteForncedor(nome) {
         return String(hAPI.getCardValue(nome) || "").trim();
     }
 
-    var categoria     = f("categoria");   
-    var classificacao = f("classificacao");   
-    var tipo          = f("tipo");            
+    var categoria     = clienteForncedor("categoria");   
+    var classificacao = clienteForncedor("classificacao");   
+    var tipo          = clienteForncedor("tipo");            
 
-    var razaoSocial   = f("razaoSocial");
-    var nomeFantasia  = f("nomeFantasia");
+    var razaoSocial   = clienteForncedor("razaoSocial");
+    var nomeFantasia  = clienteForncedor("nomeFantasia");
     var nomeRM        = razaoSocial;
 
-    var cnpj          = f("docCnpj").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
-    var cpf           = f("docCpf").replace(/\D/g, "");
+    var cnpj          = clienteForncedor("docCnpj").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+    var cpf           = clienteForncedor("docCpf").replace(/\D/g, "");
     var cgc           = (categoria === "J") ? cnpj : cpf;
 
-    var rg            = f("docRg");
-    var rgOrgao       = f("docRgOrgao");
-    var rgUf          = f("docRgUf");
-    var dtNascimento  = f("dtNascimento");
-    var estadoCivil   = f("estadoCivil");
-    var numDependentes= f("numDependentes") || "0";
+    var rg            = clienteForncedor("docRg");
+    var rgOrgao       = clienteForncedor("docRgOrgao");
+    var rgUf          = clienteForncedor("docRgUf");
+    var dtNascimento  = clienteForncedor("dtNascimento");
+    var estadoCivil   = clienteForncedor("estadoCivil");
+    var numDependentes= clienteForncedor("numDependentes") || "0";
 
-    var inscEstadual  = f("docInscricaoEstadual");
-    var inscMunicipal = f("docInscricaoMunicipal");
+    var inscEstadual  = clienteForncedor("docInscricaoEstadual");
+    var inscMunicipal = clienteForncedor("docInscricaoMunicipal");
 
-    var endereco      = f("endereco");
-    var numero        = f("numero");
-    var complemento   = f("complemento").substring(0, 40);
-    var bairro        = f("bairro");
-    var cidade        = f("cidade");
-    var estado        = f("estado");
-    var cep           = f("cep");
-    var codMunicipio  = f("codMunicipio");
+    var endereco      = clienteForncedor("endereco");
+    var numero        = clienteForncedor("numero");
+    var complemento   = clienteForncedor("complemento").substring(0, 40);
+    var bairro        = clienteForncedor("bairro");
+    var cidade        = clienteForncedor("cidade");
+    var estado        = clienteForncedor("estado");
+    var cep           = clienteForncedor("cep");
+    var codMunicipio  = clienteForncedor("codMunicipio");
 
-    var telefone      = f("telefone");
-    var celular       = f("celular");
-    var emailCr       = f("emailCr") || f("emailAdministrativo") || f("emailComercial");
+    var telefone      = clienteForncedor("telefone");
+    var celular       = clienteForncedor("celular");
+    var emailCr       = clienteForncedor("emailCr") || clienteForncedor("emailAdministrativo") || clienteForncedor("emailComercial");
 
 
-    var estrangeiro       = f("hiddenToggleEstrangeiro") === "on";
-    var docEstrangeiro    = f("docEstrangeiro");
+    var estrangeiro       = clienteForncedor("hiddenToggleEstrangeiro") === "on";
+    var docEstrangeiro    = clienteForncedor("docEstrangeiro");
     var nacionalidade     = estrangeiro ? "1" : "0";
 
-    var contribuinte  = f("icms")           || "0";
-    var simplesNac    = f("simplesNacional") || "0";
+    var contribuinte  = clienteForncedor("icms")           || "0";
+    var simplesNac    = clienteForncedor("simplesNacional") || "0";
     var retencaoIss   = "0";
-    var codReceita    = f("hiddenCodIrrf") || f("codIrrf") || "";
-    var natRendimento = f("idNatRendimento") || "";
+    var codReceita    = clienteForncedor("hiddenCodIrrf") || clienteForncedor("codIrrf") || "";
+    var natRendimento = clienteForncedor("idNatRendimento") || "";
 
     var mapPagrec = { "1": "2", "2": "1", "3": "3" };
     var pagrec = mapPagrec[classificacao] || "1";
@@ -80,6 +82,9 @@ function servicetask16(attempt, message) {
     }
 
 
+    // Envia o XML ao DataServer do RM via dataset ds_saveRecordRM.
+    // coligadaOverride: usa a coligada informada (default COLIGADA).
+    // Retorna o código gerado (ex.: CODCFO) ou ""; lança Error se STATUS != SUCCESS.
     function chamarRM(dataServerName, xml, coligadaOverride) {
         var col = coligadaOverride || COLIGADA;
         log.info("[ST16] Chamando ds_saveRecordRM ? " + dataServerName + " | coligada=" + col);
@@ -128,10 +133,9 @@ function servicetask16(attempt, message) {
     }
 
     // Edição: havendo CODCFO de edição, o RM ATUALIZA o registro (não cria).
-    // Sem ele, mantém o comportamento de criação (-1 / coligada 0 / IDCFO 0).
-    var codcfoEdicao   = f("codcfoEdicao");
-    var coligadaEdicao = f("coligadaEdicao");
-    var idcfoEdicao    = f("idcfoEdicao");
+    var codcfoEdicao   = clienteForncedor("codcfoEdicao");
+    var coligadaEdicao = clienteForncedor("coligadaEdicao");
+    var idcfoEdicao    = clienteForncedor("idcfoEdicao");
     var ehEdicao = (codcfoEdicao && codcfoEdicao !== "-1" && codcfoEdicao !== "0");
 
     var codcfoXml   = ehEdicao ? codcfoEdicao   : "-1";
@@ -139,6 +143,11 @@ function servicetask16(attempt, message) {
     var idcfoXml    = ehEdicao ? idcfoEdicao    : "0";
 
     log.info("[ST16] Modo " + (ehEdicao ? ("EDIÇÃO/UPDATE CODCFO=" + codcfoEdicao) : "CRIAÇÃO de novo CFO"));
+
+    // Contatos do Cli/For (FCFOCONTATO) são gravados via JDBC DEPOIS do CFO
+    // (o FinCFODataBR ignora a coleção filha por XML). Ver salvarContatosRM().
+    var emailComercial      = clienteForncedor("emailComercial");
+    var emailAdministrativo = clienteForncedor("emailAdministrativo");
 
     var xmlCfo =
         "<FinCFOBR>" +
@@ -204,8 +213,14 @@ function servicetask16(attempt, message) {
         log.error("[ST16] Erro ao gravar URL Fluig em FCFOCOMPL (não interrompe): " + eUrl);
     }
 
+    try {
+        salvarContatosRM(codCfo, "0", emailComercial, emailAdministrativo, celular);
+    } catch (eCont) {
+        log.error("[ST16] Erro ao salvar contatos FCFOCONTATO (não interrompe): " + eCont);
+    }
 
-    var bancosEdicaoJson = f("bancosEdicaoJson");
+
+    var bancosEdicaoJson = clienteForncedor("bancosEdicaoJson");
     var ehEdicaoBancos = ehEdicao && bancosEdicaoJson && bancosEdicaoJson !== "[]";
 
     if (ehEdicaoBancos) {
@@ -215,7 +230,7 @@ function servicetask16(attempt, message) {
             log.error("[ST16] bancosEdicaoJson inválido: " + eJsonEd);
         }
 
-        var idpgtoBoletoEd = parseInt(f("idpgtoBoletoEdicao"), 10) || 0;
+        var idpgtoBoletoEd = parseInt(clienteForncedor("idpgtoBoletoEdicao"), 10) || 0;
 
         var maxIdEd = idpgtoBoletoEd;
         for (var mi = 0; mi < contasEd.length; mi++) {
@@ -300,10 +315,10 @@ function servicetask16(attempt, message) {
     var idPgto = 0;
 
     for (var i = 1; i <= 5; i++) {
-        var bancoCod  = f("hiddenBanco" + i + "Cod");
-        var bancoDesc = f("hiddenBanco" + i + "Desc");
-        var agencia   = f("hiddenBanco" + i + "Agencia");
-        var conta     = f("hiddenBanco" + i + "Conta");
+        var bancoCod  = clienteForncedor("hiddenBanco" + i + "Cod");
+        var bancoDesc = clienteForncedor("hiddenBanco" + i + "Desc");
+        var agencia   = clienteForncedor("hiddenBanco" + i + "Agencia");
+        var conta     = clienteForncedor("hiddenBanco" + i + "Conta");
 
         log.info("[ST16] Banco " + i + " — cod=" + bancoCod + " | agencia=" + agencia + " | conta=" + conta + " | desc=" + bancoDesc);
 
@@ -390,8 +405,7 @@ function servicetask16(attempt, message) {
 
 }
 
-
-
+// EVITA CARACTERES ESPECIAIS NO ENVIO AO RM
 function x(s) {
     return (s || "").toString()
         .replace(/&/g,  "&amp;")
@@ -400,10 +414,10 @@ function x(s) {
         .replace(/"/g,  "&quot;");
 }
 
-
-// TABELAS AUXILIARES — FCFO_AUXILIAR / FCFO_AUXILIAR_CNAE / FCFO_AUXILIAR_GRUPO
+// GRAVA DADOS AUXILIARES DO CFO
 function salvarFcfoAuxiliar(codCfo, coligada) {
 
+    // Lê um campo do card como string (trim); "" se nulo.
     function fv(nome) {
         return String(hAPI.getCardValue(nome) || "").trim();
     }
@@ -444,7 +458,7 @@ function salvarFcfoAuxiliar(codCfo, coligada) {
                 { t: "int", v: numProces   },
                 { t: "ts",  v: tsAbertura  }, 
                 { t: "str", v: fv("solicitante") || "sistema" },
-                { t: "str", v: fv("regimeFiscal")             },  
+                { t: "str", v: fv("regimeFiscal") || fv("regimeFiscalHidden") },
                 { t: "str", v: retInss    },
                 { t: "str", v: retCsll    },
                 { t: "str", v: retPis     },
@@ -548,7 +562,7 @@ function salvarFcfoAuxiliar(codCfo, coligada) {
     log.info("[ST16-AUX] Processamento das tabelas auxiliares concluído. CODCFO=" + codCfo);
 }
 
-
+// SEPARA O CÓDIGO E DESCRIÇÃO DO CNAE
 function _parseCnae(valor) {
     var v   = String(valor || "").trim();
     var sep = " — "; // " — "
@@ -563,6 +577,7 @@ function _parseCnae(valor) {
     return { codigo: v, descricao: "" };
 }
 
+// BUSCA O CODTB2FAT DE UM GRUPO DE MERCADORIA EXISTENTE PELO NOME
 function _buscarCodTb2Fat(descricao) {
     var conn = null;
     var stmt = null;
@@ -589,8 +604,114 @@ function _buscarCodTb2Fat(descricao) {
     }
 }
 
+// BUSCA O IDCONTATO DE UM CONTATO EXISTENTE PELO FCFOCONTATO
+function _buscarIdContato(codcfo, coligada, nome) {
+    var conn = null;
+    var stmt = null;
+    try {
+        var ic = new javax.naming.InitialContext();
+        var ds = ic.lookup("/jdbc/RM");
+        conn = ds.getConnection();
+        stmt = conn.prepareStatement(
+            "SELECT TOP 1 IDCONTATO FROM FCFOCONTATO WHERE CODCFO=? AND CODCOLIGADA=? AND NOME=?"
+        );
+        stmt.setString(1, String(codcfo));
+        stmt.setInt(2, parseInt(coligada, 10));
+        stmt.setString(3, nome);
+        var rs = stmt.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1);
+        }
+        return null;
+    } catch (e) {
+        log.warn("[ST16] Erro ao buscar contato '" + nome + "': " + e);
+        return null;
+    } finally {
+        if (stmt != null) try { stmt.close(); } catch (_) {}
+        if (conn != null) try { conn.close(); } catch (_) {}
+    }
+}
 
+// INSERE OU ATUALIZA OS CONTATOS DO CFO (FCFOCONTATO) NO RM, APÓS A CRIAÇÃO DO CFO
+function salvarContatosRM(codCfo, coligada, emailComercial, emailAdministrativo, celular) {
+    var codcfoStr   = String(codCfo);          // CODCFO é varchar no RM
+    var coligadaInt = parseInt(coligada, 10);
 
+    var lista = [
+        { nome: "E-mail Comercial",     email: emailComercial,      tel: celular },
+        { nome: "E-mail Administrativo", email: emailAdministrativo, tel: celular }
+    ];
+
+    for (var i = 0; i < lista.length; i++) {
+        var c = lista[i];
+        if (!c.email && !c.tel) { continue; }
+
+        try {
+            var idEx = _buscarIdContato(codcfoStr, coligadaInt, c.nome);
+            if (idEx) {
+                _execSql(
+                    "UPDATE FCFOCONTATO SET EMAIL=?, TELEFONE=?, ATIVO=1 " +
+                    "WHERE CODCOLIGADA=? AND CODCFO=? AND IDCONTATO=?",
+                    [
+                        { t: "str", v: c.email },
+                        { t: "str", v: c.tel   },
+                        { t: "int", v: coligadaInt },
+                        { t: "str", v: codcfoStr   },
+                        { t: "int", v: idEx        }
+                    ],
+                    "/jdbc/RM"
+                );
+                log.info("[ST16] Contato atualizado: " + c.nome + " (IDCONTATO=" + idEx + ")");
+            } else {
+                var proxId = _proximoIdContato(codcfoStr, coligadaInt);
+                _execSql(
+                    "INSERT INTO FCFOCONTATO (CODCOLIGADA, CODCFO, IDCONTATO, NOME, EMAIL, TELEFONE, ATIVO, " +
+                    "RECCREATEDBY, RECCREATEDON, RECMODIFIEDBY, RECMODIFIEDON) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, 1, 'fluig', GETDATE(), 'fluig', GETDATE())",
+                    [
+                        { t: "int", v: coligadaInt },
+                        { t: "str", v: codcfoStr   },
+                        { t: "int", v: proxId      },
+                        { t: "str", v: c.nome      },
+                        { t: "str", v: c.email     },
+                        { t: "str", v: c.tel       }
+                    ],
+                    "/jdbc/RM"
+                );
+                log.info("[ST16] Contato inserido: " + c.nome + " (IDCONTATO=" + proxId + ")");
+            }
+        } catch (e) {
+            log.warn("[ST16] Falha ao gravar contato '" + c.nome + "': " + e);
+        }
+    }
+}
+
+// GERA O PRÓXIMO IDCONTATO PARA UM CFO/CONTATO NO RM (FCFOCONTATO)
+function _proximoIdContato(codcfo, coligada) {
+    var conn = null;
+    var stmt = null;
+    try {
+        var ic = new javax.naming.InitialContext();
+        var ds = ic.lookup("/jdbc/RM");
+        conn = ds.getConnection();
+        stmt = conn.prepareStatement(
+            "SELECT ISNULL(MAX(IDCONTATO),0)+1 FROM FCFOCONTATO WHERE CODCOLIGADA=? AND CODCFO=?"
+        );
+        stmt.setInt(1, parseInt(coligada, 10));
+        stmt.setString(2, String(codcfo));
+        var rs = stmt.executeQuery();
+        if (rs.next()) { return rs.getInt(1); }
+        return 1;
+    } catch (e) {
+        log.warn("[ST16] Erro ao obter próximo IDCONTATO: " + e);
+        return 1;
+    } finally {
+        if (stmt != null) try { stmt.close(); } catch (_) {}
+        if (conn != null) try { conn.close(); } catch (_) {}
+    }
+}
+
+// EXECUTA UM SQL (INSERT/UPDATE/DELETE) NO RM OU OUTRO DATASOURCE, COM PARÂMETROS
 function _execSql(sql, params, dataSource) {
     var conn = null;
     var stmt = null;
@@ -625,14 +746,45 @@ function _execSql(sql, params, dataSource) {
     }
 }
 
+//  URL DO FLUIG PARA GRAVAR NO RM
+var _urlFluigCache = null;
+function obterUrlFluig() {
+    if (_urlFluigCache) { return _urlFluigCache; }
+    var url = "http://fluig.castilho.com.br:1010";
+    try {
+        var ds = DatasetFactory.getDataset("dsGetServerURL", null, null, null);
+        if (ds != null && ds.rowsCount > 0) {
+            var achou = "";
+            var candidatos = ["url", "URL", "serverURL", "SERVER_URL", "server_url"];
+            for (var c = 0; c < candidatos.length && !achou; c++) {
+                try {
+                    var v = ds.getValue(0, candidatos[c]);
+                    if (v && /^https?:\/\//i.test(String(v))) { achou = String(v).trim(); }
+                } catch (eC) {}
+            }
+            if (!achou) { 
+                try {
+                    var cols = ds.getColumnsName();
+                    for (var i = 0; i < cols.size() && !achou; i++) {
+                        var val = ds.getValue(0, cols.get(i));
+                        if (val && /^https?:\/\//i.test(String(val))) { achou = String(val).trim(); }
+                    }
+                } catch (eCols) {}
+            }
+            if (achou) { url = achou; }
+        }
+    } catch (e) {
+        log.warn("[URL] Falha ao consultar dsGetServerURL, usando fallback: " + e);
+    }
+    _urlFluigCache = url;
+    return url;
+}
 
+// GRAVA A URL DO FLUIG NO RM (FCFOCOMPL.FLUIG) PARA O CFO CRIADO
 function salvarUrlFluigRM(codCfo) {
 
-    // var URL_FLUIG = "http://fluig.castilho.com.br:1010";       // Produção
-    var URL_FLUIG = "http://homologacao.castilho.com.br:2020";    // Homologação
-
     var numProces = getValue("WKNumProces");
-    var link = URL_FLUIG + "/portal/p/1/pageworkflowview?app_ecm_workflowview_detailsProcessInstanceID=" + numProces;
+    var link = obterUrlFluig() + "/portal/p/1/pageworkflowview?app_ecm_workflowview_detailsProcessInstanceID=" + numProces;
 
     var codCfoInt = parseInt(codCfo, 10);
 

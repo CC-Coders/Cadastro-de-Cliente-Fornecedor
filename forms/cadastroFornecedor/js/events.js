@@ -1,4 +1,5 @@
 
+// AO CARREGAR A PÁGINA, SE HOUVER CNPJ, BUSCA OS DADOS E POPULA O FORMULÁRIO.
 $(globalThis).on("load", function () {
    setTimeout(function () {
       const cnpj = ($("#docCnpj").val() || "").replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
@@ -16,8 +17,10 @@ $(globalThis).on("load", function () {
    }, 300);
 });
 
+// GUARDA A CATEGORIA ANTERIOR PARA COMPARAÇÃO AO TROCAR DE CATEGORIA (PJ->PF COM ANEXOS).
 let categoriaAnterior = "";
 
+// REGISTRA TODOS OS HANDLERS DE EVENTOS DO FORMULÁRIO 
 function bindEventos() {
    bindEventosCamposBasicos();
    bindEventosDocumentos();
@@ -33,6 +36,8 @@ function bindEventos() {
    bindEventosDecisao();               
    bindEventosDadosBancarios();        
 }
+
+// HANDLERS DE DADOS BANCÁRIOS
 function bindEventosDadosBancarios() {
    $(document).on("click", "#btn-add-conta-bancaria", adicionarContaBancaria);
 
@@ -64,6 +69,8 @@ function bindEventosDadosBancarios() {
       }
    });
 }
+
+// HANDLERS DE DECISÃO
 function bindEventosDecisao() {
    $("#btnAprovar").on("click", function () {
       $("#selectDecisao").val("enviarRm").trigger("change");
@@ -75,6 +82,8 @@ function bindEventosDecisao() {
       destacarBotao(this);
    });
 }
+
+// AO TROCAR DE CATEGORIA, SE HOUVER ANEXOS, CONFIRMA A EXCLUSÃO E LIMPA OS ANEXOS
 function bindEventoTrocaCategoriaComAnexos() {
    categoriaAnterior = ($("#categoria").val() || "").trim();
    $("#categoria")
@@ -124,6 +133,8 @@ function bindEventoTrocaCategoriaComAnexos() {
          categoriaAnterior = novaCategoria;
       });
 }
+
+// SINCRONIZA OS CAMPOS DINÂMICOS (CNAE SECUNDÁRIO E GRUPO DE MERCADORIA) PARA OS HIDDEN CORRESPONDENTES
 function bindEventosCamposDinamicos() {
    $(document).on(
       "change input",
@@ -132,6 +143,8 @@ function bindEventosCamposDinamicos() {
    );
    sincronizarCamposDinamicosHidden();
 }
+
+// HANDLERS DE CAMPOS BÁSICOS
 function bindEventosCamposBasicos() {
    $(document).on("input change", ".form-control[required]", function () {
       limparErroCampoObrigatorioPreenchido(this);
@@ -157,6 +170,8 @@ function bindEventosCamposBasicos() {
    $("#tipo").on("change", controlarRetencaoPorTipo);
    $("#classificacao").on("change", controlarCamposClassificacao);
 }
+
+// HANDLERS DE DOCUMENTOS
 function bindEventosDocumentos() {
    $("#docCnpj").on("input", function () {
       validarDocumentoDigitado({
@@ -231,6 +246,8 @@ function bindEventosDocumentos() {
 
    $("#docCnpj").on("blur keyup", controlarAlertaCnpj);
 }
+
+// HANDLERS DE ENDEREÇO
 function bindEventosEndereco() {
    $("#cep").on("blur", function () {
       const cep = ($(this).val() || "").replaceAll(/\D/g, "");
@@ -281,6 +298,8 @@ function bindEventosEndereco() {
       if (nome) limparErroCampo("cidade");
    });
 }
+
+// HANDLERS DE RETENÇÃO
 function bindEventosRetencao() {
 
    $("#toggleRetencao").on("change", function () {
@@ -308,6 +327,8 @@ function bindEventosRetencao() {
       validarPainelRetencaoVisual();
    });
 }
+
+// HANDLERS DE DEPENDENTES
 function bindEventosDependentes() {
    $("#toggleDependentes")
       .off("change.dependentes")
@@ -316,6 +337,8 @@ function bindEventosDependentes() {
          controlarCamposDependentes();
       });
 }
+
+// HANDLERS DE SIMPLES NACIONAL
 function bindEventosSimplesNacional() {
    $("#toggleSimplesNacional")
       .off("change.simplesNacional")
@@ -325,6 +348,8 @@ function bindEventosSimplesNacional() {
          $("#simplesNacional").val(ativo ? "1" : "0");
       });
 }
+
+// HANDLERS DE CNAE SECUNDÁRIO
 function bindEventosCnaeSecundario() {
 
    $("#btn-add-cnae").off("click.cnae").on("click.cnae", adicionarCnae);
@@ -340,6 +365,8 @@ function bindEventosCnaeSecundario() {
       }
    });
 }
+
+// HANDLERS DE GRUPO DE MERCADORIA
 function bindEventosGrupoMercadoria() {
    $("#btn-add-grupo-mercadoria").off("click.grupo").on("click.grupo", function () {
       adicionarGrupoMercadoria();
@@ -350,13 +377,18 @@ function bindEventosGrupoMercadoria() {
    });
 
    $(document).on("click", ".btn-remove-grupo-mercadoria", function () {
+      $("#acaoGrupoMercadoria1").append($("#btn-add-grupo-mercadoria"));
+
       $(this).closest(".grupo-mercadoria-item").remove();
 
       reordenarGruposMercadoria();
       sincronizarCamposDinamicosHidden();
+      reposicionarBotaoAdicionarGrupo();
       controlarBotaoAdicionarGrupoMercadoria();
    });
 }
+
+// HANDLERS DE UPLOAD
 function bindEventosUpload() {
 
    $(document).off("click", ".upload-file-remove");
@@ -372,19 +404,23 @@ function bindEventosUpload() {
       const nomeArquivo = ($("#" + hiddenNome).val() || "").trim();
       let docId = ($("#" + hiddenId).val() || "").trim();
 
+      if (docId === "0") {
+         docId = "";
+      }
+
       if (!docId && nomeArquivo) {
          docId = buscarIdAnexoPorNome(nomeArquivo);
       }
 
-      if (!docId) {
-         console.warn("Não foi possível localizar o docId do anexo:", sufixoCampo, nomeArquivo);
+      if (!docId && !nomeArquivo) {
+         console.warn("Não foi possível identificar o anexo para remover:", sufixoCampo);
          return;
       }
 
       removerAnexoFluig({
-   documentId: docId,
-   nomeArquivo: nomeArquivo
-});
+         documentId: docId,
+         nomeArquivo: nomeArquivo
+      });
 
       aguardarRemocaoConfirmada({
          sufixoCampo: sufixoCampo,
@@ -393,6 +429,8 @@ function bindEventosUpload() {
       });
    });
 }
+
+// DIZ SE EXISTE ANEXO INCLUÍDO (CARTÃO CNPJ, COMPROVANTE BANCÁRIO, CONTRATO, RG/CPF OU COMPROVANTE DE ENDEREÇO)
 function existeAnexoIncluido() {
    let anexos = [
       "anxCartaoCnpj",
@@ -408,6 +446,7 @@ function existeAnexoIncluido() {
    });
 }
 
+// REMOVE OS TOASTS DE REMOÇÃO DE ANEXOS (QUE FICAM VISÍVEIS POR 5 SEGUNDOS) PARA NÃO ATRAPALHAR A VISUALIZAÇÃO DO FORMULÁRIO
 function ocultarToastsRemocaoAnexos() {
    const $p = parent.$;
 
@@ -419,6 +458,8 @@ function ocultarToastsRemocaoAnexos() {
       })
       .remove();
 }
+
+// LIMPA TODOS OS UPLOADS VISUAIS (REMOVE CLASSES DE STATUS E LIMPA OS HIDDENS)
 function limparTodosUploadsVisuais() {
    $(".upload-area").removeClass("uploaded upload-error");
    $(".upload-file-status").hide().empty();
@@ -428,6 +469,8 @@ function limparTodosUploadsVisuais() {
       $("#" + hiddenId + "Id").val("");
    });
 }
+
+// LIMPA O ERRO DE UM CAMPO OBRIGATÓRIO SE ELE ESTIVER PREENCHIDO (EXCETO CPF/CNPJ)
 function limparErroCampoObrigatorioPreenchido(campo) {
    const id = campo.id;
    if (["docCpf", "docCnpj"].includes(id)) {
@@ -438,6 +481,8 @@ function limparErroCampoObrigatorioPreenchido(campo) {
       limparErroCampo(id);
    }
 }
+
+// VALIDA DOCUMENTO
 function validarDocumentoDigitado(config) {
    const valor = $("#" + config.campoId).val() || "";
    const numeros = valor.replaceAll(/\D/g, "");
@@ -456,6 +501,7 @@ function validarDocumentoDigitado(config) {
    aplicarStatusCampo(config.campoId, false);
 }
 
+// FAZ POLLING PARA REMOÇÃO DE ANEXO
 function aguardarRemocaoConfirmada(config) {
    let tentativas = 0;
    const maxTentativas = 30;
@@ -479,6 +525,8 @@ function aguardarRemocaoConfirmada(config) {
       }
    }, 300);
 }
+
+// CONFIRMA AUTOMATICAMENTE AS EXCLUSÕES EM LOTE E OCULTA OS TOASTS DE REMOÇÃO
 function confirmarModaisRemocaoEmLote() {
    const $p = parent.$;
    let tentativas = 0;
@@ -503,6 +551,8 @@ function confirmarModaisRemocaoEmLote() {
       }
    }, 250);
 }
+
+// REMOVE OS ANEXOS INDIVIDUALMENTE COMO ALTERNATIVA, SEM EXIBIR CONFIRMAÇÃO
 function removerTodosAnexosUmPorUmSemPerguntar() {
    const $p = parent.$;
 
@@ -520,6 +570,8 @@ function removerTodosAnexosUmPorUmSemPerguntar() {
       }
    });
 }
+
+// EXCLUI TODOS OS ANEXOS DO PROCESSO E LIMPA O ESTADO VISUAL
 function excluirTodosAnexosDoProcesso() {
    const $p = parent.$;
 

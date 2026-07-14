@@ -1,4 +1,5 @@
 
+// NOTIFICAÇÃO DE FINALIZAÇÃO DE CADASTRO DE CLIENTE/FORNECEDOR
 function afterProcessFinish(colleagueId, processId, threadSequence, userList) {
     try {
         var solicitante = hAPI.getCardValue("solicitante");
@@ -12,27 +13,97 @@ function afterProcessFinish(colleagueId, processId, threadSequence, userList) {
             return;
         }
 
-        var link = URL_FLUIG + "/portal/p/1/pageworkflowview?app_ecm_workflowview_detailsProcessInstanceID=" + processId;
+        var numSolicitacao = getValue("WKNumProces");
+        var link = obterUrlFluig() + "/portal/p/1/pageworkflowview?app_ecm_workflowview_detailsProcessInstanceID=" + numSolicitacao;
 
-        var corpoEmail = "";
-        corpoEmail += "Olá, <br>";
-        corpoEmail += "Sua solicitação nº " + processId + " de <b>Cadastro de Cliente/Fornecedor</b> foi <b>finalizada</b>.<br>";
-        corpoEmail += "<br>";
-        corpoEmail += "Para consultar os detalhes, <a href='" + link + "'>clique aqui</a>.";
+        var codcfoEdicao = String(hAPI.getCardValue("codcfoEdicao") || "").trim();
+        var ehEdicao = codcfoEdicao && codcfoEdicao !== "-1" && codcfoEdicao !== "0";
 
-        enviarEmailFluig(email, "Cadastro de Cliente/Fornecedor finalizado - #" + processId, corpoEmail);
+        var assunto = ehEdicao
+            ? "Cliente/Fornecedor alterado - Nº " + numSolicitacao
+            : "Cadastro de Cliente/Fornecedor finalizado - Nº " + numSolicitacao;
+
+        var corpoEmail = montarCorpoEmailFinalizacao(numSolicitacao, link, ehEdicao, codcfoEdicao);
+
+        enviarEmailFluig(email, assunto, corpoEmail);
     } catch (e) {
         log.error("[E-MAIL] Erro ao notificar finalização: " + e);
     }
 }
 
+// MONTA O CORPO DO E-MAIL DE FINALIZAÇÃO
+function montarCorpoEmailFinalizacao(numSolicitacao, link, ehEdicao, codcfoEdicao) {
+    var statusTexto = ehEdicao ? "ALTERADA" : "FINALIZADA";
+    var statusCor   = ehEdicao ? "#e8821e" : "#27ae60";
 
+    var frase = ehEdicao
+        ? "A solicitação de <b>alteração</b> de Cliente/Fornecedor foi concluída e o cadastro já está atualizado no RM."
+        : "A solicitação de cadastro de Cliente/Fornecedor foi concluída com sucesso.";
 
-// NOTIFICAÇÃO POR E-MAIL 
-var URL_FLUIG = "http://fluig.castilho.com.br:1010";             // Produção
-// var URL_FLUIG = "http://homologacao.castilho.com.br:2020";   // Homologação
+    var detalheCfo = (ehEdicao && codcfoEdicao)
+        ? "<div style=\"font-size:13px; color:#8a6d3b; background:#fcf3e6; border-radius:6px; padding:8px 12px; margin-top:14px;\">Cadastro no RM (código <b>" + codcfoEdicao + "</b>) atualizado.</div>"
+        : "";
 
+    var corpo = "";
+    corpo += "<div style=\"font-family: Arial, Helvetica, sans-serif; color: #2c2c2a;\">";
+    corpo += "<p style=\"font-size:15px; margin:0 0 18px;\">Olá,</p>";
 
+    // Quadro destacado: status + número
+    corpo += "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"border:1px solid #f0e6da; border-radius:12px; background:#faf7f3;\">";
+    corpo += "<tr><td style=\"padding:22px 24px;\">";
+    corpo += "<span style=\"display:inline-block; background:" + statusCor + "; color:#ffffff; font-size:12px; font-weight:bold; padding:5px 14px; border-radius:20px;\">" + statusTexto + "</span>";
+    corpo += "<div style=\"font-size:22px; font-weight:bold; color:#2c2c2a; margin:14px 0 4px;\">Solicitação Nº " + numSolicitacao + "</div>";
+    corpo += "<div style=\"font-size:14px; color:#6f6f6f;\">Cadastro de Cliente/Fornecedor</div>";
+    corpo += detalheCfo;
+    corpo += "</td></tr></table>";
+
+    corpo += "<p style=\"font-size:15px; line-height:1.6; margin:18px 0;\">" + frase + "</p>";
+
+    // Botão
+    corpo += "<table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin:6px 0;\">";
+    corpo += "<tr><td style=\"background:#e8821e; border-radius:8px;\">";
+    corpo += "<a href=\"" + link + "\" style=\"display:inline-block; padding:13px 30px; color:#ffffff; font-size:15px; font-weight:bold; text-decoration:none;\">Ver detalhes da solicitação</a>";
+    corpo += "</td></tr></table>";
+
+    corpo += "</div>";
+    return corpo;
+}
+
+// NOTIFICAÇÃO POR E-MAIL
+var _urlFluigCache = null;
+function obterUrlFluig() {
+    if (_urlFluigCache) { return _urlFluigCache; }
+    var url = "http://fluig.castilho.com.br:1010"; // fallback (produção)
+    try {
+        var ds = DatasetFactory.getDataset("dsGetServerURL", null, null, null);
+        if (ds != null && ds.rowsCount > 0) {
+            var achou = "";
+            var candidatos = ["url", "URL", "serverURL", "SERVER_URL", "server_url"];
+            for (var c = 0; c < candidatos.length && !achou; c++) {
+                try {
+                    var v = ds.getValue(0, candidatos[c]);
+                    if (v && /^https?:\/\//i.test(String(v))) { achou = String(v).trim(); }
+                } catch (eC) {}
+            }
+            if (!achou) { // varre as colunas retornadas e usa a que contém uma URL
+                try {
+                    var cols = ds.getColumnsName();
+                    for (var i = 0; i < cols.size() && !achou; i++) {
+                        var val = ds.getValue(0, cols.get(i));
+                        if (val && /^https?:\/\//i.test(String(val))) { achou = String(val).trim(); }
+                    }
+                } catch (eCols) {}
+            }
+            if (achou) { url = achou; }
+        }
+    } catch (e) {
+        log.warn("[URL] Falha ao consultar dsGetServerURL, usando fallback: " + e);
+    }
+    _urlFluigCache = url;
+    return url;
+}
+
+// RETORNA O E-MAIL DO USUÁRIO FLUIG PELO LOGIN
 function buscaEmailUsuarioFluig(login) {
     var c1 = DatasetFactory.createConstraint("login", login, login, ConstraintType.MUST);
     var dataset = DatasetFactory.getDataset("colleague", null, [c1], null);
@@ -44,7 +115,7 @@ function buscaEmailUsuarioFluig(login) {
     return null;
 }
 
-
+// ENVIAR E-MAIL USANDO O SERVIÇO DE NOTIFICAÇÃO DO FLUIG
 function enviarEmailFluig(email, assunto, corpoEmail) {
     var data = {
         "to": email,
@@ -54,7 +125,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {
         "dialectId": "pt_BR",
         "param": {
             "CORPO_EMAIL": corpoEmail,
-            "SERVER_URL": URL_FLUIG,
+            "SERVER_URL": obterUrlFluig(),
             "TENANT_ID": "1"
         }
     };
@@ -81,7 +152,6 @@ function enviarEmailFluig(email, assunto, corpoEmail) {
     if (vo.getResult() == null || vo.getResult().isEmpty()) {
         throw new Exception("Retorno do envio de e-mail está vazio");
     } else {
-        log.info("[E-MAIL] Enviado para " + email + " | assunto: " + assunto);
         return vo.getResult();
     }
 }

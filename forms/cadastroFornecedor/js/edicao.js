@@ -1,4 +1,5 @@
 
+// ABRE O MODAL DE BUSCA/EDIÇÃO DE CLIENTE/FORNECEDOR (CFO) E INICIALIZA OS HANDLERS.
 function abrirModalEdicao() {
    var corpo = ''
       + '<div class="edicao-busca">'
@@ -51,6 +52,7 @@ function abrirModalEdicao() {
    });
 }
 
+// BUSCA CLIENTE/FORNECEDOR (CFO) NO RM PELO TERMO DIGITADO, CHAMA renderizarResultadosEdicao().
 function buscarCfoParaEdicao() {
    var termo = ($('#edicaoTermoBusca').val() || '').trim();
    if (termo.length < 2) {
@@ -90,7 +92,7 @@ function buscarCfoParaEdicao() {
    }
 }
 
-
+// MONTA A TABELA DE RESULTADOS DA BUSCA DE CLIENTE/FORNECEDOR (CFO) E HABILITA O CLICK PARA SELEÇÃO.
 function renderizarResultadosEdicao(lista) {
    if (!lista || !lista.length) {
       $('#edicaoResultados').html('<div class="edicao-msg">Nenhum cliente/fornecedor encontrado.</div>');
@@ -110,10 +112,10 @@ function renderizarResultadosEdicao(lista) {
       var cidadeUf = ((r.CIDADE || '') + (r.UF ? ' / ' + r.UF : '')).toString();
 
       html += '<tr class="edicao-linha" data-codcfo="' + cod + '" data-coligada="' + col + '">'
-         + '<td>' + cod + '</td>'
-         + '<td>' + nome + '</td>'
-         + '<td>' + doc + '</td>'
-         + '<td>' + cidadeUf + '</td>'
+         + '<td data-label="Código">' + cod + '</td>'
+         + '<td data-label="Nome">' + nome + '</td>'
+         + '<td data-label="CNPJ/CPF">' + doc + '</td>'
+         + '<td data-label="Cidade/UF">' + cidadeUf + '</td>'
          + '</tr>';
    }
    html += '</tbody></table>';
@@ -127,7 +129,7 @@ function renderizarResultadosEdicao(lista) {
    });
 }
 
-
+// CARREGA OS DADOS DO CLIENTE/FORNECEDOR (CFO) SELECIONADO PARA EDIÇÃO, CHAMA preencherEdicaoCompleta().
 function selecionarCfoEdicao(codcfo, coligada) {
    $('#edicaoResultados').prepend('<div class="edicao-msg" id="edicaoCarregando">Carregando dados...</div>');
 
@@ -156,7 +158,7 @@ function selecionarCfoEdicao(codcfo, coligada) {
 
       $('#modalEdicaoCfo').modal('hide');
 
-      FLUIGC.toast({ title: 'Edição', message: 'Dados carregados. Faça as alterações e clique em Enviar.', type: 'success', timeout: 4000 });
+      FLUIGC.toast({ title: 'Edição', message: 'Cadastro carregado para edição.', type: 'success', timeout: 4000 });
 
    } catch (e) {
       console.error('[edicao] Erro ao selecionar CFO:', e);
@@ -165,6 +167,7 @@ function selecionarCfoEdicao(codcfo, coligada) {
    }
 }
 
+// PREENCHE O FORMULÁRIO DE EDIÇÃO COM OS DADOS VINDOS DO RM (cadastro, auxiliar, cnaes, grupos, bancos).
 function preencherEdicaoCompleta(detalhes) {
    var c = (detalhes && detalhes.cadastro) ? detalhes.cadastro : {};
 
@@ -315,6 +318,7 @@ function preencherEdicaoCompleta(detalhes) {
 
 }
 
+// PREENCHE OS CARDS DE CONTAS BANCÁRIAS COM OS DADOS VINDOS DO RM (até 5 contas, preenchendo os hidden).
 function preencherBancosEdicao(bancos) {
    for (var i = 1; i <= 5; i++) {
       $('#hiddenBanco' + i + 'Cod').val('');
@@ -353,6 +357,7 @@ function preencherBancosEdicao(bancos) {
    aplicarBancosEdicaoReadonly();
 }
 
+// TRAVA OS CAMPOS DE CONTAS BANCÁRIAS PARA EDIÇÃO (readonly) E MONTA O JSON PARA O servicetask16.
 function aplicarBancosEdicaoReadonly() {
    var contas = globalThis._contasRmEdicao || [];
 
@@ -382,7 +387,7 @@ function aplicarBancosEdicaoReadonly() {
    montarBancosEdicaoJson();
 }
 
-
+// SERIALIZA AS CONTAS BANCÁRIAS EM JSON PARA O servicetask16 (somente as que têm algum dado preenchido).
 function montarBancosEdicaoJson() {
    if (!ehModoEdicao()) { return; }
 
@@ -417,6 +422,7 @@ function montarBancosEdicaoJson() {
    $('#bancosEdicaoJson').val(JSON.stringify(contas));
 }
 
+// CAMPOS QUE DEVEM SER COMPARADOS COM O SNAPSHOT PARA DETECTAR ALTERAÇÕES (destaque amarelo).
 var CAMPOS_EDICAO_COMPARAR = [
    'classificacao', 'categoria', 'tipo',
    'docCnpj', 'docCpf',
@@ -429,10 +435,12 @@ var CAMPOS_EDICAO_COMPARAR = [
    'docRg', 'docRgOrgao', 'docRgUf', 'dtNascimento', 'estadoCivil', 'numDependentes'
 ];
 
+// NORMALIZA O VALOR PARA COMPARAÇÃO (remove espaços, pontos, traços, parênteses e barras; converte para maiúsculas).
 function _normValorEdicao(v) {
    return (v || '').toString().replace(/[\s.\-\/()]/g, '').toUpperCase();
 }
 
+// SALVA O SNAPSHOT DOS CAMPOS DE EDIÇÃO NO HIDDEN #snapshotEdicaoRM PARA COMPARAÇÃO POSTERIOR.
 function capturarSnapshotEdicao() {
    var snap = {};
    for (var i = 0; i < CAMPOS_EDICAO_COMPARAR.length; i++) {
@@ -442,6 +450,7 @@ function capturarSnapshotEdicao() {
    $('#snapshotEdicaoRM').val(JSON.stringify(snap));
 }
 
+// COMPARA OS CAMPOS DE EDIÇÃO COM O SNAPSHOT SALVO E REALÇA OS QUE FORAM ALTERADOS (classe .campo-alterado).
 function realcarCamposAlterados() {
    var raw = ($('#snapshotEdicaoRM').val() || '').toString();
    if (!raw) { return; }
@@ -458,6 +467,7 @@ function realcarCamposAlterados() {
    }
 }
 
+// ENTRA NO MODO DE EDIÇÃO, MOSTRA O FORMULÁRIO E ESCONDE A TELA DE SELEÇÃO INICIAL
 function entrarModoEdicao() {
    globalThis._modoEdicao = true;
 
@@ -469,16 +479,20 @@ function entrarModoEdicao() {
    }
 }
 
+// FORMATA O CEP (usa formatarCep se existir)
 function _fmtCepEdicao(cep) {
    if (typeof formatarCep === 'function') { return formatarCep(cep); }
    var d = (cep || '').toString().replace(/\D/g, '');
    return d.length === 8 ? d.slice(0, 5) + '-' + d.slice(5) : cep;
 }
+
+// FORMATA O TELEFONE (usa formatarTelefone se existir)
 function _fmtTelEdicao(tel) {
    if (typeof formatarTelefone === 'function') { return formatarTelefone(tel); }
    return tel;
 }
 
+// HANDLERS DAS CONTAS BANCÁRIAS NA EDIÇÃO: RECALCULA O JSON AO MUDAR CONTA/ATIVA/ADICIONAR/REMOVER.
 $(function () {
    $(document).on('change', '.chk-conta-ativa', function () {
       $(this).closest('.bank-card').toggleClass('conta-inativa', !$(this).is(':checked'));

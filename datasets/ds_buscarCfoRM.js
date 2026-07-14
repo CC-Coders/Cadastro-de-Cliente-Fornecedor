@@ -31,16 +31,16 @@ function createDataset(fields, constraints, sortFields) {
 
         if (!temLetras && (soDigitos.length === 11 || soDigitos.length === 14)) {
 
-            queryInterna += "WHERE REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(f.CGCCFO,'.',''),(char(47)),''),(char(45)),''),' ',''),',','') = ? ";
+            queryInterna += "WHERE f.CODCOLIGADA = 0 AND REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(f.CGCCFO,'.',''),(char(47)),''),(char(45)),''),' ',''),',','') = ? ";
             params.push({ type: "string", value: soDigitos });
 
         } else if (!temLetras && soDigitos.length > 0) {
 
-            queryInterna += "WHERE f.CODCFO = ? ";
+            queryInterna += "WHERE f.CODCOLIGADA = 0 AND f.CODCFO = ? ";
             params.push({ type: "int", value: parseInt(soDigitos, 10) });
 
         } else {
-            queryInterna += "WHERE f.NOME LIKE ? OR f.NOMEFANTASIA LIKE ? ";
+            queryInterna += "WHERE f.CODCOLIGADA = 0 AND (f.NOME LIKE ? OR f.NOMEFANTASIA LIKE ?) ";
             var like = "%" + termoBruto + "%";
             params.push({ type: "string", value: like });
             params.push({ type: "string", value: like });
@@ -63,10 +63,7 @@ function createDataset(fields, constraints, sortFields) {
             for (var i = 0; i < keys.length; i++) {
                 mensagem += (keys[i] + ": " + error[keys[i]]) + " - ";
             }
-            log.info("Erro ao executar Dataset:");
-            log.dir(error);
-            log.info(mensagem);
-
+;
             return returnDataset("ERRO", mensagem, null);
         } else {
             return returnDataset("ERRO", error, null);
@@ -112,13 +109,9 @@ function lancaErroSeConstraintsObrigatoriasNaoInformadas(constraints, listConstr
 }
 function executaQuery(query, constraints, dataSorce) {
     try {
-        log.info(query);
-        log.dir(constraints);
-
         var dataSource = dataSorce;
         var ic = new javax.naming.InitialContext();
         var ds = ic.lookup(dataSource);
-
         var conn = ds.getConnection();
         var stmt = conn.prepareStatement(query);
 
@@ -164,10 +157,6 @@ function executaQuery(query, constraints, dataSorce) {
         } else {
             msg = String(error);
         }
-
-        log.error("ERRO==============> " + msg);
-        log.error("Type of error: " + typeof error);
-        log.error("Type of msg: " + typeof msg);
 
         throw "Erro ao executar Dataset: " + msg;
     } finally {

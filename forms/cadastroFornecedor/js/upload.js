@@ -17,10 +17,23 @@ function inicializarUploadsFluig() {
             return;
          }
 
+         const sufixoCampo = obterSufixoUpload(inputId, $area);
+
+         // 1 anexo por card: se já houver um arquivo, exige remover antes.
+         if (cardJaTemAnexo(sufixoCampo)) {
+            FLUIGC.toast({
+               title: "Anexo já incluído",
+               message: "Este documento já possui um anexo. Remova o atual antes de anexar outro.",
+               type: "warning",
+               timeout: 4500
+            });
+            return;
+         }
+
          uploadAtualFluig = {
             inputId: inputId,
             areaId: $area.attr("id"),
-            sufixoCampo: obterSufixoUpload(inputId, $area)
+            sufixoCampo: sufixoCampo
          };
 
          abrirAnexoNativoFluig();
@@ -28,7 +41,10 @@ function inicializarUploadsFluig() {
    });
 
    monitorarInputNativoFluig();
+   iniciarMonitorPainelUploadFluig();
 }
+
+//ABRIR O INPUT NATIVO DE ANEXOS DO FLUIG 
 function abrirAnexoNativoFluig() {
    const $inputFluig = parent.$("#ecm-navigation-inputFile-clone");
 
@@ -44,6 +60,8 @@ function abrirAnexoNativoFluig() {
    $inputFluig.val("");
    $inputFluig.click();
 }
+
+//MONITORA O INPUT NATIVO DE ANEXOS DO FLUIG  PARA VALIDAR E FINALIZAR O UPLOAD
 let _removerProximoAnexo = false;
 function monitorarInputNativoFluig() {
    const $inputFluig = parent.$("#ecm-navigation-inputFile-clone");
@@ -72,10 +90,73 @@ function monitorarInputNativoFluig() {
          return;
       }
 
+      // Backstop de "1 anexo por card" (caso o arquivo entre por outro caminho).
+      if (cardJaTemAnexo(uploadAtualFluig.sufixoCampo)) {
+         _removerProximoAnexo = true;
+         this.value = "";
+         FLUIGC.toast({
+            title: "Anexo já incluído",
+            message: "Este documento já possui um anexo. Remova o atual antes de anexar outro.",
+            type: "warning",
+            timeout: 4500
+         });
+         uploadAtualFluig = null;
+         return;
+      }
+
+      // Não permitir o MESMO arquivo (mesmo nome) em cards diferentes.
+      if (nomeJaAnexadoEmOutroCard(arquivo.name, uploadAtualFluig.sufixoCampo)) {
+         _removerProximoAnexo = true;
+         this.value = "";
+         FLUIGC.toast({
+            title: "Anexo duplicado",
+            message: 'O arquivo "' + arquivo.name + '" já foi anexado em outro documento.',
+            type: "warning",
+            timeout: 4500
+         });
+         uploadAtualFluig = null;
+         return;
+      }
+
       finalizarUploadVisualFluig(uploadAtualFluig, arquivo.name);
       uploadAtualFluig = null;
    });
 }
+
+// HÁ ALGUM ANEXO NO CARD (hidden do anexo preenchido)
+function cardJaTemAnexo(sufixoCampo) {
+   const hiddenNome = getHiddenAnexoId(sufixoCampo);
+   if (!hiddenNome) {
+      return false;
+   }
+   return ($("#" + hiddenNome).val() || "").trim() !== "";
+}
+
+// VERIFICA SE O NOME DO ARQUIVO JÁ FOI ANEXADO EM OUTRO CARD (hidden diferente)
+function nomeJaAnexadoEmOutroCard(nomeArquivo, sufixoAtual) {
+   const alvo = String(nomeArquivo || "").trim().toLowerCase();
+   if (!alvo) {
+      return false;
+   }
+
+   const hiddenAtual = getHiddenAnexoId(sufixoAtual);
+   let duplicado = false;
+
+   Object.keys(MAPA_HIDDEN_ANEXOS).forEach(function (suf) {
+      const hiddenId = MAPA_HIDDEN_ANEXOS[suf];
+      if (hiddenId === hiddenAtual) {
+         return;
+      }
+      const v = ($("#" + hiddenId).val() || "").trim().toLowerCase();
+      if (v && v === alvo) {
+         duplicado = true;
+      }
+   });
+
+   return duplicado;
+}
+
+//INICIA O OBSERVADOR DE ANEXOS INVÁLIDOS PARA REMOVER AUTOMATICAMENTE
 function _iniciarObservadorAnexosInvalidos() {
    try {
       const tbody = parent.document.querySelector("#attachmentsTable tbody");
@@ -115,6 +196,8 @@ function _iniciarObservadorAnexosInvalidos() {
       console.warn("[Upload] Não foi possível iniciar observer:", e);
    }
 }
+
+// CLICA NO BOTÃO DE REMOVER ANEXO DO FLUIG E CONFIRMA A REMOÇÃO
 function _clicarBotaoRemoverFluig(trNode) {
    const $p = parent.$;
    const $linha = $p(trNode);
@@ -148,6 +231,8 @@ function _clicarBotaoRemoverFluig(trNode) {
       }, 80);
    }
 }
+
+// REMOVE A OCULTAÇÃO DO MODAL DE REMOÇÃO AUTOMÁTICA 
 function atualizarContadorAnexosFluig() {
    const $p = parent.$;
 
@@ -161,6 +246,8 @@ function atualizarContadorAnexosFluig() {
       })
       .text(total);
 }
+
+//FINALIZA O UPLOAD VISUAL DO FLUIG (ATUALIZA HIDDEN, STATUS E TOAST)
 function finalizarUploadVisualFluig(config, nomeArquivo) {
    const $area = $("#" + config.areaId);
 
@@ -180,7 +267,84 @@ function finalizarUploadVisualFluig(config, nomeArquivo) {
    $area.closest(".fg").removeClass("has-error has-erro");
 
    montarStatusAnexo(config.sufixoCampo, nomeArquivo);
+
+   FLUIGC.toast({
+      title: "Anexo incluído",
+      message: nomeArquivo,
+      type: "success",
+      timeout: 3000
+   });
 }
+
+// OCULTA O PAINEL NATIVO DE UPLOAD DO FLUIG (NAVEGAÇÃO E PROGRESSO)
+function ocultarPainelUploadNativoFluig() {
+   try {
+      const $p = parent.$;
+      if (!$p) return;
+
+      $p([
+         "#ecm-navigation-upload", ".ecm-navigation-upload",
+         "#upload-files", ".upload-files",
+         "#upload-list", ".upload-list",
+         ".upload-progress", ".upload-progress-container",
+         ".file-upload-progress", "#divUploadFiles"
+      ].join(",")).hide();
+
+      var els = parent.document.getElementsByTagName("*");
+      for (var i = 0; i < els.length; i++) {
+         var el = els[i];
+
+         // texto DIRETO do elemento (ignora descendentes)
+         var direto = "";
+         var ns = el.childNodes || [];
+         for (var j = 0; j < ns.length; j++) {
+            if (ns[j].nodeType === 3) {
+               direto += ns[j].nodeValue;
+            }
+         }
+         direto = direto.replace(/\s+/g, " ").trim().toLowerCase();
+         if (direto.indexOf("upload de arquivos") !== 0) {
+            continue;
+         }
+
+         // sobe até o painel: 1º ancestral (até 8 níveis) que também contém o
+         // progresso — garante que estamos ocultando o painel, não a página.
+         var anc = el.parentNode;
+         var nivel = 0;
+         while (anc && nivel < 8) {
+            var txt = (anc.textContent || "").toLowerCase();
+            if (txt.indexOf("conclu") >= 0 || txt.indexOf("ver detalhes") >= 0) {
+               $p(anc).hide();
+               break;
+            }
+            anc = anc.parentNode;
+            nivel++;
+         }
+      }
+   } catch (e) {
+      console.warn("[Upload] não foi possível ocultar painel nativo do Fluig:", e);
+   }
+}
+
+// OCULTA O PAINEL NATIVO DE UPLOAD DO FLUIG EM INTERVALOS (CASO O FLUIG RE-RENDERIZE)
+function agendarOcultarPainelUpload() {
+   [100, 400, 900, 1600, 3000, 5000].forEach(function (ms) {
+      setTimeout(ocultarPainelUploadNativoFluig, ms);
+   });
+}
+
+// MANTEM O PAINEL NATIVO DE UPLOAD DO FLUIG OCULTO (CASO O FLUIG RE-RENDERIZE)
+function iniciarMonitorPainelUploadFluig() {
+   if (globalThis._monitorPainelUploadAtivo) {
+      return;
+   }
+   globalThis._monitorPainelUploadAtivo = true;
+   setInterval(function () {
+      ocultarPainelUploadNativoFluig(false);
+   }, 1500);
+}
+
+// BUSCA O ID DO ANEXO NO FLUIG PELO NOME (OU "" SE NÃO ENCONTRAR)
 function buscarIdAnexoPorNome(nomeArquivo) {
    const $p = parent.$;
 
@@ -197,8 +361,17 @@ function buscarIdAnexoPorNome(nomeArquivo) {
 
    const codigo = $linha.find("td").eq(2).text().trim();
 
+   // Código "0" = anexo ainda não publicado. NÃO é um id confiável: usado para
+   // remover, faria match com qualquer linha que contenha "0" (código, versão...)
+   // e acabaria removendo o anexo errado. Nesse caso, removemos pelo nome.
+   if (!codigo || codigo === "0") {
+      return "";
+   }
+
    return codigo;
 }
+
+// MONTA O STATUS VISUAL DO ANEXO (NOME + BOTÕES REMOVER/VISUALIZAR)
 function montarStatusAnexo(sufixoCampo, nomeArquivo) {
    const $status = $("#statusFile" + sufixoCampo);
 
@@ -221,6 +394,8 @@ function montarStatusAnexo(sufixoCampo, nomeArquivo) {
       .show(500);
    adicionarBotaoVisualizarAnexo(sufixoCampo, nomeArquivo);
 }
+
+// RESTAURA O STATUS VISUAL DE TODOS OS UPLOADS SALVOS (AO CARREGAR A PÁGINA)
 function restaurarUploadsSalvos() {
    $(".upload-area").each(function () {
       const $area = $(this);
@@ -239,9 +414,13 @@ function restaurarUploadsSalvos() {
       montarStatusAnexo(sufixoCampo, nomeArquivo);
    });
 }
+
+// RETORNA O ID DO HIDDEN DO ANEXO (OU "" SE NÃO MAPEADO)
 function getHiddenAnexoId(sufixoCampo) {
    return MAPA_HIDDEN_ANEXOS[sufixoCampo] || "";
 }
+
+// ADICIONA O BOTÃO DE VISUALIZAR ANEXO (OU BAIXAR, DEPENDENDO DA ATIVIDADE)
 function adicionarBotaoVisualizarAnexo(sufixoCampo, nomeArquivo) {
    const statusId = "#statusFile" + sufixoCampo;
 
@@ -285,6 +464,8 @@ function adicionarBotaoVisualizarAnexo(sufixoCampo, nomeArquivo) {
 
    $status.append(html);
 }
+
+// ABRE O ANEXO NO FLUIG (NOVA ABA OU MODAL)
 function visualizarAnexoFluig(nomeArquivo) {
    const $p = parent.$;
 
@@ -322,7 +503,6 @@ function visualizarAnexoFluig(nomeArquivo) {
    $linha.trigger("dblclick");
 }
 
-
 // ESTADO E MAPEAMENTO DE UPLOAD
 let uploadAtualFluig = null;
 const MAPA_HIDDEN_ANEXOS = {
@@ -338,9 +518,13 @@ const MAPA_HIDDEN_ANEXOS = {
    ConflitoInteresses: "anxConflito",
    CienciaLgpd: "anxLgpd"
 };
+
+// ABRE A ABA DE ANEXOS DO FLUIG (SE ESTIVER OCULTA)
 function abrirAbaAnexosFluig() {
    parent.$("#tab-attachments, #attachments-tab, a[href='#attachments']").first().click();
 }
+
+// RETORNA O SUFIXO DO CAMPO DE UPLOAD (EX: "CartaoCnpj" PARA "fileCartaoCnpj")
 function obterSufixoUpload(inputId, $area) {
    const areaId = $area.attr("id") || "";
 
@@ -354,6 +538,8 @@ function obterSufixoUpload(inputId, $area) {
 
    return "";
 }
+
+// LIMPA O STATUS VISUAL DO UPLOAD (HIDDEN, STATUS, CARD)
 function limparStatusUpload(config) {
    const sufixoCampo = config?.sufixoCampo || "";
    const areaId = config?.areaId || "";
@@ -388,17 +574,25 @@ function limparStatusUpload(config) {
       });
    }, 800);
 }
+
+// VERIFICA SE O ANEXO AINDA EXISTE NA TABELA DE ANEXOS DO FLUIG (PELO ID OU NOME)
 function anexoAindaExisteNoFluig(docId, nomeArquivo) {
    const $p = parent.$;
    const id = String(docId || "").trim();
+   const nome = String(nomeArquivo || "").trim();
 
    const $linha = $p("#attachmentsTable tbody tr").filter(function () {
-      const codigo = $p(this).find("td").eq(2).text().trim();
-      return codigo === id;
+      if (id && id !== "0") {
+         return $p(this).find("td").eq(2).text().trim() === id;
+      }
+      // Sem código confiável: confere pela presença do nome do arquivo na linha.
+      return nome && $p(this).text().replace(/\s+/g, " ").trim().indexOf(nome) >= 0;
    }).first();
 
    return $linha.length > 0;
 }
+
+// LIMPA O STATUS VISUAL DO UPLOAD (HIDDEN, STATUS, CARD) APÓS CONFIRMAÇÃO DE REMOÇÃO
 function limparVisualUploadConfirmado(config) {
    const sufixoCampo = config.sufixoCampo;
    const areaId = config.areaId;
@@ -419,6 +613,8 @@ function limparVisualUploadConfirmado(config) {
       $("#" + hiddenDocId).val("");
    }
 }
+
+// REMOVE O ANEXO DO FLUIG (CLICA NO BOTÃO DE REMOVER OU MARCA CHECKBOX E CONFIRMA)
 function removerAnexoFluig(config) {
    const nomeArquivo = config?.nomeArquivo || "";
    const documentId = config?.documentId || "";
@@ -466,7 +662,6 @@ function removerAnexoFluig(config) {
    return false;
 }
 
-
 // VALIDAÇÃO DE UPLOADS
 function validarUploadObrigatorio(campoId, label) {
    const sufixo = campoId.replace("file", "");
@@ -487,6 +682,8 @@ function validarUploadObrigatorio(campoId, label) {
    marcarUploadSucesso(campoId);
    return true;
 }
+
+// MARCA O CAMPO DE UPLOAD COM ERRO (ADICIONA CLASSES E MENSAGEM)
 function marcarUploadErro(campoId, mensagem) {
    const $campo = $("#" + campoId);
    const $container = $campo.closest(".fg");
@@ -504,6 +701,8 @@ function marcarUploadErro(campoId, mensagem) {
       "</small>"
    );
 }
+
+// LIMPA O STATUS VISUAL DO UPLOAD (HIDDEN, STATUS, CARD)
 function limparCardVisualAnexo(sufixoCampo) {
    const hiddenNome = getHiddenAnexoId(sufixoCampo);
    const hiddenId = hiddenNome + "Id";
@@ -518,6 +717,8 @@ function limparCardVisualAnexo(sufixoCampo) {
 
    $("#file" + sufixoCampo).val("");
 }
+
+// MARCA O CAMPO DE UPLOAD COM SUCESSO (ADICIONA CLASSES E REMOVE ERRO)
 function marcarUploadSucesso(campoId) {
    const $campo = $("#" + campoId);
    const $container = $campo.closest(".fg");
@@ -528,6 +729,8 @@ function marcarUploadSucesso(campoId) {
    $container.removeClass("has-erro");
    $area.removeClass("upload-error").addClass("uploaded");
 }
+
+// VALIDA SE O ARQUIVO É PERMITIDO (PDF, PNG, JPG, JPEG)
 function validarArquivoPermitido(file) {
    const extensoesPermitidas = [".pdf", ".png", ".jpg", ".jpeg"];
    const nomeArquivo = (file.name || "").toLowerCase();
@@ -560,6 +763,8 @@ function validarArquivoPermitido(file) {
 
    return true;
 }
+
+// OCULTA O TOAST DE REMOÇÃO AUTOMÁTICA DE ANEXOS INVÁLIDOS (CASO EXISTA)
 function ocultarToastRemocaoAutomatica() {
    const $p = parent.$;
 
@@ -593,6 +798,8 @@ function ocultarToastRemocaoAutomatica() {
          .remove();
    }, 300);
 }
+
+// OCULTA O MODAL DE REMOÇÃO AUTOMÁTICA DE ANEXOS INVÁLIDOS (CASO EXISTA)
 function ocultarModalRemocaoAutomaticaAtivo() {
    const $p = parent.$;
 
@@ -611,6 +818,8 @@ function ocultarModalRemocaoAutomaticaAtivo() {
       '</style>'
    );
 }
+
+// REMOVE A OCULTAÇÃO DO MODAL DE REMOÇÃO AUTOMÁTICA DE ANEXOS INVÁLIDOS
 function removerOcultacaoModalRemocaoAutomatica() {
    parent.$("#cssOcultaModalRemocaoInvalido").remove();
    parent.$(".modal-backdrop").remove();

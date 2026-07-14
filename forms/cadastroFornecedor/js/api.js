@@ -29,6 +29,8 @@ function buscarCep(cep) {
       }
    });
 }
+
+// PREENCHE OS CAMPOS DE ENDEREÇO COM OS DADOS VINDOS DO VIACEP
 function preencherEndereco(data) {
    $("#endereco").val(data.logradouro || "");
    $("#bairro").val(data.bairro || "");
@@ -47,6 +49,8 @@ function preencherEndereco(data) {
 
    $("#numero").focus();
 }
+
+// LIMPA OS CAMPOS DE ENDEREÇO
 function limpaCamposEndereco() {
    $("#endereco").val("");
    $("#bairro").val("");
@@ -57,14 +61,18 @@ function limpaCamposEndereco() {
    $("#codMunicipio").val("");
    $("#nomeCidadeSalva").val("");
 }
-// API SINTEGRA
+
+// CHAVE DE ACESSO API SINTEGRA 
 const TOKEN_CNPJ_API = "ZnB1ou61tGsZ17GIOZENAO1Ahua03Mrb";
+
+// REMOVE A MASCARA DE CNPJ/CPF
 function normalizarCnpj(cnpj) {
    return String(cnpj || "")
       .replace(/[^a-zA-Z0-9]/g, "")
       .toUpperCase();
 }
 
+// VERIFICA SE O CNPJ JÁ EXISTE NO RM
 function buscarCnpj(cnpj) {
 
    if (globalThis._preenchendoEdicao || (typeof ehModoEdicao === "function" && ehModoEdicao())) {
@@ -140,6 +148,8 @@ function buscarCnpj(cnpj) {
       }
    });
 }
+
+// LIMPA OS CAMPOS PREENCHIDOS A PARTIR DO CNPJ E DEVOLVE O FOCO PRO CAMPO DE CNPJ
 function limparCamposCnpj() {
    $("#docCnpj").val("");
    $("#razaoSocial").val("");
@@ -167,6 +177,7 @@ function limparCamposCnpj() {
    $("#docCnpj").focus();
 }
 
+// VERIFICA SE O CPF JÁ EXISTE NO RM
 function verificarCpfDuplicado(cpf) {
 
    if (globalThis._preenchendoEdicao || (typeof ehModoEdicao === "function" && ehModoEdicao())) {
@@ -196,6 +207,7 @@ function verificarCpfDuplicado(cpf) {
    }
 }
 
+// LIMPA OS CAMPOS PREENCHIDOS A PARTIR DO CPF E DEVOLVE O FOCO PRO CAMPO DE CPF
 function limparCamposCpf() {
    $("#docCpf").val("");
    $("#docRg").val("");
@@ -223,6 +235,7 @@ function limparCamposCpf() {
    $("#docCpf").focus();
 }
 
+// CONSULTA O DATASET DE VERIFICAÇÃO DE CNPJ/CPF NO RM E RETORNA O OBJETO COM OS DADOS (OU NULL SE NÃO EXISTIR)
 function _verificarCnpjNoRM(cnpj) {
    try {
       var ds = DatasetFactory.getDataset(
@@ -270,6 +283,8 @@ function _verificarCnpjNoRM(cnpj) {
       return undefined;   
    }
 }
+
+// PREENCHE O FORMULÁRIO COM OS DADOS DO CNPJ VINDOS DO RM (Sintegra) + CNAEs, e busca a IE
 function preencherDadosCnpjRM(data) {
    $("#razaoSocial").val(data.NOME           || "");
    $("#nomeFantasia").val(data.NOMEFANTASIA  || "");
@@ -304,6 +319,8 @@ function preencherDadosCnpjRM(data) {
       }
    });
 }
+
+// PREENCHE O FORMULÁRIO COM OS DADOS DO CNPJ VINDOS DA RECEITA (Sintegra) + CNAEs, e busca a IE
 function preencherDadosCnpj(data) {
    $("#razaoSocial").val(data.nome_empresarial || "");
    $("#nomeFantasia").val(data.nome_fantasia    || "");
@@ -341,6 +358,8 @@ function preencherDadosCnpj(data) {
       _buscarInscricaoEstadualSintegra(cnpjLimpo, data.uf || "");
    }
 }
+
+// BUSCA A INSCRIÇÃO ESTADUAL DO CNPJ NA API SINTEGRA (Sintegrapi)
 function _buscarInscricaoEstadualSintegra(cnpj, uf) {
    $.ajax({
       url: "https://api.sintegrapi.com.br/consultas/v2/sintegra/" + cnpj,
@@ -391,6 +410,8 @@ function _buscarInscricaoEstadualSintegra(cnpj, uf) {
       }
    });
 }
+
+// RECRIA OS CAMPOS DE CNAEs SECUNDÁRIOS COM BASE NO ARRAY DE ATIVIDADES ECONÔMICAS SECUNDÁRIAS
 function preencherCnaesSecundarios(atividades) {
    const limite = globalThis.LIMITE_CNAE_SECUNDARIO || 5;
 
@@ -412,25 +433,22 @@ function preencherCnaesSecundarios(atividades) {
    reordenarCnaesSecundarios();
    controlarBotaoAdicionarCnae();
    sincronizarCamposDinamicosHidden();
-
-   if (Number($("#atividade").val() || 0) === ATIVIDADES.VALIDACAO) {
-      $("#snapshotEdicaoValidacao").val("");
-      inicializarSnapshotEdicaoValidacao();
-   }
 }
 
+// FORMATA O CEP
 function formatarCep(cep) {
    cep = String(cep || "").replace(/\D/g, "");
    if (cep.length !== 8) return cep;
    return cep.replace(/^(\d{5})(\d{3})$/, "$1-$2");
 }
+
+// FORMATA O TELEFONE
 function formatarTelefone(tel) {
    const d = String(tel || "").replace(/\D/g, "");
    if (d.length === 11) return d.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
    if (d.length === 10) return d.replace(/^(\d{2})(\d{4})(\d{4})$/, "($1) $2-$3");
    return tel || "";
 }
-
 
 // API INTERNA DO FLUIG — Avatar do usuário
 async function promiseBuscaImagemUsuario(usuario) {

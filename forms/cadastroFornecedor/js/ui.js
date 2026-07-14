@@ -1,10 +1,12 @@
+
+// UI DE SELECT COM BUSCA (SINGLE SELECT)
 (function () {
    "use strict";
 
    var $overlay    = null;   
    var $currentSel = null;   
 
-
+   // MOSTRA O OVERLAY DE BUSCA, POSICIONA E POPULA A LISTA
    function _build() {
       if ($overlay) return;
       $overlay = $([
@@ -60,6 +62,7 @@
          }
       });
    }
+   // ABRE O OVERLAY DE BUSCA PARA O SELECT ESPECIFICADO
    function _open($sel) {
       _build();
 
@@ -91,13 +94,12 @@
       var $sel2 = $overlay.find(".sso-option.sso-selected");
       if ($sel2.length) { $sel2[0].scrollIntoView({ block: "nearest" }); }
    }
-
+   // FECHA O OVERLAY DE BUSCA (SE HOUVER)
    function _close() {
       if ($overlay) $overlay.removeClass("sso-open");
       $currentSel = null;
    }
-
-
+   // FILTRA A LISTA DE OPÇÕES DO OVERLAY DE BUSCA, MOSTRANDO SÓ AS QUE CONTÊM O TEXTO INFORMADO
    function _filter(q) {
       var lower = (q || "").toLowerCase();
       var $opts = $overlay.find(".sso-option");
@@ -106,7 +108,7 @@
       });
       $overlay.find(".sso-option:visible:first").addClass("sso-focused");
    }
-
+   // POSICIONA O OVERLAY DE BUSCA EM RELAÇÃO AO SELECT ESPECIFICADO
    function _position($sel) {
       var rect   = $sel[0].getBoundingClientRect();
       var $panel = $overlay.find(".sso-panel");
@@ -117,7 +119,7 @@
          bottom: "auto"
       });
    }
-
+   // APLICA O COMPORTAMENTO DE BUSCA PARA OS SELECTS ESPECIFICADOS (SELETOR JQUERY)
    window.aplicarBuscaSelect = function (seletor) {
       $(document)
          .off("mousedown.sso",   seletor)
@@ -138,7 +140,6 @@
             }
          });
    };
-
 })();
 
 // VISIBILIDADE CONDICIONAL DE CAMPOS
@@ -203,7 +204,6 @@ function controlarCamposClassificacao() {
    atualizarSetas();
    aplicarAsteriscoObrigatorio();
 }
-
 function controlarCamposCategoria() {
    const categoria = $("#categoria").val();
    const estrangeiro = $("#toggleEstrangeiro").is(":checked");
@@ -286,7 +286,6 @@ function controlarCamposCategoria() {
 
    controlarCamposClassificacao();
 }
-
 function controlarCamposDependentes() {
    const $painel = $("#divNumDependentesInput");
    const ativo = $("#toggleDependentes").is(":checked");
@@ -302,7 +301,7 @@ function controlarCamposDependentes() {
 }
 
 let _cidadeSelectOriginalHtml = null;
-
+// CONTROLA OS CAMPOS DE ENDEREÇO PARA O CASO DE ENDEREÇO ESTRANGEIRO (CNPJ PJ)
 function controlarEnderecoEstrangeiro(ativo) {
    const $estadoWrap = $("#divEstado .select-wrap");
 
@@ -382,6 +381,8 @@ function controlarEnderecoEstrangeiro(ativo) {
       }
    }
 }
+
+// CONTROLA A VISIBILIDADE DO ALERTA DE CNPJ INVÁLIDO (CATEGORIA PJ, NÃO ESTRANGEIRO)
 function controlarAlertaCnpj() {
    const categoria = $("#categoria").val();
    const estrangeiro = $("#toggleEstrangeiro").is(":checked");
@@ -400,15 +401,19 @@ function controlarAlertaCnpj() {
       $("#alertCPF").hide();
    }
 }
+
+// CONTROLA A VISIBILIDADE DO ALERTA DE RETENÇÃO 
 function controlarRetencaoPorTipo() {
    return;
 }
 
+// VERIFICA SE O TIPO SELECIONADO É RDO
 function _ehTipoRDO() {
    var texto = ($("#tipo option:selected").text() || "").toUpperCase();
    return /\bRDO\b/.test(texto);
 }
 
+// CONTROLA A VISIBILIDADE DO CAMPO NATUREZA DE RENDIMENTO
 function controlarNaturezaPorTipo() {
    if (ehModoView()) {
       $("#divNaturezaRendimento").show();
@@ -433,6 +438,8 @@ function controlarNaturezaPorTipo() {
    $("#divNaturezaRendimento").show();
    $("#naturezaRendimento").prop("required", true);
 }
+
+// CONTROLA A VISIBILIDADE DO PAINEL DE RETENÇÕES 
 function controlarPainelRetencoes() {
    const $painel = $("#divRetencoesPanel");
 
@@ -447,6 +454,8 @@ function controlarPainelRetencoes() {
    $(".retencao-item input").prop("checked", false);
    $(".retencao-item").removeClass("ativo");
 }
+
+// RESETA O PAINEL DE RETENÇÕES
 function resetarRetencao() {
    $("#toggleRetencao").prop("checked", false);
    $("#hiddenToggleRetencao").val("");
@@ -456,9 +465,7 @@ function resetarRetencao() {
    $("#hiddenIss, #hiddenInss, #hiddenInputIrrf, #hiddenCsll, #hiddenPis, #hiddenCofins").val("");
 }
 
-
-
-
+// VERIFICA SE O FORMULÁRIO ESTÁ EM MODO DE EDIÇÃO
 function ehModoEdicao() {
    if (globalThis._modoEdicao === true) {
       return true;
@@ -467,12 +474,54 @@ function ehModoEdicao() {
    return cod !== "" && cod !== "-1" && cod !== "0";
 }
 
-
+// CONTROLA A VISIBILIDADE DA SEÇÃO DE DOCUMENTAÇÃO 
 function aplicarVisibilidadeDocumentacao() {
    var mostrar = !ehModoEdicao();
    $("#nav-step-Documentacao, #divDivisaoDocumentacao").toggle(mostrar);
 }
 
+// EXIBE OU OCULTA A SEÇÃO DE DADOS FISCAIS
+function aplicarVisibilidadeDadosFiscais() {
+   var atividade = Number($("#atividade").val() || 0);
+   var esconder = (atividade === ATIVIDADES.INICIO_0 ||
+                   atividade === ATIVIDADES.INICIO ||
+                   atividade === ATIVIDADES.CORRECAO);
+
+   // DADOS FISCAIS É A ÚLTIMA SEÇÃO DA ETAPA 2 (PREENCHIDA NA VALIDAÇÃO), GARANTINDO SUA POSIÇÃO APÓS CONTATOS INDEPENDENTEMENTE DA ORDEM DO HTML.
+   var $fiscais = $("#divDadosFiscais");
+   var $contatos = $("#divContatos");
+   if ($fiscais.length && $contatos.length && !$contatos.next().is("#divDadosFiscais")) {
+      $fiscais.insertAfter($contatos);
+   }
+
+   $fiscais.toggle(!esconder);
+}
+
+// LIBERA TODA A SEÇÃO DE DADOS FISCAIS PARA EDIÇÃO NA VALIDAÇÃO, INDEPENDENTEMENTE DA AÇÃO "EDITAR CAMPOS"
+function liberarSecaoDadosFiscais() {
+   var $sec = $("#divDadosFiscais");
+
+   $sec.find("input:not([type='hidden']), select, textarea")
+      .prop("disabled", false)
+      .prop("readonly", false)
+      .removeClass("campo-bloqueado campo-readonly");
+
+   $sec.find("input[type='checkbox'], input[type='radio']")
+      .prop("disabled", false)
+      .removeClass("campo-bloqueado");
+
+   $sec.find(".switch, .switch-button, .retencao-box, .retencao-item, .cnae-box, .select-wrap")
+      .removeClass("campo-bloqueado disabled-upload");
+
+   $sec.find("button")
+      .removeClass("btn-bloqueado")
+      .removeAttr("tabindex");
+
+   // Alíquota IRRF é calculada a partir do Código de Receita -> mantém só leitura.
+   $sec.find("#irrf").prop("readonly", true);
+}
+
+// RETORNA A LISTA DE ETAPAS VISÍVEIS
 function getStepsVisiveis() {
    var visiveis = [];
 
@@ -485,6 +534,7 @@ function getStepsVisiveis() {
    return visiveis;
 }
 
+// RETORNA O NÚMERO DA ETAPA ATUAL 
 function getStepAtual() {
    var stepAtual = 1;
 
@@ -496,6 +546,8 @@ function getStepAtual() {
 
    return stepAtual;
 }
+
+// NAVEGA PARA A ETAPA ESPECIFICADA (1 A 4), COM OPÇÃO DE ANIMAÇÃO
 function goToStep(step, animar) {
    if (animar === undefined) {
       animar = true;
@@ -528,10 +580,14 @@ function goToStep(step, animar) {
 
    $("html, body").animate({ scrollTop: 0 }, 200);
 }
+
+// AVANÇA PARA A PRÓXIMA ETAPA VISÍVEL, VALIDANDO A ETAPA ATUAL ANTES DE PROSSEGUIR
 function goToNextVisibleStep() {
    const ehView = ehModoView();
 
-   if (!ehView && !validarEtapaAtual(false)) {
+   // Valida mostrando o toast: se faltar algo, o usuário vê o motivo em vez de a
+   // seta "não funcionar" silenciosamente (acontecia muito na edição).
+   if (!ehView && !validarEtapaAtual(true)) {
       return;
    }
 
@@ -543,6 +599,8 @@ function goToNextVisibleStep() {
       goToStep(steps[index + 1]);
    }
 }
+
+// RETORNA PARA A ETAPA VISÍVEL ANTERIOR, SE HOUVER
 function goToPrevVisibleStep() {
    const steps = getStepsVisiveis();
    const atual = getStepAtual();
@@ -552,6 +610,44 @@ function goToPrevVisibleStep() {
       goToStep(steps[index - 1]);
    }
 }
+
+// CONTROLA A NAVEGAÇÃO DIRETA PELO STEPPER, VALIDANDO AS ETAPAS AO AVANÇAR E LIBERANDO O RETORNO OU A NAVEGAÇÃO NO MODO VISUALIZAÇÃO.
+function navegarParaStep(destino) {
+   if (typeof ehModoView === "function" && ehModoView()) {
+      goToStep(destino);
+      return;
+   }
+
+   var atual = getStepAtual();
+
+   // Voltar (ou permanecer na mesma) é permitido sem validar.
+   if (destino <= atual) {
+      goToStep(destino);
+      return;
+   }
+
+   var steps = getStepsVisiveis();
+   var idxAtual = steps.indexOf(atual);
+   var idxDest = steps.indexOf(destino);
+
+   if (idxAtual < 0 || idxDest < 0) {
+      goToStep(destino);
+      return;
+   }
+
+   // Avança uma etapa por vez: torna cada etapa visível e valida antes de sair.
+   // Para na primeira etapa incompleta (com o toast e os campos em erro à mostra).
+   for (var i = idxAtual; i < idxDest; i++) {
+      goToStep(steps[i], false);
+      if (!validarEtapaAtual(true)) {
+         return;
+      }
+   }
+
+   goToStep(destino);
+}
+
+// ATUALIZA O ESTADO DOS BOTÕES DE NAVEGAÇÃO (SETAS) DE ACORDO COM A ETAPA ATUAL E AS ETAPAS VISÍVEIS
 function atualizarSetas() {
    const steps = getStepsVisiveis();
    const atual = getStepAtual();
@@ -560,6 +656,8 @@ function atualizarSetas() {
    $("#btn-voltar").prop("disabled", index === 0);
    $("#btn-avancar").prop("disabled", index === steps.length - 1);
 }
+
+// EXPANDE OU RECOLHE A SEÇÃO ESPECIFICADA (HEAD + BODY)
 function toggleSection(el) {
    const $head = $(el);
    const $body = $head.next(".section-body, .panel-body");
@@ -575,7 +673,7 @@ function toggleSection(el) {
    }
 }
 
-
+// BLOQUEIA TODOS OS CAMPOS DE TODAS AS ETAPAS (EXCETO BOTÕES DE NAVEGAÇÃO) PARA O MODO VIEW
 const SELETOR_ETAPAS = "#divPreCadastro, #divDadosCadastrais, #divDocumentacao";
 function bloquearTudoInicio() {
    var $etapas = $(SELETOR_ETAPAS);
@@ -609,6 +707,7 @@ function bloquearTudoInicio() {
       .attr("tabindex", "-1");
 }
 
+// DESBLOQUEIA TODOS OS CAMPOS DE TODAS AS ETAPAS PARA EDIÇÃO (EXCETO BOTÕES DE NAVEGAÇÃO)     
 function habilitarTudoInicio() {
    var $etapas = $(SELETOR_ETAPAS);
 
@@ -631,10 +730,10 @@ function habilitarTudoInicio() {
    inicializarUploadsFluig();
 }
 
+// VERIFICA SE O FORMULÁRIO ESTÁ EM MODO DE VISUALIZAÇÃO (VIEW)
 function ehModoView() {
    return ($("#formMode").val() || "").toUpperCase() === "VIEW";
 }
-
 
 // MODO VIEW 
 function configurarModoView() {
@@ -664,7 +763,7 @@ function configurarModoView() {
    setTimeout(ajustarCamposView, 3000);
 }
 
-
+// AJUSTA OS CAMPOS PARA O MODO VIEW (READONLY)
 function ajustarCamposView() {
 
 
@@ -689,7 +788,7 @@ function ajustarCamposView() {
    $("#preCadastro span.form-control").addClass("campo-readonly");
 }
 
-
+// EXPANDE TODAS AS SEÇÕES PARA O MODO VIEW (READONLY)
 function expandirTudoView() {
 
 
@@ -725,6 +824,8 @@ function expandirTudoView() {
 
    $("#preCadastro .upload-area.uploaded").closest(".fg").show();
 }
+
+// NORMALIZA OS SELECTS PARA O MODO VIEW (READONLY)
 function normalizarSelectsView() {
    $("#formSolicitacao select").each(function () {
       var $select = $(this);
@@ -752,6 +853,7 @@ function normalizarSelectsView() {
    });
 }
 
+// RESOLVE OS SPANS PARA O MODO VIEW (READONLY)
 function resolverSpansView() {
    mostrarTextoDoSpan("tipo",                $("#tipoSelecionado").val());
    mostrarTextoDoSpan("naturezaRendimento",  $("#codNaturezaRendimento").val());
@@ -766,6 +868,7 @@ function resolverSpansView() {
    }
 }
 
+// MOSTRA O TEXTO DO OPTION SELECIONADO DENTRO DE UM SPAN (MODO VIEW)
 function mostrarTextoDoSpan(idCampo, valorSalvo) {
    var $span = $("#" + idCampo);
 
@@ -789,10 +892,13 @@ function mostrarTextoDoSpan(idCampo, valorSalvo) {
    $span.empty().text(texto);
 }
 
+// CONTROLA A EDIÇÃO DE CAMPOS NO INÍCIO, CORREÇÃO OU VALIDAÇÃO
 function controlarEdicaoInicioValidacao() {
    var atividade = Number($("#atividade").val() || 0);
    var formMode  = ($("#formMode").val() || "").toUpperCase();
 
+   // Dados Fiscais só aparecem na Validação (escondido no Início/Correção).
+   aplicarVisibilidadeDadosFiscais();
 
    if (formMode === "VIEW") {
       configurarModoView();
@@ -816,6 +922,8 @@ function controlarEdicaoInicioValidacao() {
       // Natureza de Rendimentos é preenchida pelo Suprimentos -> sempre editável nesta etapa,
       // mesmo sem clicar em "Editar campos".
       $("#naturezaRendimento").prop("disabled", false).removeClass("campo-bloqueado");
+      // Toda a seção Dados Fiscais é preenchida nesta etapa -> liberada aqui.
+      liberarSecaoDadosFiscais();
       $("#btnEditarCamposInicio").show();
       $("#btnEditarCamposInicio").off("click").on("click", function () {
          habilitarTudoInicio();

@@ -10,7 +10,7 @@
       --m-text:          #111827;
       --m-text-muted:    #6b7280;
       --m-text-sub:      #9ca3af;
-      --m-border:        #e5e7eb;
+      --m-border:        #e6ddd4;
       --m-card:          #ffffff;
       --m-bg:            #f3f4f6;
       --m-radius:        16px;
@@ -27,7 +27,7 @@ html[data-device="mobile"] {
    --m-text:          #111827;
    --m-text-muted:    #6b7280;
    --m-text-sub:      #9ca3af;
-   --m-border:        #e5e7eb;
+   --m-border:        #e6ddd4;
    --m-card:          #ffffff;
    --m-bg:            #f3f4f6;
    --m-radius:        16px;
@@ -932,3 +932,176 @@ html[data-device="mobile"] .stepper-arrow.right:disabled {
 html[data-device="mobile"] .stepper-arrow.right:not(:disabled):active {
    opacity: 0.72;
 }
+
+@media screen and (max-width: 768px) {
+   .page-header-icon {
+      width: 44px !important;
+      height: 44px !important;
+      min-width: 44px !important;
+      border-radius: 50% !important;
+   }
+   .page-header-icon i,
+   .page-header-icon .flaticon {
+      font-size: 20px !important;
+   }
+   .page-header-title {
+      font-size: 16px !important;
+   }
+   .step-badge {
+      margin-top: 8px !important;
+   }
+}
+html[data-device="mobile"] .page-header-icon {
+   width: 44px !important;
+   height: 44px !important;
+   min-width: 44px !important;
+   border-radius: 50% !important;
+}
+html[data-device="mobile"] .page-header-icon i,
+html[data-device="mobile"] .page-header-icon .flaticon {
+   font-size: 20px !important;
+}
+html[data-device="mobile"] .page-header-title {
+   font-size: 16px !important;
+}
+html[data-device="mobile"] .step-badge {
+   margin-top: 8px !important;
+}
+
+@media screen and (max-width: 768px) {
+   .page-header-sub,
+   .step-badge {
+      display: none !important;
+   }
+}
+html[data-device="mobile"] .page-header-sub,
+html[data-device="mobile"] .step-badge {
+   display: none !important;
+}
+
+@media screen and (max-width: 768px) {
+   .wizard-progress {
+      counter-reset: wstep;
+      display: flex !important;
+      align-items: flex-start !important;
+      justify-content: space-between !important;
+      width: 100% !important;
+      margin: 6px auto 16px !important;
+      padding: 0 4px !important;
+      background: transparent !important;
+   }
+   .wizard-progress .step {
+      counter-increment: wstep;
+      flex: 1 1 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      gap: 6px !important;
+      position: relative !important;
+      background: transparent !important;
+      border: none !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+      box-shadow: none !important;
+      clip-path: none !important;
+      font-size: 10px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.2px !important;
+      color: #b3a692 !important;
+   }
+   .wizard-progress .step::before {
+      content: counter(wstep);
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #d9cdbd;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+   }
+   .wizard-progress .step:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 13px;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: #e3d9cb;
+      z-index: 1;
+   }
+   .wizard-progress .step.active { color: #e8821e !important; }
+   .wizard-progress .step.active::before {
+      background: #e8821e;
+      box-shadow: 0 2px 6px rgba(232, 130, 30, 0.35);
+   }
+   .wizard-progress .step.completed { color: #c8852f !important; }
+   .wizard-progress .step.completed::before { background: #f0a85a; }
+   .wizard-progress .step.completed::after  { background: #f0a85a; }
+}
+html[data-device="mobile"] .wizard-progress {
+   counter-reset: wstep;
+   display: flex !important;
+   align-items: flex-start !important;
+   justify-content: space-between !important;
+   width: 100% !important;
+   margin: 6px auto 16px !important;
+   padding: 0 4px !important;
+   background: transparent !important;
+}
+html[data-device="mobile"] .wizard-progress .step {
+   counter-increment: wstep;
+   flex: 1 1 0 !important;
+   display: flex !important;
+   flex-direction: column !important;
+   align-items: center !important;
+   gap: 6px !important;
+   position: relative !important;
+   background: transparent !important;
+   border: none !important;
+   border-radius: 0 !important;
+   padding: 0 !important;
+   box-shadow: none !important;
+   clip-path: none !important;
+   font-size: 10px !important;
+   font-weight: 700 !important;
+   letter-spacing: 0.2px !important;
+   color: #b3a692 !important;
+}
+html[data-device="mobile"] .wizard-progress .step::before {
+   content: counter(wstep);
+   width: 26px;
+   height: 26px;
+   border-radius: 50%;
+   background: #d9cdbd;
+   color: #ffffff;
+   font-size: 12px;
+   font-weight: 700;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   position: relative;
+   z-index: 2;
+}
+html[data-device="mobile"] .wizard-progress .step:not(:last-child)::after {
+   content: "";
+   position: absolute;
+   top: 13px;
+   left: 50%;
+   width: 100%;
+   height: 2px;
+   background: #e3d9cb;
+   z-index: 1;
+}
+html[data-device="mobile"] .wizard-progress .step.active { color: #e8821e !important; }
+html[data-device="mobile"] .wizard-progress .step.active::before {
+   background: #e8821e;
+   box-shadow: 0 2px 6px rgba(232, 130, 30, 0.35);
+}
+html[data-device="mobile"] .wizard-progress .step.completed { color: #c8852f !important; }
+html[data-device="mobile"] .wizard-progress .step.completed::before { background: #f0a85a; }
+html[data-device="mobile"] .wizard-progress .step.completed::after  { background: #f0a85a; }
