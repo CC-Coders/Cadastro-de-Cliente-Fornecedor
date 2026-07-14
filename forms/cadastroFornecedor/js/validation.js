@@ -33,8 +33,7 @@ const LABELS_UPLOAD = {
    "fileCienciaLgpd":               "Ciência LGPD"
 };
 
-
-// INDICADORES VISUAIS
+// ADICIONA ASTERISCO EM CAMPOS OBRIGATÓRIOS
 function aplicarAsteriscoObrigatorio() {
    $("label .req").remove();
 
@@ -52,8 +51,7 @@ function aplicarAsteriscoObrigatorio() {
    });
 }
 
-
-// EXIBIÇÃO E LIMPEZA DE ERROS INLINE
+// EXIBE ERRO INLINE EM UM CAMPO
 function exibirErroCampo(campoId, mensagem) {
    const $campo = $("#" + campoId);
    const $container = $campo.closest(".fg");
@@ -74,6 +72,8 @@ function exibirErroCampo(campoId, mensagem) {
       "</small>"
    );
 }
+
+// DÁ FOCO AO PRIMEIRO CAMPO COM ERRO VISÍVEL.
 function focusCampoComErro() {
    const $primeiroErro = $(".fg.has-erro:visible")
       .first()
@@ -84,6 +84,8 @@ function focusCampoComErro() {
       $primeiroErro.focus();
    }
 }
+
+// VALIDA UM CAMPO OBRIGATÓRIO
 function validarCampoObrigatorio(campoId, label) {
    const $campo = $("#" + campoId);
 
@@ -103,8 +105,7 @@ function validarCampoObrigatorio(campoId, label) {
    return true;
 }
 
-
-// VALIDAÇÕES POR SEÇÃO
+// VALIDA OS DOCUMENTOS OBRIGATÓRIOS POR CATEGORIA (PF/PJ) E POR ESTRANGEIRO.
 function validarDocumentosPorCategoria() {
    const categoria = ($("#categoria").val() || "").trim();
    const estrangeiro = $("#toggleEstrangeiro").is(":checked");
@@ -151,6 +152,8 @@ function validarDocumentosPorCategoria() {
 
    return true;
 }
+
+// LIMPAR OS UPLOADS DE UMA CATEGORIA AO TROCAR DE CATEGORIA
 function limparUploadsCategoria(tipo) {
    const campos = UPLOADS_POR_CATEGORIA[tipo] || [];
 
@@ -174,6 +177,8 @@ function limparUploadsCategoria(tipo) {
       limparErroCampo(campoId);
    });
 }
+
+// VALIDA UMA LISTA DE CAMPOS (id + label) E RETORNA TRUE SE TODOS ESTIVEREM PREENCHIDOS.
 function validarListaCampos(campos) {
    let valido = true;
 
@@ -188,6 +193,8 @@ function validarListaCampos(campos) {
 
    return valido;
 }
+
+// VALIDA A ETAPA 1
 function validarPreCadastro(exibirToast) {
    limparErrosPreCadastro();
 
@@ -232,17 +239,35 @@ const PARES_IMPOSTO = [
    { hidden: "#hiddenPis",       nativo: "#pis"       },
    { hidden: "#hiddenCofins",    nativo: "#cofins"    }
 ];
+
+// INDICA SE O TOGGLE DE RETENÇÃO ESTÁ ATIVO (ON) OU NÃO (OFF)
 function _retencaoAtiva() {
    return $("#hiddenToggleRetencao").val() === "on" || $("#toggleRetencao").is(":checked");
 }
+
+// ATALHO PARA MOSTRAR O BANNER DE ALERTA DE CAMPOS OBRIGATÓRIOS (substitui o toast estreito do Fluig)
 function _toastCamposObrigatorios() {
-   FLUIGC.toast({
-      title: "Atenção",
-      message: "Preencha todos os campos obrigatórios para avançar.",
-      type: "warning",
-      timeout: 3000
-   });
+   mostrarBannerAlerta("Preencha todos os campos obrigatórios para avançar.");
 }
+
+// BANNER DE ALERTA NO TOPO DO FORMULÁRIO 
+function mostrarBannerAlerta(msg) {
+   var $b = $("#bannerAlerta");
+   if (!$b.length) {
+      FLUIGC.toast({ title: "Atenção", message: msg, type: "warning", timeout: 3000 });
+      return;
+   }
+   $("#bannerAlertaMsg").text(msg || "Preencha todos os campos obrigatórios para avançar.");
+   $b.show();
+   try { $b[0].scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) { }
+}
+
+// ESCONDE O BANNER DE ALERTA 
+function esconderBannerAlerta() {
+   $("#bannerAlerta").hide();
+}
+
+// VALIDA OS DADOS BANCÁRIOS (etapa 2) — cada card de conta bancária deve ter Banco, Agência e Conta preenchidos
 function validarDadosBancarios() {
 
    if (!$("#divDadosBancarios").is(":visible")) return true;
@@ -261,6 +286,7 @@ function validarDadosBancarios() {
    return valido;
 }
 
+// VALIDA A ETAPA 2 (DADOS CADASTRAIS) — fiscais, comerciais, contatos e contas bancárias
 function validarDadosCadastrais(exibirToast) {
    limparErrosDadosCadastrais();
 
@@ -355,6 +381,8 @@ function validarDadosCadastrais(exibirToast) {
 
    return valido;
 }
+
+// ATUALIZA O ESTADO VISUAL DO PAINEL DE RETENÇÕES (erro se ativo e nenhum imposto selecionado)
 function validarPainelRetencaoVisual() {
    if (!_retencaoAtiva()) {
       $("#divRetencoesPanel").removeClass("retencao-erro");
@@ -375,11 +403,15 @@ function validarPainelRetencaoVisual() {
    return algumSelecionado;
 }
 
+// DIRECCIONA A VALIDAÇÃO PARA A ETAPA ATUAL (1, 2, 3 ou 4) E EXIBE TOAST DE ALERTA SE HOUVER ERROS
 function validarEtapaAtual(exibirToast) {
    if (exibirToast === undefined) {
       exibirToast = true;
    }
 
+   if (exibirToast) {
+      esconderBannerAlerta();
+   }
    sincronizarCamposDinamicosHidden();
 
    const paginaAtual = getStepAtual();
@@ -404,6 +436,8 @@ function validarEtapaAtual(exibirToast) {
 
    return true;
 }
+
+// ALTERA A VISIBILIDADE DOS DOCUMENTOS E CONFORMIDADES DE ACORDO COM A CATEGORIA (PF/PJ)
 function controlarDocumentacaoPorCategoria() {
    const categoria = ($("#categoria").val() || "").trim();
 
@@ -441,6 +475,8 @@ function controlarDocumentacaoPorCategoria() {
    $containerDocs.removeClass("grid-pf");
    $containerConf.removeClass("grid-pf");
 }
+
+// VALIDA A ETAPA 3 (DOCUMENTAÇÃO) — exige todos os uploads obrigatórios por categoria (PF/PJ) e o comprovante bancário
 function validarDocumentacao(exibirToast) {
    // Na edição não há etapa de Documentação (o CFO já existe no RM com os anexos).
    if (typeof ehModoEdicao === "function" && ehModoEdicao()) {
@@ -475,6 +511,8 @@ function validarDocumentacao(exibirToast) {
 
    return valido;
 }
+
+// REMOVE O ESTADO DE ERRO DE UM CAMPO (inline) — remove a classe has-erro, o aria-invalid e a mensagem de erro
 function limparErroCampo(campoId) {
    const $campo = $("#" + campoId);
    const $container = $campo.closest(".fg");
@@ -485,6 +523,8 @@ function limparErroCampo(campoId) {
    $("#erro-" + campoId).remove();
    $container.find(".erro-validacao").remove();
 }
+
+// LIMPA OS ERROS INLINE DA ETAPA 1 (pré-cadastro: classificação, categoria, tipo, documentos e endereço)
 function limparErrosPreCadastro() {
    const camposPreCadastro = [
       "classificacao",
@@ -511,6 +551,8 @@ function limparErrosPreCadastro() {
       limparErroCampo(campoId);
    });
 }
+
+// LIMPA OS ERROS INLINE DA ETAPA 2
 function limparErrosDadosCadastrais() {
    const camposDadosCadastrais = [
       "icms",
@@ -541,6 +583,8 @@ function limparErrosDadosCadastrais() {
       limparErroCampo("conta" + s);
    });
 }
+
+// DEFINE O ESTADO VISUAL DE UM CAMPO
 function aplicarStatusCampo(campoId, valido) {
    const $campo = $("#" + campoId);
    const $container = $campo.closest(".fg");
@@ -557,6 +601,7 @@ function aplicarStatusCampo(campoId, valido) {
    }
 }
 
+// VALIDA O CPF PELOS 2 DÍGITOS VERIFICADORES (rejeita sequências repetidas)
 function validarCPF(cpf) {
    cpf = cpf.replaceAll(/[^\d]+/g, '');
 
@@ -585,6 +630,8 @@ function validarCPF(cpf) {
 
    return resto == Number.parseInt(cpf.substring(10, 11));
 }
+
+// VALIDA O RG (rejeita sequências repetidas e tamanho diferente de 9 dígitos)
 function validarRG(rg) {
    rg = (rg || "").replace(/\D/g, "");
 
@@ -594,6 +641,7 @@ function validarRG(rg) {
    return true;
 }
 
+// VALIDA O CNPJ PELOS 2 DÍGITOS VERIFICADORES (rejeita sequências repetidas)
 function validarCNPJ(cnpj) {
 
    cnpj = cnpj.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
@@ -631,6 +679,7 @@ function validarCNPJ(cnpj) {
 
    return resultado == digitos.charAt(1);
 }
+// VALIDA A ETAPA 4 (HISTÓRICO E DECISÃO)
 function validarHistoricoDecisao(exibirToast) {
    const atividade = Number($("#atividade").val() || 0);
 

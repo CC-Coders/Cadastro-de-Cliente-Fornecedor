@@ -56,15 +56,7 @@ function displayFields(form, customHTML) {
       );
 
    }
-   if (acao == "correcao") {
-      customHTML.append(
-         "<script>" +
-         "$(document).ready(function(){ " +
-         "$('#divSelectDecisao').hide();" +
-         "});" +
-         "</script>"
-      );
-   }
+   // Na correção, a seção agora contém o botão "Enviar Solicitação"
    if (acao == "view") {
       customHTML.append(
          "<script>" +

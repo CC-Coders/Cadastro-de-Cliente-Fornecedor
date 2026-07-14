@@ -1,4 +1,5 @@
 
+// DETECTA O AMBIENTE MOBILE DO FLUIG UTILIZANDO INFORMAÇÕES DO FORMCONTROLLER, USERAGENT OU DIMENSÃO DA TELA
 function isMobileFluig() {
    try {
       if (
@@ -25,6 +26,7 @@ function isMobileFluig() {
    return window.innerWidth <= 768;
 }
 
+// APLICA O IDENTIFICADOR DE DISPOSITIVO NO HTML E ADICIONA A CLASSE MOBILE QUANDO O ACESSO FOR REALIZADO POR DISPOSITIVO MÓVEL
 function aplicarLayoutMobile() {
    const mobile = isMobileFluig();
    document.documentElement.setAttribute("data-device", mobile ? "mobile" : "desktop");
@@ -34,6 +36,7 @@ function aplicarLayoutMobile() {
    $("body").addClass("fluig-mobile");
 }
 
+// APLICA O IDENTIFICADOR DE DISPOSITIVO NO HTML E ADICIONA A CLASSE MOBILE QUANDO O ACESSO FOR REALIZADO POR DISPOSITIVO MÓVEL
 $(document).ready(function () {
    if (!isMobileFluig()) return;
 
@@ -53,6 +56,7 @@ $(document).ready(function () {
 
    var _mobileFiles = {};
 
+   // LOCALIZA O INPUT DE ARQUIVO NATIVO DO FLUIG PARA UTILIZAR O MECANISMO PADRÃO DE UPLOAD DO SISTEMA
    function _encontrarInputFluig() {
       var tentativas = [
          function () { return parent.$("#ecm-navigation-inputFile-clone"); },
@@ -75,6 +79,7 @@ $(document).ready(function () {
       return null;
    }
 
+   // INSERE O ARQUIVO SELECIONADO NO INPUT NATIVO DO FLUIG UTILIZANDO DATATRANSFER E DISPARA O EVENTO DE ALTERAÇÃO DO CAMPO
    function _injetarViaDataTransfer($inputFluig, arquivo, sufixoCampo, $area) {
       try {
 
@@ -97,6 +102,7 @@ $(document).ready(function () {
       }
    }
 
+   // REALIZA O TRATAMENTO ALTERNATIVO DE UPLOAD QUANDO O INPUT NATIVO DO FLUIG NÃO ESTIVER DISPONÍVEL, MANTENDO A VISUALIZAÇÃO LOCAL DO ARQUIVO
    function _fallbackVisualLocal(arquivo, sufixoCampo, $area) {
       if (_mobileFiles[sufixoCampo] && _mobileFiles[sufixoCampo]._blobUrl) {
          URL.revokeObjectURL(_mobileFiles[sufixoCampo]._blobUrl);
@@ -143,7 +149,7 @@ $(document).ready(function () {
             });
       }, 300); 
    }
-
+   // CONFIGURA OS CAMPOS DE UPLOAD MOBILE, CRIANDO OVERLAYS DE SELEÇÃO DE ARQUIVOS E INTEGRANDO COM O UPLOAD PADRÃO DO FLUIG 
    setTimeout(function () {
 
       $(".upload-area").each(function () {
@@ -180,6 +186,7 @@ $(document).ready(function () {
             })
             .appendTo($area);
 
+         // PROCESSA A SELEÇÃO DE ARQUIVO NO DISPOSITIVO MOBILE, VALIDANDO O ARQUIVO E REALIZANDO O ENVIO PELO FLUIG OU FALLBACK LOCAL
          $overlay.on("change", function () {
             if ($area.hasClass("disabled-upload")) return;
 

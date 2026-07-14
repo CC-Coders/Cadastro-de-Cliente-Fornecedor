@@ -46,15 +46,12 @@
             <input type="hidden" id="contaRm" name="contaRm"/>
             <input type="hidden" id="mostraHistoricoDecisao" name="mostraHistoricoDecisao"/>
             <input type="hidden" id="snapshotEdicaoValidacao" name="snapshotEdicaoValidacao"/>
-            <!-- Edição de CFO existente: dados do registro selecionado no RM -->
             <input type="hidden" id="codcfoEdicao" name="codcfoEdicao"/>
             <input type="hidden" id="coligadaEdicao" name="coligadaEdicao"/>
+            <input type="hidden" id="regimeFiscalHidden" name="regimeFiscalHidden">
             <input type="hidden" id="idcfoEdicao" name="idcfoEdicao"/>
-            <!-- Contas bancárias na edição (JSON): contas do RM + novas, com idpgto/ativo/novo -->
             <input type="hidden" id="bancosEdicaoJson" name="bancosEdicaoJson"/>
-            <!-- IDPGTO do boleto existente no RM (garante o boleto ativo sem duplicar) -->
             <input type="hidden" id="idpgtoBoletoEdicao" name="idpgtoBoletoEdicao"/>
-            <!-- Snapshot dos dados originais do RM (para realçar o que foi alterado) -->
             <input type="hidden" id="snapshotEdicaoRM" name="snapshotEdicaoRM"/>
             <input type="hidden" id="anxCartaoCnpj" name="anxCartaoCnpj"/>
             <input type="hidden" id="anxCompBanco" name="anxCompBanco"/>
@@ -67,7 +64,6 @@
             <input type="hidden" id="anxAntiCorrupcao" name="anxAntiCorrupcao"/>
             <input type="hidden" id="anxConflito" name="anxConflito"/>
             <input type="hidden" id="anxLgpd" name="anxLgpd"/>
-            <!-- documentId numérico de cada anexo no ECM do Fluig -->
             <input type="hidden" id="anxCartaoCnpjId" name="anxCartaoCnpjId"/>
             <input type="hidden" id="anxCompBancoId" name="anxCompBancoId"/>
             <input type="hidden" id="anxContratoId" name="anxContratoId"/>
@@ -97,7 +93,6 @@
             <input type="hidden" id="hiddenCnaeSecundario3" name="hiddenCnaeSecundario3"/>
             <input type="hidden" id="hiddenCnaeSecundario4" name="hiddenCnaeSecundario4"/>
             <input type="hidden" id="hiddenCnaeSecundario5" name="hiddenCnaeSecundario5"/>
-
             <!-- HISTÓRICO DE DECISÃO -->
             <div id="historicoHidden" name="historicoHidden">
                <table id="tableHistorico" tablename="tableHistorico" noaddbutton="true" nodeletebutton="true">
@@ -131,8 +126,7 @@
                   </tbody>
                </table>
             </div>
-
-            <!-- TABELA RELATÓRIO: CNAEs (principal + secundários) -->
+            <!-- CNAEs-->
             <div id="relCnaesHidden" name="relCnaesHidden">
                <table id="tbRelCnaes" tablename="tbRelCnaes" noaddbutton="true" nodeletebutton="true">
                   <thead>
@@ -152,7 +146,7 @@
                </table>
             </div>
 
-            <!-- TABELA RELATÓRIO: Grupos de Mercadoria -->
+            <!-- GRUPO DE MARCADORIA -->
             <div id="relGruposHidden" name="relGruposHidden">
                <table id="tbRelGrupos" tablename="tbRelGrupos" noaddbutton="true" nodeletebutton="true">
                   <thead>
@@ -170,7 +164,6 @@
                </table>
             </div>
          </div>
-
          <!-- TELA DE SELEÇÃO INICIAL -->
          <div id="telaSelecaoInicial">
             <div class="tsi-card">
@@ -180,18 +173,21 @@
                <div class="tsi-botoes">
                   <button type="button" id="btnSelCadastrar" class="tsi-opcao tsi-opcao-primary">
                      <span class="tsi-opcao-icone"><i class="flaticon flaticon-file-person"></i></span>
-                     <span class="tsi-opcao-titulo">Cadastrar</span>
-                     <span class="tsi-opcao-desc">Novo cliente ou fornecedor</span>
+                     <span class="tsi-opcao-texto">
+                        <span class="tsi-opcao-titulo">Cadastrar</span>
+                        <span class="tsi-opcao-desc">Novo cliente ou fornecedor</span>
+                     </span>
                   </button>
                   <button type="button" id="btnSelEditar" class="tsi-opcao tsi-opcao-secondary">
                      <span class="tsi-opcao-icone"><i class="flaticon flaticon-edit"></i></span>
+                     <span class="tsi-opcao-texto">
                      <span class="tsi-opcao-titulo">Editar</span>
                      <span class="tsi-opcao-desc">Alterar cadastro existente</span>
+                     </span>
                   </button>
                </div>
             </div>
          </div>
-
          <!-- CABEÇALHO -->
          <header>
             <div class="wizard-progress">
@@ -200,7 +196,17 @@
                <div class="step" style="display: block">FIM</div>
             </div>
          </header>
+         <!-- CAMPOS PRINCIPAIS DO FORMULÁRIO -->
          <main class="page-wrap" id="preCadastro" style="visibility:hidden">
+             <!-- BANNER MOBILE  -->
+            <div id="bannerAlerta" class="banner-alerta" style="display:none">
+               <span class="banner-alerta-icone">&#9888;</span>
+               <div class="banner-alerta-texto">
+                  <strong>Atenção</strong>
+                  <span id="bannerAlertaMsg">Preencha todos os campos obrigatórios para avançar.</span>
+               </div>
+               <button type="button" class="banner-alerta-fechar" onclick="esconderBannerAlerta()" aria-label="Fechar">&times;</button>
+            </div>
             <!-- PRÉ-CADASTRO -->
             <div class="step-panel step-1 active" id="divPreCadastro">
                <div class="page-header step-1" name="divHeaderPreCad" id="divHeaderPreCad">
@@ -214,7 +220,6 @@
                <div class="section" id="divDadosFornecedor">
                   <button type="button" class="section-head" onclick="toggleSection(this)">
                      <div class="section-head-left">
-                        <div class="section-num">1</div>
                         <span class="section-name">Dados do Cliente / Fornecedor</span>
                         <span class="section-arrow open">▼</span>
                      </div>
@@ -255,7 +260,6 @@
                         </div>
                         <div class="retencao-toggle">
                            <span class="retencao-label">Não</span>
-
                            <div class="switch switch-success">
                               <input class="switch-input" type="checkbox" id="toggleEstrangeiro" name="toggleEstrangeiro">
                               <label class="switch-button" for="toggleEstrangeiro">Fornecedor estrangeiro</label>
@@ -270,7 +274,6 @@
                <div class="section" id="divDadosComerciais" style="display:none">
                   <button type="button" class="section-head" onclick="toggleSection(this)">
                      <div class="section-head-left">
-                        <div class="section-num">2</div>
                         <span class="section-name">Dados Comerciais</span>
                         <span class="section-arrow open">▼</span>
                      </div>
@@ -383,7 +386,6 @@
                <div class="section" id="divEndereco" style="display:none">
                   <button type="button" class="section-head" onclick="toggleSection(this)">
                      <div class="section-head-left">
-                        <div class="section-num">3</div>
                         <span class="section-name">Endereço</span>
                         <span class="section-arrow open">▼</span>
                      </div>
@@ -454,7 +456,6 @@
                <div class="section" id="divDadosFiscais">
                   <button type="button" class="section-head" onclick="toggleSection(this)">
                      <div class="section-head-left">
-                        <div class="section-num">4</div>
                         <span class="section-name">Dados Fiscais</span>
                         <span class="section-arrow open">▼</span>
                      </div>
@@ -528,7 +529,6 @@
                            </select>
                         </div>
                      </div>
-                     <!-- Toggle de Dependentes — visível apenas para Pessoa Física -->
                      <div class="retencao-box" id="divDependentesBox" style="display:none">
                         <div class="retencao-content">
                            <div class="retencao-text">
@@ -546,7 +546,6 @@
                            </div>
                         </div>
                      </div>
-                     <!-- Painel de quantidade — separado do toggle, mesmo padrão de divRetencoesPanel -->
                      <div id="divNumDependentesInput" class="retencoes-box field-hidden">
                         <div class="retencoes-title">
                            <i class="flaticon flaticon-user"></i>
@@ -569,7 +568,7 @@
                                  </select>
                               </div>
                            </div>
-                           <div class="fg" style="align-self: flex-end;">
+                           <div class="fg grupo-mercadoria-acao" id="acaoGrupoMercadoria1" style="align-self: flex-end; display: flex; gap: 8px; flex-wrap: wrap;">
                               <button type="button" class="btn btn-warning btn-grupo-mercadoria" id="btn-add-grupo-mercadoria">Adicionar</button>
                            </div>
                         </div>
@@ -609,7 +608,6 @@
                      </div>
                      <div id="divRetencoesPanel" name="divRetencoesPanel" class="retencoes-box field-hidden">
                         <span>SELECIONE OS IMPOSTOS QUE SERÃO RETIDOS:</span>
-                        <!-- Mensagem de erro colocada aqui, fora dos cards individuais -->
                         <small id="erroMinimoImposto" class="help-block erro-validacao" style="display:none">
                            Selecione pelo menos um imposto.
                         </small>
@@ -632,8 +630,7 @@
                            </label>
                         </div>
                      </div>
-                     <!-- Hidden anchors para checkboxes de retenção — Fluig não restaura
-                          element.checked automaticamente; lemos estes campos no window.load -->
+
                      <input type="hidden" id="hiddenInss"      name="hiddenInss"/>
                      <input type="hidden" id="hiddenCsll"      name="hiddenCsll"/>
                      <input type="hidden" id="hiddenPis"       name="hiddenPis"/>
@@ -643,7 +640,6 @@
                <div class="section" id="divDadosBancarios">
                   <button type="button" class="section-head" onclick="toggleSection(this)">
                      <div class="section-head-left">
-                        <div class="section-num">5</div>
                         <span class="section-name">Dados Bancários</span>
                         <span class="section-arrow open">▼</span>
                      </div>
@@ -673,7 +669,6 @@
                            </div>
                         </div>
                      </div>
-
                      <table tablename="tableDadosBancarios" id="tableDadosBancarios" noaddbutton="true" nodeletebutton="true" style="display:none;">
                         <thead>
                            <tr>
@@ -692,7 +687,6 @@
                            </tr>
                         </tbody>
                      </table>
-
                      <!-- HIDDEN BANCÁRIOS -->
                      <input type="hidden" id="hiddenBanco1Cod" name="hiddenBanco1Cod">
                      <input type="hidden" id="hiddenBanco1Desc" name="hiddenBanco1Desc">
@@ -725,7 +719,6 @@
                <div class="section" id="divContatos">
                   <button type="button" class="section-head" onclick="toggleSection(this)">
                      <div class="section-head-left">
-                        <div class="section-num">6</div>
                         <span class="section-name">Contatos</span>
                         <span class="section-arrow open">▼</span>
                      </div>
@@ -774,7 +767,6 @@
                <div class="section" id="divAnexosDocumentos" name="divAnexosDocumentos">
                   <button type="button" class="section-head" onclick="toggleSection(this)">
                      <div class="section-head-left">
-                        <div class="section-num">7</div>
                         <span class="section-name">Anexos de Documentos</span>
                         <span class="section-arrow open">▼</span>
                      </div>
@@ -884,39 +876,38 @@
                <div class="section" id="divHistoricoDecisao">
                   <button type="button" class="section-head" onclick="toggleSection(this)">
                      <div class="section-head-left">
-                        <div class="section-num">8</div>
-                        <span class="section-name">Decisão da Validação</span>
+                        <span class="section-name" id="sectionNameDecisao">Decisão da Validação</span>
                         <span class="section-arrow open">▼</span>
                      </div>
                   </button>
                   <div class="section-body">
                      <div class="grid g1">
-                        <div class="fg" id="divObservacaoValidacao">
-                           <label for="observacaoValidacao">Observações</label>
-                           <textarea id="observacaoValidacao" name="observacaoValidacao" class="form-control" rows="5" placeholder="Digite aqui sua observação, justificativa ou orientação."></textarea>
-                        </div>
-                        <div class="fg" id="divSelectDecisao">
-                           <label for="selectDecisao">Ação</label>
-                           <select class="form-control" id="selectDecisao" name="selectDecisao" required style="display: none">
+                        <div class="fg" id="divSelectDecisao" style="text-align: center">
+                           <label for="selectDecisao" id="labelAcaoValidacao" style="display: block; text-align: center">Ação</label>
+                           <select class="form-control" id="selectDecisao" name="selectDecisao" style="display: none">
                               <option value="">Selecione...</option>
                               <option value="Correcao">Correção do Cadastro</option>
                               <option value="enviarRm">Enviar ao RM</option>
                            </select>
-                           <div style="display: flex; gap: 10px; margin-top: 10px">
-                              <button type="button" id="btnAprovar" class="btn btn-success"style="flex: 1; color: white !important">Aprovar</button>
-                              <button type="button" id="btnReprovar" class="btn btn-danger"style="flex: 1; color: white !important">Reprovar</button>
+                           <div style="display: flex; gap: 12px; margin-top: 6px; flex-wrap: wrap; justify-content: center">
+                              <button type="button" id="btnAprovar" class="btn btn-success" style="color: white !important; padding: 12px 44px; font-size: 15px; font-weight: 600; min-width: 170px">Aprovar</button>
+                              <button type="button" id="btnReprovar" class="btn btn-primary" style="color: white !important;padding: 12px 44px;font-size: 15px;font-weight: 600;min-width: 170px;border-color: #cc3d3d!important;background-color: #cc3d3d!important;">Reprovar</button>
+                              <button type="button" id="btnEnviarSolicitacao" class="btn btn-success" style="display: none; color: white !important; padding: 12px 44px; font-size: 15px; font-weight: 600; min-width: 230px">Enviar Solicitação</button>
                            </div>
+                        </div>
+                        <div class="fg" id="divObservacaoValidacao" style="margin-top: 18px">
+                           <label for="observacaoValidacao">Observações</label>
+                           <textarea id="observacaoValidacao" name="observacaoValidacao" class="form-control" rows="5" placeholder="Digite aqui sua observação, justificativa ou orientação."></textarea>
                         </div>
                      </div>
                      <div class="historico-actions">
-                        <button type="button" class="btn btn-warning" id="btnEditarCamposInicio"><i class="flaticon flaticon-edit icon-sm"></i>Editar dados anteriores</button>
+                        <button type="button" class="btn btn-warning" id="btnEditarCamposInicio"><i class="flaticon flaticon-edit icon-sm"></i>Editar informações</button>
                      </div>
                   </div>
                </div>
                <div class="section" id="divHistoricoProcesso">
                   <button type="button" class="section-head" onclick="toggleSection(this)">
                      <div class="section-head-left">
-                        <div class="section-num">9</div>
                         <span class="section-name">Linha do Tempo</span>
                         <span class="section-arrow open">▼</span>
                      </div>
@@ -933,7 +924,7 @@
                <button type="button" class="stepper-arrow left" id="btn-voltar" onclick="goToPrevVisibleStep()"><i class="fluigicon fluigicon-chevron-left icon-sm" aria-hidden="true"></i></button>
                <div class="stepper-wrap">
                   <div class="stepper">
-                     <button type="button" class="step-item active" id="nav-step-PreCad" onclick="goToStep(1)">
+                     <button type="button" class="step-item active" id="nav-step-PreCad" onclick="navegarParaStep(1)">
                         <div class="step-circle"><span class="step-num">1</span></div>
                         <div class="step-info">
                            <span class="step-label">Etapa 1 de 3</span>
@@ -944,7 +935,7 @@
                      <div class="step-connector">
                         <div class="step-connector-line"></div>
                      </div>
-                     <button type="button" class="step-item" id="nav-step-DadosCadastrais" onclick="goToStep(2)">
+                     <button type="button" class="step-item" id="nav-step-DadosCadastrais" onclick="navegarParaStep(2)">
                         <div class="step-circle"><span class="step-num">2</span></div>
                         <div class="step-info">
                            <span class="step-label">Etapa 2 de 3</span>
@@ -956,7 +947,7 @@
                         <div class="step-connector-line"></div>
                      </div>
                      <!-- Documentação -->
-                     <button type="button" class="step-item" id="nav-step-Documentacao" onclick="goToStep(3)">
+                     <button type="button" class="step-item" id="nav-step-Documentacao" onclick="navegarParaStep(3)">
                         <div class="step-circle"><span class="step-num">3</span></div>
                         <div class="step-info">
                            <span class="step-label">Etapa 3 de 3</span>
@@ -968,7 +959,7 @@
                         <div class="step-connector-line"></div>
                      </div>
                      <!-- Historico e decisão -->
-                     <button type="button" class="step-item" id="nav-step-HistoricoDecisao" style="display: none"onclick="goToStep(4)">
+                     <button type="button" class="step-item" id="nav-step-HistoricoDecisao" style="display: none"onclick="navegarParaStep(4)">
                         <div class="step-circle"><i class="flaticon flaticon-clock icon-md" aria-hidden="true"></i></div>
                         <div class="step-info">
                            <span class="step-label">ETAPA DECISÃO</span>

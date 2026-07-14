@@ -84,10 +84,6 @@ textarea[readonly] {
 	opacity: 0.6;
 }
 
-
-/* ─── LAYOUT GERAL ─── */
-/* margin-top: 85px — espaço para a barra wizard flutuante
-   (position:fixed, margin:8px 12px 10px, altura ~50px ≈ 68px total + folga) */
 .page-wrap {
   width: 100%;
   max-width: none;
@@ -134,8 +130,6 @@ hr {
 	margin: 18px 0;
 }
 
-/* Campo + botão "Adicionar" na mesma linha flex.
-   A mensagem de erro fica ABAIXO da linha e não desloca o botão. */
 .input-btn-row {
 	display: flex;
 	align-items: flex-start;
@@ -149,7 +143,7 @@ hr {
 	flex: 1;
 	min-width: 0;
 }
-/* Botão com mesma altura do form-control (46px) para ficarem perfeitamente alinhados */
+
 .input-btn-row .btn {
 	height: 46px;
 }
@@ -172,8 +166,6 @@ hr {
 	min-height: 200px;
 }
 
-
-/* ─── TOPBAR ─── */
 .topbar {
 	height: 64px;
 	background: #ffffff;
@@ -262,8 +254,6 @@ hr {
 	color: #4b3a2c;
 }
 
-
-/* ─── SUBHEADER / BREADCRUMB ─── */
 .subheader {
 	background: #faf7f3;
 	border-bottom: 1px solid #eadfd5;
@@ -318,8 +308,6 @@ hr {
 	font-weight: 700;
 }
 
-
-/* ─── STEPPER / NAVEGAÇÃO ─── */
 .stepper-nav-wrap {
 	max-width: 1650px;
 	width: 96%;
@@ -332,10 +320,11 @@ hr {
 }
 
 .stepper-wrap {
-	width: 100%;
-	overflow-x: auto;
-	overflow-y: hidden;
-	padding-bottom: 18px;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 18px;
+    padding-top: 18px;
 }
 
 .stepper {
@@ -343,7 +332,6 @@ hr {
 	align-items: center !important;
 	justify-content: center !important;
 	gap: 40px !important;
-	/* width:max-content garante que o stepper não quebre em múltiplas linhas em viewports estreitas */
 	width: max-content !important;
 	min-width: 100%;
 	margin: 0 auto;
@@ -487,10 +475,6 @@ hr {
 	right: 12px;
 }
 
-
-
-
-/* ─── SECTIONS / PANELS ─── */
 .section-head {
 	width: 100%;
 	border: 0;
@@ -583,7 +567,7 @@ hr {
 }
 
 
-/* ─── FORMULÁRIOS / CAMPOS ─── */
+
 .fg.has-erro label {
 	color: #d9534f !important;
 }
@@ -710,7 +694,7 @@ select.form-control,
 }
 
 
-/* ─── BOTÕES ─── */
+
 .btn-cnae {
 	font-weight: 600;
 }
@@ -748,18 +732,6 @@ button.btn {
 	gap: 8px;
 }
 
-.btn-primary {
-	background: linear-gradient(135deg, #f37021, #ff9348) !important;
-	color: #2a2018 !important;
-}
-
-.btn-primary:hover,
-.btn-primary:focus {
-	background: linear-gradient(135deg, #e05f10, #f78439) !important;
-	color: #ffffff !important;
-	transform: translateY(-1px);
-}
-
 .btn-success {
 	background: linear-gradient(135deg, #1f9d55, #2db36a) !important;
 	color: #2a2018 !important;
@@ -784,7 +756,7 @@ button.btn {
 }
 
 
-/* ─── SWITCH / TOGGLE ─── */
+
 .switch {
 	position: relative;
 	display: inline-block;
@@ -819,8 +791,6 @@ button.btn {
 	transition: all 0.25s ease;
 }
 
-/* Usa ~ (sibling geral) em vez de + (adjacente) para tolerar hidden inputs entre
-   .switch-input e .switch-button sem quebrar o estado visual do toggle. */
 .switch-input:checked ~ .switch-button {
 	background: #5cb85c;
 }
@@ -829,8 +799,6 @@ button.btn {
 	transform: translateX(22px);
 }
 
-/* Quando bloqueado (Validação), .campo-bloqueado sobrescreveria o verde com !important.
-   Estas regras preservam a aparência correta do toggle mesmo quando bloqueado. */
 .switch-input:checked ~ .switch-button.campo-bloqueado {
 	background: #5cb85c !important;
 }
@@ -838,7 +806,6 @@ button.btn {
 	transform: translateX(22px) !important;
 }
 
-/* ─── RETENÇÃO / RETENÇÕES ─── */
 #divRetencoesPanel.retencao-erro {
 	border: 2px solid #d9534f;
 	background-color: #fff5f5;
@@ -933,12 +900,10 @@ button.btn {
 	border-color: #f0c36d;
 }
 
-/* Esconde o checkbox nativo — o card inteiro é o botão visual */
 .retencao-item input[type="checkbox"] {
 	display: none;
 }
 
-/* Ícone de check que aparece quando selecionado */
 .retencao-item span::before {
 	content: "";
 	display: inline-block;
@@ -962,7 +927,6 @@ button.btn {
 	color: #d35400;
 }
 
-/* Preenchimento do ícone de check quando selecionado */
 .retencao-item.ativo span::before {
 	background: #f37021;
 	border-color: #f37021;
@@ -972,8 +936,6 @@ button.btn {
 	background-position: center;
 }
 
-/* Quando bloqueado (Validação), .campo-bloqueado sobrescreveria o visual de selecionado.
-   Mantém a aparência de ativo para itens que foram marcados. */
 .retencao-item.ativo.campo-bloqueado {
 	border-color: #f37021 !important;
 	background: #fff0e6 !important;
@@ -983,8 +945,6 @@ button.btn {
 	color: #d35400 !important;
 }
 
-
-/* ─── CNAE / GRUPO MERCADORIA ─── */
 .cnae-box {
 	background: #fff6d9;
 	border: 1px solid #f0d48a;
@@ -1003,8 +963,6 @@ button.btn {
 	gap: 8px;
 }
 
-
-/* ─── UPLOAD / ANEXOS ─── */
 .upload-title {
 	font-size: 15px;
 	font-weight: 800;
@@ -1210,7 +1168,7 @@ button.btn {
 }
 
 
-/* ─── HISTÓRICO ─── */
+
 .historico-actions {
 	margin-top: 16px;
 	display: flex;
@@ -1311,8 +1269,6 @@ button.btn {
 	object-fit: cover;
 }
 
-
-/* ─── VALIDAÇÃO / ALERTAS ─── */
 .erro-validacao,
 .help-block.erro-validacao {
 	display: block;
@@ -1322,7 +1278,7 @@ button.btn {
 	font-weight: 600;
 }
 
-/* Mensagem de erro do painel de retenções (fora dos cards individuais) */
+
 #erroMinimoImposto {
 	margin-top: 4px;
 	margin-bottom: 12px;
@@ -1368,7 +1324,7 @@ button.btn {
 }
 
 
-/* ─── AVISO BANCÁRIO ─── */
+
 .bank-warning {
 	margin-top: 18px;
 	border: 1px solid #f0c98f;
@@ -1413,7 +1369,7 @@ button.btn {
 }
 
 
-/* ─── TOAST ─── */
+
 .toast {
 	position: fixed;
 	right: 24px;
@@ -1446,7 +1402,7 @@ button.btn {
 }
 
 
-/* ─── RESPONSIVO / STEPPER ─── */
+
 @media (max-width: 1366px) {
 	.stepper-nav-wrap {
 		max-width: 1650px;
@@ -1492,7 +1448,7 @@ button.btn {
 	}
 }
 
-/* ─── outros ─── */
+
 .footer-progress,
 .footer-info {
 	font-size: 13px;
@@ -1506,7 +1462,7 @@ button.btn {
 	flex-wrap: wrap;
 }
 
-/* wizard */
+
 header {
 	position: relative !important;
 	z-index: 1 !important;
@@ -1592,10 +1548,6 @@ header {
    color: #fff;
 }
 
-
-/* ─── BUSCA NOS SELECTS ─── */
-
-/* Raiz do overlay — simples container */
 #sso-root {
    display: none;
 }
@@ -1603,7 +1555,7 @@ header {
    display: block;
 }
 
-/* Backdrop transparente para fechar ao clicar fora */
+
 .sso-backdrop {
    position: fixed;
    inset: 0;
@@ -1612,7 +1564,6 @@ header {
    cursor: default;
 }
 
-/* Painel flutuante — fixed para ignorar scroll do container do Fluig */
 .sso-panel {
    position: fixed;
    z-index: 9991;
@@ -1624,7 +1575,7 @@ header {
    min-width: 220px;
 }
 
-/* Campo de pesquisa */
+
 .sso-input {
    display: block;
    width: 100%;
@@ -1673,9 +1624,6 @@ header {
    color: #a03e00;
 }
 
-/* ============================================================
-   TELA DE SELEÇÃO INICIAL (abertura de um novo processo)
-   ============================================================ */
 #telaSelecaoInicial {
    display: none;
 }
@@ -1763,7 +1711,13 @@ header {
 .tsi-opcao-desc {
    font-size: 13px;
 }
-/* Cadastrar — opção em destaque (laranja) */
+.tsi-opcao-texto {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 4px;
+}
+
 .tsi-opcao-primary {
    background: #e8821e;
    border-color: #e8821e;
@@ -1785,7 +1739,7 @@ header {
 .tsi-opcao-primary .tsi-opcao-desc {
    color: #ffe6cf;
 }
-/* Editar — opção secundária (contorno) */
+
 .tsi-opcao-secondary {
    background: #ffffff;
    border-color: #e6ddd4;
@@ -1808,9 +1762,6 @@ header {
    color: #8a8a8a;
 }
 
-/* ============================================================
-   MODAL DE EDIÇÃO — busca de Cliente/Fornecedor
-   ============================================================ */
 #modalEdicaoCfo .modal-dialog {
    max-width: 1060px;
    width: 95%;
@@ -1831,7 +1782,7 @@ header {
    font-weight: 600;
    color: #2c2c2a;
 }
-/* Botão de fechar (X) sem o fundo branco */
+
 #modalEdicaoCfo .modal-header .close,
 #modalEdicaoCfo .modal-header button.close {
    background: transparent !important;
@@ -1852,7 +1803,6 @@ header {
    border-top: none;
    padding: 16px 26px 24px !important;
 }
-/* Botões de ação do modal (ex.: Fechar) — texto branco sobre laranja */
 #modalEdicaoCfo .modal-footer button,
 #modalEdicaoCfo .modal-footer .btn {
    color: #ffffff !important;
@@ -1863,10 +1813,151 @@ header {
 #modalEdicaoCfo .modal-footer .btn:hover {
    background: #d2730f !important;
 }
-/* Fundo escurecido enquanto o modal de edição está aberto (esconde o form atrás) */
+
 body.modal-edicao-aberto .modal-backdrop {
    background-color: rgba(0, 0, 0, 0.5) !important;
    opacity: 1 !important;
+}
+
+@media (max-width: 600px) {
+   #modalEdicaoCfo .modal-dialog {
+      max-width: 100%;
+      width: 100%;
+      margin: 0;
+   }
+   #modalEdicaoCfo .modal-content {
+      border-radius: 0;
+      min-height: 100vh;
+   }
+   #modalEdicaoCfo .modal-header {
+      padding: 16px 18px;
+   }
+   #modalEdicaoCfo .modal-body {
+      min-height: auto;
+      padding: 18px 16px;
+   }
+
+   .edicao-busca-head {
+      margin-bottom: 16px;
+   }
+   .edicao-busca-row {
+      flex-direction: column;
+      gap: 10px;
+   }
+   .edicao-busca-input,
+   .edicao-busca-btn {
+      width: 100%;
+   }
+   .edicao-resultados {
+      border: none;
+      max-height: none;
+      overflow: visible;
+   }
+   .edicao-tabela,
+   .edicao-tabela tbody {
+      display: block;
+   }
+   .edicao-tabela thead {
+      display: none;
+   }
+   .edicao-linha {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #f0e6da;
+      border-radius: 12px;
+      background: #ffffff;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+   }
+   .edicao-linha td {
+      display: block;
+      border: none;
+      padding: 0;
+   }
+   .edicao-linha td:empty {
+      display: none;
+   }
+   .edicao-linha td[data-label="Nome"] {
+      order: 1;
+      font-size: 16px;
+      font-weight: 600;
+      color: #2c2c2a;
+      margin-bottom: 8px;
+   }
+   .edicao-linha td[data-label="Código"] {
+      order: 2;
+      font-size: 12px;
+      font-weight: 700;
+      color: #e8821e;
+      letter-spacing: 0.3px;
+   }
+   .edicao-linha td[data-label="Código"]::before {
+      content: "Cód. ";
+   }
+   .edicao-linha td[data-label="CNPJ/CPF"],
+   .edicao-linha td[data-label="Cidade/UF"] {
+      order: 3;
+      font-size: 13px;
+      color: #6f6f6f;
+      margin-top: 3px;
+   }
+   .edicao-linha td[data-label="CNPJ/CPF"]::before,
+   .edicao-linha td[data-label="Cidade/UF"]::before {
+      content: attr(data-label) ": ";
+      color: #b3b3b3;
+   }
+}
+
+@media (max-width: 600px) {
+   #telaSelecaoInicial.tsi-ativo {
+      min-height: auto;
+      padding: 1.5rem 1rem;
+   }
+   .tsi-card {
+      padding: 2rem 1.4rem;
+   }
+   .tsi-botoes {
+      flex-direction: column;
+      gap: 12px;
+   }
+   .tsi-opcao {
+      flex-direction: row;
+      align-items: center;
+      text-align: left;
+      width: 100%;
+      gap: 16px;
+      padding: 16px 18px;
+   }
+   .tsi-opcao-icone {
+      width: 46px;
+      height: 46px;
+      margin-bottom: 0;
+      flex-shrink: 0;
+   }
+   .tsi-opcao-icone i {
+      font-size: 24px;
+   }
+   .tsi-opcao-texto {
+      align-items: flex-start;
+      flex: 1;
+      gap: 2px;
+   }
+   .tsi-opcao-titulo {
+      font-size: 17px;
+   }
+   .tsi-opcao::after {
+      content: "\203A";
+      font-size: 26px;
+      line-height: 1;
+      flex-shrink: 0;
+   }
+   .tsi-opcao-primary::after {
+      color: #ffffff;
+   }
+   .tsi-opcao-secondary::after {
+      color: #c9b9a8;
+   }
 }
 
 .edicao-busca-head {
@@ -1984,7 +2075,49 @@ body.modal-edicao-aberto .modal-backdrop {
    font-weight: 600;
 }
 
-/* Edição — contas bancárias do RM (travadas) e toggle Ativo/Inativo */
+.banner-alerta {
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   background: #fff8e6;
+   border: 1px solid #f3d98a;
+   border-left: 4px solid #f0b429;
+   border-radius: 10px;
+   padding: 13px 16px;
+   margin: 0 0 18px;
+}
+.banner-alerta-icone {
+   font-size: 22px;
+   color: #e8a317;
+   flex-shrink: 0;
+   line-height: 1;
+}
+.banner-alerta-texto {
+   flex: 1;
+   font-size: 13.5px;
+   line-height: 1.45;
+   color: #7a5b00;
+}
+.banner-alerta-texto strong {
+   display: block;
+   font-size: 14px;
+   color: #5c4400;
+   margin-bottom: 1px;
+}
+.banner-alerta-fechar {
+   background: transparent;
+   border: none;
+   color: #b08900;
+   font-size: 22px;
+   line-height: 1;
+   cursor: pointer;
+   padding: 0 2px;
+   flex-shrink: 0;
+}
+.banner-alerta-fechar:hover {
+   color: #7a5b00;
+}
+
 .conta-ativa-toggle {
    display: inline-flex;
    align-items: center;
@@ -2006,7 +2139,6 @@ body.modal-edicao-aberto .modal-backdrop {
    font-weight: 500;
 }
 
-/* Edição — realce (amarelo) dos campos alterados, visível na Validação/Correção */
 .fg.campo-alterado input,
 .fg.campo-alterado select,
 .fg.campo-alterado textarea,

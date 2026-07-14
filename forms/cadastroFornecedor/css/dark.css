@@ -415,7 +415,7 @@ html.theme-dark .retencao-item span {
   color: #f5f5f5 !important;
 }
 
-/* CNAE */
+DCNAE */
 html.theme-dark .cnae-box {
   background: linear-gradient(145deg, #111318, #08090d) !important;
   border: 1px solid #2a2f38 !important;
@@ -663,12 +663,6 @@ html.theme-dark .step.completed {
   background: linear-gradient(135deg, #1d2522, #123c32) !important;
   color: #d8fff3 !important;
 }
-
-/* ── Page-header dark mode ──────────────────────────────────────────────────
-   header.css usa #divHeaderPreCad (especificidade 100 pts) com !important.
-   Para sobrescrever em dark mode usamos html.theme-dark #divHeaderPreCad
-   (101 pts) — o elemento html extra garante a vitória na cascata.
-   ────────────────────────────────────────────────────────────────────────── */
 
 html.theme-dark .page-header,
 html.theme-dark #divHeaderPreCad {
@@ -1107,10 +1101,6 @@ html.theme-dark .sso-option.sso-selected.sso-focused {
   background: rgba(255, 140, 66, 0.22) !important;
 }
 
-/* =============================================================
-   SELECT2 (multi-select com tags)
-   ============================================================= */
-
 html.theme-dark .select2-container--default .select2-selection--multiple {
   background: var(--bg-input) !important;
   border-color: #2d3440 !important;
@@ -1164,10 +1154,6 @@ html.theme-dark .select2-container--default .select2-results__option[aria-select
   color: #ffb066 !important;
 }
 
-/* =============================================================
-   HISTÓRICO (timeline de aprovação)
-   ============================================================= */
-
 html.theme-dark .historico-atividade {
   color: #ffb066 !important;
 }
@@ -1175,10 +1161,6 @@ html.theme-dark .historico-atividade {
 html.theme-dark .historico-observacao b {
   color: #ffb066 !important;
 }
-
-/* =============================================================
-   REQUIRED STAR / ASTERISCO
-   ============================================================= */
 
 html.theme-dark .required-star,
 html.theme-dark .strongAlert {

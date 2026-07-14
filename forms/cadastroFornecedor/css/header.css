@@ -28,7 +28,6 @@
 	box-shadow: inset 0 0 0 rgba(0, 0, 0, 0);
 }
 
-/*Primeira etapa*/
 .step:first-child {
 	margin-left: 0;
 	clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%);
@@ -36,14 +35,12 @@
 	border-bottom-left-radius: 14px;
 }
 
-/*Última etapa */
 .step:last-child {
 	border-top-right-radius: 14px;
 	border-bottom-right-radius: 14px;
 	clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 0, 100% 100%, calc(100% - 20px) 100%, 0 100%, 20px 50%);
 }
 
-/* Etapa ativa */
 .step.active {
 	background: linear-gradient(135deg, #ffe259, #ffa751);
 	color: #000;
@@ -52,13 +49,11 @@
 	transform: scale(1.02);
 }
 
-/* Etapa concluída*/
 .step.completed {
 	background: linear-gradient(to right, #43cea2, #185a9d);
 	color: white;
 }
 
-/* Hover para qualquer etapa (menos ativa) */
 .step:not(.active):hover {
 	box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
 	transform: translateY(-2px);
@@ -95,13 +90,6 @@
 	}
 }
 
-
-/* ─── PAGE-HEADER ────────────────────────────────────────────────────────────
-   Seletor de ID (#divHeaderPreCad) garante especificidade máxima (100 pts),
-   vencendo qualquer regra de classe do fluig-style-guide.min.css.
-   As classes .page-header / .page-header-* são mantidas como fallback genérico.
-   ─────────────────────────────────────────────────────────────────────────── */
-
 .page-header,
 #divHeaderPreCad {
     display:        flex !important;
@@ -121,14 +109,13 @@
     transition: all 0.25s ease;
 }
 
-/* hover */
+
 .page-header:hover,
 #divHeaderPreCad:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 30px rgba(0,0,0,0.11) !important;
 }
 
-/* ícone */
 .page-header-icon,
 #divHeaderPreCad .page-header-icon {
   width: 66px !important;
@@ -154,7 +141,6 @@
   transform: scale(1.06);
 }
 
-/* área de texto */
 .page-header-info,
 #divHeaderPreCad .page-header-info {
   min-width: 0 !important;
@@ -162,7 +148,6 @@
   text-align: left !important;
 }
 
-/* título */
 .page-header-title,
 #divHeaderPreCad .page-header-title {
   font-size: 24px;
@@ -173,7 +158,6 @@
   text-align: left !important;
 }
 
-/* subtítulo */
 .page-header-sub,
 #divHeaderPreCad .page-header-sub {
   font-size: 14px;
@@ -183,7 +167,6 @@
   text-align: left !important;
 }
 
-/* badge */
 .step-badge,
 #divHeaderPreCad .step-badge {
   display: inline-block !important;
