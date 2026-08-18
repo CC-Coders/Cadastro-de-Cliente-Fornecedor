@@ -31,13 +31,14 @@ function createDataset(fields, constraints, sortFields) {
 
         if (!temLetras && (soDigitos.length === 11 || soDigitos.length === 14)) {
 
-            queryInterna += "WHERE f.CODCOLIGADA = 0 AND REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(f.CGCCFO,'.',''),(char(47)),''),(char(45)),''),' ',''),',','') = ? ";
+            queryInterna += "WHERE f.CODCOLIGADA = 0 AND REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(f.CGCCFO,'.',''),'/',''),'-',''),' ',''),',','') = ? ";
             params.push({ type: "string", value: soDigitos });
 
         } else if (!temLetras && soDigitos.length > 0) {
 
+            // CODCFO é varchar no RM: compara como string, não como int.
             queryInterna += "WHERE f.CODCOLIGADA = 0 AND f.CODCFO = ? ";
-            params.push({ type: "int", value: parseInt(soDigitos, 10) });
+            params.push({ type: "string", value: soDigitos });
 
         } else {
             queryInterna += "WHERE f.CODCOLIGADA = 0 AND (f.NOME LIKE ? OR f.NOMEFANTASIA LIKE ?) ";
@@ -54,25 +55,36 @@ function createDataset(fields, constraints, sortFields) {
 
         var retorno = executaQuery(query, params, "/jdbc/RM");
 
+        log.info("ds_buscarCfoRM - TERMO: " + termoBruto + " | Retornados: " + retorno.length);
+
         return returnDataset("SUCCESS", "", JSON.stringify(retorno));
 
     } catch (error) {
-        if (typeof error == "object") {
-            var mensagem = "";
-            var keys = Object.keys(error);
-            for (var i = 0; i < keys.length; i++) {
-                mensagem += (keys[i] + ": " + error[keys[i]]) + " - ";
-            }
-;
-            return returnDataset("ERRO", mensagem, null);
-        } else {
-            return returnDataset("ERRO", error, null);
-        }
+        var mensagem = extraiMensagemErro(error);
+        log.error("Erro ao executar Dataset ds_buscarCfoRM: " + mensagem);
+        return returnDataset("ERRO", mensagem, null);
     }
 }
 
 
 // Utils
+function extraiMensagemErro(error) {
+    if (error == null) return "Erro desconhecido";
+    if (typeof error == "string") return error;
+    try {
+        if (error.javaException != null) {
+            return String(error.javaException.getMessage() != null
+                ? error.javaException.getMessage() : error.javaException.toString());
+        }
+        if (error.rhinoException != null && error.rhinoException.getMessage() != null) {
+            return String(error.rhinoException.getMessage());
+        }
+        if (error.message != null && error.message != "") return String(error.message);
+        return String(error);
+    } catch (erroInterno) {
+        return "Erro desconhecido (falha ao extrair mensagem do erro original)";
+    }
+}
 function getConstraints(constraints) {
     var retorno = {};
     if (constraints != null) {
