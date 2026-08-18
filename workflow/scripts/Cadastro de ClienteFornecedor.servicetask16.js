@@ -55,8 +55,9 @@ function servicetask16(attempt, message) {
     var codReceita    = clienteForncedor("hiddenCodIrrf") || clienteForncedor("codIrrf") || "";
     var natRendimento = clienteForncedor("idNatRendimento") || "";
 
-    var mapPagrec = { "1": "2", "2": "1", "3": "3" };
-    var pagrec = mapPagrec[classificacao] || "1";
+    // PAGREC no RM: 1=Cliente, 2=Fornecedor, 3=Ambos — MESMA convenção do #classificacao do form.
+    // (O mapa antigo invertia 1<->2, gravando Cliente como Fornecedor e vice-versa.)
+    var pagrec = classificacao || "1";
 
     var dtNascimentoRM = "";
     if (dtNascimento) {
