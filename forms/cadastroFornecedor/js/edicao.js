@@ -177,8 +177,8 @@ function preencherEdicaoCompleta(detalhes) {
    var categoria = (c.CATEGORIA || '').toString().trim().toUpperCase(); // F ou J
    if (categoria) { $('#categoria').val(categoria).trigger('change'); }
 
-   var mapPagrecInv = { '2': '1', '1': '2', '3': '3' }; 
-   var classif = mapPagrecInv[(c.PAGREC || '').toString().trim()] || '';
+   // PAGREC no RM = mesma convenção do #classificacao (1=Cliente, 2=Fornecedor, 3=Ambos).
+   var classif = (c.PAGREC || '').toString().trim();
    if (classif) { $('#classificacao').val(classif).trigger('change'); }
 
    if (c.CODTCF) { $('#tipo').val(c.CODTCF).trigger('change'); }

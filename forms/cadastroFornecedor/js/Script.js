@@ -188,6 +188,9 @@ $(document).ready(function () {
     if (typeof controlarNaturezaPorTipo === "function") {
       controlarNaturezaPorTipo();
     }
+    if (typeof aplicarRegrasPfRdo === "function") {
+      aplicarRegrasPfRdo();
+    }
   });
   
   // DEFINE O REGIME FISCAL AUTOMATICAMENTE CONFORME A OPÇÃO PELO SIMPLES NACIONAL

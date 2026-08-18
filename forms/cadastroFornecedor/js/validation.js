@@ -128,13 +128,6 @@ function validarDocumentosPorCategoria() {
          valido = false;
       }
 
-      // RG inválido também bloqueia o envio.
-      const rg = $("#docRg").val();
-      if (rg && !validarRG(rg)) {
-         exibirErroCampo("docRg", "RG inválido.");
-         valido = false;
-      }
-
       return valido;
    }
 

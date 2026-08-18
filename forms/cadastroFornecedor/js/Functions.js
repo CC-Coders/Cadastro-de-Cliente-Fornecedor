@@ -374,7 +374,7 @@ function controlarStepperHistorico() {
 function inicializarMascaras() {
    $("#docCpf").mask("000.000.000-00");
    $("#docCnpj").mask("AA.AAA.AAA/AAAA-00");
-   $("#docRg").mask("00.000.000-0");
+   // RG sem máscara: aceita qualquer formato (varia por estado).
    $("#docInscricaoEstadual").mask("000.000.000.000");
    $("#docInscricaoMunicipal").mask("000.000.000.000");
    $("#cep").mask("00000-000");
@@ -901,8 +901,39 @@ function aplicarRegrasCadastroAssertivo() {
       }
 
       _forcarNaturezaAluguel();
+      aplicarRegrasPfRdo();
    } catch (e) {
       console.warn("[regras] cadastro assertivo:", e);
+   }
+}
+
+// PESSOA FÍSICA + RDO: fixa Contribuinte ICMS em "0" e Código de Receita IRRF em "0588", travados.
+function aplicarRegrasPfRdo() {
+   if (typeof ehModoView === "function" && ehModoView()) { return; }
+
+   var ehFisica = ($("#categoria").val() || "").trim() === "F";
+   var ehRDO = (typeof _ehTipoRDO === "function") && _ehTipoRDO();
+   var $icms = $("#icms");
+   var $irrf = $("#selectDescricaoIrrf");
+
+   if (ehFisica && ehRDO) {
+      // Contribuinte ICMS fixo em "0 - Não Contribuinte"
+      if ($icms.length) {
+         if (($icms.val() || "") !== "0") { $icms.val("0").trigger("change"); }
+         $icms.addClass("campo-bloqueado").attr("data-bloqueado", "1");
+      }
+      // Código de Receita IRRF fixo em "0588 - PGTO PESSOA FÍSICA" (garante a opção caso o dataset não traga)
+      if ($irrf.length) {
+         if (!$irrf.find('option[value="0588"]').length) {
+            $irrf.append('<option value="0588" data-aliquota="0">0588 — PGTO. PESSOA FÍSICA</option>');
+         }
+         if (($irrf.val() || "") !== "0588") { $irrf.val("0588").trigger("change"); }
+         $irrf.addClass("campo-bloqueado").attr("data-bloqueado", "1");
+         $("#hiddenCodIrrf").val("0588");
+      }
+   } else {
+      $icms.removeClass("campo-bloqueado").removeAttr("data-bloqueado");
+      $irrf.removeClass("campo-bloqueado").removeAttr("data-bloqueado");
    }
 }
 
@@ -1025,7 +1056,7 @@ function _popularSelectIrrf(lista, pessoaTipo, valorSalvo) {
 
    let codigosPermitidos = [];
    if (pessoaTipo === "F") {
-      codigosPermitidos = ["3208", "0001"];
+      codigosPermitidos = ["0588", "3208", "0001"]; // 0588 = PGTO PESSOA FÍSICA (usado no RDO)
    } else if (pessoaTipo === "J") {
       codigosPermitidos = ["1708", "17081", "0001"];
    }

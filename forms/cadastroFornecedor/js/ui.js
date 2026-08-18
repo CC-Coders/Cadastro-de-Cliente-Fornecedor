@@ -909,7 +909,9 @@ function controlarEdicaoInicioValidacao() {
    if (atividade === ATIVIDADES.INICIO_0 ||
        atividade === ATIVIDADES.INICIO ||
        atividade === ATIVIDADES.CORRECAO ||
-       atividade === ATIVIDADES.INTEGRACAO) {
+       atividade === ATIVIDADES.INTEGRACAO ||
+       atividade === ATIVIDADES.ERRO_INTEGRACAO) {
+      // ERRO_INTEGRACAO fica editável (como Início/Correção) para ajustar e reenviar o processo.
       $("#btnEditarCamposInicio").hide();
       return;
    }

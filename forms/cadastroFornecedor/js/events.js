@@ -190,14 +190,7 @@ function bindEventosDocumentos() {
       });
    });
 
-   $("#docRg").on("input", function () {
-      validarDocumentoDigitado({
-         campoId: "docRg",
-         tamanhoMinimo: 9,
-         mensagemErro: "RG inválido.",
-         validador: validarRG
-      });
-   });
+   // RG sem validação de máscara: aceita qualquer formato (segue obrigatório para PF).
 
    $("#dtNascimento").on("change input blur", function () {
       const valor = $(this).val();
