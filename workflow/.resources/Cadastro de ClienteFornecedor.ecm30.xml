@@ -28,10 +28,11 @@
     <processDefinitionVersionPK>
       <companyId>1</companyId>
       <processId>Cadastro e Alteração de Cliente/Fornecedor</processId>
-      <version>19</version>
+      <version>90</version>
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
     <formId>0</formId>
+    <formIdV2>0</formIdV2>
     <editionMode>true</editionMode>
     <updateAttachmentsVersion>false</updateAttachmentsVersion>
     <controlsAttachmentsSecurity>false</controlsAttachmentsSecurity>
@@ -75,7 +76,7 @@
       <notifyAuthorityFollowUp>false</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>70</positionX>
+      <positionX>80</positionX>
       <positionY>90</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
@@ -429,7 +430,7 @@
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
         <expressionOrder>1</expressionOrder>
-        <version>19</version>
+        <version>90</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;Correcao&quot;</condition>
@@ -441,7 +442,7 @@
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
         <expressionOrder>2</expressionOrder>
-        <version>19</version>
+        <version>90</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;enviarRm&quot;</condition>
@@ -2129,7 +2130,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>19</version>
+        <version>90</version>
         <linkSequence>17</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2140,7 +2141,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>19</version>
+        <version>90</version>
         <linkSequence>17</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2151,7 +2152,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>19</version>
+        <version>90</version>
         <linkSequence>25</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2162,7 +2163,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>19</version>
+        <version>90</version>
         <linkSequence>25</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2173,7 +2174,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>19</version>
+        <version>90</version>
         <linkSequence>28</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2184,7 +2185,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>19</version>
+        <version>90</version>
         <linkSequence>28</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2195,29 +2196,29 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>19</version>
+        <version>90</version>
         <linkSequence>29</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
-      <positionX>133</positionX>
-      <positionY>107</positionY>
+      <positionX>97</positionX>
+      <positionY>203</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>19</version>
+        <version>90</version>
         <linkSequence>29</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
-      <positionX>133</positionX>
+      <positionX>97</positionX>
       <positionY>280</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>19</version>
+        <version>90</version>
         <linkSequence>30</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2228,7 +2229,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>19</version>
+        <version>90</version>
         <linkSequence>30</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2239,7 +2240,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>19</version>
+        <version>90</version>
         <linkSequence>30</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
@@ -2250,7 +2251,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>19</version>
+        <version>90</version>
         <linkSequence>31</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2261,7 +2262,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>19</version>
+        <version>90</version>
         <linkSequence>31</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2272,7 +2273,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>19</version>
+        <version>90</version>
         <linkSequence>31</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>

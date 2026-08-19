@@ -118,25 +118,31 @@ function createDataset(fields, constraints, sortFields) {
         return returnDataset("SUCCESS", "", JSON.stringify(resultado));
 
     } catch (error) {
-        if (typeof error == "object") {
-            var mensagem = "";
-            var keys = Object.keys(error);
-            for (var i = 0; i < keys.length; i++) {
-                mensagem += (keys[i] + ": " + error[keys[i]]) + " - ";
-            }
-            log.info("Erro ao executar Dataset:");
-            log.dir(error);
-            log.info(mensagem);
-
-            return returnDataset("ERRO", mensagem, null);
-        } else {
-            return returnDataset("ERRO", error, null);
-        }
+        var mensagem = extraiMensagemErro(error);
+        log.error("Erro ao executar Dataset ds_detalhesCfoRM: " + mensagem);
+        return returnDataset("ERRO", mensagem, null);
     }
 }
 
 
 // Utils
+function extraiMensagemErro(error) {
+    if (error == null) return "Erro desconhecido";
+    if (typeof error == "string") return error;
+    try {
+        if (error.javaException != null) {
+            return String(error.javaException.getMessage() != null
+                ? error.javaException.getMessage() : error.javaException.toString());
+        }
+        if (error.rhinoException != null && error.rhinoException.getMessage() != null) {
+            return String(error.rhinoException.getMessage());
+        }
+        if (error.message != null && error.message != "") return String(error.message);
+        return String(error);
+    } catch (erroInterno) {
+        return "Erro desconhecido (falha ao extrair mensagem do erro original)";
+    }
+}
 function getConstraints(constraints) {
     var retorno = {};
     if (constraints != null) {
@@ -173,9 +179,6 @@ function lancaErroSeConstraintsObrigatoriasNaoInformadas(constraints, listConstr
 }
 function executaQuery(query, constraints, dataSorce) {
     try {
-        log.info(query);
-        log.dir(constraints);
-
         var dataSource = dataSorce;
         var ic = new javax.naming.InitialContext();
         var ds = ic.lookup(dataSource);
