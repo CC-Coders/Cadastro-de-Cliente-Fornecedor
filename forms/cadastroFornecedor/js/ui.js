@@ -219,7 +219,8 @@ function controlarCamposCategoria() {
    $("#divToggleEstrangeiro").hide();
 
    if (categoria === "F") {
-      $("#divCpf, #divNomeFantasia, #divRg").show();
+      // PF exibe Inscrição Estadual (opcional) — clientes que pedem a IE na nota fiscal.
+      $("#divCpf, #divNomeFantasia, #divRg, #divInscricaoEstadual").show();
       $("#docCpf, #docRg, #nomeFantasia").prop("required", true);
 
       $("#divDadosPF").show();
