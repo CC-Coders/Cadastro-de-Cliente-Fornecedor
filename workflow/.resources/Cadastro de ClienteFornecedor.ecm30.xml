@@ -76,7 +76,7 @@
       <notifyAuthorityFollowUp>false</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>70</positionX>
+      <positionX>80</positionX>
       <positionY>90</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
@@ -2200,8 +2200,8 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
         <linkSequence>29</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
-      <positionX>133</positionX>
-      <positionY>107</positionY>
+      <positionX>97</positionX>
+      <positionY>203</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
@@ -2211,7 +2211,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
         <linkSequence>29</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
-      <positionX>133</positionX>
+      <positionX>97</positionX>
       <positionY>280</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
