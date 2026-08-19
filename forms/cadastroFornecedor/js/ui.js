@@ -152,28 +152,7 @@ function controlarCamposClassificacao() {
    } else {
       $("#divDadosBancarios").show();
    }
-   if (isCliente) {
-
-      if (!$("#categoria").data("optPF")) {
-         let $pf = $("#categoria option[value='F']");
-         if ($pf.length) {
-            let eraPF = $("#categoria").val() === "F";
-            $("#categoria").data("optPF", $pf.detach());
-
-            if (eraPF) {
-               $("#categoria").prop("selectedIndex", 0).trigger("change");
-            }
-         }
-      }
-   } else {
-      
-      let $pfSalvo = $("#categoria").data("optPF");
-      if ($pfSalvo && !$("#categoria option[value='F']").length) {
-         let $pj = $("#categoria option[value='J']");
-         if ($pj.length) { $pj.after($pfSalvo); } else { $("#categoria").append($pfSalvo); }
-         $("#categoria").removeData("optPF");
-      }
-   }
+   // Pessoa Física continua disponível como Cliente (venda em balcão).
 
    if (isCliente) {
       $(".cnae-box").hide().prev(".divider").hide();

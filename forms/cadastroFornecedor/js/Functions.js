@@ -890,14 +890,8 @@ function aplicarRegrasCadastroAssertivo() {
          _restringirOpcaoTipo($tipo, "005", isCliente); // CLIENTE
          _restringirOpcaoTipo($tipo, "020", ehFisica);  // RDO
 
-         if (isCliente) {
-            if (($tipo.val() || "") !== "005" && $tipo.find('option[value="005"]').length) {
-               $tipo.val("005").trigger("change");
-            }
-            $tipo.addClass("campo-bloqueado").attr("data-bloqueado", "1");
-         } else {
-            $tipo.removeClass("campo-bloqueado").removeAttr("data-bloqueado");
-         }
+         // Tipo fica livre para escolha em qualquer classificação, sem valor forçado.
+         $tipo.removeClass("campo-bloqueado").removeAttr("data-bloqueado");
       }
 
       _forcarNaturezaAluguel();
