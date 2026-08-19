@@ -330,7 +330,7 @@ function controlarEnderecoEstrangeiro(ativo) {
       $("#divCep").show();
       $("#cep").prop("required", true);
 
-      $("#endereco, #bairro").prop("readonly", true);
+      $("#endereco, #bairro").prop("readonly", false);
       $("#divPais").show();
       $("#divSelectPaisEstrangeiro").hide();
       $("#selectPaisEstrangeiro").prop("required", false);
@@ -344,7 +344,7 @@ function controlarEnderecoEstrangeiro(ativo) {
       $estadoWrap.show();
       $("#estadoExteriorDisplay").hide();
       $("#estado option[value='EX']").remove();
-      $("#estado").val("").prop({ required: true, readonly: true });
+      $("#estado").val("").prop("required", true);
 
 
       if (_cidadeSelectOriginalHtml) {
@@ -354,7 +354,7 @@ function controlarEnderecoEstrangeiro(ativo) {
             _cidadeSelectOriginalHtml = null;
          }
       }
-      $("#cidade").val("").prop("readonly", true);
+      $("#cidade").val("");
       $("#codMunicipio").val("");
       if (!globalThis._formRestaurando) {
          $("#nomeCidadeSalva").val("");

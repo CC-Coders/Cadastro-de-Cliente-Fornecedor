@@ -6,13 +6,13 @@ function buscarCep(cep) {
       dataType: "json",
       success: function (data) {
          if (data.erro) {
+            // Não limpa o endereço: em áreas remotas o CEP pode não existir na base e o
+            // preenchimento é manual.
             FLUIGC.toast({
-               message: "CEP não encontrado!.",
-               type: "danger",
+               message: "CEP não encontrado. Preencha o endereço manualmente.",
+               type: "warning",
                timeout: 3000
             });
-
-            limpaCamposEndereco();
             return;
          }
 
@@ -20,12 +20,10 @@ function buscarCep(cep) {
       },
       error: function () {
          FLUIGC.toast({
-            message: "Erro ao buscar CEP.",
-            type: "danger",
+            message: "Erro ao buscar CEP. Preencha o endereço manualmente.",
+            type: "warning",
             timeout: 3000
          });
-
-         limpaCamposEndereco();
       }
    });
 }
