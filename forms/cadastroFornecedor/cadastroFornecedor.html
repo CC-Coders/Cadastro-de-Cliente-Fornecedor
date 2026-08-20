@@ -20,9 +20,16 @@
    <link rel="stylesheet" href="css/footer.css"/>
    <link rel="stylesheet" href="css/header.css"/>
    <link rel="stylesheet" href="css/paginacao.css"/>
+   <link rel="stylesheet" href="css/castilhoWizard.css"/>
+   <link rel="stylesheet" href="css/castilhoFooter.css"/>
+   <link rel="stylesheet" href="css/historico.css"/>
    <link rel="stylesheet" href="css/dark.css">
    <link rel="stylesheet" href="css/mobile.css">
    <script src="js/mobile.js"></script>
+   <script src="js/variaveisGlobais.js"></script>
+   <script src="js/castilhoWizard.js"></script>
+   <script src="js/castilhoFooter.js"></script>
+   <script src="js/historico.js"></script>
    <script src="js/Functions.js"></script>
    <script src="js/Script.js"></script>
    <script src="js/api.js"></script>
@@ -190,25 +197,12 @@
          </div>
          <!-- CABEÇALHO -->
          <header>
-            <div class="wizard-progress">
-               <div class="step" style="display: block">SOLICITAÇÃO</div>
-               <div class="step" style="display: block">VALIDAÇÃO</div>
-               <div class="step" style="display: block">FIM</div>
-            </div>
+            <div class="castilhoWizard-progress"></div>
          </header>
          <!-- CAMPOS PRINCIPAIS DO FORMULÁRIO -->
          <main class="page-wrap" id="preCadastro" style="visibility:hidden">
-             <!-- BANNER MOBILE  -->
-            <div id="bannerAlerta" class="banner-alerta" style="display:none">
-               <span class="banner-alerta-icone">&#9888;</span>
-               <div class="banner-alerta-texto">
-                  <strong>Atenção</strong>
-                  <span id="bannerAlertaMsg">Preencha todos os campos obrigatórios para avançar.</span>
-               </div>
-               <button type="button" class="banner-alerta-fechar" onclick="esconderBannerAlerta()" aria-label="Fechar">&times;</button>
-            </div>
             <!-- PRÉ-CADASTRO -->
-            <div class="step-panel step-1 active" id="divPreCadastro">
+            <div class="step-panel tab-pane-form step-1 active" id="divPreCadastro">
                <div class="page-header step-1" name="divHeaderPreCad" id="divHeaderPreCad">
                   <div class="page-header-icon"><i class="flaticon flaticon-account-circle"></i></div>
                   <div class="page-header-info" style="margin-bottom: 17px;margin-top: 5px;">
@@ -218,12 +212,11 @@
                   </div>
                </div>
                <div class="section" id="divDadosFornecedor">
-                  <button type="button" class="section-head" onclick="toggleSection(this)">
+                  <div class="section-head">
                      <div class="section-head-left">
                         <span class="section-name">Dados do Cliente / Fornecedor</span>
-                        <span class="section-arrow open">▼</span>
                      </div>
-                  </button>
+                  </div>
                   <div class="section-body" style="display:block">
                      <div class="grid g3">
                         <div class="fg" id="divClassificacao" name="divClassificacao">
@@ -272,12 +265,11 @@
                   </div>
                </div>
                <div class="section" id="divDadosComerciais" style="display:none">
-                  <button type="button" class="section-head" onclick="toggleSection(this)">
+                  <div class="section-head">
                      <div class="section-head-left">
                         <span class="section-name">Dados Comerciais</span>
-                        <span class="section-arrow open">▼</span>
                      </div>
-                  </button>
+                  </div>
                   <div class="section-body">
                      <div class="alert alert-warning" id="alertCPF" name="alertCPF" style="display: none">
                         Pessoa Física: informe o CPF (validação de dígitos verificadores) e o RG.
@@ -384,12 +376,11 @@
                   </div>
                </div>
                <div class="section" id="divEndereco" style="display:none">
-                  <button type="button" class="section-head" onclick="toggleSection(this)">
+                  <div class="section-head">
                      <div class="section-head-left">
                         <span class="section-name">Endereço</span>
-                        <span class="section-arrow open">▼</span>
                      </div>
-                  </button>
+                  </div>
                   <div class="section-body">
                      <div class="grid g3" id="docEndereco">
                         <div class="fg" id="divCep">
@@ -444,7 +435,7 @@
                </div>
             </div>
             <!-- DADOS CADASTRAIS -->
-            <div class="step-panel step-2" id="divDadosCadastrais" name="divDadosCadastrais" style="display: none">
+            <div class="step-panel tab-pane-form step-2" id="divDadosCadastrais" name="divDadosCadastrais" style="display: none">
                <div class="page-header step-2" id="divHeaderDadosCadastrais">
                   <div class="page-header-icon"><i class="flaticon flaticon-file-person icon-lg" aria-hidden="true"></i></div>
                   <div class="page-header-info" style="margin-bottom: 17px;margin-top: 5px;">
@@ -454,12 +445,11 @@
                   </div>
                </div>
                <div class="section" id="divDadosFiscais">
-                  <button type="button" class="section-head" onclick="toggleSection(this)">
+                  <div class="section-head">
                      <div class="section-head-left">
                         <span class="section-name">Dados Fiscais</span>
-                        <span class="section-arrow open">▼</span>
                      </div>
-                  </button>
+                  </div>
                   <div class="section-body">
                      <div class="grid g3" id="divIrrfRow">
                         <div class="fg" id="divIcms">
@@ -638,12 +628,11 @@
                   </div>
                </div>
                <div class="section" id="divDadosBancarios">
-                  <button type="button" class="section-head" onclick="toggleSection(this)">
+                  <div class="section-head">
                      <div class="section-head-left">
                         <span class="section-name">Dados Bancários</span>
-                        <span class="section-arrow open">▼</span>
                      </div>
-                  </button>
+                  </div>
 
                   <div class="section-body">
                      <p class="bank-info-text">
@@ -717,12 +706,11 @@
                   </div>
                </div>
                <div class="section" id="divContatos">
-                  <button type="button" class="section-head" onclick="toggleSection(this)">
+                  <div class="section-head">
                      <div class="section-head-left">
                         <span class="section-name">Contatos</span>
-                        <span class="section-arrow open">▼</span>
                      </div>
-                  </button>
+                  </div>
                   <div class="section-body">
                      <div class="grid g3">
                         <div class="fg" id="divTel">
@@ -755,7 +743,7 @@
                </div>
             </div>
             <!-- DOCUMENTAÇÃO -->
-            <div class="step-panel step-3" id="divDocumentacao" name="divDocumentacao" style="display: none">
+            <div class="step-panel tab-pane-form step-3" id="divDocumentacao" name="divDocumentacao" style="display: none">
                <div class="page-header step-3" id="divHeaderDocumentacao" name="divHeaderDocumentacao">
                   <div class="page-header-icon"><i class="flaticon flaticon-cloud-download icon-lg" aria-hidden="true"></i></div>
                   <div class="page-header-info" style="margin-bottom: 17px;margin-top: 5px;">
@@ -765,12 +753,11 @@
                   </div>
                </div>
                <div class="section" id="divAnexosDocumentos" name="divAnexosDocumentos">
-                  <button type="button" class="section-head" onclick="toggleSection(this)">
+                  <div class="section-head">
                      <div class="section-head-left">
                         <span class="section-name">Anexos de Documentos</span>
-                        <span class="section-arrow open">▼</span>
                      </div>
-                  </button>
+                  </div>
                   <div class="section-body">
                      <div class="grid g3">
                         <!-- Documento de Identificação -->
@@ -864,112 +851,101 @@
                </div>
             </div>
             <!-- HISTÓRICO E DECISÃO -->
-            <div class="step-panel step-4" id="paginaHistorico" style="display: none">
-               <div class="page-header step-4" id="divHeaderHistorico">
-                  <div class="page-header-icon"><i class="flaticon flaticon-clock icon-md" aria-hidden="true"></i></div>
-                  <div class="page-header-info" style="margin-bottom: 17px;margin-top: 5px;">
-                     <div class="page-header-title">Histórico e Decisão</div>
-                     <div class="page-header-sub">Consulte o andamento do processo e registre sua decisão.</div>
-                     <div class="step-badge step-4">Etapa de tomada de decisão do processo</div>
-                  </div>
-               </div>
-               <div class="section" id="divHistoricoDecisao">
-                  <button type="button" class="section-head" onclick="toggleSection(this)">
-                     <div class="section-head-left">
-                        <span class="section-name" id="sectionNameDecisao">Decisão da Validação</span>
-                        <span class="section-arrow open">▼</span>
-                     </div>
-                  </button>
-                  <div class="section-body">
-                     <div class="grid g1">
-                        <div class="fg" id="divSelectDecisao" style="text-align: center">
-                           <label for="selectDecisao" id="labelAcaoValidacao" style="display: block; text-align: center">Ação</label>
-                           <select class="form-control" id="selectDecisao" name="selectDecisao" style="display: none">
-                              <option value="">Selecione...</option>
-                              <option value="Correcao">Correção do Cadastro</option>
-                              <option value="enviarRm">Enviar ao RM</option>
-                           </select>
-                           <div style="display: flex; gap: 12px; margin-top: 6px; flex-wrap: wrap; justify-content: center">
-                              <button type="button" id="btnAprovar" class="btn btn-success" style="color: white !important; padding: 12px 44px; font-size: 15px; font-weight: 600; min-width: 170px">Aprovar</button>
-                              <button type="button" id="btnReprovar" class="btn btn-primary" style="color: white !important;padding: 12px 44px;font-size: 15px;font-weight: 600;min-width: 170px;border-color: #cc3d3d!important;background-color: #cc3d3d!important;">Reprovar</button>
-                              <button type="button" id="btnEnviarSolicitacao" class="btn btn-success" style="display: none; color: white !important; padding: 12px 44px; font-size: 15px; font-weight: 600; min-width: 230px">Enviar Solicitação</button>
-                           </div>
-                        </div>
-                        <div class="fg" id="divObservacaoValidacao" style="margin-top: 18px">
-                           <label for="observacaoValidacao">Observações</label>
-                           <textarea id="observacaoValidacao" name="observacaoValidacao" class="form-control" rows="5" placeholder="Digite aqui sua observação, justificativa ou orientação."></textarea>
-                        </div>
+            <div class="step-panel tab-pane-form step-4" id="paginaHistorico" style="display: none">
+               <div id="divPaginaHistorico" class="conteudo-historico">
+                  <h2 class="historico-titulo">Histórico</h2>
+                  <div id="divDecisaoHistorico">
+                     <!-- DECISÃO -->
+                     <div id="divDecisaoBotoes">
+                        <button type="button" id="btnEnviarSolicitacao" class="btn btn-success" style="display: none">
+                           <i class="fluigicon fluigicon-paper-plane icon-sm" aria-hidden="true"></i> Enviar Solicitação
+                        </button>
+                        <button type="button" id="btnAprovar" class="btn btn-success">
+                           <i class="fluigicon fluigicon-ok icon-sm" aria-hidden="true"></i> Aprovar
+                        </button>
+                        <button type="button" id="btnReprovar" class="btn btn-danger">
+                           <i class="fluigicon fluigicon-cancel icon-sm" aria-hidden="true"></i> Reprovar
+                        </button>
                      </div>
                      <div class="historico-actions">
                         <button type="button" class="btn btn-warning" id="btnEditarCamposInicio"><i class="flaticon flaticon-edit icon-sm"></i>Editar informações</button>
                      </div>
+                     <!-- OBSERVAÇÕES -->
+                     <div class="historico-obs">
+                        <label for="observacaoValidacao">Demais Informações:</label>
+                        <textarea id="observacaoValidacao" name="observacaoValidacao" rows="4" class="form-control" placeholder="Digite aqui sua observação, justificativa ou orientação para a próxima etapa."></textarea>
+                     </div>
+                     <!-- TIMELINE -->
+                     <div class="panel panel-default" id="historico">
+                        <div class="panel-heading"><h4 class="panel-title">Histórico</h4></div>
+                        <div class="panel-body">
+                           <div id="panelHistorico">
+                              <div id="divLinhasHistorico">
+                                 <div class="historico-vazio">Nenhuma movimentação registrada até o momento.</div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
                   </div>
                </div>
-               <div class="section" id="divHistoricoProcesso">
-                  <button type="button" class="section-head" onclick="toggleSection(this)">
-                     <div class="section-head-left">
-                        <span class="section-name">Linha do Tempo</span>
-                        <span class="section-arrow open">▼</span>
-                     </div>
-                  </button>
-                  <div class="section-body">
-                     <div class="historico-timeline" id="divLinhasHistorico">
-                        <!-- Cards gerados via JS -->
-                     </div>
-                  </div>
+
+               <!-- Campos de decisão ocultos (roteamento do workflow — hAPI lê selectDecisao) -->
+               <div style="display: none">
+                  <label for="selectDecisao" id="labelAcaoValidacao">Ação</label>
+                  <select id="selectDecisao" name="selectDecisao">
+                     <option value="">Selecione...</option>
+                     <option value="Correcao">Correção do Cadastro</option>
+                     <option value="enviarRm">Enviar ao RM</option>
+                  </select>
                </div>
             </div>
             <!-- PAGINAÇÃO -->
-            <div class="stepper-nav-wrap" id="stepNav">
-               <button type="button" class="stepper-arrow left" id="btn-voltar" onclick="goToPrevVisibleStep()"><i class="fluigicon fluigicon-chevron-left icon-sm" aria-hidden="true"></i></button>
-               <div class="stepper-wrap">
-                  <div class="stepper">
-                     <button type="button" class="step-item active" id="nav-step-PreCad" onclick="navegarParaStep(1)">
-                        <div class="step-circle"><span class="step-num">1</span></div>
-                        <div class="step-info">
-                           <span class="step-label">Etapa 1 de 3</span>
-                           <span class="step-name">Dados Base</span>
-                           <span class="step-sub">Identificação · Endereço</span>
-                        </div>
-                     </button>
-                     <div class="step-connector">
-                        <div class="step-connector-line"></div>
-                     </div>
-                     <button type="button" class="step-item" id="nav-step-DadosCadastrais" onclick="navegarParaStep(2)">
-                        <div class="step-circle"><span class="step-num">2</span></div>
-                        <div class="step-info">
-                           <span class="step-label">Etapa 2 de 3</span>
-                           <span class="step-name">Dados Cadastrais</span>
-                           <span class="step-sub">Fiscal · Bancos · Condições</span>
-                        </div>
-                     </button>
-                     <div class="step-connector" id="divDivisaoDocumentacao">
-                        <div class="step-connector-line"></div>
-                     </div>
-                     <!-- Documentação -->
-                     <button type="button" class="step-item" id="nav-step-Documentacao" onclick="navegarParaStep(3)">
-                        <div class="step-circle"><span class="step-num">3</span></div>
-                        <div class="step-info">
-                           <span class="step-label">Etapa 3 de 3</span>
-                           <span class="step-name">Documentação</span>
-                           <span class="step-sub">Documentos Obrigatórios</span>
-                        </div>
-                     </button>
-                     <div class="step-connector" id="divDivisaoHistorico" style="display: none">
-                        <div class="step-connector-line"></div>
-                     </div>
-                     <!-- Historico e decisão -->
-                     <button type="button" class="step-item" id="nav-step-HistoricoDecisao" style="display: none"onclick="navegarParaStep(4)">
-                        <div class="step-circle"><i class="flaticon flaticon-clock icon-md" aria-hidden="true"></i></div>
-                        <div class="step-info">
-                           <span class="step-label">ETAPA DECISÃO</span>
-                           <span class="step-name">Historico</span>
-                           <span class="step-sub">Informações . Processo</span>
-                        </div>
-                     </button>
+            <div class="castilho-footer" id="stepNav">
+               <button type="button" class="stepper-arrow left" id="btnTabAnt"><i class="fluigicon fluigicon-chevron-left icon-sm" aria-hidden="true"></i></button>
+               <div class="step-item active" id="nav-step-PreCad" data-tab="pre-cadastro">
+                  <div class="step-circle">1</div>
+                  <div class="step-info">
+                     <span class="step-label">Etapa 1 de 3</span>
+                     <span class="step-name">Dados Base</span>
+                     <span class="step-sub">Identificação · Endereço</span>
                   </div>
                </div>
-               <button type="button" class="stepper-arrow right" id="btn-avancar" onclick="goToNextVisibleStep()"><i class="fluigicon fluigicon-chevron-right icon-sm" aria-hidden="true"></i></button>
+               <div class="step-connector">
+                  <div class="step-connector-line"></div>
+               </div>
+               <div class="step-item" id="nav-step-DadosCadastrais" data-tab="dados-cadastrais">
+                  <div class="step-circle">2</div>
+                  <div class="step-info">
+                     <span class="step-label">Etapa 2 de 3</span>
+                     <span class="step-name">Dados Cadastrais</span>
+                     <span class="step-sub">Fiscal · Bancos · Condições</span>
+                  </div>
+               </div>
+               <div class="step-connector" id="divDivisaoDocumentacao">
+                  <div class="step-connector-line"></div>
+               </div>
+               <!-- Documentação -->
+               <div class="step-item" id="nav-step-Documentacao" data-tab="documentacao">
+                  <div class="step-circle">3</div>
+                  <div class="step-info">
+                     <span class="step-label">Etapa 3 de 3</span>
+                     <span class="step-name">Documentação</span>
+                     <span class="step-sub">Documentos Obrigatórios</span>
+                  </div>
+               </div>
+               <div class="step-connector" id="divDivisaoHistorico" style="display: none">
+                  <div class="step-connector-line"></div>
+               </div>
+               <!-- Historico e decisão -->
+               <div class="step-item" id="nav-step-HistoricoDecisao" style="display: none" data-tab="historico">
+                  <div class="step-circle"><i class="flaticon flaticon-clock icon-md" aria-hidden="true"></i></div>
+                  <div class="step-info">
+                     <span class="step-label">ETAPA DECISÃO</span>
+                     <span class="step-name">Historico</span>
+                     <span class="step-sub">Informações . Processo</span>
+                  </div>
+               </div>
+               <button type="button" class="stepper-arrow right" id="btnTabNext"><i class="fluigicon fluigicon-chevron-right icon-sm" aria-hidden="true"></i></button>
             </div>
          </main>
       </form>

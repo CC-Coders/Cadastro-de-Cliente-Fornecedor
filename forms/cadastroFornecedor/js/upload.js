@@ -326,13 +326,6 @@ function ocultarPainelUploadNativoFluig() {
    }
 }
 
-// OCULTA O PAINEL NATIVO DE UPLOAD DO FLUIG EM INTERVALOS (CASO O FLUIG RE-RENDERIZE)
-function agendarOcultarPainelUpload() {
-   [100, 400, 900, 1600, 3000, 5000].forEach(function (ms) {
-      setTimeout(ocultarPainelUploadNativoFluig, ms);
-   });
-}
-
 // MANTEM O PAINEL NATIVO DE UPLOAD DO FLUIG OCULTO (CASO O FLUIG RE-RENDERIZE)
 function iniciarMonitorPainelUploadFluig() {
    if (globalThis._monitorPainelUploadAtivo) {
@@ -391,7 +384,7 @@ function montarStatusAnexo(sufixoCampo, nomeArquivo) {
          '</span>' +
          '</div>'
       )
-      .show(500);
+      .show();
    adicionarBotaoVisualizarAnexo(sufixoCampo, nomeArquivo);
 }
 
@@ -406,7 +399,7 @@ function restaurarUploadsSalvos() {
 
       if (!nomeArquivo || nomeArquivo === "✓" || nomeArquivo === "undefined") {
          $area.removeClass("uploaded upload-error");
-         $("#statusFile" + sufixoCampo).hide(500).empty();
+         $("#statusFile" + sufixoCampo).hide().empty();
          return;
       }
 
@@ -603,7 +596,7 @@ function limparVisualUploadConfirmado(config) {
       $("#" + areaId).removeClass("uploaded upload-error");
    }
 
-   $("#statusFile" + sufixoCampo).hide(500).empty();
+   $("#statusFile" + sufixoCampo).hide().empty();
 
    if (hiddenNome) {
       $("#" + hiddenNome).val("");
@@ -707,7 +700,7 @@ function limparCardVisualAnexo(sufixoCampo) {
    const hiddenNome = getHiddenAnexoId(sufixoCampo);
    const hiddenId = hiddenNome + "Id";
 
-   $("#statusFile" + sufixoCampo).hide(500).empty();
+   $("#statusFile" + sufixoCampo).hide().empty();
    $("#upload" + sufixoCampo).removeClass("uploaded upload-error");
 
    if (hiddenNome) {
@@ -753,9 +746,7 @@ function validarArquivoPermitido(file) {
                const texto = $(this).text().toLowerCase();
                return texto.includes("arquivo inválido");
             })
-            .fadeOut(300, function () {
-               $(this).remove();
-            });
+            .remove();
       }, 5000);
 
       return false;

@@ -41,16 +41,16 @@ $(document).ready(function () {
    if (!isMobileFluig()) return;
 
    $(document).on("click.mobileNav", ".step-item", function () {
-      $(".stepper-nav-wrap").removeClass("menu-open");
+      $(".castilho-footer").removeClass("menu-open");
       $("body").removeClass("menu-open-mobile");
    });
 
-   $(document).on("click.mobileNav", "#btn-avancar", function () {
+   $(document).on("click.mobileNav", "#btnTabNext", function () {
       setTimeout(function () {
          var $primeiroErro = $(".fg.has-erro:visible").first();
          if (!$primeiroErro.length) return;
          var offsetTopo = $primeiroErro.offset().top - 140;
-         $("html, body").animate({ scrollTop: Math.max(0, offsetTopo) }, 280);
+         $("html, body").scrollTop(Math.max(0, offsetTopo));
       }, 60);
    });
 

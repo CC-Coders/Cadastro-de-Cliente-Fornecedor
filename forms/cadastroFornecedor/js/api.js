@@ -282,61 +282,35 @@ function _verificarCnpjNoRM(cnpj) {
    }
 }
 
-// PREENCHE O FORMULÁRIO COM OS DADOS DO CNPJ VINDOS DO RM (Sintegra) + CNAEs, e busca a IE
-function preencherDadosCnpjRM(data) {
-   $("#razaoSocial").val(data.NOME           || "");
-   $("#nomeFantasia").val(data.NOMEFANTASIA  || "");
-   $("#endereco").val(data.LOGRADOURO        || "");
-   $("#numero").val(data.NUMERO              || "");
-   $("#complemento").val(data.COMPLEMENTO    || "");
-   $("#bairro").val(data.BAIRRO              || "");
-   $("#cep").val(formatarCep(data.CEP        || ""));
-   $("#pais").val("Brasil");
-
-   preencherEnderecoRM(data.CODUF || "", data.NOMEMUNICIPIO || "");
-   sincronizarCamposDinamicosHidden();
-
-   $("#telefone").val(formatarTelefone(data.TELEFONE || ""));
-   $("#emailCr").val(data.EMAIL || "");
-
-
-   if (data.INSCESTADUAL && data.INSCESTADUAL !== "null" && data.INSCESTADUAL !== "") {
-      $("#docInscricaoEstadual").val(data.INSCESTADUAL).trigger("input");
-      if (typeof limparErroCampo === "function") limparErroCampo("docInscricaoEstadual");
+// PREENCHE UM CAMPO SÓ SE ELE AINDA ESTIVER VAZIO — evita que uma nova consulta (ex.: ao reabrir
+// o processo em Correção/Validação) apague um valor que o usuário já digitou, quando a Receita
+// devolve o dado em branco (comum em "Nome Fantasia", nem toda empresa tem um registrado).
+function _preencherSeVazio(seletor, valor) {
+   const $campo = $(seletor);
+   if (!($campo.val() || "").trim()) {
+      $campo.val(valor || "");
    }
-   if (data.INSCMUNICIPAL && data.INSCMUNICIPAL !== "null" && data.INSCMUNICIPAL !== "") {
-      $("#docInscricaoMunicipal").val(data.INSCMUNICIPAL).trigger("input");
-      if (typeof limparErroCampo === "function") limparErroCampo("docInscricaoMunicipal");
-   }
-
-   ["docCnpj", "razaoSocial", "nomeFantasia",
-    "cep", "endereco", "numero", "bairro",
-    "cidade", "estado", "pais"].forEach(function (campo) {
-      if (typeof limparErroCampo === "function") {
-         limparErroCampo(campo);
-      }
-   });
 }
 
 // PREENCHE O FORMULÁRIO COM OS DADOS DO CNPJ VINDOS DA RECEITA (Sintegra) + CNAEs, e busca a IE
 function preencherDadosCnpj(data) {
-   $("#razaoSocial").val(data.nome_empresarial || "");
-   $("#nomeFantasia").val(data.nome_fantasia    || "");
-   $("#endereco").val(data.logradouro           || "");
-   $("#numero").val(data.numero                 || "");
-   $("#complemento").val(data.complemento       || "");
-   $("#bairro").val(data.bairro                 || "");
-   $("#cep").val(formatarCep(data.cep           || ""));
+   _preencherSeVazio("#razaoSocial",  data.nome_empresarial);
+   _preencherSeVazio("#nomeFantasia", data.nome_fantasia);
+   _preencherSeVazio("#endereco",     data.logradouro);
+   _preencherSeVazio("#numero",       data.numero);
+   _preencherSeVazio("#complemento",  data.complemento);
+   _preencherSeVazio("#bairro",       data.bairro);
+   _preencherSeVazio("#cep",          formatarCep(data.cep || ""));
    $("#pais").val("Brasil");
 
    preencherEnderecoRM(data.uf || "", data.municipio || "");
    sincronizarCamposDinamicosHidden();
 
-   $("#telefone").val(formatarTelefone(data.telefone || ""));
-   $("#emailCr").val(data.endereco_eletronico || "");
+   _preencherSeVazio("#telefone", formatarTelefone(data.telefone || ""));
+   _preencherSeVazio("#emailCr",  data.endereco_eletronico);
 
    const cnaeP = data.atividade_economica_principal;
-   if (cnaeP) {
+   if (cnaeP && !($("#cnaePrincipal").val() || "").trim()) {
       $("#cnaePrincipal").val(cnaeP.codigo + " — " + cnaeP.descricao);
    }
 
@@ -448,14 +422,4 @@ function formatarTelefone(tel) {
    return tel || "";
 }
 
-// API INTERNA DO FLUIG — Avatar do usuário
-async function promiseBuscaImagemUsuario(usuario) {
-   const res = await fetch("/api/public/social/image/" + usuario);
-   const blob = await res.blob();
-   const img = new Image();
-   img.width = 60;
-   img.height = 60;
-   img.src = URL.createObjectURL(blob);
-   img.classList.add("userImage");
-   return img;
-}
+// promiseBuscaImagemUsuario (avatar do usuário) vem do motor compartilhado (historico.js).
