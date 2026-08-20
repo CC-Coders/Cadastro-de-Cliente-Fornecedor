@@ -245,8 +245,8 @@ function bindEventosEndereco() {
    $("#cep").on("blur", function () {
       const cep = ($(this).val() || "").replaceAll(/\D/g, "");
 
+      // CEP incompleto apenas não dispara a consulta — o que já foi digitado é preservado.
       if (cep.length !== 8) {
-         limpaCamposEndereco();
          return;
       }
       buscarCep(cep);

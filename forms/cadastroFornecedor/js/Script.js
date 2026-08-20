@@ -366,8 +366,7 @@ function inicializarTela() {
   }
   
   $("#divCpf, #divCnpj, #divNomeFantasia, #divRg, #divInscricaoEstadual").hide();
-  $("#endereco, #bairro, #cidade, #estado").prop("readonly", true);
-  $("#pais").prop("readonly", true);
+  // Endereço livre para digitação: o CEP apenas sugere o preenchimento, não trava os campos.
   if (!($("#pais").val() || "").trim()) {
     $("#pais").val("Brasil");
   }
