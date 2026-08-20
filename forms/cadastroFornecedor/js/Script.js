@@ -3,22 +3,6 @@
 globalThis.LIMITE_CNAE_SECUNDARIO = globalThis.LIMITE_CNAE_SECUNDARIO || 5;
 globalThis.LIMITE_GRUPO_MERCADORIA = 9;
 
-// CONSTANTES DE MAPEAMENTO DE PAINÉIS E NAVS
-const PANEL_MAP = {
-  1: "#divPreCadastro",
-  2: "#divDadosCadastrais",
-  3: "#divDocumentacao",
-  4: "#paginaHistorico"
-};
-
-// CONSTANTES DE MAPEAMENTO DE NAVS
-const NAV_MAP = {
-  1: "#nav-step-PreCad",
-  2: "#nav-step-DadosCadastrais",
-  3: "#nav-step-Documentacao",
-  4: "#nav-step-HistoricoDecisao"
-};
-
 // CONSTANTES DE MAPEAMENTO DE CAMPOS DINÂMICOS
 const TIPOS_COM_RETENCAO = [];
 const OPCOES_GRUPO_MERCADORIA = [
@@ -146,6 +130,7 @@ $(document).ready(function () {
   popularSelectsGrupoMercadoria();
   popularSelectEstado();
   bindEventos();
+  initFooterCadastro();
   aplicarLayoutMobile();
   
   if (typeof aplicarBuscaSelect === "function") {
@@ -162,7 +147,7 @@ $(document).ready(function () {
   
   restaurarUploadsSalvos();
   aplicarAsteriscoObrigatorio();
-  aplicarBarraProcesso();
+  aplicarBarraProcessoCadastro();
   controlarStepperHistorico();
   
   if ($("#categoria").val()) {
@@ -176,7 +161,7 @@ $(document).ready(function () {
     if ($(this).val()) {
       abrirDadosComerciais();
     } else {
-      fecharDadosComerciais(true);
+      fecharDadosComerciais();
     }
   });
   
@@ -222,17 +207,6 @@ $(document).ready(function () {
     }
     
   });
-  
-  $("#divDadosComerciais .section-head")
-    .off("click.toggleDadosComerciais")
-    .on("click.toggleDadosComerciais", function () {
-      const body = $("#divDadosComerciais .section-body");
-      const seta = $("#divDadosComerciais .section-arrow");
-
-      body.stop(true, true).slideToggle(500);
-      seta.toggleClass("open");
-      seta.text(seta.hasClass("open") ? "▲" : "▼");
-    });
   
   globalThis._cnpjJaConsultado = "";
   $(document).on("input", "#docCnpj", function () {
@@ -357,8 +331,7 @@ function inicializarTela() {
   goToStep(1, false);
   
   $("#divDadosFornecedor .section-body").show();
-  $("#divDadosFornecedor .section-arrow").addClass("open").text("▲");
-  
+
   if ($("#categoria").val()) {
     abrirDadosComerciais();
   } else {
@@ -373,22 +346,16 @@ function inicializarTela() {
   $("#divSelectPaisEstrangeiro").hide();
 }
 
-// OCULTA AS SEÇÕES DE DADOS COMERCIAIS E ENDEREÇO, COM OU SEM ANIMAÇÃO CONFORME CONFIGURAÇÃO INFORMADA
-function fecharDadosComerciais(animar) {
-  
-  if (animar) {
-    $("#divDadosComerciais, #divEndereco").stop(true, true).slideUp(300);
-  } else {
-    $("#divDadosComerciais, #divEndereco").hide();
-  }
+// OCULTA AS SEÇÕES DE DADOS COMERCIAIS E ENDEREÇO
+function fecharDadosComerciais() {
+  $("#divDadosComerciais, #divEndereco").hide();
 }
 
-// EXIBE E EXPANDE AS SEÇÕES DE DADOS COMERCIAIS E ENDEREÇO
+// EXIBE AS SEÇÕES DE DADOS COMERCIAIS E ENDEREÇO
 function abrirDadosComerciais() {
   var $secoes = $("#divDadosComerciais, #divEndereco");
   $secoes.find(".section-body").show();
-  $secoes.find(".section-arrow").addClass("open").text("▲");
-  $secoes.stop(true, true).slideDown(300);
+  $secoes.show();
 }
 
 // EXECUTA AS ROTINAS DE SINCRONIZAÇÃO INICIAL DO FORMULÁRIO, ATUALIZANDO CLASSIFICAÇÃO, CATEGORIA, RETENÇÕES, RESTAURAÇÕES E STEPPER
@@ -405,8 +372,7 @@ function sincronizarEstadoInicial() {
     controlarBotaoAdicionarCnae,
     controlarBotaoAdicionarGrupoMercadoria,
     inicializarDadosBancarios,
-    atualizarSetas,
-    atualizarLayoutStepper
+    atualizarSetas
   ];
   
   for (var i = 0; i < funcoesIniciais.length; i++) {
@@ -615,44 +581,55 @@ function restaurarCnaesSecundariosSalvos() {
   sincronizarCamposDinamicosHidden();
 }
 
-// ATUALIZA A ETAPA ATUAL NA BARRA DE PROGRESSO, INDICANDO SOLICITAÇÃO, VALIDAÇÃO OU INTEGRAÇÃO CONFORME A ATIVIDADE
-function aplicarBarraProcesso() {
-  const atividade = Number($("#atividade").val() || 0);
-  const formMode  = ($("#formMode").val() || "").toUpperCase();
-  const $steps    = $(".wizard-progress .step");
-  
-  let indiceAtual = 0;
-  
+// APLICA A BARRA DE PROGRESSO COMPARTILHADA (castilhoWizard.js) E, EM MODO VIEW, FORÇA A ETAPA "VALIDAÇÃO" (REGRA PRÓPRIA DO CADASTRO)
+function aplicarBarraProcessoCadastro() {
+  aplicarBarraProcesso();
+
+  const formMode = ($("#formMode").val() || "").toUpperCase();
   if (formMode === "VIEW") {
-    indiceAtual = 1;
-  } else if (atividade === ATIVIDADES.INICIO_0 || atividade === ATIVIDADES.INICIO || atividade === ATIVIDADES.CORRECAO) {
-    indiceAtual = 0;
-  } else if (atividade === ATIVIDADES.VALIDACAO) {
-    indiceAtual = 1;
-  } else if (atividade === ATIVIDADES.INTEGRACAO || atividade === ATIVIDADES.ERRO_INTEGRACAO) {
-    indiceAtual = 2;
+    const $steps = $(".castilhoWizard-progress .step");
+    $steps.removeClass("active completed");
+    $steps.eq(0).addClass("completed");
+    $steps.eq(1).addClass("active");
   }
-  
-  $steps.removeClass("active completed");
-  
-  $steps.each(function (index) {
-    if (index < indiceAtual) {
-      $(this).addClass("completed");
-    }
-    
-    if (index === indiceAtual) {
-      $(this).addClass("active");
-    }
-  });
 }
 
-// AJUSTA A QUANTIDADE DE ETAPAS DO STEPPER ENTRE 3 OU 4 CONFORME A EXIBIÇÃO DA ABA DE HISTÓRICO
-function atualizarLayoutStepper() {
-  const historicoVisivel = $("#nav-step-HistoricoDecisao").is(":visible");
-  
-  $(".stepper")
-    .toggleClass("stepper-4", historicoVisivel)
-    .toggleClass("stepper-3", !historicoVisivel);
+// LIGA OS EVENTOS DO RODAPÉ (SETAS E CARDS DE ETAPA) — o clique nos cards e no "Próximo" passa pela
+// validação da etapa atual (regra própria do Cadastro, ausente no motor compartilhado castilhoFooter.js).
+function initFooterCadastro() {
+  $(".castilho-footer .step-item").on("click", function () {
+    var destino = getStepPorDataTab($(this).data("tab"));
+    if (destino) navegarParaStep(destino);
+  });
+  $("#btnTabAnt").on("click", goToPrevVisibleStep);
+  $("#btnTabNext").on("click", avancarComValidacao);
+}
+
+// CONVERTE O DATA-TAB NO NÚMERO DO STEP CORRESPONDENTE.
+function getStepPorDataTab(dataTab) {
+  for (var i = 0; i < ABAS.length; i++) {
+    if (ABAS[i].dataTab === dataTab) return i + 1;
+  }
+  return 0;
+}
+
+// AVANÇA PARA A PRÓXIMA ETAPA VISÍVEL, VALIDANDO A ETAPA ATUAL ANTES DE PROSSEGUIR (regra própria do Cadastro)
+function avancarComValidacao() {
+  const ehView = ehModoView();
+
+  // Valida mostrando o toast: se faltar algo, o usuário vê o motivo em vez de a
+  // seta "não funcionar" silenciosamente (acontecia muito na edição).
+  if (!ehView && !validarEtapaAtual(true)) {
+    return;
+  }
+
+  const steps = getStepsVisiveis();
+  const atual = getStepAtual();
+  const index = steps.indexOf(atual);
+
+  if (index < steps.length - 1) {
+    goToStep(steps[index + 1]);
+  }
 }
 
 // DESTACA O BOTÃO DE DECISÃO SELECIONADO (APROVAR/REPROVAR) COMO PRIMARY E RESTAURA O ESTADO DO BOTÃO OPOSTO

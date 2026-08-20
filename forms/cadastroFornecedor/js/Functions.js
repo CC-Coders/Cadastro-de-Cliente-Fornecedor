@@ -1,25 +1,4 @@
 
-// OCULTA O BOTÃO ENVIAR NATIVO DO FLUIG
-function ocultarEnviarNativoFluig() {
-  try {
-    var p = window.parent;
-    
-    p.$("#send-process-button").css({
-      position: "absolute",
-      left: "-9999px",
-      top: "0",
-      opacity: "0",
-      "pointer-events": "none"
-    });
-    
-    p.$("#optionList li").filter(function () {
-      return /enviar/i.test(p.$(this).text());
-    }).hide();
-  } catch (e) {
-    console.warn("[envio] ocultar Enviar nativo:", e);
-  }
-}
-
 // CONFIGURA AS AÇÕES E OS BOTÕES DISPONÍVEIS NA ETAPA DE VALIDAÇÃO CONFORME O MODO DO FORMULÁRIO
 function prepararAcoesValidacao() {
   var atividade = Number($("#atividade").val() || 0);
@@ -33,59 +12,17 @@ function prepararAcoesValidacao() {
     try { window.parent.$("#btnEditarNaBarra").remove(); } catch (e) {}
     return;
   }
-  
+
   try {
     $("#btnAprovar, #btnReprovar, #labelAcaoValidacao").show();
     $("#btnEnviarSolicitacao").hide();
-    $("#sectionNameDecisao").text("Decisão da Validação");
     posicionarBotaoEditarNaBarra();
   } catch (e) {
     console.warn("[Validacao] prepararAcoesValidacao:", e);
   }
 }
 
-// POSICIONA O BOTÃO DE EDITAR NA BARRA DE AÇÕES DO FLUIG E OCULTA O BOTÃO ALTERNATIVO
-function posicionarBotaoEditarNaBarra() {
-  try {
-    var p = window.parent;
-    var pdoc = p.document;
-    var barra = pdoc.getElementById("workflowActions");
 
-    // Barra ainda não pronta: mantém o amarelo como fallback e tenta de novo no retry.
-    if (!barra) {
-      return;
-    }
-
-    // Barra existe: o botão de editar canônico é o PRETO na barra, então escondemos
-    // o amarelo SEMPRE — inclusive quando o preto já existe (senão os dois aparecem).
-    $("#btnEditarCamposInicio").hide();
-
-    if (pdoc.getElementById("btnEditarNaBarra")) {
-      return;
-    }
-    if (!$("#btnEditarCamposInicio").length) {
-      return;
-    }
-
-    var enviar = pdoc.getElementById("send-process-button");
-    var b = pdoc.createElement("button");
-    b.id = "btnEditarNaBarra";
-    b.type = "button";
-    b.className = "btn btn-primary";
-    b.innerHTML = '<span class="flaticon flaticon-edit icon-sm"></span> Editar informações';
-    b.onclick = function () {
-      $("#btnEditarCamposInicio").trigger("click");
-    };
-    
-    if (enviar) {
-      barra.insertBefore(b, enviar);
-    } else {
-      barra.appendChild(b);
-    }
-  } catch (e) {
-    console.warn("[Validacao] posicionarBotaoEditarNaBarra:", e);
-  }
-}
 
 // ACIONA O ENVIO DO PROCESSO PELO BOTÃO NATIVO DO FLUIG
 function acionarEnvioFluig() {
@@ -121,7 +58,6 @@ function prepararEnvioInicio() {
   
   $("#btnEnviarSolicitacao").show();
   $("#btnAprovar, #btnReprovar, #labelAcaoValidacao, #btnEditarCamposInicio").hide();
-  $("#sectionNameDecisao").text("Observações e Envio");
 }
 
 // ADICIONA UM NOVO CAMPO DE GRUPO DE MERCADORIA, RESPEITANDO O LIMITE MÁXIMO E ATUALIZANDO OS CONTROLES DA SEÇÃO
@@ -271,72 +207,8 @@ function controlarBotaoAdicionarCnae() {
    _controlarBotaoAdicionar(total, LIMITE_CNAE_SECUNDARIO, $("#btn-add-cnae"));
 }
 
-// HISTÓRICO DE DECISÃO — TIMELINE
-async function asyncMontaHistorico() {
-   const $hist = $("#divLinhasHistorico");
-   $hist.empty();
-   let linhasHistorico = getLinhasHistorico().reverse();
-   for (const linha of linhasHistorico) {
-      $hist.append(geraHtmlHistorico(linha));
-      try {
-         $(".divImageUser:last").append(await promiseBuscaImagemUsuario(linha.USUARIO));
-      } catch (error_) {
-         console.warn("Não foi possível carregar imagem do usuário:", linha.USUARIO, error_);
-      }
-   }
-}
-function getLinhasHistorico() {
-   const retorno = [];
-   $("#tableHistorico tbody tr").each(function () {
-      const usuario = $(this).find(".tableHistoricoUsuario").val();
-      // ignora linha vazia
-      if (!usuario) return;
-
-      retorno.push({
-         USUARIO: usuario,
-         DATA: $(this).find(".tableHistoricoData").val(),
-         OBSERVACAO: $(this).find(".tableHistoricoObservacao").val(),
-         ACAO: $(this).find(".tableHistoricoAcao").val(),
-         ATIVIDADE: $(this).find(".tableHistoricoAtividade").val()
-      });
-   });
-   return retorno;
-}
-function geraHtmlHistorico(linha) {
-   let DATA = linha.DATA ? linha.DATA.split(" ") : ["", ""];
-   const textoObs = (linha.OBSERVACAO || "")
-      .replaceAll(/^(<br\s*\/?>|\s)*/gi, "")
-      .trim();
-
-   if (DATA[0]) {
-      DATA = DATA[0].split("-").reverse().join("/") + " " + (DATA[1] || "");
-   } else {
-      DATA = "";
-   }
-
-   const nomeUsuario = linha.USUARIO || "Usuário não identificado";
-   const atividade = linha.ATIVIDADE || "";
-   const observacao = textoObs || linha.ACAO || "Sem observação.";
-
-  return `
-  <div class="card-historico">
-    <div class="divImageUser"></div>
-    
-    <div class="historico-info">
-      <div class="historico-topo">
-        <div>
-          <div class="historico-usuario">${nomeUsuario}</div>
-          <div class="historico-atividade">${atividade}</div>
-        </div>
-        
-        <div class="historico-data">${DATA}</div>
-      </div>
-      
-      <div class="historico-observacao">${observacao}</div>
-    </div>
-  </div>
-  `;
-}
+// HISTÓRICO DE DECISÃO — TIMELINE: asyncMontaHistorico, getLinhasHistorico, geraHtmlHistorico,
+// BuscaNomeUsuario e promiseBuscaImagemUsuario vêm do motor compartilhado (historico.js).
 function controlarStepperHistorico() {
    const possuiHistorico = getLinhasHistorico().length > 0;
 
@@ -348,23 +220,16 @@ function controlarStepperHistorico() {
                              atividade === ATIVIDADES.ERRO_INTEGRACAO) && modo !== "VIEW";
 
    if (possuiHistorico || ehEnvioSolicitante) {
-      $("#nav-step-HistoricoDecisao").show(500);
-      $("#divDivisaoHistorico").show(500);
+      $("#nav-step-HistoricoDecisao").show();
+      $("#divDivisaoHistorico").show();
 
-      $(".stepper").removeClass("stepper-3").addClass("stepper-4");
-
-      if (possuiHistorico) {
-         $("#divHistoricoProcesso").show();
-         $("#divLinhasHistorico").empty();
-         asyncMontaHistorico();
-      } else {
-         $("#divHistoricoProcesso").hide();
-      }
+      // O painel fica sempre visível (padrão Alimentação/Férias): sem movimentações,
+      // asyncMontaHistorico desenha o estado vazio em vez de esconder tudo.
+      $("#historico").show();
+      asyncMontaHistorico();
    } else {
-      $("#nav-step-HistoricoDecisao").hide(500);
-      $("#divDivisaoHistorico").hide(500);
-
-      $(".stepper").removeClass("stepper-4").addClass("stepper-3");
+      $("#nav-step-HistoricoDecisao").hide();
+      $("#divDivisaoHistorico").hide();
    }
 
    atualizarSetas();
@@ -432,318 +297,9 @@ function atualizarCamposBancariosRm() {
 }
 
 
-// DEFINE OS CAMPOS UTILIZADOS NA AUDITORIA DE ALTERAÇÕES REALIZADAS DURANTE A ETAPA DE VALIDAÇÃO DO PROCESSO
-const CAMPOS_AUDITORIA_EDICAO = [{
-      id: "classificacao",
-      label: "Classificação"
-   },
-   {
-      id: "categoria",
-      label: "Categoria"
-   },
-   {
-      id: "tipo",
-      label: "Tipo"
-   },
-   {
-      id: "classificacaoOperacional",
-      label: "Classificação Operacional"
-   },
-   {
-      id: "docCpf",
-      label: "CPF"
-   },
-   {
-      id: "docCnpj",
-      label: "CNPJ"
-   },
-   {
-      id: "docRg",
-      label: "RG"
-   },
-   {
-      id: "docInscricaoEstadual",
-      label: "Inscrição Estadual"
-   },
-   {
-      id: "razaoSocial",
-      label: "Razão Social"
-   },
-      {
-      id: "nomeFantasia",
-      label: "Nome Fantasia"
-   },
-   {
-      id: "cep",
-      label: "CEP"
-   },
-   {
-      id: "endereco",
-      label: "Endereço"
-   },
-   {
-      id: "numero",
-      label: "Número"
-   },
-   {
-      id: "complemento",
-      label: "Complemento"
-   },
-   {
-      id: "bairro",
-      label: "Bairro"
-   },
-   {
-      id: "cidade",
-      label: "Cidade"
-   },
-   {
-      id: "pais",
-      label: "País"
-   },
-   {
-      id: "estado",
-      label: "Estado"
-   },
-
-   {
-      id: "icms",
-      label: "Contribuinte ICMS"
-   },
-   {
-      id: "codIrrf",
-      label: "Código de Receita IRRF",
-      domId: "selectDescricaoIrrf"
-   },
-   {
-      id: "irrf",
-      label: "Alíquota IRRF"
-   },
-   {
-      id: "simplesNacional",
-      label: "Simples Nacional"
-   },
-   {
-      id: "codNaturezaRendimento",
-      label: "Natureza de Rendimentos"
-   },
-   {
-      id: "regimeFiscal",
-      label: "Regime Fiscal"
-   },
-   {
-      id: "tipoDocEmitido",
-      label: "Tipo de Documento Emitido"
-   },
-
-   {
-      id: "grupoMercadoria1",
-      label: "Grupo de Mercadoria 1"
-   },
-   {
-      id: "hiddenGrupoMercadoria2",
-      label: "Grupo de Mercadoria 2"
-   },
-   {
-      id: "hiddenGrupoMercadoria3",
-      label: "Grupo de Mercadoria 3"
-   },
-   {
-      id: "hiddenGrupoMercadoria4",
-      label: "Grupo de Mercadoria 4"
-   },
-   {
-      id: "hiddenGrupoMercadoria5",
-      label: "Grupo de Mercadoria 5"
-   },
-   {
-      id: "hiddenGrupoMercadoria6",
-      label: "Grupo de Mercadoria 6"
-   },
-   {
-      id: "hiddenGrupoMercadoria7",
-      label: "Grupo de Mercadoria 7"
-   },
-      {
-      id: "hiddenGrupoMercadoria8",
-      label: "Grupo de Mercadoria 8"
-   },
-   {
-      id: "hiddenGrupoMercadoria9",
-      label: "Grupo de Mercadoria 9"
-   },
-   {
-      id: "cnaePrincipal",
-      label: "CNAE Principal"
-   },
-   {
-      id: "hiddenCnaeSecundario1",
-      label: "CNAE Secundário 1"
-   },
-   {
-      id: "hiddenCnaeSecundario2",
-      label: "CNAE Secundário 2"
-   },
-   {
-      id: "hiddenCnaeSecundario3",
-      label: "CNAE Secundário 3"
-   },
-   {
-      id: "hiddenCnaeSecundario4",
-      label: "CNAE Secundário 4"
-   },
-   {
-      id: "hiddenCnaeSecundario5",
-      label: "CNAE Secundário 5"
-   },
-   {
-      id: "toggleRetencao",
-      label: "Haverá retenção?",
-      tipo: "checkbox"
-   },
-   {
-      id: "inss",
-      label: "Retenção INSS",
-      tipo: "checkbox"
-   },
-   {
-      id: "csll",
-      label: "Retenção CSLL",
-      tipo: "checkbox"
-   },
-   {
-      id: "pis",
-      label: "Retenção PIS",
-      tipo: "checkbox"
-   },
-   {
-      id: "cofins",
-      label: "Retenção COFINS",
-      tipo: "checkbox"
-   },
-
-   { id: "hiddenBanco1Cod",     label: "Banco (Conta 1)"   },
-   { id: "hiddenBanco1Agencia", label: "Agência (Conta 1)" },
-   { id: "hiddenBanco1Conta",   label: "Conta (Conta 1)"   },
-
-   { id: "hiddenBanco2Cod",      label: "Banco (Conta 2)"   },
-   { id: "hiddenBanco2Agencia",  label: "Agência (Conta 2)" },
-   { id: "hiddenBanco2Conta",    label: "Conta (Conta 2)"   },
-
-   { id: "hiddenBanco3Cod",      label: "Banco (Conta 3)"   },
-   { id: "hiddenBanco3Agencia",  label: "Agência (Conta 3)" },
-   { id: "hiddenBanco3Conta",    label: "Conta (Conta 3)"   },
-
-   { id: "hiddenBanco4Cod",      label: "Banco (Conta 4)"   },
-   { id: "hiddenBanco4Agencia",  label: "Agência (Conta 4)" },
-   { id: "hiddenBanco4Conta",    label: "Conta (Conta 4)"   },
-
-   { id: "hiddenBanco5Cod",      label: "Banco (Conta 5)"   },
-   { id: "hiddenBanco5Agencia",  label: "Agência (Conta 5)" },
-   { id: "hiddenBanco5Conta",    label: "Conta (Conta 5)"   },
-
-   {
-      id: "telefone",
-      label: "Telefone"
-   },
-   {
-      id: "telComercial",
-      label: "Telefone Comercial"
-   },
-   {
-      id: "celular",
-      label: "Celular"
-   },
-   {
-      id: "emailAdministrativo",
-      label: "E-mail Administrativo"
-   },
-   {
-      id: "emailComercial",
-      label: "E-mail Comercial"
-   },
-   {
-      id: "emailCr",
-      label: "E-mail Financeiro / Contabilidade"
-   },
-   {
-      id: "site",
-      label: "Site"
-   },
-
-   {
-      id: "anxCartaoCnpj",
-      label: "Anexo Documento de Identificação Júridica"
-   },
-   {
-      id: "anxCompBanco",
-      label: "Anexo Comprovante Bancário"
-   },
-   {
-      id: "anxContrato",
-      label: "Anexo Contrato Social"
-   },
-   {
-      id: "anxRgCpf",
-      label: "Anexo RG / CPF"
-   },
-   {
-      id: "anxCompEndereco",
-      label: "Anexo Comprovante de Endereço"
-   },
-   {
-      id: "anxLaudoPcd",
-      label: "Anexo Laudo Médico PCD"
-   },
-   {
-      id: "anxDependentes",
-      label: "Anexo Dependentes IRRF"
-   },
-   {
-      id: "anxCodConduta",
-      label: "Anexo Código de Conduta"
-   },
-   {
-      id: "anxAntiCorrupcao",
-      label: "Anexo Política Anticorrupção"
-   },
-   {
-      id: "anxConflito",
-      label: "Anexo Conflito de Interesses"
-   },
-   {
-      id: "anxLgpd",
-      label: "Anexo Ciência LGPD"
-   }
-];
-
-// CRIA UM SNAPSHOT INICIAL DOS CAMPOS DA VALIDAÇÃO PARA COMPARAR ALTERAÇÕES REALIZADAS DURANTE A EDIÇÃO
-function inicializarSnapshotEdicaoValidacao() {
-   const atividade = Number($("#atividade").val() || 0);
-
-   if (atividade !== ATIVIDADES.VALIDACAO) {
-      return;
-   }
-
-   if ($("#snapshotEdicaoValidacao").val()) {
-      return;
-   }
-
-   const snapshot = {};
-
-   CAMPOS_AUDITORIA_EDICAO.forEach(function (campo) {
-      const selectorId = campo.domId || campo.id;
-
-      if (campo.tipo === "checkbox") {
-         snapshot[campo.id] = $("#" + selectorId).is(":checked") ? "Sim" : "Não";
-         return;
-      }
-
-      snapshot[campo.id] = ($("#" + selectorId).val() || "").toString().trim();
-   });
-
-   $("#snapshotEdicaoValidacao").val(JSON.stringify(snapshot));
-}
+// (código morto removido: CAMPOS_AUDITORIA_EDICAO + inicializarSnapshotEdicaoValidacao)
+// Gravavam em #snapshotEdicaoValidacao, campo que nada no projeto lê. O realce de campos
+// alterados na edição já é feito por realcarCamposAlterados()/#snapshotEdicaoRM (edicao.js).
 
 // SINCRONIZA OS CAMPOS DINÂMICOS DO FORMULÁRIO COM OS CAMPOS HIDDEN UTILIZADOS NA INTEGRAÇÃO E PERSISTÊNCIA DOS DADOS
 function sincronizarCamposDinamicosHidden() {
