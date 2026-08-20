@@ -1,5 +1,8 @@
 
 // AO CARREGAR A PÁGINA, SE HOUVER CNPJ, BUSCA OS DADOS E POPULA O FORMULÁRIO.
+// Só roda na etapa de Início (pré-preenchimento de verdade) — em Correção/Validação/etc. o CNPJ
+// já foi consultado antes, e repetir a busca só consome cota da Sintegrapi à toa. Marca
+// _cnpjJaConsultado pra essa mesma busca não disparar de novo pelo handler de "input".
 $(globalThis).on("load", function () {
    setTimeout(function () {
       const cnpj = ($("#docCnpj").val() || "").replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
@@ -10,7 +13,12 @@ $(globalThis).on("load", function () {
          restaurarCnaesSecundariosSalvos();
          return;
       }
-      if (cnpj.length === 14) {
+
+      const atividade = Number($("#atividade").val() || 0);
+      const ehInicio = atividade === ATIVIDADES.INICIO_0 || atividade === ATIVIDADES.INICIO;
+
+      if (ehInicio && cnpj.length === 14) {
+         globalThis._cnpjJaConsultado = cnpj;
          buscarCnpj(cnpj);
       }
 

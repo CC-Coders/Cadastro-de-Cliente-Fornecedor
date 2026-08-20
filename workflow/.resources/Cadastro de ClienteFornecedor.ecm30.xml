@@ -28,7 +28,7 @@
     <processDefinitionVersionPK>
       <companyId>1</companyId>
       <processId>Cadastro e Alteração de Cliente/Fornecedor</processId>
-      <version>100</version>
+      <version>102</version>
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
     <formId>0</formId>
@@ -430,7 +430,7 @@
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
         <expressionOrder>1</expressionOrder>
-        <version>100</version>
+        <version>102</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;Correcao&quot;</condition>
@@ -442,7 +442,7 @@
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
         <expressionOrder>2</expressionOrder>
-        <version>100</version>
+        <version>102</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;enviarRm&quot;</condition>
@@ -1806,19 +1806,14 @@ function listaCamposAuditoria() {&#xd;
         [&quot;emailAdministrativo&quot;, &quot;E-mail Administrativo&quot;],&#xd;
         [&quot;emailComercial&quot;, &quot;E-mail Comercial&quot;],&#xd;
         [&quot;emailCr&quot;, &quot;E-mail Financeiro / Contabilidade&quot;],&#xd;
-        [&quot;site&quot;, &quot;Site&quot;],&#xd;
+        [&quot;site&quot;, &quot;Site&quot;]&#xd;
 &#xd;
-        [&quot;anxCartaoCnpj&quot;, &quot;Anexo Documento de Identificação Júridica&quot;],&#xd;
-        [&quot;anxCompBanco&quot;, &quot;Anexo Comprovante Bancário&quot;],&#xd;
-        [&quot;anxContrato&quot;, &quot;Anexo Contrato Social&quot;],&#xd;
-        [&quot;anxRgCpf&quot;, &quot;Anexo RG / CPF&quot;],&#xd;
-        [&quot;anxCompEndereco&quot;, &quot;Anexo Comprovante de Endereço&quot;],&#xd;
-        [&quot;anxLaudoPcd&quot;, &quot;Anexo Laudo Médico PCD&quot;],&#xd;
-        [&quot;anxDependentes&quot;, &quot;Anexo Dependentes IRRF&quot;],&#xd;
-        [&quot;anxCodConduta&quot;, &quot;Anexo Código de Conduta&quot;],&#xd;
-        [&quot;anxAntiCorrupcao&quot;, &quot;Anexo Política Anticorrupção&quot;],&#xd;
-        [&quot;anxConflito&quot;, &quot;Anexo Conflito de Interesses&quot;],&#xd;
-        [&quot;anxLgpd&quot;, &quot;Anexo Ciência LGPD&quot;]&#xd;
+        // Anexos (anxCartaoCnpj, anxCompBanco, anxContrato, anxRgCpf, anxCompEndereco,&#xd;
+        // anxLaudoPcd, anxDependentes, anxCodConduta, anxAntiCorrupcao, anxConflito, anxLgpd)&#xd;
+        // NÃO entram na auditoria: ficam liberados na Validação sem precisar de &quot;Editar&#xd;
+        // informações&quot; (ver liberarSecaoDocumentacao em ui.js), e qualquer reenvio de arquivo&#xd;
+        // apareceria como &quot;alteração&quot; mesmo sem o validador ter mexido de propósito —&#xd;
+        // mesmo raciocínio já aplicado à seção Dados Fiscais, acima.&#xd;
     ];&#xd;
 }&#xd;
 &#xd;
@@ -2130,7 +2125,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>100</version>
+        <version>102</version>
         <linkSequence>17</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2141,7 +2136,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>100</version>
+        <version>102</version>
         <linkSequence>17</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2152,7 +2147,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>100</version>
+        <version>102</version>
         <linkSequence>25</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2163,7 +2158,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>100</version>
+        <version>102</version>
         <linkSequence>25</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2174,7 +2169,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>100</version>
+        <version>102</version>
         <linkSequence>28</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2185,7 +2180,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>100</version>
+        <version>102</version>
         <linkSequence>28</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2196,7 +2191,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>100</version>
+        <version>102</version>
         <linkSequence>29</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2207,7 +2202,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>100</version>
+        <version>102</version>
         <linkSequence>29</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2218,7 +2213,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>100</version>
+        <version>102</version>
         <linkSequence>30</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2229,7 +2224,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>100</version>
+        <version>102</version>
         <linkSequence>30</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2240,7 +2235,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>100</version>
+        <version>102</version>
         <linkSequence>30</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
@@ -2251,7 +2246,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>100</version>
+        <version>102</version>
         <linkSequence>31</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2262,7 +2257,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>100</version>
+        <version>102</version>
         <linkSequence>31</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2273,7 +2268,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>100</version>
+        <version>102</version>
         <linkSequence>31</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>

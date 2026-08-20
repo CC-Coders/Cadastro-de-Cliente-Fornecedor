@@ -62,6 +62,10 @@ function exibirErroCampo(campoId, mensagem) {
 
    $container.addClass("has-erro");
    $campo.attr("aria-invalid", "true");
+   // Campos fora de um wrapper .fg (ex.: observacaoValidacao no Histórico) não têm
+   // .has-erro pra se apoiar visualmente — usam .campo-erro no próprio campo,
+   // padrão de Auxílio-Alimentação/Férias (ver #motivo em historico.css).
+   $campo.addClass("campo-erro");
 
    const $inputBtnRow = $campo.closest(".input-btn-row");
    const $insertAfter = $inputBtnRow.length ? $inputBtnRow : $campo;
@@ -75,10 +79,15 @@ function exibirErroCampo(campoId, mensagem) {
 
 // DÁ FOCO AO PRIMEIRO CAMPO COM ERRO VISÍVEL.
 function focusCampoComErro() {
-   const $primeiroErro = $(".fg.has-erro:visible")
+   let $primeiroErro = $(".fg.has-erro:visible")
       .first()
       .find("input, select, textarea")
       .first();
+
+   // Campos fora de .fg (ex.: observacaoValidacao) marcam erro com .campo-erro no próprio campo.
+   if (!$primeiroErro.length) {
+      $primeiroErro = $(".campo-erro:visible").first();
+   }
 
    if ($primeiroErro.length) {
       $primeiroErro.focus();
@@ -521,6 +530,7 @@ function limparErroCampo(campoId) {
 
    $container.removeClass("has-erro");
    $campo.removeAttr("aria-invalid");
+   $campo.removeClass("campo-erro");
 
    $("#erro-" + campoId).remove();
    $container.find(".erro-validacao").remove();
@@ -631,16 +641,6 @@ function validarCPF(cpf) {
    if (resto == 10 || resto == 11) resto = 0;
 
    return resto == Number.parseInt(cpf.substring(10, 11));
-}
-
-// VALIDA O RG (rejeita sequências repetidas e tamanho diferente de 9 dígitos)
-function validarRG(rg) {
-   rg = (rg || "").replace(/\D/g, "");
-
-   if (rg.length !== 9) return false;
-   if (/^(\d)\1+$/.test(rg)) return false;
-
-   return true;
 }
 
 // VALIDA O CNPJ PELOS 2 DÍGITOS VERIFICADORES (rejeita sequências repetidas)
