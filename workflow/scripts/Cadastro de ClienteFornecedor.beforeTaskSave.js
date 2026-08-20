@@ -222,19 +222,14 @@ function listaCamposAuditoria() {
         ["emailAdministrativo", "E-mail Administrativo"],
         ["emailComercial", "E-mail Comercial"],
         ["emailCr", "E-mail Financeiro / Contabilidade"],
-        ["site", "Site"],
+        ["site", "Site"]
 
-        ["anxCartaoCnpj", "Anexo Documento de Identificação Júridica"],
-        ["anxCompBanco", "Anexo Comprovante Bancário"],
-        ["anxContrato", "Anexo Contrato Social"],
-        ["anxRgCpf", "Anexo RG / CPF"],
-        ["anxCompEndereco", "Anexo Comprovante de Endereço"],
-        ["anxLaudoPcd", "Anexo Laudo Médico PCD"],
-        ["anxDependentes", "Anexo Dependentes IRRF"],
-        ["anxCodConduta", "Anexo Código de Conduta"],
-        ["anxAntiCorrupcao", "Anexo Política Anticorrupção"],
-        ["anxConflito", "Anexo Conflito de Interesses"],
-        ["anxLgpd", "Anexo Ciência LGPD"]
+        // Anexos (anxCartaoCnpj, anxCompBanco, anxContrato, anxRgCpf, anxCompEndereco,
+        // anxLaudoPcd, anxDependentes, anxCodConduta, anxAntiCorrupcao, anxConflito, anxLgpd)
+        // NÃO entram na auditoria: ficam liberados na Validação sem precisar de "Editar
+        // informações" (ver liberarSecaoDocumentacao em ui.js), e qualquer reenvio de arquivo
+        // apareceria como "alteração" mesmo sem o validador ter mexido de propósito —
+        // mesmo raciocínio já aplicado à seção Dados Fiscais, acima.
     ];
 }
 

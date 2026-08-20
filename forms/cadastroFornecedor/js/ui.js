@@ -253,7 +253,7 @@ function controlarCamposCategoria() {
          $(".cnae-box").show().prev(".divider").show();
          $(".cnae-box").next(".divider").show();
          $("#cnaePrincipal").prop("required", true);
-         $("#divCnpj, #divNomeFantasia, #divInscricaoEstadual, #divInscricaoMunicipal").show(500);
+         $("#divCnpj, #divNomeFantasia, #divInscricaoEstadual, #divInscricaoMunicipal").show();
          $("#docCnpj, #nomeFantasia").prop("required", true);
 
          $("#docEstrangeiro").val("");
@@ -432,16 +432,6 @@ function controlarPainelRetencoes() {
    $(".retencao-item").removeClass("ativo");
 }
 
-// RESETA O PAINEL DE RETENÇÕES
-function resetarRetencao() {
-   $("#toggleRetencao").prop("checked", false);
-   $("#hiddenToggleRetencao").val("");
-   $("#divRetencoesPanel").addClass("field-hidden");
-   $(".retencao-item input").prop("checked", false);
-   $(".retencao-item").removeClass("ativo");
-   $("#hiddenIss, #hiddenInss, #hiddenInputIrrf, #hiddenCsll, #hiddenPis, #hiddenCofins").val("");
-}
-
 // VERIFICA SE O FORMULÁRIO ESTÁ EM MODO DE EDIÇÃO
 function ehModoEdicao() {
    if (globalThis._modoEdicao === true) {
@@ -498,97 +488,23 @@ function liberarSecaoDadosFiscais() {
    $sec.find("#irrf").prop("readonly", true);
 }
 
-// RETORNA A LISTA DE ETAPAS VISÍVEIS
-function getStepsVisiveis() {
-   var visiveis = [];
+// LIBERA OS ANEXOS PARA EDIÇÃO NA VALIDAÇÃO, INDEPENDENTEMENTE DA AÇÃO "EDITAR CAMPOS"
+function liberarSecaoDocumentacao() {
+   $("#divDocumentacao .upload-area")
+      .removeClass("disabled-upload campo-bloqueado");
 
-   for (var step = 1; step <= 4; step++) {
-      if ($(NAV_MAP[step]).is(":visible")) {
-         visiveis.push(step);
-      }
-   }
+   $("#divDocumentacao .upload-file-remove")
+      .removeClass("btn-bloqueado")
+      .removeAttr("tabindex");
 
-   return visiveis;
-}
-
-// RETORNA O NÚMERO DA ETAPA ATUAL 
-function getStepAtual() {
-   var stepAtual = 1;
-
-   for (var step = 1; step <= 4; step++) {
-      if ($(NAV_MAP[step]).hasClass("active")) {
-         stepAtual = step;
-      }
-   }
-
-   return stepAtual;
-}
-
-// NAVEGA PARA A ETAPA ESPECIFICADA (1 A 4), COM OPÇÃO DE ANIMAÇÃO
-function goToStep(step, animar) {
-   if (animar === undefined) {
-      animar = true;
-   }
-
-   $(".step-panel").removeClass("active");
-
-   if (animar) {
-      $(".step-panel").hide(500);
-      $(PANEL_MAP[step]).addClass("active").show(500);
-   } else {
-      $(".step-panel").hide();
-      $(PANEL_MAP[step]).addClass("active").show();
-   }
-
-   $(".step-item").removeClass("active done");
-
-
-   var visiveis = getStepsVisiveis();
-   for (var i = 0; i < visiveis.length; i++) {
-      var itemStep = visiveis[i];
-      if (itemStep < step) {
-         $(NAV_MAP[itemStep]).addClass("done");
-      } else if (itemStep === step) {
-         $(NAV_MAP[itemStep]).addClass("active");
-      }
-   }
-
-   atualizarSetas();
-
-   $("html, body").animate({ scrollTop: 0 }, 200);
-}
-
-// AVANÇA PARA A PRÓXIMA ETAPA VISÍVEL, VALIDANDO A ETAPA ATUAL ANTES DE PROSSEGUIR
-function goToNextVisibleStep() {
-   const ehView = ehModoView();
-
-   // Valida mostrando o toast: se faltar algo, o usuário vê o motivo em vez de a
-   // seta "não funcionar" silenciosamente (acontecia muito na edição).
-   if (!ehView && !validarEtapaAtual(true)) {
-      return;
-   }
-
-   const steps = getStepsVisiveis();
-   const atual = getStepAtual();
-   const index = steps.indexOf(atual);
-
-   if (index < steps.length - 1) {
-      goToStep(steps[index + 1]);
-   }
-}
-
-// RETORNA PARA A ETAPA VISÍVEL ANTERIOR, SE HOUVER
-function goToPrevVisibleStep() {
-   const steps = getStepsVisiveis();
-   const atual = getStepAtual();
-   const index = steps.indexOf(atual);
-
-   if (index > 0) {
-      goToStep(steps[index - 1]);
+   // bloquearTudoInicio() faz .off("click") na .upload-area — precisa religar o clique.
+   if (typeof inicializarUploadsFluig === "function") {
+      inicializarUploadsFluig();
    }
 }
 
 // CONTROLA A NAVEGAÇÃO DIRETA PELO STEPPER, VALIDANDO AS ETAPAS AO AVANÇAR E LIBERANDO O RETORNO OU A NAVEGAÇÃO NO MODO VISUALIZAÇÃO.
+// getStepAtual, getStepsVisiveis e goToStep vêm do motor compartilhado (castilhoFooter.js).
 function navegarParaStep(destino) {
    if (typeof ehModoView === "function" && ehModoView()) {
       goToStep(destino);
@@ -622,32 +538,6 @@ function navegarParaStep(destino) {
    }
 
    goToStep(destino);
-}
-
-// ATUALIZA O ESTADO DOS BOTÕES DE NAVEGAÇÃO (SETAS) DE ACORDO COM A ETAPA ATUAL E AS ETAPAS VISÍVEIS
-function atualizarSetas() {
-   const steps = getStepsVisiveis();
-   const atual = getStepAtual();
-   const index = steps.indexOf(atual);
-
-   $("#btn-voltar").prop("disabled", index === 0);
-   $("#btn-avancar").prop("disabled", index === steps.length - 1);
-}
-
-// EXPANDE OU RECOLHE A SEÇÃO ESPECIFICADA (HEAD + BODY)
-function toggleSection(el) {
-   const $head = $(el);
-   const $body = $head.next(".section-body, .panel-body");
-   const $arrow = $head.find(".section-arrow, .glyphicon");
-
-   $head.toggleClass("open");
-   $body.slideToggle(200);
-
-   if ($arrow.hasClass("glyphicon")) {
-      $arrow.toggleClass("glyphicon-chevron-down glyphicon-chevron-up");
-   } else {
-      $arrow.toggleClass("open");
-   }
 }
 
 // BLOQUEIA TODOS OS CAMPOS DE TODAS AS ETAPAS (EXCETO BOTÕES DE NAVEGAÇÃO) PARA O MODO VIEW
@@ -723,12 +613,12 @@ function configurarModoView() {
    $("#btnEditarCamposInicio").hide();
    $("#btnAprovar").hide();
    $("#btnReprovar").hide();
-   $("#divSelectDecisao").hide();
+   $("#divDecisaoBotoes").hide();
 
 
-   $(".stepper-nav-wrap").css("display", "");
-   $("#btn-voltar").css("display", "");
-   $("#btn-avancar").css("display", "");
+   $(".castilho-footer").css("display", "");
+   $("#btnTabAnt").css("display", "");
+   $("#btnTabNext").css("display", "");
 
 
    $("#observacaoValidacao").prop("readonly", true).addClass("campo-readonly");
@@ -770,7 +660,6 @@ function expandirTudoView() {
 
 
    $(".section-body").show();
-   $(".section-arrow").addClass("open").text("▲");
 
 
    $("#divDadosComerciais").show();
@@ -903,6 +792,8 @@ function controlarEdicaoInicioValidacao() {
       $("#naturezaRendimento").prop("disabled", false).removeClass("campo-bloqueado");
       // Toda a seção Dados Fiscais é preenchida nesta etapa -> liberada aqui.
       liberarSecaoDadosFiscais();
+      // Anexos ficam liberados na Validação sem precisar de "Editar informações".
+      liberarSecaoDocumentacao();
       $("#btnEditarCamposInicio").show();
       $("#btnEditarCamposInicio").off("click").on("click", function () {
          habilitarTudoInicio();
@@ -915,6 +806,6 @@ function controlarEdicaoInicioValidacao() {
       return;
    }
    $("#btnEditarCamposInicio").hide();
-   $("#btnAprovar, #btnReprovar, #divSelectDecisao").hide();
+   $("#btnAprovar, #btnReprovar, #divDecisaoBotoes").hide();
    $("#observacaoValidacao").prop("readonly", true).addClass("campo-readonly");
 }
