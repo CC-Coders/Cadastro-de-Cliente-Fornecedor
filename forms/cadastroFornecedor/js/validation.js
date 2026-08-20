@@ -265,15 +265,24 @@ function validarDadosBancarios() {
 
    if (!$("#divDadosBancarios").is(":visible")) return true;
 
+   // Cliente: dados bancários são opcionais — só valida o card se algo nele foi preenchido.
+   const isCliente = ($("#classificacao").val() || "").trim() === "1";
    let valido = true;
 
    $("#dados-bancarios-cards .bank-card").each(function (index) {
       const numero = index + 1;
-      const s      = numero === 1 ? "" : String(numero);
+      const sufixo = numero === 1 ? "" : String(numero);
 
-      if (!validarCampoObrigatorio("selectBancoNome" + s, "Nome do Banco (Conta " + numero + ")")) valido = false;
-      if (!validarCampoObrigatorio("agencia"          + s, "Agência (Conta " + numero + ")"))       valido = false;
-      if (!validarCampoObrigatorio("conta"            + s, "Conta (Conta " + numero + ")"))         valido = false;
+      if (isCliente) {
+         const banco   = ($("#selectBancoNome" + sufixo).val() || "").trim();
+         const agencia = ($("#agencia"         + sufixo).val() || "").trim();
+         const conta   = ($("#conta"           + sufixo).val() || "").trim();
+         if (!banco && !agencia && !conta) return;
+      }
+
+      if (!validarCampoObrigatorio("selectBancoNome" + sufixo, "Nome do Banco (Conta " + numero + ")")) valido = false;
+      if (!validarCampoObrigatorio("agencia"          + sufixo, "Agência (Conta " + numero + ")"))       valido = false;
+      if (!validarCampoObrigatorio("conta"            + sufixo, "Conta (Conta " + numero + ")"))         valido = false;
    });
 
    return valido;
@@ -570,10 +579,10 @@ function limparErrosDadosCadastrais() {
 
    $("#dados-bancarios-cards .bank-card").each(function (index) {
       const numero = index + 1;
-      const s = numero === 1 ? "" : String(numero);
-      limparErroCampo("selectBancoNome" + s);
-      limparErroCampo("agencia" + s);
-      limparErroCampo("conta" + s);
+      const sufixo = numero === 1 ? "" : String(numero);
+      limparErroCampo("selectBancoNome" + sufixo);
+      limparErroCampo("agencia" + sufixo);
+      limparErroCampo("conta" + sufixo);
    });
 }
 

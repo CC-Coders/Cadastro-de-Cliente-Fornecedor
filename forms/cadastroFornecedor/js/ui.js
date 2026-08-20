@@ -147,11 +147,8 @@ function controlarCamposClassificacao() {
    const classificacao = ($("#classificacao").val() || "").trim();
    const isCliente = classificacao === "1";
 
-   if (isCliente) {
-      $("#divDadosBancarios").hide();
-   } else {
-      $("#divDadosBancarios").show();
-   }
+   // Dados Bancários ficam visíveis também para Cliente, como conta opcional (validado em validarDadosBancarios).
+   $("#divDadosBancarios").show();
    // Pessoa Física continua disponível como Cliente (venda em balcão).
 
    if (isCliente) {

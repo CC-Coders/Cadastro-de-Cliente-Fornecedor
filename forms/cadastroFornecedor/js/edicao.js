@@ -395,16 +395,16 @@ function montarBancosEdicaoJson() {
    $('#dados-bancarios-cards .bank-card').each(function (idx) {
       var $card = $(this);
       var num = idx + 1;
-      var s = (num === 1) ? '' : String(num);
+      var sufixo = (num === 1) ? '' : String(num);
 
       var ehRm = $card.attr('data-rm') === '1';
       var ativo = ehRm ? ($card.find('.chk-conta-ativa').is(':checked') ? '1' : '0') : '1';
       var idpgto = $card.attr('data-idpgto') || '';
 
-      var cod     = ($('#banco' + s).val()          || '').toString().trim();
-      var desc    = ($('#bancoDescricao' + s).val()  || '').toString().trim();
-      var agencia = ($('#agencia' + s).val()         || '').replace(/\D/g, '');
-      var conta   = ($('#conta' + s).val()           || '').replace(/\D/g, '');
+      var cod     = ($('#banco' + sufixo).val()          || '').toString().trim();
+      var desc    = ($('#bancoDescricao' + sufixo).val()  || '').toString().trim();
+      var agencia = ($('#agencia' + sufixo).val()         || '').replace(/\D/g, '');
+      var conta   = ($('#conta' + sufixo).val()           || '').replace(/\D/g, '');
 
       if (!cod && !agencia && !conta) { return; }
 
