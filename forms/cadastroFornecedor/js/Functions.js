@@ -1437,7 +1437,7 @@ function _sufixoBancario(numero) {
 
 // GERA O HTML DO CARD DE CONTA BANCÁRIA, CRIANDO OS CAMPOS NECESSÁRIOS CONFORME A POSIÇÃO DA CONTA
 function _gerarHtmlCardBancario(numero) {
-   let s = _sufixoBancario(numero);
+   let sufixo = _sufixoBancario(numero);
    let btnRemover = numero === 1
       ? ""
       : '<button type="button" class="btn-remove-bank" data-numero="' + numero + '">Remover</button>';
@@ -1453,26 +1453,26 @@ function _gerarHtmlCardBancario(numero) {
       '<div class="grid g3">' +
 
       // NOME DO BANCO
-      '<div class="fg span2"><label for="selectBancoNome' + s + '">Nome do Banco</label>' +
+      '<div class="fg span2"><label for="selectBancoNome' + sufixo + '">Nome do Banco</label>' +
       '<div class="select-wrap">' +
-      '<select id="selectBancoNome' + s + '" class="form-control banco-select">' + optsBanco + '</select>' +
-      '</div>' +
-  
-      '<input type="hidden" id="banco' + s + '" name="banco' + s + '" class="banco-cod">' +
-      '<input type="hidden" id="bancoDescricao' + s + '" name="bancoDescricao' + s + '" class="banco-descricao">' +
+      '<select id="selectBancoNome' + sufixo + '" class="form-control banco-select">' + optsBanco + '</select>' +
       '</div>' +
 
-      // CÓDIGO DO BANCO 
+      '<input type="hidden" id="banco' + sufixo + '" name="banco' + sufixo + '" class="banco-cod">' +
+      '<input type="hidden" id="bancoDescricao' + sufixo + '" name="bancoDescricao' + sufixo + '" class="banco-descricao">' +
+      '</div>' +
+
+      // CÓDIGO DO BANCO
       '<div class="fg"><label>Código do Banco</label>' +
-      '<input type="text" id="bancoCodExibicao' + s + '" class="form-control" placeholder="000" readonly></div>' +
+      '<input type="text" id="bancoCodExibicao' + sufixo + '" class="form-control" placeholder="000" readonly></div>' +
 
       // AGÊNCIA
-      '<div class="fg"><label for="agencia' + s + '">Agência</label>' +
-      '<input type="text" id="agencia' + s + '" name="agencia' + s + '" class="form-control banco-agencia" placeholder="0000-0"></div>' +
+      '<div class="fg"><label for="agencia' + sufixo + '">Agência</label>' +
+      '<input type="text" id="agencia' + sufixo + '" name="agencia' + sufixo + '" class="form-control banco-agencia" placeholder="0000-0"></div>' +
 
       // CONTA
-      '<div class="fg"><label for="conta' + s + '">Conta</label>' +
-      '<input type="text" id="conta' + s + '" name="conta' + s + '" class="form-control banco-conta" placeholder="00000-0"></div>' +
+      '<div class="fg"><label for="conta' + sufixo + '">Conta</label>' +
+      '<input type="text" id="conta' + sufixo + '" name="conta' + sufixo + '" class="form-control banco-conta" placeholder="00000-0"></div>' +
 
       '</div></div>'
    );
@@ -1519,8 +1519,8 @@ function inicializarDadosBancarios() {
       dadosSalvos.forEach(function (d, index) {
          let numero = index + 1;
          $wrap.append(_gerarHtmlCardBancario(numero));
-         let s = _sufixoBancario(numero);
-         let $selectBanco = $("#selectBancoNome" + s);
+         let sufixo = _sufixoBancario(numero);
+         let $selectBanco = $("#selectBancoNome" + sufixo);
          if (d.cod) {
             $selectBanco.val(d.cod);
          }
@@ -1535,17 +1535,17 @@ function inicializarDadosBancarios() {
          }
          let codRestaurado  = $selectBanco.val() || d.cod;
          let descRestaurado = $selectBanco.find("option:selected").data("nome") || d.desc;
-         $("#banco"          + s).val(codRestaurado);
-         $("#bancoDescricao" + s).val(descRestaurado);
-         $("#bancoCodExibicao" + s).val(codRestaurado);
+         $("#banco"          + sufixo).val(codRestaurado);
+         $("#bancoDescricao" + sufixo).val(descRestaurado);
+         $("#bancoCodExibicao" + sufixo).val(codRestaurado);
 
          let agencia = d.agencia;
          let conta   = d.conta;
          if (/^\d{5}$/.test(agencia)) agencia = agencia.slice(0, 4) + "-" + agencia[4];
          if (/^\d{2,}$/.test(conta))  conta   = conta.slice(0, -1)  + "-" + conta.slice(-1);
 
-         $("#agencia" + s).val(agencia);
-         $("#conta"   + s).val(conta);
+         $("#agencia" + sufixo).val(agencia);
+         $("#conta"   + sufixo).val(conta);
       });
    } else {
       $wrap.append(_gerarHtmlCardBancario(1));
@@ -1587,16 +1587,16 @@ function removerContaBancaria(numero) {
 function _reordenarCardsBancarios() {
    $("#dados-bancarios-cards .bank-card").each(function (index) {
       let numero = index + 1;
-      let s = _sufixoBancario(numero);
+      let sufixo = _sufixoBancario(numero);
 
       $(this).attr("id", "bank-card-" + numero);
       $(this).find(".bank-card-title").text("Conta Bancária " + numero);
       $(this).find(".btn-remove-bank").data("numero", numero).attr("data-numero", numero);
 
-      $(this).find(".banco-cod")      .attr("id", "banco"             + s).attr("name", "banco"             + s);
-      $(this).find(".banco-descricao").attr("id", "bancoDescricao"    + s).attr("name", "bancoDescricao"    + s);
-      $(this).find(".banco-agencia")  .attr("id", "agencia"           + s).attr("name", "agencia"           + s);
-      $(this).find(".banco-conta")    .attr("id", "conta"             + s).attr("name", "conta"             + s);
+      $(this).find(".banco-cod")      .attr("id", "banco"             + sufixo).attr("name", "banco"             + sufixo);
+      $(this).find(".banco-descricao").attr("id", "bancoDescricao"    + sufixo).attr("name", "bancoDescricao"    + sufixo);
+      $(this).find(".banco-agencia")  .attr("id", "agencia"           + sufixo).attr("name", "agencia"           + sufixo);
+      $(this).find(".banco-conta")    .attr("id", "conta"             + sufixo).attr("name", "conta"             + sufixo);
 
       if (numero === 1) {
          $(this).find(".btn-remove-bank").remove();
@@ -1612,12 +1612,12 @@ function sincronizarTabelaBancaria() {
 
    $("#dados-bancarios-cards .bank-card").each(function (index) {
       let numero = index + 1;
-      let s = _sufixoBancario(numero);
+      let sufixo = _sufixoBancario(numero);
 
-      let banco     = ($("#banco"             + s).val() || "").trim();
-      let bancoDesc = ($("#bancoDescricao"    + s).val() || "").trim();
-      let agencia   = ($("#agencia"           + s).val() || "").replace(/\D/g, "");
-      let conta     = ($("#conta"             + s).val() || "").replace(/\D/g, "");
+      let banco     = ($("#banco"             + sufixo).val() || "").trim();
+      let bancoDesc = ($("#bancoDescricao"    + sufixo).val() || "").trim();
+      let agencia   = ($("#agencia"           + sufixo).val() || "").replace(/\D/g, "");
+      let conta     = ($("#conta"             + sufixo).val() || "").replace(/\D/g, "");
 
       $tbody.append(
          "<tr>" +

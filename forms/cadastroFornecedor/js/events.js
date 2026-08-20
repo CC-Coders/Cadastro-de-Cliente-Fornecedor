@@ -46,16 +46,16 @@ function bindEventosDadosBancarios() {
    });
 
    $(document).on("change", ".banco-select", function () {
-      let selectId = this.id; 
-      let s = selectId.replace("selectBancoNome", ""); 
+      let selectId = this.id;
+      let sufixo = selectId.replace("selectBancoNome", "");
       let cpodigo = $(this).val() || "";
       let nome    = $(this).find("option:selected").data("nome") || $(this).find("option:selected").text() || "";
 
       if (!$(this).find("option:selected").data("nome")) nome = "";
 
-      $("#banco"           + s).val(cpodigo);
-      $("#bancoDescricao"  + s).val(nome);
-      $("#bancoCodExibicao"+ s).val(cpodigo);
+      $("#banco"           + sufixo).val(cpodigo);
+      $("#bancoDescricao"  + sufixo).val(nome);
+      $("#bancoCodExibicao"+ sufixo).val(cpodigo);
 
       sincronizarTabelaBancaria();
       if (cpodigo && selectId) limparErroCampo(selectId);
