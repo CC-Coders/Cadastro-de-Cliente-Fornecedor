@@ -152,28 +152,7 @@ function controlarCamposClassificacao() {
    } else {
       $("#divDadosBancarios").show();
    }
-   if (isCliente) {
-
-      if (!$("#categoria").data("optPF")) {
-         let $pf = $("#categoria option[value='F']");
-         if ($pf.length) {
-            let eraPF = $("#categoria").val() === "F";
-            $("#categoria").data("optPF", $pf.detach());
-
-            if (eraPF) {
-               $("#categoria").prop("selectedIndex", 0).trigger("change");
-            }
-         }
-      }
-   } else {
-      
-      let $pfSalvo = $("#categoria").data("optPF");
-      if ($pfSalvo && !$("#categoria option[value='F']").length) {
-         let $pj = $("#categoria option[value='J']");
-         if ($pj.length) { $pj.after($pfSalvo); } else { $("#categoria").append($pfSalvo); }
-         $("#categoria").removeData("optPF");
-      }
-   }
+   // Pessoa Física continua disponível como Cliente (venda em balcão).
 
    if (isCliente) {
       $(".cnae-box").hide().prev(".divider").hide();
@@ -219,7 +198,8 @@ function controlarCamposCategoria() {
    $("#divToggleEstrangeiro").hide();
 
    if (categoria === "F") {
-      $("#divCpf, #divNomeFantasia, #divRg").show();
+      // PF exibe Inscrição Estadual (opcional) — clientes que pedem a IE na nota fiscal.
+      $("#divCpf, #divNomeFantasia, #divRg, #divInscricaoEstadual").show();
       $("#docCpf, #docRg, #nomeFantasia").prop("required", true);
 
       $("#divDadosPF").show();
@@ -350,7 +330,7 @@ function controlarEnderecoEstrangeiro(ativo) {
       $("#divCep").show();
       $("#cep").prop("required", true);
 
-      $("#endereco, #bairro").prop("readonly", true);
+      $("#endereco, #bairro").prop("readonly", false);
       $("#divPais").show();
       $("#divSelectPaisEstrangeiro").hide();
       $("#selectPaisEstrangeiro").prop("required", false);
@@ -364,7 +344,7 @@ function controlarEnderecoEstrangeiro(ativo) {
       $estadoWrap.show();
       $("#estadoExteriorDisplay").hide();
       $("#estado option[value='EX']").remove();
-      $("#estado").val("").prop({ required: true, readonly: true });
+      $("#estado").val("").prop("required", true);
 
 
       if (_cidadeSelectOriginalHtml) {
@@ -374,7 +354,7 @@ function controlarEnderecoEstrangeiro(ativo) {
             _cidadeSelectOriginalHtml = null;
          }
       }
-      $("#cidade").val("").prop("readonly", true);
+      $("#cidade").val("");
       $("#codMunicipio").val("");
       if (!globalThis._formRestaurando) {
          $("#nomeCidadeSalva").val("");
