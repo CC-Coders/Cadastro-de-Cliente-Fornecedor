@@ -1,146 +1,5 @@
 
-// UI DE SELECT COM BUSCA (SINGLE SELECT)
-(function () {
-   "use strict";
-
-   var $overlay    = null;   
-   var $currentSel = null;   
-
-   // MOSTRA O OVERLAY DE BUSCA, POSICIONA E POPULA A LISTA
-   function _build() {
-      if ($overlay) return;
-      $overlay = $([
-         '<div id="sso-root">',
-         '  <div class="sso-backdrop"></div>',
-         '  <div class="sso-panel">',
-         '    <input class="sso-input" type="text" placeholder="Pesquisar..." autocomplete="off"/>',
-         '    <ul class="sso-list"></ul>',
-         '  </div>',
-         '</div>'
-      ].join(""));
-      $("body").append($overlay);
-      $overlay.find(".sso-backdrop").on("click", _close);
-      $overlay.find(".sso-input").on("input", function () { _filter($(this).val()); });
-
-      $overlay.find(".sso-list").on("click", ".sso-option", function () {
-         if (!$currentSel) return;
-         $currentSel.val($(this).data("val")).trigger("change");
-         _close();
-      });
-
-      $(document).on("keydown.ssoGlobal", function (e) {
-         if (!$overlay || !$overlay.hasClass("sso-open")) return;
-         if (e.key === "Escape") { _close(); return; }
-
-         var $vis = $overlay.find(".sso-option:visible");
-         var $foc = $overlay.find(".sso-option.sso-focused");
-
-         if (e.key === "ArrowDown") {
-            e.preventDefault();
-            var ni = $vis.index($foc) + 1;
-            if (ni < $vis.length) {
-               $foc.removeClass("sso-focused");
-               $vis.eq(ni).addClass("sso-focused")[0].scrollIntoView({ block: "nearest" });
-            }
-         } else if (e.key === "ArrowUp") {
-            e.preventDefault();
-            var pi = $vis.index($foc) - 1;
-            if (pi >= 0) {
-               $foc.removeClass("sso-focused");
-               $vis.eq(pi).addClass("sso-focused")[0].scrollIntoView({ block: "nearest" });
-            }
-         } else if (e.key === "Enter") {
-            e.preventDefault();
-            var $f = $overlay.find(".sso-option.sso-focused:visible");
-            if ($f.length) $f.trigger("click");
-         }
-      });
-
-      $(window).on("scroll.sso resize.sso", function () {
-         if ($overlay && $overlay.hasClass("sso-open") && $currentSel) {
-            _position($currentSel);
-         }
-      });
-   }
-   // ABRE O OVERLAY DE BUSCA PARA O SELECT ESPECIFICADO
-   function _open($sel) {
-      _build();
-
-      if ($currentSel && $currentSel.is($sel) && $overlay.hasClass("sso-open")) {
-         _close();
-         return;
-      }
-
-      $currentSel = $sel;
-      var valorAtual = $sel.val();
-
-      var $list = $overlay.find(".sso-list").empty();
-      $overlay.find(".sso-input").val("");
-
-      $sel.find("option").each(function () {
-         var val = $(this).val();
-         var txt = $(this).text().trim();
-         if (txt === "" || val === "") return;
-         var isSel = (val === valorAtual);
-         var $li   = $('<li class="sso-option' + (isSel ? " sso-selected" : "") + '"></li>')
-                        .data("val", val).text(txt);
-         $list.append($li);
-      });
-
-      _position($sel);
-      $overlay.addClass("sso-open");
-      $overlay.find(".sso-input").focus();
-
-      var $sel2 = $overlay.find(".sso-option.sso-selected");
-      if ($sel2.length) { $sel2[0].scrollIntoView({ block: "nearest" }); }
-   }
-   // FECHA O OVERLAY DE BUSCA (SE HOUVER)
-   function _close() {
-      if ($overlay) $overlay.removeClass("sso-open");
-      $currentSel = null;
-   }
-   // FILTRA A LISTA DE OPÇÕES DO OVERLAY DE BUSCA, MOSTRANDO SÓ AS QUE CONTÊM O TEXTO INFORMADO
-   function _filter(q) {
-      var lower = (q || "").toLowerCase();
-      var $opts = $overlay.find(".sso-option");
-      $opts.removeClass("sso-focused").each(function () {
-         $(this).toggle($(this).text().toLowerCase().indexOf(lower) !== -1);
-      });
-      $overlay.find(".sso-option:visible:first").addClass("sso-focused");
-   }
-   // POSICIONA O OVERLAY DE BUSCA EM RELAÇÃO AO SELECT ESPECIFICADO
-   function _position($sel) {
-      var rect   = $sel[0].getBoundingClientRect();
-      var $panel = $overlay.find(".sso-panel");
-      $panel.css({
-         top  : (rect.bottom + 3) + "px",
-         left : rect.left + "px",
-         width: Math.max(rect.width, 220) + "px",
-         bottom: "auto"
-      });
-   }
-   // APLICA O COMPORTAMENTO DE BUSCA PARA OS SELECTS ESPECIFICADOS (SELETOR JQUERY)
-   window.aplicarBuscaSelect = function (seletor) {
-      $(document)
-         .off("mousedown.sso",   seletor)
-         .off("keydown.ssoSel",  seletor)
-         .on("mousedown.sso", seletor, function (e) {
-            var $sel = $(this);
-            if ($sel.hasClass("campo-bloqueado") || $sel.prop("disabled")) return;
-            e.preventDefault();
-            _open($sel);
-         })
-         .on("keydown.ssoSel", seletor, function (e) {
-            var $sel = $(this);
-            if ($sel.hasClass("campo-bloqueado") || $sel.prop("disabled")) return;
-            if (e.key === " " || e.key === "ArrowDown" || e.key === "ArrowUp" ||
-                (e.altKey && e.key === "ArrowDown")) {
-               e.preventDefault();
-               _open($sel);
-            }
-         });
-   };
-})();
+// A busca dos selects é feita pelo Selectize (js/selectBusca.js).
 
 // VISIBILIDADE CONDICIONAL DE CAMPOS
 function controlarCamposClassificacao() {
@@ -292,11 +151,9 @@ function controlarEnderecoEstrangeiro(ativo) {
       $("#divSelectPaisEstrangeiro").hide();
       $("#selectPaisEstrangeiro").prop("required", false);
 
-      const $estado = $("#estado");
-      if (!$estado.find("option[value='EX']").length) {
-         $estado.prepend('<option value="EX">EX</option>');
-      }
-      $estado.val("EX").prop("required", false);
+      popularSelectEstado(true);
+      definirValorSelect("#estado", "EX");
+      $("#estado").prop("required", false);
       $estadoWrap.hide();
       if ($("#estadoExteriorDisplay").length) {
          $("#estadoExteriorDisplay").val("EX");
@@ -310,8 +167,10 @@ function controlarEnderecoEstrangeiro(ativo) {
       $("#divEstado label").text("End. Exterior");
 
 
+      // No exterior a cidade é digitada livremente: o select do RM vira um input de texto.
       let $cidadeWrap = $("#divCidade .select-wrap");
       if ($("#cidade").is("select")) {
+         removerBuscaSelect("#cidade");
          _cidadeSelectOriginalHtml = $cidadeWrap[0].outerHTML;
          $cidadeWrap.replaceWith(
             '<input type="text" id="cidade" name="cidade" class="form-control"' +
@@ -340,18 +199,19 @@ function controlarEnderecoEstrangeiro(ativo) {
       $("#divEstado label").text("Estado");
       $estadoWrap.show();
       $("#estadoExteriorDisplay").hide();
-      $("#estado option[value='EX']").remove();
-      $("#estado").val("").prop("required", true);
-
+      popularSelectEstado(false);
+      definirValorSelect("#estado", "");
+      $("#estado").prop("required", true);
 
       if (_cidadeSelectOriginalHtml) {
          let $cidadeInput = $("#cidade");
          if ($cidadeInput.is("input")) {
             $cidadeInput.replaceWith(_cidadeSelectOriginalHtml);
             _cidadeSelectOriginalHtml = null;
+            aplicarBuscaSelect("#cidade");
          }
       }
-      $("#cidade").val("");
+      limparSelect("#cidade", "Selecione a cidade...");
       $("#codMunicipio").val("");
       if (!globalThis._formRestaurando) {
          $("#nomeCidadeSalva").val("");
@@ -379,41 +239,26 @@ function controlarAlertaCnpj() {
    }
 }
 
-// CONTROLA A VISIBILIDADE DO ALERTA DE RETENÇÃO 
-function controlarRetencaoPorTipo() {
-   return;
-}
-
-// VERIFICA SE O TIPO SELECIONADO É RDO
-function _ehTipoRDO() {
-   var texto = ($("#tipo option:selected").text() || "").toUpperCase();
-   return /\bRDO\b/.test(texto);
-}
-
-// CONTROLA A VISIBILIDADE DO CAMPO NATUREZA DE RENDIMENTO
+// CONTROLA A VISIBILIDADE DO CAMPO NATUREZA DE RENDIMENTO.
+// Ela só é preenchida pelo Suprimentos na Validação, e nunca para RDO.
 function controlarNaturezaPorTipo() {
    if (ehModoView()) {
       $("#divNaturezaRendimento").show();
       return;
    }
 
-   var atividade = Number($("#atividade").val() || 0);
-   var ehValidacao = (atividade === ATIVIDADES.VALIDACAO);
+   const exibir = ehEtapaValidacao() && !ehTipoRDO();
 
-   if (_ehTipoRDO() || !ehValidacao) {
-      $("#divNaturezaRendimento").hide();
-      $("#naturezaRendimento").prop("required", false);
-      limparErroCampo("naturezaRendimento");
-      if (_ehTipoRDO()) {
-         $("#naturezaRendimento").val("");
-         $("#codNaturezaRendimento").val("");
-         $("#idNatRendimento").val("");
-      }
-      return;
+   $("#divNaturezaRendimento").toggle(exibir);
+   $("#naturezaRendimento").prop("required", exibir);
+
+   if (exibir) return;
+
+   limparErroCampo("naturezaRendimento");
+   if (ehTipoRDO()) {
+      definirValorSelect("#naturezaRendimento", "");
+      sincronizarNaturezaRendimento();
    }
-
-   $("#divNaturezaRendimento").show();
-   $("#naturezaRendimento").prop("required", true);
 }
 
 // CONTROLA A VISIBILIDADE DO PAINEL DE RETENÇÕES 
@@ -447,21 +292,19 @@ function aplicarVisibilidadeDocumentacao() {
    $("#nav-step-Documentacao, #divDivisaoDocumentacao").toggle(mostrar);
 }
 
-// EXIBE OU OCULTA A SEÇÃO DE DADOS FISCAIS
+// EXIBE A SEÇÃO DE DADOS FISCAIS, QUE SÓ É PREENCHIDA NA VALIDAÇÃO.
 function aplicarVisibilidadeDadosFiscais() {
-   var atividade = Number($("#atividade").val() || 0);
-   var esconder = (atividade === ATIVIDADES.INICIO_0 ||
-                   atividade === ATIVIDADES.INICIO ||
-                   atividade === ATIVIDADES.CORRECAO);
+   const $fiscais = $("#divDadosFiscais");
+   const $contatos = $("#divContatos");
 
-   // DADOS FISCAIS É A ÚLTIMA SEÇÃO DA ETAPA 2 (PREENCHIDA NA VALIDAÇÃO), GARANTINDO SUA POSIÇÃO APÓS CONTATOS INDEPENDENTEMENTE DA ORDEM DO HTML.
-   var $fiscais = $("#divDadosFiscais");
-   var $contatos = $("#divContatos");
+   // Dados Fiscais é a última seção da etapa 2: garante a posição após Contatos
+   // independentemente da ordem em que o Fluig monta o HTML.
    if ($fiscais.length && $contatos.length && !$contatos.next().is("#divDadosFiscais")) {
       $fiscais.insertAfter($contatos);
    }
 
-   $fiscais.toggle(!esconder);
+   // Vale a atividade, não o modo: em visualização a seção também fica oculta no Início/Correção.
+   $fiscais.toggle(ETAPAS_PREENCHIMENTO.indexOf(atividadeAtual()) === -1);
 }
 
 // LIBERA TODA A SEÇÃO DE DADOS FISCAIS PARA EDIÇÃO NA VALIDAÇÃO, INDEPENDENTEMENTE DA AÇÃO "EDITAR CAMPOS"
@@ -471,14 +314,10 @@ function liberarSecaoDadosFiscais() {
    $sec.find("input:not([type='hidden']), select, textarea")
       .prop("disabled", false)
       .prop("readonly", false)
-      .removeClass("campo-bloqueado campo-readonly");
+      .removeClass("campo-readonly");
 
-   $sec.find("input[type='checkbox'], input[type='radio']")
-      .prop("disabled", false)
-      .removeClass("campo-bloqueado");
-
-   $sec.find(".switch, .switch-button, .retencao-box, .retencao-item, .cnae-box, .select-wrap")
-      .removeClass("campo-bloqueado disabled-upload");
+   liberarCampo($sec.find("input, select, textarea, .switch, .switch-button, .retencao-box, .retencao-item, .cnae-box, .select-wrap"));
+   $sec.find(".select-wrap").removeClass("disabled-upload");
 
    $sec.find("button")
       .removeClass("btn-bloqueado")
@@ -551,13 +390,12 @@ function bloquearTudoInicio() {
       .addClass("campo-readonly");
 
 
-   $etapas.find("select, input[type='checkbox'], input[type='radio']")
-      .prop("disabled", false)
-      .addClass("campo-bloqueado");
+   $etapas.find("select, input[type='checkbox'], input[type='radio']").prop("disabled", false);
 
-
-   $etapas.find(".switch, .switch-button, .retencao-box, .retencao-item, .cnae-box, .select-wrap")
-      .addClass("campo-bloqueado");
+   bloquearCampo($etapas.find(
+      "select, input[type='checkbox'], input[type='radio']," +
+      ".switch, .switch-button, .retencao-box, .retencao-item, .cnae-box, .select-wrap"
+   ));
 
 
    $etapas.find(".upload-area")
@@ -581,25 +419,19 @@ function habilitarTudoInicio() {
    $etapas.find("input:not([type='hidden']), select, textarea")
       .prop("disabled", false)
       .prop("readonly", false)
-      .removeClass("campo-bloqueado campo-readonly");
+      .removeClass("campo-readonly");
 
-   $etapas.find("input[type='checkbox'], input[type='radio']")
-      .prop("disabled", false)
-      .removeClass("campo-bloqueado");
-
-   $etapas.find(".switch, .switch-button, .retencao-box, .retencao-item, .cnae-box, .select-wrap, .upload-area")
-      .removeClass("campo-bloqueado disabled-upload");
+   liberarCampo($etapas.find(
+      "input, select, textarea," +
+      ".switch, .switch-button, .retencao-box, .retencao-item, .cnae-box, .select-wrap, .upload-area"
+   ));
+   $etapas.find(".upload-area").removeClass("disabled-upload");
 
    $etapas.find("button, .upload-file-remove")
       .removeClass("btn-bloqueado")
       .removeAttr("tabindex");
 
    inicializarUploadsFluig();
-}
-
-// VERIFICA SE O FORMULÁRIO ESTÁ EM MODO DE VISUALIZAÇÃO (VIEW)
-function ehModoView() {
-   return ($("#formMode").val() || "").toUpperCase() === "VIEW";
 }
 
 // MODO VIEW 
@@ -758,38 +590,91 @@ function mostrarTextoDoSpan(idCampo, valorSalvo) {
    $span.empty().text(texto);
 }
 
+// APLICA AS REGRAS DE CADASTRO ASSERTIVO: LIMITA OS TIPOS DISPONÍVEIS E OS PREENCHIMENTOS AUTOMÁTICOS.
+function aplicarRegrasCadastroAssertivo() {
+   try {
+      if (ehEtapaPreenchimento()) {
+         // A lista de tipos depende da classificação e da categoria escolhidas.
+         carregarTiposClienteFornecedor();
+         liberarCampo("#tipo");
+      }
+
+      forcarNaturezaAluguel();
+      aplicarRegrasPfRdo();
+   } catch (e) {
+      console.warn("[regras] cadastro assertivo:", e);
+   }
+}
+
+// PESSOA FÍSICA + RDO: fixa Contribuinte ICMS em "0" e Código de Receita IRRF em "0588", travados.
+const IRRF_PESSOA_FISICA_RDO = "0588";
+
+function aplicarRegrasPfRdo() {
+   if (ehModoView()) return;
+
+   const fixar = ($("#categoria").val() || "").trim() === "F" && ehTipoRDO();
+
+   if (!fixar) {
+      liberarCampo("#icms, #selectDescricaoIrrf");
+      return;
+   }
+
+   definirValorSelect("#icms", "0", true);
+   bloquearCampo("#icms");
+
+   definirValorSelect("#selectDescricaoIrrf", IRRF_PESSOA_FISICA_RDO, true);
+   bloquearCampo("#selectDescricaoIrrf");
+}
+
+// NATUREZA DE RENDIMENTO USADA QUANDO O FORNECEDOR É DE ALUGUEL.
+const NATUREZA_ALUGUEL = "13002";
+
+// FIXA A NATUREZA DE RENDIMENTO EM ALUGUEL QUANDO ALGUM GRUPO DE MERCADORIA FOR DE ALUGUEL.
+function forcarNaturezaAluguel() {
+   const temAluguel = $(".grupo-mercadoria").toArray()
+      .some(function (campo) { return /alugu/i.test($(campo).val() || ""); });
+
+   if (!temAluguel) {
+      liberarCampo("#naturezaRendimento");
+      return;
+   }
+
+   if (!itemDaLista(listaNaturezaRendimento(), NATUREZA_ALUGUEL)) return;
+
+   definirValorSelect("#naturezaRendimento", NATUREZA_ALUGUEL);
+   sincronizarNaturezaRendimento();
+   bloquearCampo("#naturezaRendimento");
+}
+
+// ETAPAS EM QUE O FORMULÁRIO INTEIRO FICA EDITÁVEL, SEM PRECISAR DE "EDITAR INFORMAÇÕES".
+// ERRO_INTEGRACAO entra aqui para o solicitante ajustar e reenviar o processo.
+const ETAPAS_EDICAO_LIVRE = ETAPAS_PREENCHIMENTO.concat(ATIVIDADES.INTEGRACAO, ATIVIDADES.ERRO_INTEGRACAO);
+
 // CONTROLA A EDIÇÃO DE CAMPOS NO INÍCIO, CORREÇÃO OU VALIDAÇÃO
 function controlarEdicaoInicioValidacao() {
-   var atividade = Number($("#atividade").val() || 0);
-   var formMode  = ($("#formMode").val() || "").toUpperCase();
+   const atividade = atividadeAtual();
 
    // Dados Fiscais só aparecem na Validação (escondido no Início/Correção).
    aplicarVisibilidadeDadosFiscais();
 
-   if (formMode === "VIEW") {
+   if (ehModoView()) {
       configurarModoView();
       return;
    }
 
-
-   if (atividade === ATIVIDADES.INICIO_0 ||
-       atividade === ATIVIDADES.INICIO ||
-       atividade === ATIVIDADES.CORRECAO ||
-       atividade === ATIVIDADES.INTEGRACAO ||
-       atividade === ATIVIDADES.ERRO_INTEGRACAO) {
-      // ERRO_INTEGRACAO fica editável (como Início/Correção) para ajustar e reenviar o processo.
+   if (ETAPAS_EDICAO_LIVRE.indexOf(atividade) !== -1) {
       $("#btnEditarCamposInicio").hide();
       return;
    }
 
- 
    bloquearTudoInicio();
 
 
    if (atividade === ATIVIDADES.VALIDACAO) {
       // Natureza de Rendimentos é preenchida pelo Suprimentos -> sempre editável nesta etapa,
       // mesmo sem clicar em "Editar campos".
-      $("#naturezaRendimento").prop("disabled", false).removeClass("campo-bloqueado");
+      $("#naturezaRendimento").prop("disabled", false);
+      liberarCampo("#naturezaRendimento");
       // Toda a seção Dados Fiscais é preenchida nesta etapa -> liberada aqui.
       liberarSecaoDadosFiscais();
       // Anexos ficam liberados na Validação sem precisar de "Editar informações".
