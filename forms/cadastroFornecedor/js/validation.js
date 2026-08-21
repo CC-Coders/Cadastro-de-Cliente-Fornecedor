@@ -316,10 +316,8 @@ function validarDadosCadastrais(exibirToast) {
          id: "naturezaRendimento",
          label: "Natureza de Rendimentos",
 
-         skipWhen: function () {
-            var ehRDO = typeof _ehTipoRDO === "function" && _ehTipoRDO();
-            return ehRDO || Number($("#atividade").val() || 0) !== ATIVIDADES.VALIDACAO;
-         }
+         // A Natureza é preenchida pelo Suprimentos na Validação, e nunca para RDO.
+         skipWhen: function () { return ehTipoRDO() || !ehEtapaValidacao(); }
       },
       {
          id: "regimeFiscal",
@@ -681,13 +679,90 @@ function validarCNPJ(cnpj) {
 
    return resultado == digitos.charAt(1);
 }
+// BEFORE SEND VALIDATE — chamado pelo Fluig antes de enviar o processo para a próxima etapa
+globalThis.beforeSendValidate = function (numState, nextState) {
+   sincronizarTipoSelecionado();
+   sincronizarCamposDinamicosHidden();
+   sincronizarTabelaBancaria();
+   sincronizarTabelasRelatorio();
+
+   let acao = "";
+   if (numState == 0 || numState == 4) acao = "inicio";
+   else if (numState == 11) acao = "validacao";
+   else if (numState == 27) acao = "correcao";
+   else if (numState == 16) acao = "integracao";
+
+   function valor(campo) {
+      const el = document.getElementsByName(campo)[0] || document.getElementById(campo);
+      return el ? String(el.value || "").trim() : "";
+   }
+
+   let valido = true;
+   let primeiroStepComErro = null;
+   const isCliente = valor("classificacao") === "1";
+
+   function _validarTodasEtapas() {
+      goToStep(1, false);
+      abrirDadosComerciais();
+      if (!validarPreCadastro()) {
+         valido = false;
+         if (primeiroStepComErro === null) primeiroStepComErro = 1;
+      }
+      goToStep(2, false);
+      if (!validarDadosCadastrais()) {
+         valido = false;
+         if (primeiroStepComErro === null) primeiroStepComErro = 2;
+      }
+      if (!isCliente) {
+         goToStep(3, false);
+         if (!validarDocumentacao()) {
+            valido = false;
+            if (primeiroStepComErro === null) primeiroStepComErro = 3;
+         }
+      }
+   }
+
+   if (acao == "inicio" || acao == "correcao") {
+      _validarTodasEtapas();
+   }
+
+   if (acao == "validacao") {
+      const decisao = valor("selectDecisao");
+      var erroDecisao = false;
+
+      if (!validarCampoObrigatorio("observacaoValidacao", "Observações")) { valido = false; erroDecisao = true; }
+      if (!validarCampoObrigatorio("selectDecisao", "Ação")) { valido = false; erroDecisao = true; }
+
+      if (decisao && decisao != "enviarRm" && decisao != "Correcao") {
+         exibirErroCampo("selectDecisao", "Selecione uma ação: Aprovar (Enviar ao RM) ou Reprovar (Correção).");
+         valido = false;
+         erroDecisao = true;
+      }
+
+      if (decisao === "enviarRm") {
+         _validarTodasEtapas();
+      }
+
+      if (erroDecisao && primeiroStepComErro === null) {
+         primeiroStepComErro = 4;
+      }
+   }
+
+   if (!valido) {
+      if (primeiroStepComErro !== null) {
+         goToStep(primeiroStepComErro, false);
+      }
+      focusCampoComErro();
+      return false;
+   }
+
+   goToStep(1, false);
+   return true;
+};
+
 // VALIDA A ETAPA 4 (HISTÓRICO E DECISÃO)
 function validarHistoricoDecisao(exibirToast) {
-   const atividade = Number($("#atividade").val() || 0);
-
-   if (atividade !== ATIVIDADES.VALIDACAO) {
-      return true;
-   }
+   if (!ehEtapaValidacao()) return true;
 
    let valido = true;
 
@@ -695,10 +770,10 @@ function validarHistoricoDecisao(exibirToast) {
    if (!validarCampoObrigatorio("selectDecisao", "Ação")) valido = false;
 
    // Natureza de Rendimentos: o Suprimentos deve preenchê-la antes de "Enviar ao RM" (exceto RDO).
-   var decisaoVal = ($("#selectDecisao").val() || "").trim();
-   var ehRDOval = typeof _ehTipoRDO === "function" && _ehTipoRDO();
-   if (decisaoVal === "enviarRm" && !ehRDOval) {
-      if (!validarCampoObrigatorio("naturezaRendimento", "Natureza de Rendimentos")) valido = false;
+   const enviandoAoRM = ($("#selectDecisao").val() || "").trim() === "enviarRm";
+   if (enviandoAoRM && !ehTipoRDO() &&
+       !validarCampoObrigatorio("naturezaRendimento", "Natureza de Rendimentos")) {
+      valido = false;
    }
 
    if (!valido && exibirToast) {

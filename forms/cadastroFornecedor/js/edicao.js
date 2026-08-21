@@ -175,13 +175,13 @@ function preencherEdicaoCompleta(detalhes) {
 
 
    var categoria = (c.CATEGORIA || '').toString().trim().toUpperCase(); // F ou J
-   if (categoria) { $('#categoria').val(categoria).trigger('change'); }
+   if (categoria) { definirValorSelect('#categoria', categoria, true); }
 
    // PAGREC no RM = mesma convenção do #classificacao (1=Cliente, 2=Fornecedor, 3=Ambos).
    var classif = (c.PAGREC || '').toString().trim();
-   if (classif) { $('#classificacao').val(classif).trigger('change'); }
+   if (classif) { definirValorSelect('#classificacao', classif, true); }
 
-   if (c.CODTCF) { $('#tipo').val(c.CODTCF).trigger('change'); }
+   if (c.CODTCF) { definirValorSelect('#tipo', c.CODTCF, true); }
 
    var cgc = (c.CGCCFO || '').toString().replace(/\D/g, '');
    if (categoria === 'J') {
@@ -217,32 +217,30 @@ function preencherEdicaoCompleta(detalhes) {
    if (c.INSCRESTADUAL) { $('#docInscricaoEstadual').val(c.INSCRESTADUAL).trigger('input'); }
    if (c.INSCRMUNICIPAL) { $('#docInscricaoMunicipal').val(c.INSCRMUNICIPAL).trigger('input'); }
 
-   if (c.CONTRIBUINTE) { $('#icms').val(c.CONTRIBUINTE).trigger('change'); }
+   if (c.CONTRIBUINTE) { definirValorSelect('#icms', c.CONTRIBUINTE, true); }
 
    if (c.CODRECEITA) {
-      $('#selectDescricaoIrrf').val(c.CODRECEITA).trigger('change');
-      $('#hiddenCodIrrf').val(c.CODRECEITA);
+      definirValorSelect('#selectDescricaoIrrf', c.CODRECEITA, true);
    }
 
+   // O RM identifica a natureza pelo id interno; o select trabalha com o código.
    if (c.IDNATRENDIMENTO) {
-      var $optNat = $('#naturezaRendimento option').filter(function () {
-         return String($(this).data('idnat')) === String(c.IDNATRENDIMENTO);
+      var natureza = listaNaturezaRendimento().find(function (item) {
+         return item.idNat === String(c.IDNATRENDIMENTO);
       });
-      if ($optNat.length) {
-         $('#naturezaRendimento').val($optNat.val()).trigger('change');
-      }
+      if (natureza) { definirValorSelect('#naturezaRendimento', natureza.valor, true); }
       $('#idNatRendimento').val(c.IDNATRENDIMENTO);
    }
 
    var simples = (c.OPTANTEPELOSIMPLES || '0').toString().trim();
-   $('#simplesNacional').val(simples === '1' ? '1' : '0').trigger('change');
+   definirValorSelect('#simplesNacional', simples === '1' ? '1' : '0', true);
 
    if (categoria === 'F') {
       $('#docRg').val(c.RG || '');
       $('#docRgOrgao').val(c.CI_ORGAO || '');
-      $('#docRgUf').val(c.CI_UF || '');
+      definirValorSelect('#docRgUf', c.CI_UF || '');
       $('#dtNascimento').val(c.DTNASCIMENTO || ''); // input date espera YYYY-MM-DD
-      if (c.ESTADOCIVIL) { $('#estadoCivil').val(c.ESTADOCIVIL).trigger('change'); }
+      if (c.ESTADOCIVIL) { definirValorSelect('#estadoCivil', c.ESTADOCIVIL, true); }
       $('#numDependentes').val(c.NUMDEPENDENTES || '0');
    }
 
@@ -251,7 +249,7 @@ function preencherEdicaoCompleta(detalhes) {
 
    // Regime fiscal
    if (aux.REGIME_FISCAL) {
-      $('#regimeFiscal').val(aux.REGIME_FISCAL).trigger('change');
+      definirValorSelect('#regimeFiscal', aux.REGIME_FISCAL, true);
    }
 
    // Retenções
@@ -292,16 +290,12 @@ function preencherEdicaoCompleta(detalhes) {
       preencherCnaesSecundarios(cnaesSec);
    }
 
-   var grupos = detalhes.grupos || [];
-   if (grupos.length) {
-      $('#grupoMercadoria1').val((grupos[0].DESCRICAO || '')).trigger('change');
-      for (var g = 1; g < grupos.length; g++) {
-         if (typeof adicionarGrupoMercadoria === 'function') {
-            adicionarGrupoMercadoria();
-            $('#grupoMercadoria' + (g + 1)).val((grupos[g].DESCRICAO || '')).trigger('change');
-         }
-      }
-   }
+   // O primeiro grupo já existe no HTML; os demais são criados sob demanda.
+   (detalhes.grupos || []).forEach(function (grupo, index) {
+      var numero = index + 1;
+      if (numero > 1) { adicionarGrupoMercadoria(); }
+      definirValorSelect('#grupoMercadoria' + numero, grupo.DESCRICAO || '', true);
+   });
 
    preencherBancosEdicao(detalhes.bancos || []);
    $('#idpgtoBoletoEdicao').val((detalhes.boletoIdpgto || '').toString());
@@ -369,7 +363,8 @@ function aplicarBancosEdicaoReadonly() {
       $card.attr('data-rm', '1');
       $card.attr('data-idpgto', info.idpgto || '');
 
-      $card.find('select, input[type="text"]').prop('disabled', true).addClass('campo-bloqueado');
+      $card.find('input[type="text"]').prop('disabled', true);
+      bloquearCampo($card.find('select, input[type="text"]'));
 
       $card.find('.btn-remove-bank').remove();
 
