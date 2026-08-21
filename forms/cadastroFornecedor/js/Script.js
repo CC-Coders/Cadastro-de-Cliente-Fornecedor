@@ -1,285 +1,111 @@
 
-// GLOBAL CONSTANTS
-globalThis.LIMITE_CNAE_SECUNDARIO = globalThis.LIMITE_CNAE_SECUNDARIO || 5;
-globalThis.LIMITE_GRUPO_MERCADORIA = 9;
-
-// CONSTANTES DE MAPEAMENTO DE CAMPOS DINÂMICOS
-const TIPOS_COM_RETENCAO = [];
-const OPCOES_GRUPO_MERCADORIA = [
-  "Materiais de Construção",
-  "Equipamentos e Máquinas",
-  "Serviços de Engenharia",
-  "Combustíveis e Lubrificantes",
-  "Serviços Administrativos",
-  "Tecnologia e TI",
-  "Seguro e Apólices"
-];
-
-// CONSTANTES DE MAPEAMENTO DE ATIVIDADES
-const ATIVIDADES = {
-  INICIO_0: 0,
-  INICIO: 4,
-  VALIDACAO: 11,
-  INTEGRACAO: 16,
-  ERRO_INTEGRACAO: 19,
-  CORRECAO: 27
-  
-};
-
-// CONFIGURA OS TOASTS DO FLUIG PARA FECHAREM AUTOMATICAMENTE APÓS 4 SEGUNDOS E REMOVE SUAS BORDAS VISUAIS.
-(function () {
-  // Aplica timeout de 4s a todos os toasts do Fluig e injeta o CSS que remove suas bordas.
-  function configurarToasts() {
-    try {
-      if (typeof FLUIGC !== "undefined" && FLUIGC.toast && !FLUIGC._toast4s) {
-        var _toastOriginal = FLUIGC.toast;
-        FLUIGC.toast = function (opts) {
-          opts = opts || {};
-          opts.timeout = 4000;
-          return _toastOriginal.call(FLUIGC, opts);
-        };
-        FLUIGC._toast4s = true;
-      }
-    } catch (e) {
-      console.warn("[toast] timeout:", e);
-    }
-    
-    var css =
-    '.fluig-style-guide.fluig-toast .alert{margin:0 !important;}' +
-    '.toast,.toaster,.fluig-toast,[class*="toaster"]{border:0 !important;outline:0 !important;}';
-    
-    // INJETA O CSS PARA REMOVER AS BORDAS DOS TOASTS
-    function injetar(doc) {
-      try {
-        if (!doc || doc.getElementById("cssToastSemBorda")) return;
-        var st = doc.createElement("style");
-        st.id = "cssToastSemBorda";
-        st.textContent = css;
-        (doc.head || doc.documentElement).appendChild(st);
-      } catch (e) {}
-    }
-    injetar(document);
-    try { injetar(window.parent.document); } catch (e) {}
-    
-    _autoDismissToasts(document);
-    try { _autoDismissToasts(window.parent.document); } catch (e) {}
-  }
-  
-  // Observa o container de toasts e fecha cada alerta automaticamente após 4s.
-  function _autoDismissToasts(doc) {
-    if (!doc) return;
-
-    // Agenda o fechamento de um alerta após 4s (clica no .close ou remove o nó).
-    function dispensar(alertEl) {
-      if (!alertEl || alertEl._autoDismissOk) return;
-      alertEl._autoDismissOk = true;
-      setTimeout(function () {
-        try {
-          var btn = alertEl.querySelector(".close, [data-dismiss]");
-          if (btn) btn.click();
-          else if (alertEl.parentNode) alertEl.parentNode.removeChild(alertEl);
-        } catch (e) {}
-      }, 4000);
-    }
-    
-    // Liga um MutationObserver no toaster para auto-dispensar cada .alert que aparecer.
-    function observar(toaster) {
-      if (!toaster || toaster._autoDismissObs) return;
-      toaster._autoDismissObs = true;
-      Array.prototype.forEach.call(toaster.querySelectorAll(".alert"), dispensar);
-      new MutationObserver(function (muts) {
-        muts.forEach(function (m) {
-          Array.prototype.forEach.call(m.addedNodes, function (n) {
-            if (n.nodeType !== 1) return;
-            if (n.classList && n.classList.contains("alert")) dispensar(n);
-            else if (n.querySelectorAll) {
-              Array.prototype.forEach.call(n.querySelectorAll(".alert"), dispensar);
-            }
-          });
-        });
-      }).observe(toaster, { childList: true });
-    }
-    
-    var t = doc.getElementById("toaster") || doc.querySelector(".fluig-toast.toaster, .toaster, .fluig-toast");
-    if (t) { observar(t); return; }
-    
-    try {
-      new MutationObserver(function () {
-        var tt = doc.getElementById("toaster") || doc.querySelector(".fluig-toast.toaster, .toaster, .fluig-toast");
-        if (tt) observar(tt);
-      }).observe(doc.body || doc.documentElement, { childList: true });
-    } catch (e) {}
-  }
-  
-  configurarToasts();
-  if (typeof $ === "function") {
-    $(configurarToasts);
-  }
-})();
-
-// VARIÁVEL GLOBAL PARA INDICAR QUE O FORMULÁRIO ESTÁ EM PROCESSO DE RESTAURAÇÃO DE CAMPOS DINÂMICOS
-window._formRestaurando = true;
-
-// INICIALIZA O FORMULÁRIO, CARREGA DADOS, CONFIGURA EVENTOS E APLICA AS REGRAS INICIAIS DA TELA
+// PONTO DE ENTRADA DO FORMULÁRIO.
+// O #preCadastro nasce com visibility:hidden para não piscar enquanto é montado, e é
+// revelado aqui no finally: se algum passo falhar, o usuário vê o formulário (ainda que
+// incompleto) e o erro no console, em vez de uma tela permanentemente em branco.
 $(document).ready(function () {
+  try {
+    inicializarFormulario();
+  } catch (erro) {
+    console.error("[Cadastro] Falha ao inicializar o formulário:", erro);
+    FLUIGC.toast({
+      title: "Erro ao carregar o formulário",
+      message: "Parte da tela pode não ter sido montada. Veja o console (F12) para o detalhe.",
+      type: "danger"
+    });
+  } finally {
+    $("#preCadastro").css("visibility", "visible");
+  }
+});
+
+// MONTA A TELA, CARREGA AS LISTAS DO RM, LIGA OS EVENTOS E SÓ ENTÃO APLICA O CAMPO
+// DE BUSCA — que precisa das options já no lugar.
+function inicializarFormulario() {
   inicializarTela();
   inicializarMascaras();
+
   carregarTiposClienteFornecedor();
   carregarNaturezaRendimento();
   carregarOpcoesIrrf(true);
+  carregarPaisesEstrangeiros();
   popularSelectsGrupoMercadoria();
   popularSelectEstado();
+
   bindEventos();
+  bindEventosCadastro();
   initFooterCadastro();
   aplicarLayoutMobile();
-  
-  if (typeof aplicarBuscaSelect === "function") {
-    aplicarBuscaSelect("#formSolicitacao select");
-  }
-  
   inicializarUploadsFluig();
-  
-  try {
-    sincronizarEstadoInicial();
-  } catch (error_) {
-    console.error("Erro em sincronizarEstadoInicial:", error_);
-  }
-  
+
+  aplicarBuscaSelect(SELETOR_BUSCA_SELECT);
+
+  sincronizarEstadoInicial();
+
   restaurarUploadsSalvos();
   aplicarAsteriscoObrigatorio();
   aplicarBarraProcessoCadastro();
   controlarStepperHistorico();
-  
-  if ($("#categoria").val()) {
-    abrirDadosComerciais();
-  } else {
-    fecharDadosComerciais();
-  }
-  
-  // CONTROLA A ABERTURA DOS DADOS COMERCIAIS CONFORME A CATEGORIA SELECIONADA
-  $("#categoria").off("change.abrirDadosComerciais").on("change.abrirDadosComerciais", function () {
-    if ($(this).val()) {
-      abrirDadosComerciais();
-    } else {
-      fecharDadosComerciais();
-    }
-  });
-  
-  // ATUALIZA OS DADOS DO TIPO SELECIONADO E APLICA SUAS REGRAS
-  $("#tipo").on("change", function () {
-    let texto = $("#tipo option:selected").text();
-    $("#tipoSelecionado").val($(this).val());
-    $("#tipoDescricao").val(texto);
-    if (typeof controlarNaturezaPorTipo === "function") {
-      controlarNaturezaPorTipo();
-    }
-    if (typeof aplicarRegrasPfRdo === "function") {
-      aplicarRegrasPfRdo();
-    }
-  });
-  
-  // DEFINE O REGIME FISCAL AUTOMATICAMENTE CONFORME A OPÇÃO PELO SIMPLES NACIONAL
-  $(document).on("change", "#toggleSimplesNacional", function () {
-    
-    if ($(this).is(":checked")) {
-      
-      
-      $("#regimeFiscal")
-        .val("04")
-        .prop("disabled", false)
-        .addClass("campo-bloqueado")
-        .attr("data-bloqueado", "1")
-        .trigger("change");
-      
-      $("#regimeFiscalHidden").val("04");
-      
-    } else {
-      
-      $("#regimeFiscal")
-        .prop("disabled", false)
-        .removeClass("campo-bloqueado")
-        .removeAttr("data-bloqueado")
-        .val("")
-        .trigger("change");
-      
-      $("#regimeFiscalHidden").val("");
-      
-    }
-    
-  });
-  
-  globalThis._cnpjJaConsultado = "";
-  $(document).on("input", "#docCnpj", function () {
-    let cnpj = normalizarCnpj($(this).val());
-    
-    if (cnpj.length === 14 && cnpj !== globalThis._cnpjJaConsultado) {
-      globalThis._cnpjJaConsultado = cnpj;
-      buscarCnpj(cnpj);
-    }
-  });
-  
-  globalThis._cpfJaConsultado = "";
-  $(document).on("input", "#docCpf", function () {
-    let cpf = ($(this).val() || "").replace(/\D/g, "");
-    
-    if (cpf.length === 11 && cpf !== globalThis._cpfJaConsultado) {
-      globalThis._cpfJaConsultado = cpf;
-      verificarCpfDuplicado(cpf);
-    }
-  });
-  
-  setTimeout(function () {
-    controlarEdicaoInicioValidacao();
-    controlarBotoesImprimir();
-    ocultarEnviarNativoFluig();
-    prepararAcoesValidacao();
-    prepararEnvioInicio();
-    if (typeof aplicarVisibilidadeDocumentacao === "function") {
-      aplicarVisibilidadeDocumentacao();
-    }
-    if (typeof realcarCamposAlterados === "function") {
-      var atvAtual = Number($("#atividade").val() || 0);
-      if (atvAtual === ATIVIDADES.VALIDACAO || atvAtual === ATIVIDADES.CORRECAO) {
-        realcarCamposAlterados();
-      }
-    }
-  }, 100);
-  
-  $("#preCadastro").css("visibility", "visible");
-  
+
+  // O Fluig só termina de montar a barra de ações depois do ready.
+  setTimeout(aplicarAcoesDaEtapa, 100);
+
   inicializarTelaSelecao();
-});
+}
 
-// DEFINE A DECISÃO COMO APROVAÇÃO E ACIONA O ENVIO DO PROCESSO PELO FLUIG
-$(document).on("click", "#btnAprovar", function () {
-  $("#selectDecisao").val("enviarRm").trigger("change");
-  acionarEnvioFluig();
-});
+// LIGA OS EVENTOS QUE SÃO ESPECÍFICOS DESTE FORMULÁRIO.
+function bindEventosCadastro() {
+  // Dados Comerciais e Endereço só aparecem depois que a categoria é escolhida.
+  $(document).on("change", "#categoria", function () {
+    if ($(this).val()) abrirDadosComerciais();
+    else fecharDadosComerciais();
+  });
 
-// DEFINE A DECISÃO COMO REPROVAÇÃO E ACIONA O ENVIO DO PROCESSO PELO FLUIG
-$(document).on("click", "#btnReprovar", function () {
-  $("#selectDecisao").val("Correcao").trigger("change");
-  acionarEnvioFluig();
-});
+  // Optar pelo Simples Nacional fixa o Regime Fiscal em "04".
+  $(document).on("change", "#toggleSimplesNacional", function () {
+    const simples = $(this).is(":checked");
 
-// ACIONA O ENVIO DA SOLICITAÇÃO PELO BOTÃO NATIVO DO FLUIG
-$(document).on("click", "#btnEnviarSolicitacao", function () {
-  acionarEnvioFluig();
-});
+    definirValorSelect("#regimeFiscal", simples ? REGIME_FISCAL_SIMPLES : "", true);
+    $("#regimeFiscalHidden").val(simples ? REGIME_FISCAL_SIMPLES : "");
 
-// APLICA AS REGRAS DE CADASTRO ASSERTIVO APÓS ALTERAÇÃO DA CLASSIFICAÇÃO OU CATEGORIA DO CADASTRO
-$(document).on("change", "#classificacao, #categoria", function () {
-  setTimeout(function () {
-    if (typeof aplicarRegrasCadastroAssertivo === "function") aplicarRegrasCadastroAssertivo();
-  }, 0);
-});
+    if (simples) bloquearCampo("#regimeFiscal");
+    else liberarCampo("#regimeFiscal");
+  });
 
-// ATUALIZA A NATUREZA DE RENDIMENTO CONFORME ALTERAÇÃO DOS GRUPOS DE MERCADORIA SELECIONADOS
-$(document).on("change", ".grupo-mercadoria", function () {
-  setTimeout(function () {
-    if (typeof _forcarNaturezaAluguel === "function") _forcarNaturezaAluguel();
-  }, 0);
-});
+  _bindConsultaDocumento("#docCnpj", 14, normalizarCnpj, buscarCnpj);
+  _bindConsultaDocumento("#docCpf", 11, function (valor) {
+    return (valor || "").replace(/\D/g, "");
+  }, verificarCpfDuplicado);
+}
+
+// CONSULTA UM DOCUMENTO ASSIM QUE ELE FICA COMPLETO, SEM REPETIR A MESMA CONSULTA.
+function _bindConsultaDocumento(seletor, tamanho, normalizar, consultar) {
+  let ultimoConsultado = "";
+
+  $(document).on("input", seletor, function () {
+    const documento = normalizar($(this).val());
+
+    if (documento.length !== tamanho || documento === ultimoConsultado) return;
+
+    ultimoConsultado = documento;
+    consultar(documento);
+  });
+}
+
+// APLICA AS AÇÕES E PERMISSÕES DA ETAPA ATUAL SOBRE A BARRA DO FLUIG E O FORMULÁRIO.
+function aplicarAcoesDaEtapa() {
+  controlarEdicaoInicioValidacao();
+  controlarBotoesImprimir();
+  ocultarEnviarNativoFluig();
+  prepararAcoesValidacao();
+  prepararEnvioInicio();
+  aplicarVisibilidadeDocumentacao();
+
+  // Na Validação e na Correção o usuário precisa ver o que mudou desde o cadastro original.
+  const atividade = atividadeAtual();
+  if (atividade === ATIVIDADES.VALIDACAO || atividade === ATIVIDADES.CORRECAO) {
+    realcarCamposAlterados();
+  }
+}
 
 // NA ABERTURA DE UM NOVO PROCESSO, EXIBE A TELA DE SELEÇÃO CADASTRAR/EDITAR E CONFIGURA SEUS BOTÕES
 function inicializarTelaSelecao() {
@@ -358,85 +184,36 @@ function abrirDadosComerciais() {
   $secoes.show();
 }
 
-// EXECUTA AS ROTINAS DE SINCRONIZAÇÃO INICIAL DO FORMULÁRIO, ATUALIZANDO CLASSIFICAÇÃO, CATEGORIA, RETENÇÕES, RESTAURAÇÕES E STEPPER
+// APLICA AS REGRAS DE VISIBILIDADE E RESTAURA OS CAMPOS SALVOS NO PROCESSO.
+// Cada rotina roda isolada: uma falha (ex.: dataset indisponível) não impede as demais.
 function sincronizarEstadoInicial() {
-  const funcoesIniciais = [
+  const rotinas = [
     controlarCamposClassificacao,
     controlarCamposCategoria,
     controlarAlertaCnpj,
-    controlarRetencaoPorTipo,
     controlarDocumentacaoPorCategoria,
     restaurarGruposMercadoriaSalvos,
     restaurarCnaesSecundariosSalvos,
     restaurarEnderecoRM,
+    restaurarRegimeFiscal,
+    controlarNaturezaPorTipo,
     controlarBotaoAdicionarCnae,
     controlarBotaoAdicionarGrupoMercadoria,
     inicializarDadosBancarios,
+    aplicarRegrasCadastroAssertivo,
     atualizarSetas
   ];
-  
-  for (var i = 0; i < funcoesIniciais.length; i++) {
-    try {
-      funcoesIniciais[i]();
-    } catch (error_) {
-      console.error("Erro ao sincronizar estado inicial:", error_);
-    }
-  }
-  
-  
-  setTimeout(function () {
-    window._formRestaurando = false;
 
-  }, 2000);
-  setTimeout(function () {
-    var valorTipo = ($("#tipo").attr("value") || $("#tipo").val() || "").trim();
-    if (valorTipo) {
-      $("#tipo").val(valorTipo);
-      var textoTipo = $("#tipo option:selected").text();
-      $("#tipoSelecionado").val(valorTipo);
-      $("#tipoDescricao").val(textoTipo);
+  rotinas.forEach(function (rotina) {
+    try {
+      rotina();
+    } catch (erro) {
+      console.error("Erro ao sincronizar estado inicial (" + rotina.name + "):", erro);
     }
-    if (typeof controlarNaturezaPorTipo === "function") {
-      controlarNaturezaPorTipo();
-    }
-    
-    if (($("#categoria").val() || "") === "F") {
-      $("#divIcms, #divRegimeFiscal").hide();
-      $("#icms, #regimeFiscal").prop("required", false);
-    }
-    var ufSalvo = ($("#hiddenEstadoValor").val() || "").trim();
-    if (ufSalvo && !$("#estado").val()) {
-      $("#estado").val(ufSalvo);
-      popularSelectMunicipio(ufSalvo);
-    }
-    var ufAtual = ($("#hiddenEstadoValor").val() || $("#estado").val() || "").trim();
-    if (ufAtual && !$("#cidade").val()) {
-      var nomeSalvo = ($("#nomeCidadeSalva").val() || "").trim();
-      if (nomeSalvo) {
-        
-        if ($("#cidade option").length <= 1) {
-          popularSelectMunicipio(ufAtual);
-        }
-        $("#cidade").val(nomeSalvo);
-        var $optCidade = $("#cidade").find("option:selected");
-        if ($optCidade.val()) {
-          $("#codMunicipio").val($optCidade.data("cod") || "");
-        }
-      }
-    }
-    
-    var valorGrupo1 = ($("#hiddenGrupoMercadoria1").val() || "").trim();
-    if (valorGrupo1 && !$("#grupoMercadoria1").val()) {
-      $("#grupoMercadoria1").val(valorGrupo1);
-    }
-    
-    restaurarRegimeFiscal();
-    
-    if (typeof aplicarRegrasCadastroAssertivo === "function") {
-      aplicarRegrasCadastroAssertivo();
-    }
-    
-  }, 1200);
+  });
+
+  // A partir daqui um campo vazio já significa "o usuário limpou", e não "ainda não restaurou".
+  globalThis._formRestaurando = false;
 }
 
 // RESTAURA OS CHECKBOXES SALVOS APÓS O CARREGAMENTO DA PÁGINA, AGUARDANDO A INICIALIZAÇÃO DOS COMPONENTES DO FORMULÁRIO
@@ -513,85 +290,68 @@ function restaurarCheckboxesSalvos() {
   }
 }
 
-// RESTAURAÇÃO DE CAMPOS DINÂMICOS
+// RECRIA OS CAMPOS DE GRUPO DE MERCADORIA A PARTIR DO QUE ESTÁ SALVO NO PROCESSO.
 function restaurarGruposMercadoriaSalvos() {
-  
-  const valorGrupo1 = ($("#hiddenGrupoMercadoria1").val() || "").trim();
-  if (valorGrupo1 && !$("#grupoMercadoria1").val()) {
-    $("#grupoMercadoria1").val(valorGrupo1);
-  }
-  
-  for (let i = 2; i <= LIMITE_GRUPO_MERCADORIA; i++) {
+  for (let i = 1; i <= LIMITE_GRUPO_MERCADORIA; i++) {
     const valor = ($("#hiddenGrupoMercadoria" + i).val() || "").trim();
-    
-    if (valor && !$("#grupoMercadoria" + i).length) {
-      adicionarGrupoMercadoria();
-      const $sel = $("#grupoMercadoria" + i);
-      $sel.val(valor);
-    }
+    if (!valor) continue;
+
+    // O primeiro grupo já existe no HTML; os demais são criados sob demanda.
+    if (!$("#grupoMercadoria" + i).length) adicionarGrupoMercadoria();
+    definirValorSelect("#grupoMercadoria" + i, valor);
   }
-  
+
   reposicionarBotaoAdicionarGrupo();
 }
 
-// RESTAURA O REGIME FISCAL SALVO, FORÇANDO "04"/SIMPLES E BLOQUEANDO O CAMPO QUANDO O SIMPLES NACIONAL ESTIVER ATIVO
-function restaurarRegimeFiscal() {
-  const $sel = $("#regimeFiscal");
-  if (!$sel.length) return;
-  
-  const simples = $("#toggleSimplesNacional").is(":checked");
-  
-  if (simples) {
-    $sel.val("04")
-      .prop("disabled", false)
-      .addClass("campo-bloqueado")
-      .attr("data-bloqueado", "1");
-    $("#regimeFiscalHidden").val("04");
-    return;
-  }
-  
-  const salvo = ($sel.attr("value") || $sel.val() || $("#regimeFiscalHidden").val() || "").trim();
-  if (salvo) {
-    $sel.val(salvo);
-  }
-}
-
-// RECRIA OS CAMPOS DE CNAE SECUNDÁRIO A PARTIR DOS VALORES SALVOS NOS CAMPOS HIDDEN E APLICA A MÁSCARA DE FORMATAÇÃO
+// RECRIA OS CAMPOS DE CNAE SECUNDÁRIO A PARTIR DO QUE ESTÁ SALVO NO PROCESSO.
 function restaurarCnaesSecundariosSalvos() {
-  const limite = globalThis.LIMITE_CNAE_SECUNDARIO || 5;
-  
-  const cnaesSalvos = [];
-  
-  for (let i = 1; i <= limite; i++) {
+  const salvos = [];
+  for (let i = 1; i <= LIMITE_CNAE_SECUNDARIO; i++) {
     const valor = ($("#hiddenCnaeSecundario" + i).val() || "").trim();
-    if (valor) cnaesSalvos.push(valor);
+    if (valor) salvos.push(valor);
   }
-  
-  
+
   $("#cnae-secundarios-wrap .cnae-secundario-item").remove();
-  
-  for (let i = 0; i < cnaesSalvos.length; i++) {
+
+  salvos.forEach(function (valor, index) {
     adicionarCnae();
-    
-    const campo = $("#cnaeSecundario" + (i + 1));
-    campo.val(cnaesSalvos[i]);
-    aplicarMascaraCnae(campo);
-  }
-  
+    const $campo = $("#cnaeSecundario" + (index + 1)).val(valor);
+    aplicarMascaraCnae($campo);
+  });
+
   sincronizarCamposDinamicosHidden();
 }
 
-// APLICA A BARRA DE PROGRESSO COMPARTILHADA (castilhoWizard.js) E, EM MODO VIEW, FORÇA A ETAPA "VALIDAÇÃO" (REGRA PRÓPRIA DO CADASTRO)
+// CÓDIGO DO REGIME FISCAL "SIMPLES NACIONAL".
+const REGIME_FISCAL_SIMPLES = "04";
+
+// RESTAURA O REGIME FISCAL SALVO — travado em "04" quando a empresa optou pelo Simples.
+function restaurarRegimeFiscal() {
+  if (!$("#regimeFiscal").length) return;
+
+  if ($("#toggleSimplesNacional").is(":checked")) {
+    definirValorSelect("#regimeFiscal", REGIME_FISCAL_SIMPLES);
+    $("#regimeFiscalHidden").val(REGIME_FISCAL_SIMPLES);
+    bloquearCampo("#regimeFiscal");
+    return;
+  }
+
+  const salvo = ($("#regimeFiscal").attr("value") || $("#regimeFiscal").val() ||
+                 $("#regimeFiscalHidden").val() || "").trim();
+  if (salvo) definirValorSelect("#regimeFiscal", salvo);
+}
+
+// APLICA A BARRA DE PROGRESSO COMPARTILHADA (castilhoWizard.js).
+// Em modo view o processo já passou pela Solicitação, então a barra para na Validação.
 function aplicarBarraProcessoCadastro() {
   aplicarBarraProcesso();
 
-  const formMode = ($("#formMode").val() || "").toUpperCase();
-  if (formMode === "VIEW") {
-    const $steps = $(".castilhoWizard-progress .step");
-    $steps.removeClass("active completed");
-    $steps.eq(0).addClass("completed");
-    $steps.eq(1).addClass("active");
-  }
+  if (!ehModoView()) return;
+
+  const $steps = $(".castilhoWizard-progress .step").removeClass("active completed");
+  $steps.eq(0).addClass("completed");
+  $steps.eq(1).addClass("active");
 }
 
 // LIGA OS EVENTOS DO RODAPÉ (SETAS E CARDS DE ETAPA) — o clique nos cards e no "Próximo" passa pela
@@ -640,9 +400,3 @@ function destacarBotao(botaoSelecionado) {
   $(botaoSelecionado).removeClass("btn-success btn-danger").addClass("btn-primary");
 }
 
-// EXECUTA NOVA TENTATIVA DAS AÇÕES DA BARRA APÓS 1 SEGUNDO, OCULTANDO O ENVIO NATIVO E RECONFIGURANDO OS BOTÕES DE VALIDAÇÃO/INÍCIO
-setTimeout(function () {
-  ocultarEnviarNativoFluig();
-  prepararAcoesValidacao();
-  prepararEnvioInicio();
-}, 1000);

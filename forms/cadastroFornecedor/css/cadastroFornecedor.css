@@ -437,6 +437,209 @@ hr {
 	pointer-events: none;
 }
 
+/* ===== CAMPO DE BUSCA NOS SELECTS (Selectize) =====================================
+   O Selectize troca o <select> por: .selectize-control > .selectize-input > input.
+   Esse <input> interno é um campo de texto de verdade, então as regras genéricas do
+   formulário (.fg input, .form-control) o pintavam como se fosse um campo inteiro —
+   era isso que criava a "caixa dentro da caixa". Aqui ele é zerado e só o
+   .selectize-input externo recebe a aparência de campo.
+   As cores do dropdown são declaradas aqui, sem depender do CSS do CDN. */
+
+/* O Selectize desenha a própria seta: a do .select-wrap sai de cena. */
+.select-wrap:has(.selectize-control):after {
+	display: none;
+}
+
+/* O <select> original fica escondido atrás do controle (não depende do CSS do CDN). */
+.selectized {
+	display: none !important;
+}
+
+/* O Selectize COPIA as classes do <select> original — inclusive .form-control — para o
+   wrapper e para o dropdown que ele cria. Sem desfazer isso, a lista de opções herda
+   aparência de campo (altura fixa de 46px, padding e borda arredondada) e aparece
+   cortada. Este bloco desfaz a herança; a aparência certa é reaplicada logo abaixo. */
+.selectize-control.form-control,
+.selectize-dropdown.form-control {
+	height: auto !important;
+	min-height: 0 !important;
+	max-width: none !important;
+	padding: 0 !important;
+	border: 0 !important;
+	border-radius: 0 !important;
+	background: none !important;
+	box-shadow: none !important;
+}
+
+.selectize-control,
+.fg .selectize-control {
+	position: relative;
+	width: 100%;
+}
+
+/* A casca externa É o campo: repete exatamente a aparência de .form-control. */
+.selectize-control.single .selectize-input,
+.selectize-control.single .selectize-input.input-active {
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 46px;
+	padding: 10px 34px 10px 12px;
+	border: 1px solid rgb(228 200 170);
+	border-radius: 14px;
+	background: #fffdfa;
+	box-shadow: none;
+	font-family: inherit;
+	font-size: 14px;
+	line-height: 24px;
+	color: #2a2018;
+	cursor: pointer;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+/* O input interno é só o cursor de digitação: sem borda, sem altura, sem fundo. */
+.selectize-control .selectize-input > input,
+.fg .selectize-control .selectize-input > input,
+.selectize-control .selectize-input > input.form-control {
+	width: auto !important;
+	max-width: 100% !important;
+	min-height: 0 !important;
+	height: auto !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	border: 0 !important;
+	border-radius: 0 !important;
+	background: transparent !important;
+	box-shadow: none !important;
+	outline: 0 !important;
+	font-family: inherit !important;
+	font-size: inherit !important;
+	line-height: inherit !important;
+	color: inherit !important;
+}
+
+.selectize-control .selectize-input > .item {
+	display: inline;
+	line-height: inherit;
+}
+
+.selectize-control.single .selectize-input.focus,
+.selectize-control.single .selectize-input.dropdown-active {
+	border-color: #e85d00;
+	background: #ffffff;
+	box-shadow: 0 0 0 3px rgba(232, 93, 0, 0.12);
+}
+
+/* Seta própria do Selectize, na mesma cor da que o formulário usava. */
+.selectize-control.single .selectize-input:after {
+	content: " ";
+	position: absolute;
+	top: 50%;
+	right: 14px;
+	margin-top: -3px;
+	width: 0;
+	height: 0;
+	border: 5px solid transparent;
+	border-top-color: #9d7e67;
+}
+
+.selectize-control.single .selectize-input.dropdown-active:after {
+	margin-top: -8px;
+	border-top-color: transparent;
+	border-bottom-color: #9d7e67;
+}
+
+/* Fundo e borda declarados aqui de propósito: a lista precisa ser opaca mesmo que o
+   CSS do Selectize vindo do CDN não carregue. O seletor repete .form-control para
+   vencer a classe que o Selectize copiou do <select>. */
+.selectize-dropdown,
+.selectize-dropdown.form-control {
+	position: absolute;
+	z-index: 10000;
+	box-sizing: border-box;
+	margin-top: 3px;
+	height: auto !important;
+	min-height: 0 !important;
+	padding: 0 !important;
+	border: 1px solid #d6c7ba !important;
+	border-radius: 10px !important;
+	background: #ffffff !important;
+	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.13);
+	overflow: hidden;
+	font-family: inherit;
+	font-size: 14px;
+	color: #2a2018;
+}
+
+.selectize-dropdown-content {
+	max-height: 230px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding: 4px 0;
+}
+
+.selectize-dropdown .option {
+	padding: 9px 14px;
+	line-height: 1.4;
+	cursor: pointer;
+}
+
+.selectize-dropdown .active {
+	background: #fff4eb;
+	color: #e85d00;
+}
+
+.selectize-dropdown .selected,
+.selectize-dropdown .active.selected {
+	background: #ffece0;
+	color: #c85200;
+	font-weight: 600;
+}
+
+.selectize-dropdown .no-results,
+.selectize-dropdown .optgroup-header {
+	padding: 9px 14px;
+	color: #9a8676;
+	cursor: default;
+}
+
+/* Campo travado: mesma aparência de .campo-bloqueado. */
+.selectize-control.locked .selectize-input,
+.selectize-control .selectize-input.locked {
+	background-color: #f5f5f5 !important;
+	color: #777 !important;
+	border-color: #ddd !important;
+	cursor: not-allowed;
+	opacity: 1;
+}
+
+.selectize-control.locked .selectize-input:after {
+	display: none;
+}
+
+/* Os realces de estado do formulário miram .form-control, classe que o controle do
+   Selectize não tem — sem estas regras, erro/sucesso/alterado sumiriam nos selects. */
+.fg.has-erro .selectize-control.single .selectize-input {
+	border-color: #d9534f !important;
+	box-shadow: 0 0 0 0.15rem rgba(217, 83, 79, 0.15);
+}
+
+.fg.has-erro .selectize-control.single .selectize-input.focus {
+	box-shadow: 0 0 0 0.2rem rgba(217, 83, 79, 0.2);
+}
+
+.fg.has-success .selectize-control.single .selectize-input {
+	border-color: #28a745;
+	box-shadow: 0 0 0 1px rgba(40, 167, 69, 0.2);
+}
+
+.fg.campo-alterado .selectize-control.single .selectize-input {
+	background-color: #fff8e1 !important;
+	border-color: #f0c419 !important;
+}
+
 .form-control,
 .fg input,
 .fg select,
@@ -1234,82 +1437,6 @@ header {
    background: linear-gradient(135deg, #187a42, #1f9d55);
    box-shadow: 0 6px 16px rgba(31, 157, 85, 0.35);
    color: #fff;
-}
-
-#sso-root {
-   display: none;
-}
-#sso-root.sso-open {
-   display: block;
-}
-
-
-.sso-backdrop {
-   position: fixed;
-   inset: 0;
-   z-index: 9990;
-   background: transparent;
-   cursor: default;
-}
-
-.sso-panel {
-   position: fixed;
-   z-index: 9991;
-   background: #fff;
-   border: 1px solid #d6c7ba;
-   border-radius: 10px;
-   box-shadow: 0 6px 24px rgba(0,0,0,0.13);
-   overflow: hidden;
-   min-width: 220px;
-}
-
-
-.sso-input {
-   display: block;
-   width: 100%;
-   padding: 8px 12px;
-   border: none;
-   border-bottom: 1px solid #ede6e0;
-   outline: none;
-   font-size: 14px;
-   color: #2a2018;
-   background: #fafafa;
-   box-sizing: border-box;
-   font-family: 'Open Sans', Arial, sans-serif;
-}
-.sso-input:focus {
-   border-bottom-color: #e85d00;
-   background: #fff;
-}
-
-.sso-list {
-   list-style: none;
-   margin: 0;
-   padding: 4px 0;
-   max-height: 230px;
-   overflow-y: auto;
-}
-.sso-option {
-   padding: 9px 14px;
-   font-size: 14px;
-   color: #2a2018;
-   cursor: pointer;
-   line-height: 1.4;
-}
-.sso-option:hover,
-.sso-option.sso-focused {
-   background: #fff4eb;
-   color: #e85d00;
-}
-.sso-option.sso-selected {
-   background: #ffece0;
-   color: #c85200;
-   font-weight: 600;
-}
-.sso-option.sso-selected:hover,
-.sso-option.sso-selected.sso-focused {
-   background: #ffd9c0;
-   color: #a03e00;
 }
 
 #telaSelecaoInicial {

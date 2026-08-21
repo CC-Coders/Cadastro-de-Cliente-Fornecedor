@@ -54,8 +54,8 @@ function limpaCamposEndereco() {
    $("#bairro").val("");
    $("#numero").val("");
    $("#pais").val("");
-   $("#estado").val("");
-   $("#cidade").empty().append('<option value="">Selecione a cidade...</option>');
+   definirValorSelect("#estado", "");
+   limparSelect("#cidade", "Selecione a cidade...");
    $("#codMunicipio").val("");
    $("#nomeCidadeSalva").val("");
 }
@@ -163,8 +163,8 @@ function limparCamposCnpj() {
    $("#emailCr").val("");
    $("#cnaePrincipal").val("");
 
-   $("#estado").val("");
-   $("#cidade").empty().append('<option value="">Selecione a cidade...</option>');
+   definirValorSelect("#estado", "");
+   limparSelect("#cidade", "Selecione a cidade...");
    $("#codMunicipio").val("");
    $("#nomeCidadeSalva").val("");
    $("#hiddenEstadoValor").val("");
@@ -210,9 +210,9 @@ function limparCamposCpf() {
    $("#docCpf").val("");
    $("#docRg").val("");
    $("#docRgOrgao").val("");
-   $("#docRgUf").val("");
+   definirValorSelect("#docRgUf", "");
    $("#dtNascimento").val("");
-   $("#estadoCivil").val("");
+   definirValorSelect("#estadoCivil", "");
    $("#razaoSocial").val("");
    $("#nomeFantasia").val("");
    $("#endereco").val("");
@@ -223,8 +223,8 @@ function limparCamposCpf() {
    $("#telefone").val("");
    $("#emailCr").val("");
 
-   $("#estado").val("");
-   $("#cidade").empty().append('<option value="">Selecione a cidade...</option>');
+   definirValorSelect("#estado", "");
+   limparSelect("#cidade", "Selecione a cidade...");
    $("#codMunicipio").val("");
    $("#nomeCidadeSalva").val("");
    $("#hiddenEstadoValor").val("");
@@ -385,7 +385,7 @@ function _buscarInscricaoEstadualSintegra(cnpj, uf) {
 
 // RECRIA OS CAMPOS DE CNAEs SECUNDÁRIOS COM BASE NO ARRAY DE ATIVIDADES ECONÔMICAS SECUNDÁRIAS
 function preencherCnaesSecundarios(atividades) {
-   const limite = globalThis.LIMITE_CNAE_SECUNDARIO || 5;
+   const limite = LIMITE_CNAE_SECUNDARIO;
 
    $("#cnae-secundarios-wrap .cnae-secundario-item").remove();
 

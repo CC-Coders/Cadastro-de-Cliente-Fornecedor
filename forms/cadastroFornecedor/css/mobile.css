@@ -546,6 +546,88 @@ html[data-device="mobile"] textarea.form-control {
 }
 
 
+/* ===== CAMPO DE BUSCA NOS SELECTS (Selectize) NO MOBILE ==========================
+   As regras de campo acima usam `input:not(...)` quatro vezes, o que dá uma
+   especificidade alta e acabaria pintando o <input> interno do Selectize como se
+   fosse um campo inteiro (a "caixa dentro da caixa"). Os seletores abaixo repetem
+   os mesmos :not() para vencer por especificidade e zerar esse input. */
+
+@media screen and (max-width: 768px) {
+
+   .selectize-control.single .selectize-input,
+   .selectize-control.single .selectize-input.input-active {
+      min-height: 50px;
+      padding: 13px 34px 13px 14px;
+      border-radius: var(--m-radius-sm) !important;
+      border: 1.5px solid var(--m-border) !important;
+      background: var(--m-card) !important;
+      box-shadow: none !important;
+      font-size: 15px !important;
+      font-weight: 500;
+      line-height: 22px;
+      color: var(--m-text);
+   }
+
+   .selectize-control.single .selectize-input.focus,
+   .selectize-control.single .selectize-input.dropdown-active {
+      border-color: var(--m-accent) !important;
+      box-shadow: 0 0 0 3px rgba(243, 112, 33, 0.12) !important;
+   }
+
+   .selectize-control .selectize-input > input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]) {
+      width: auto !important;
+      min-height: 0 !important;
+      height: auto !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      font-size: inherit !important;
+      font-weight: inherit !important;
+      line-height: inherit !important;
+      color: inherit !important;
+   }
+
+   .fg.has-erro .selectize-control.single .selectize-input {
+      border-color: #ef4444 !important;
+      background: #fff5f5 !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+   }
+}
+
+html[data-device="mobile"] .selectize-control.single .selectize-input,
+html[data-device="mobile"] .selectize-control.single .selectize-input.input-active {
+   min-height: 50px;
+   padding: 13px 34px 13px 14px;
+   border-radius: var(--m-radius-sm) !important;
+   border: 1.5px solid var(--m-border) !important;
+   background: var(--m-card) !important;
+   box-shadow: none !important;
+   font-size: 15px !important;
+   font-weight: 500;
+   line-height: 22px;
+   color: var(--m-text);
+}
+
+html[data-device="mobile"] .selectize-control .selectize-input > input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]) {
+   width: auto !important;
+   min-height: 0 !important;
+   height: auto !important;
+   margin: 0 !important;
+   padding: 0 !important;
+   border: 0 !important;
+   border-radius: 0 !important;
+   background: transparent !important;
+   box-shadow: none !important;
+   font-size: inherit !important;
+   font-weight: inherit !important;
+   line-height: inherit !important;
+   color: inherit !important;
+}
+
+
 @media screen and (max-width: 768px) {
 
    .fg.has-erro .form-control,
