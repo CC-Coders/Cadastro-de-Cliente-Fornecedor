@@ -54,19 +54,16 @@ function bindEventosDadosBancarios() {
    });
 
    $(document).on("change", ".banco-select", function () {
-      let selectId = this.id;
-      let sufixo = selectId.replace("selectBancoNome", "");
-      let cpodigo = $(this).val() || "";
-      let nome    = $(this).find("option:selected").data("nome") || $(this).find("option:selected").text() || "";
+      const sufixo = this.id.replace("selectBancoNome", "");
+      const codigo = $(this).val() || "";
+      const banco = itemDaLista(listaBancos(), codigo);
 
-      if (!$(this).find("option:selected").data("nome")) nome = "";
-
-      $("#banco"           + sufixo).val(cpodigo);
-      $("#bancoDescricao"  + sufixo).val(nome);
-      $("#bancoCodExibicao"+ sufixo).val(cpodigo);
+      $("#banco" + sufixo).val(codigo);
+      $("#bancoDescricao" + sufixo).val(banco ? banco.rotulo : "");
+      $("#bancoCodExibicao" + sufixo).val(codigo);
 
       sincronizarTabelaBancaria();
-      if (cpodigo && selectId) limparErroCampo(selectId);
+      if (codigo) limparErroCampo(this.id);
    });
 
    $(document).on("change", ".banco-agencia, .banco-conta", sincronizarTabelaBancaria);
@@ -78,68 +75,63 @@ function bindEventosDadosBancarios() {
    });
 }
 
-// HANDLERS DE DECISÃO
+// HANDLERS DE DECISÃO — registram a decisão, destacam o botão e disparam o envio do Fluig.
 function bindEventosDecisao() {
-   $("#btnAprovar").on("click", function () {
-      $("#selectDecisao").val("enviarRm").trigger("change");
-      destacarBotao(this);
+   const decisoes = { btnAprovar: "enviarRm", btnReprovar: "Correcao" };
+
+   Object.keys(decisoes).forEach(function (idBotao) {
+      $(document).on("click", "#" + idBotao, function () {
+         definirValorSelect("#selectDecisao", decisoes[idBotao], true);
+         destacarBotao(this);
+         acionarEnvioFluig();
+      });
    });
 
-   $("#btnReprovar").on("click", function () {
-      $("#selectDecisao").val("Correcao").trigger("change");
-      destacarBotao(this);
-   });
+   $(document).on("click", "#btnEnviarSolicitacao", acionarEnvioFluig);
 }
 
-// AO TROCAR DE CATEGORIA, SE HOUVER ANEXOS, CONFIRMA A EXCLUSÃO E LIMPA OS ANEXOS
+// REAPLICA AS REGRAS QUE DEPENDEM DA CATEGORIA (PF/PJ).
+function _aplicarTrocaCategoria() {
+   controlarCamposCategoria();
+   controlarAlertaCnpj();
+   controlarDocumentacaoPorCategoria();
+   aplicarAsteriscoObrigatorio();
+   carregarOpcoesIrrf(false);
+   aplicarRegrasCadastroAssertivo();
+
+   categoriaAnterior = ($("#categoria").val() || "").trim();
+}
+
+// AO TROCAR DE PJ PARA PF COM ANEXOS JÁ INCLUÍDOS, CONFIRMA A EXCLUSÃO ANTES DE PROSSEGUIR.
+// A categoria anterior é guardada a cada troca: o Selectize esconde o select nativo,
+// então não dá para capturá-la no focus.
 function bindEventoTrocaCategoriaComAnexos() {
    categoriaAnterior = ($("#categoria").val() || "").trim();
-   $("#categoria")
-      .off("focus.categoriaAnexos")
-      .on("focus.categoriaAnexos", function () {
-         categoriaAnterior = ($(this).val() || "").trim();
-      });
-   $("#categoria")
-      .off("change.categoriaAnexos")
-      .on("change.categoriaAnexos", function () {
-         let novaCategoria = ($(this).val() || "").trim();
-         if (
-            categoriaAnterior === "J" &&
-            novaCategoria === "F" &&
-            existeAnexoIncluido()
-         ) {
-            FLUIGC.message.confirm({
-               title: "Atenção",
-               message: "Essa ação resultará na exclusão de todos os anexos já inclusos no processo.",
-               labelYes: "Sim, excluir",
-               labelNo: "Cancelar"
-            }, function (confirmou) {
-               if (!confirmou) {
-                  $("#categoria").val(categoriaAnterior);
-                  return;
-               }
 
-               excluirTodosAnexosDoProcesso();
-               controlarCamposCategoria();
-               controlarAlertaCnpj();
-               controlarDocumentacaoPorCategoria();
-               aplicarAsteriscoObrigatorio();
-               carregarOpcoesIrrf(false);
+   $(document).on("change.categoriaAnexos", "#categoria", function () {
+      const nova = ($(this).val() || "").trim();
+      const perdeAnexos = categoriaAnterior === "J" && nova === "F" && existeAnexoIncluido();
 
-               categoriaAnterior = novaCategoria;
-            });
+      if (!perdeAnexos) {
+         _aplicarTrocaCategoria();
+         return;
+      }
 
+      FLUIGC.message.confirm({
+         title: "Atenção",
+         message: "Essa ação resultará na exclusão de todos os anexos já inclusos no processo.",
+         labelYes: "Sim, excluir",
+         labelNo: "Cancelar"
+      }, function (confirmou) {
+         if (!confirmou) {
+            definirValorSelect("#categoria", categoriaAnterior);
             return;
          }
 
-         controlarCamposCategoria();
-         controlarAlertaCnpj();
-         controlarDocumentacaoPorCategoria();
-         aplicarAsteriscoObrigatorio();
-         carregarOpcoesIrrf(false);
-
-         categoriaAnterior = novaCategoria;
+         excluirTodosAnexosDoProcesso();
+         _aplicarTrocaCategoria();
       });
+   });
 }
 
 // SINCRONIZA OS CAMPOS DINÂMICOS (CNAE SECUNDÁRIO E GRUPO DE MERCADORIA) PARA OS HIDDEN CORRESPONDENTES
@@ -169,14 +161,18 @@ function bindEventosCamposBasicos() {
       }
    });
 
-   $("#naturezaRendimento").on("change", function () {
-      $("#codNaturezaRendimento").val($(this).val() || "");
-      $("#idNatRendimento").val(
-         $(this).find("option:selected").data("idnat") || ""
-      );
+   $(document).on("change", "#naturezaRendimento", sincronizarNaturezaRendimento);
+
+   $(document).on("change", "#tipo", function () {
+      sincronizarTipoSelecionado();
+      controlarNaturezaPorTipo();
+      aplicarRegrasPfRdo();
    });
-   $("#tipo").on("change", controlarRetencaoPorTipo);
-   $("#classificacao").on("change", controlarCamposClassificacao);
+
+   $(document).on("change", "#classificacao", function () {
+      controlarCamposClassificacao();
+      aplicarRegrasCadastroAssertivo();
+   });
 }
 
 // HANDLERS DE DOCUMENTOS
@@ -220,7 +216,7 @@ function bindEventosDocumentos() {
          limpaCamposEndereco();
          $("#cep").val("");
          limparErroCampo("cep");
-         $("#selectPaisEstrangeiro").val("");
+         definirValorSelect("#selectPaisEstrangeiro", "");
 
          controlarCamposCategoria();
          controlarAlertaCnpj();
@@ -236,13 +232,8 @@ function bindEventosDocumentos() {
    });
 
    $(document).on("change", "#selectDescricaoIrrf", function () {
-      let selecionado = $(this).find("option:selected");
-      let aliq = selecionado.length ? (selecionado.attr("data-aliquota") || "") : "";
-      $("#irrf").val(aliq);
-      $("#hiddenCodIrrf").val($(this).val() || "");
-      if ($(this).val()) {
-         limparErroCampo("selectDescricaoIrrf");
-      }
+      sincronizarIrrf();
+      if ($(this).val()) limparErroCampo("selectDescricaoIrrf");
    });
 
    $("#docCnpj").on("blur keyup", controlarAlertaCnpj);
@@ -260,43 +251,24 @@ function bindEventosEndereco() {
       buscarCep(cep);
    });
 
+   // Ao trocar de estado a lista de cidades é recarregada. Durante a restauração do
+   // processo a cidade salva é mantida; numa troca feita pelo usuário ela é zerada.
    $(document).on("change", "#estado", function () {
-      let uf = $(this).val();
-      $("#hiddenEstadoValor").val(uf || "");
+      const uf = $(this).val() || "";
+      $("#hiddenEstadoValor").val(uf);
+
+      if (!globalThis._formRestaurando) $("#nomeCidadeSalva").val("");
       popularSelectMunicipio(uf);
-      if (globalThis._formRestaurando) {
 
-         let nomeSalvo = ($("#nomeCidadeSalva").val() || "").trim();
-         if (nomeSalvo && !$("#cidade").val()) {
-            $("#cidade").val(nomeSalvo);
-            let $optRest = $("#cidade").find("option:selected");
-            if ($optRest.val()) {
-               $("#codMunicipio").val($optRest.data("cod") || "");
-            }
-         }
-      } else {
-
-         $("#cidade").val("");
-         $("#codMunicipio").val("");
-
-      }
       if (uf) limparErroCampo("estado");
    });
 
    $(document).on("change", "#cidade", function () {
-      let cod, nome;
-      if ($(this).is("select")) {
-         let $opt = $(this).find("option:selected");
-         cod  = $opt.data("cod") || "";
-         nome = $opt.val()       || "";
-      } else {
+      // No exterior a cidade é um input de texto livre, sem código de município.
+      if ($(this).is("select")) sincronizarMunicipio($("#estado").val());
+      else $("#nomeCidadeSalva").val(($(this).val() || "").trim());
 
-         cod  = "";
-         nome = ($(this).val() || "").trim();
-      }
-      $("#codMunicipio").val(cod);
-      $("#nomeCidadeSalva").val(nome);
-      if (nome) limparErroCampo("cidade");
+      if ($(this).val()) limparErroCampo("cidade");
    });
 }
 
@@ -375,6 +347,7 @@ function bindEventosGrupoMercadoria() {
 
    $(document).on("change", ".grupo-mercadoria", function () {
       sincronizarCamposDinamicosHidden();
+      forcarNaturezaAluguel();
    });
 
    $(document).on("click", ".btn-remove-grupo-mercadoria", function () {

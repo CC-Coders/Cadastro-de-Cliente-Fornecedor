@@ -1070,35 +1070,42 @@ html.theme-dark .wizard-progress::-webkit-scrollbar-thumb {
     background: transparent !important;
 }
 
-html.theme-dark .sso-panel {
+/* CAMPO DE BUSCA NOS SELECTS (Selectize) */
+html.theme-dark .selectize-control.single .selectize-input,
+html.theme-dark .selectize-control.single .selectize-input.input-active {
+  background: var(--bg-input) !important;
+  border-color: #2d3440 !important;
+  color: var(--text-primary) !important;
+}
+
+html.theme-dark .selectize-control.single .selectize-input.focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(255, 140, 66, .14) !important;
+}
+
+html.theme-dark .selectize-control.single .selectize-input:after {
+  border-top-color: var(--text-primary) !important;
+}
+
+html.theme-dark .selectize-dropdown {
   background: var(--bg-card) !important;
   border-color: var(--border-color) !important;
-}
-
-html.theme-dark .sso-input {
-  background: var(--bg-soft) !important;
-  border-bottom-color: var(--border-color) !important;
   color: var(--text-primary) !important;
 }
 
-html.theme-dark .sso-option {
+html.theme-dark .selectize-dropdown .option {
   color: var(--text-primary) !important;
 }
 
-html.theme-dark .sso-option:hover,
-html.theme-dark .sso-option.sso-focused {
-  background: #1e2128 !important;
-  color: var(--primary) !important;
-}
-
-html.theme-dark .sso-option.sso-selected {
+html.theme-dark .selectize-dropdown .active {
   background: rgba(255, 140, 66, 0.12) !important;
   color: var(--primary) !important;
 }
 
-html.theme-dark .sso-option.sso-selected:hover,
-html.theme-dark .sso-option.sso-selected.sso-focused {
-  background: rgba(255, 140, 66, 0.22) !important;
+html.theme-dark .selectize-control.locked .selectize-input {
+  background: var(--bg-soft) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-muted, #8b93a1) !important;
 }
 
 html.theme-dark .select2-container--default .select2-selection--multiple {

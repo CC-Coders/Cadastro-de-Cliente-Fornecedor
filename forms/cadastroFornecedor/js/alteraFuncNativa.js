@@ -19,6 +19,61 @@ function ocultarEnviarNativoFluig() {
   }
 }
 
+// CONFIGURA AS AÇÕES E OS BOTÕES DISPONÍVEIS NA ETAPA DE VALIDAÇÃO CONFORME O MODO DO FORMULÁRIO
+function prepararAcoesValidacao() {
+  var atividade = Number($("#atividade").val() || 0);
+  if (atividade !== ATIVIDADES.VALIDACAO) return;
+
+  var modo = ($("#formMode").val() || "").toUpperCase();
+  if (modo === "VIEW") {
+    $("#btnEditarCamposInicio, #btnAprovar, #btnReprovar, #btnEnviarSolicitacao, #labelAcaoValidacao").hide();
+    try { window.parent.$("#btnEditarNaBarra").remove(); } catch (e) {}
+    return;
+  }
+
+  try {
+    $("#btnAprovar, #btnReprovar, #labelAcaoValidacao").show();
+    $("#btnEnviarSolicitacao").hide();
+    posicionarBotaoEditarNaBarra();
+  } catch (e) {
+    console.warn("[Validacao] prepararAcoesValidacao:", e);
+  }
+}
+
+// ACIONA O ENVIO DO PROCESSO PELO BOTÃO NATIVO DO FLUIG
+function acionarEnvioFluig() {
+  try {
+    var btn = window.parent.document.getElementById("send-process-button");
+    if (!btn) {
+      console.warn("[envio] send-process-button nao encontrado");
+      return;
+    }
+    btn.style.display = "";
+    btn.style.visibility = "visible";
+    btn.style.pointerEvents = "auto";
+    btn.removeAttribute("disabled");
+    btn.click();
+  } catch (e) {
+    console.error("[envio]", e);
+  }
+}
+
+// CONFIGURA A INTERFACE DE ENVIO PARA O SOLICITANTE NAS ETAPAS APLICÁVEIS
+function prepararEnvioInicio() {
+  var atividade = Number($("#atividade").val() || 0);
+  var modo = ($("#formMode").val() || "").toUpperCase();
+
+  var ehEnvioSolicitante = (atividade === ATIVIDADES.INICIO_0 ||
+    atividade === ATIVIDADES.INICIO ||
+    atividade === ATIVIDADES.CORRECAO ||
+    atividade === ATIVIDADES.ERRO_INTEGRACAO) && modo !== "VIEW";
+
+  if (!ehEnvioSolicitante) return;
+
+  $("#btnEnviarSolicitacao").show();
+  $("#btnAprovar, #btnReprovar, #labelAcaoValidacao, #btnEditarCamposInicio").hide();
+}
+
 // POSICIONA O BOTÃO DE EDITAR NA BARRA DE AÇÕES DO FLUIG, COM A CARA NATIVA DO FLUIG (Bootstrap), E OCULTA O BOTÃO ALTERNATIVO
 function posicionarBotaoEditarNaBarra() {
   try {
