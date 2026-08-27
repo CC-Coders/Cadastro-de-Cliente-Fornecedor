@@ -65,6 +65,7 @@
             <input type="hidden" id="regimeFiscalHidden" name="regimeFiscalHidden">
             <input type="hidden" id="idcfoEdicao" name="idcfoEdicao"/>
             <input type="hidden" id="bancosEdicaoJson" name="bancosEdicaoJson"/>
+            <input type="hidden" id="enderecosJson" name="enderecosJson"/>
             <input type="hidden" id="idpgtoBoletoEdicao" name="idpgtoBoletoEdicao"/>
             <input type="hidden" id="snapshotEdicaoRM" name="snapshotEdicaoRM"/>
             <input type="hidden" id="anxCartaoCnpj" name="anxCartaoCnpj"/>
@@ -210,14 +211,6 @@
          <main class="page-wrap" id="preCadastro" style="visibility:hidden">
             <!-- PRÉ-CADASTRO -->
             <div class="step-panel tab-pane-form step-1 active" id="divPreCadastro">
-               <div class="page-header step-1" name="divHeaderPreCad" id="divHeaderPreCad">
-                  <div class="page-header-icon"><i class="flaticon flaticon-account-circle"></i></div>
-                  <div class="page-header-info" style="margin-bottom: 17px;margin-top: 5px;">
-                     <div class="page-header-title">Dados Base — Identificação e Endereço</div>
-                     <div class="page-header-sub">Informe a classificação e os dados comerciais do cadastro.</div>
-                     <div class="step-badge step-1">Etapa 1 de 3 — Dados Base</div>
-                  </div>
-               </div>
                <div class="section" id="divDadosFornecedor">
                   <div class="section-head">
                      <div class="section-head-left">
@@ -389,68 +382,104 @@
                      </div>
                   </div>
                   <div class="section-body">
-                     <div class="grid g3" id="docEndereco">
-                        <div class="fg" id="divCep">
-                           <label for="cep">CEP</label>
-                           <input type="text" id="cep" name="cep" placeholder="00000-000" class="form-control" required/>
+                     <div class="addr-card" id="addr-card-1">
+                        <div class="addr-card-head">
+                           <span class="addr-card-title">Endereço de Cadastro</span>
                         </div>
-                        <div class="fg" id="divEnderecoRua">
-                           <label for="endereco">Endereço</label>
-                           <input type="text" id="endereco" name="endereco" placeholder="Rua, Avenida, Rodovia..." class="form-control" required/>
-                        </div>
-                        <div class="fg" id="divNumero">
-                           <label for="numero">Número</label>
-                           <input type="text" id="numero" name="numero" placeholder="Nº" class="form-control" required/>
-                        </div>
-                        <div class="fg" id="divComplemento">
-                           <label for="complemento">Complemento</label>
-                           <input type="text" id="complemento" name="complemento" placeholder="Sala, Andar, Bloco..." class="form-control"/>
-                        </div>
-                        <div class="fg" id="divBairro">
-                           <label for="bairro">Bairro</label>
-                           <input type="text" id="bairro" name="bairro" placeholder="Bairro" class="form-control" required/>
-                        </div>
-                        <div class="fg" id="divCidade">
-                           <label for="cidade">Cidade</label>
-                           <div class="select-wrap">
-                              <select id="cidade" name="cidade" class="form-control" required>
-                                 <option value="">Selecione a cidade...</option>
-                              </select>
+                        <div class="grid grid-endereco" id="docEndereco">
+                           <div class="fg col-cep" id="divCep">
+                              <label for="cep">CEP</label>
+                              <input type="text" id="cep" name="cep" placeholder="00000-000" class="form-control" required/>
                            </div>
-                           <input type="hidden" id="codMunicipio" name="codMunicipio"/>
-                           <input type="hidden" id="nomeCidadeSalva" name="nomeCidadeSalva"/>
-                        </div>
-                        <div class="fg" id="divPais">
-                           <label for="pais">País</label>
-                           <input type="text" id="pais" name="pais" placeholder="País" class="form-control" required readonly/>
-                           <div class="select-wrap" id="divSelectPaisEstrangeiro" style="display:none">
-                              <select id="selectPaisEstrangeiro" name="selectPaisEstrangeiro" class="form-control">
-                                 <option value="">Selecione o país...</option>
-                              </select>
+                           <div class="fg col-rua" id="divEnderecoRua">
+                              <label for="endereco">Endereço</label>
+                              <input type="text" id="endereco" name="endereco" placeholder="Rua, Avenida, Rodovia..." class="form-control" required/>
                            </div>
-                        </div>
-                        <div class="fg" id="divEstado">
-                           <label for="estado">Estado</label>
-                           <div class="select-wrap">
-                              <select id="estado" name="estado" class="form-control" required>
-                                 <option value="">Selecione o estado...</option>
-                              </select>
+                           <div class="fg col-numero" id="divNumero">
+                              <label for="numero">Número</label>
+                              <input type="text" id="numero" name="numero" placeholder="Nº" class="form-control" required/>
+                           </div>
+                           <div class="fg col-complemento" id="divComplemento">
+                              <label for="complemento">Complemento</label>
+                              <input type="text" id="complemento" name="complemento" placeholder="Sala, Andar, Bloco..." class="form-control"/>
+                           </div>
+                           <div class="fg col-pais" id="divPais">
+                              <label for="pais">País</label>
+                              <input type="text" id="pais" name="pais" placeholder="País" class="form-control" required readonly/>
+                              <div class="select-wrap" id="divSelectPaisEstrangeiro" style="display:none">
+                                 <select id="selectPaisEstrangeiro" name="selectPaisEstrangeiro" class="form-control">
+                                    <option value="">Selecione o país...</option>
+                                 </select>
+                              </div>
+                           </div>
+                           <div class="fg col-estado" id="divEstado">
+                              <label for="estado">Estado</label>
+                              <div class="select-wrap">
+                                 <select id="estado" name="estado" class="form-control" required>
+                                    <option value="">Selecione o estado...</option>
+                                 </select>
+                              </div>
+                           </div>
+                           <div class="fg col-cidade" id="divCidade">
+                              <label for="cidade">Cidade</label>
+                              <div class="select-wrap">
+                                 <select id="cidade" name="cidade" class="form-control" required>
+                                    <option value="">Selecione a cidade...</option>
+                                 </select>
+                              </div>
+                              <input type="hidden" id="codMunicipio" name="codMunicipio"/>
+                              <input type="hidden" id="nomeCidadeSalva" name="nomeCidadeSalva"/>
+                           </div>
+                           <div class="fg col-bairro" id="divBairro">
+                              <label for="bairro">Bairro</label>
+                              <input type="text" id="bairro" name="bairro" placeholder="Bairro" class="form-control" required/>
                            </div>
                         </div>
                      </div>
+
+                     <!-- ENDEREÇOS ADICIONAIS (gerados por inicializarEnderecos) -->
+                     <div id="enderecos-cards"></div>
+
+                     <button type="button" id="btn-add-endereco" class="btn-add-bank">
+                        + Adicionar outro endereço
+                     </button>
+
+                     <!-- PERSISTÊNCIA DOS ENDEREÇOS ADICIONAIS -->
+                     <table tablename="tableEnderecos" id="tableEnderecos" noaddbutton="true" nodeletebutton="true" style="display:none;">
+                        <thead>
+                           <tr>
+                              <th>ID Contato RM</th>
+                              <th>Descrição</th>
+                              <th>CEP</th>
+                              <th>Endereço</th>
+                              <th>Número</th>
+                              <th>Complemento</th>
+                              <th>Bairro</th>
+                              <th>Cidade</th>
+                              <th>Estado</th>
+                              <th>Cód. Município</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <tr>
+                              <td><input type="hidden" name="endIdContato" class="endIdContato"></td>
+                              <td><input type="hidden" name="endDescricao" class="endDescricao"></td>
+                              <td><input type="hidden" name="endCep" class="endCep"></td>
+                              <td><input type="hidden" name="endRua" class="endRua"></td>
+                              <td><input type="hidden" name="endNumero" class="endNumero"></td>
+                              <td><input type="hidden" name="endComplemento" class="endComplemento"></td>
+                              <td><input type="hidden" name="endBairro" class="endBairro"></td>
+                              <td><input type="hidden" name="endCidade" class="endCidade"></td>
+                              <td><input type="hidden" name="endEstado" class="endEstado"></td>
+                              <td><input type="hidden" name="endCodMunicipio" class="endCodMunicipio"></td>
+                           </tr>
+                        </tbody>
+                     </table>
                   </div>
                </div>
             </div>
             <!-- DADOS CADASTRAIS -->
             <div class="step-panel tab-pane-form step-2" id="divDadosCadastrais" name="divDadosCadastrais" style="display: none">
-               <div class="page-header step-2" id="divHeaderDadosCadastrais">
-                  <div class="page-header-icon"><i class="flaticon flaticon-file-person icon-lg" aria-hidden="true"></i></div>
-                  <div class="page-header-info" style="margin-bottom: 17px;margin-top: 5px;">
-                     <div class="page-header-title">Dados Cadastrais</div>
-                     <div class="page-header-sub">Complete os dados fiscais, bancários, condições comerciais e informações de contato do cliente ou fornecedor.</div>
-                     <div class="step-badge step-2">Etapa 2 de 3 — Dados Cadastrais</div>
-                  </div>
-               </div>
                <div class="section" id="divDadosFiscais">
                   <div class="section-head">
                      <div class="section-head-left">
@@ -671,7 +700,9 @@
                               <th>Banco</th>
                               <th>Banco Descrição</th>
                               <th>Agência</th>
+                              <th>Dígito Agência</th>
                               <th>Conta</th>
+                              <th>Dígito Conta</th>
                            </tr>
                         </thead>
                         <tbody>
@@ -679,7 +710,9 @@
                               <td><input type="hidden" name="dbBanco" class="dbBanco"></td>
                               <td><input type="hidden" name="dbBancoDescricao" class="dbBancoDescricao"></td>
                               <td><input type="hidden" name="dbAgencia" class="dbAgencia"></td>
+                              <td><input type="hidden" name="dbDigAgencia" class="dbDigAgencia"></td>
                               <td><input type="hidden" name="dbConta" class="dbConta"></td>
+                              <td><input type="hidden" name="dbDigConta" class="dbDigConta"></td>
                            </tr>
                         </tbody>
                      </table>
@@ -687,27 +720,37 @@
                      <input type="hidden" id="hiddenBanco1Cod" name="hiddenBanco1Cod">
                      <input type="hidden" id="hiddenBanco1Desc" name="hiddenBanco1Desc">
                      <input type="hidden" id="hiddenBanco1Agencia" name="hiddenBanco1Agencia">
+                     <input type="hidden" id="hiddenBanco1DigAgencia" name="hiddenBanco1DigAgencia">
                      <input type="hidden" id="hiddenBanco1Conta" name="hiddenBanco1Conta">
+                     <input type="hidden" id="hiddenBanco1DigConta" name="hiddenBanco1DigConta">
 
                      <input type="hidden" id="hiddenBanco2Cod" name="hiddenBanco2Cod">
                      <input type="hidden" id="hiddenBanco2Desc" name="hiddenBanco2Desc">
                      <input type="hidden" id="hiddenBanco2Agencia" name="hiddenBanco2Agencia">
+                     <input type="hidden" id="hiddenBanco2DigAgencia" name="hiddenBanco2DigAgencia">
                      <input type="hidden" id="hiddenBanco2Conta" name="hiddenBanco2Conta">
+                     <input type="hidden" id="hiddenBanco2DigConta" name="hiddenBanco2DigConta">
 
                      <input type="hidden" id="hiddenBanco3Cod" name="hiddenBanco3Cod">
                      <input type="hidden" id="hiddenBanco3Desc" name="hiddenBanco3Desc">
                      <input type="hidden" id="hiddenBanco3Agencia" name="hiddenBanco3Agencia">
+                     <input type="hidden" id="hiddenBanco3DigAgencia" name="hiddenBanco3DigAgencia">
                      <input type="hidden" id="hiddenBanco3Conta" name="hiddenBanco3Conta">
+                     <input type="hidden" id="hiddenBanco3DigConta" name="hiddenBanco3DigConta">
 
                      <input type="hidden" id="hiddenBanco4Cod" name="hiddenBanco4Cod">
                      <input type="hidden" id="hiddenBanco4Desc" name="hiddenBanco4Desc">
                      <input type="hidden" id="hiddenBanco4Agencia" name="hiddenBanco4Agencia">
+                     <input type="hidden" id="hiddenBanco4DigAgencia" name="hiddenBanco4DigAgencia">
                      <input type="hidden" id="hiddenBanco4Conta" name="hiddenBanco4Conta">
+                     <input type="hidden" id="hiddenBanco4DigConta" name="hiddenBanco4DigConta">
 
                      <input type="hidden" id="hiddenBanco5Cod" name="hiddenBanco5Cod">
                      <input type="hidden" id="hiddenBanco5Desc" name="hiddenBanco5Desc">
                      <input type="hidden" id="hiddenBanco5Agencia" name="hiddenBanco5Agencia">
+                     <input type="hidden" id="hiddenBanco5DigAgencia" name="hiddenBanco5DigAgencia">
                      <input type="hidden" id="hiddenBanco5Conta" name="hiddenBanco5Conta">
+                     <input type="hidden" id="hiddenBanco5DigConta" name="hiddenBanco5DigConta">
                      <!-- Campo preenchido automaticamente pelo servicetask16 após o cadastro no RM -->
                      <input type="hidden" id="codCfoRm" name="codCfoRm">
                   </div>
@@ -751,14 +794,6 @@
             </div>
             <!-- DOCUMENTAÇÃO -->
             <div class="step-panel tab-pane-form step-3" id="divDocumentacao" name="divDocumentacao" style="display: none">
-               <div class="page-header step-3" id="divHeaderDocumentacao" name="divHeaderDocumentacao">
-                  <div class="page-header-icon"><i class="flaticon flaticon-cloud-download icon-lg" aria-hidden="true"></i></div>
-                  <div class="page-header-info" style="margin-bottom: 17px;margin-top: 5px;">
-                     <div class="page-header-title">Documentação — Anexos Obrigatórios</div>
-                     <div class="page-header-sub">Anexe os documentos obrigatórios para validação do cadastro do cliente / fornecedor.</div>
-                     <div class="step-badge step-3">Etapa 3 de 3 — Documentação</div>
-                  </div>
-               </div>
                <div class="section" id="divAnexosDocumentos" name="divAnexosDocumentos">
                   <div class="section-head">
                      <div class="section-head-left">

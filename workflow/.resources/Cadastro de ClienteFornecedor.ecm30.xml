@@ -28,11 +28,10 @@
     <processDefinitionVersionPK>
       <companyId>1</companyId>
       <processId>Cadastro e Alteração de Cliente/Fornecedor</processId>
-      <version>102</version>
+      <version>21</version>
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
     <formId>0</formId>
-    <formIdV2>0</formIdV2>
     <editionMode>true</editionMode>
     <updateAttachmentsVersion>false</updateAttachmentsVersion>
     <controlsAttachmentsSecurity>false</controlsAttachmentsSecurity>
@@ -430,7 +429,7 @@
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
         <expressionOrder>1</expressionOrder>
-        <version>102</version>
+        <version>21</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;Correcao&quot;</condition>
@@ -442,7 +441,7 @@
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
         <expressionOrder>2</expressionOrder>
-        <version>102</version>
+        <version>21</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;enviarRm&quot;</condition>
@@ -689,13 +688,13 @@ function servicetask16(attempt, message) {&#xd;
         var col = coligadaOverride || COLIGADA;&#xd;
         log.info(&quot;[ST16] Chamando ds_saveRecordRM ? &quot; + dataServerName + &quot; | coligada=&quot; + col);&#xd;
 &#xd;
-        var c = [&#xd;
+        var constraints = [&#xd;
             DatasetFactory.createConstraint(&quot;pDataServerName&quot;, dataServerName, dataServerName, ConstraintType.MUST),&#xd;
             DatasetFactory.createConstraint(&quot;pXML&quot;,            xml,            xml,            ConstraintType.MUST),&#xd;
             DatasetFactory.createConstraint(&quot;pCodcoligada&quot;,    col,            col,            ConstraintType.MUST)&#xd;
         ];&#xd;
 &#xd;
-        var ds = DatasetFactory.getDataset(&quot;ds_saveRecordRM&quot;, null, c, null);&#xd;
+        var ds = DatasetFactory.getDataset(&quot;ds_saveRecordRM&quot;, null, constraints, null);&#xd;
 &#xd;
         if (!ds || !ds.values || !ds.values.length) {&#xd;
             throw new Error(&quot;[ST16] ds_saveRecordRM não retornou dados. DataServer=&quot; + dataServerName);&#xd;
@@ -819,6 +818,12 @@ function servicetask16(attempt, message) {&#xd;
         log.error(&quot;[ST16] Erro ao salvar contatos FCFOCONTATO (não interrompe): &quot; + eCont);&#xd;
     }&#xd;
 &#xd;
+    try {&#xd;
+        salvarEnderecosRM(codCfo, &quot;0&quot;, clienteForncedor(&quot;enderecosJson&quot;));&#xd;
+    } catch (eEnd) {&#xd;
+        log.error(&quot;[ST16] Erro ao salvar endereços adicionais FCFOCONTATO (não interrompe): &quot; + eEnd);&#xd;
+    }&#xd;
+&#xd;
 &#xd;
     var bancosEdicaoJson = clienteForncedor(&quot;bancosEdicaoJson&quot;);&#xd;
     var ehEdicaoBancos = ehEdicao &amp;&amp; bancosEdicaoJson &amp;&amp; bancosEdicaoJson !== &quot;[]&quot;;&#xd;
@@ -851,10 +856,10 @@ function servicetask16(attempt, message) {&#xd;
                         ? parseInt(ct.idpgto, 10) : (proxIdEd++);&#xd;
             var ctAtivo = (String(ct.ativo) === &quot;0&quot;) ? &quot;0&quot; : &quot;1&quot;;&#xd;
 &#xd;
-            var ctAgNum = ctAg.length &gt; 1 ? ctAg.slice(0, -1) : ctAg;&#xd;
-            var ctAgDig = ctAg.length &gt; 1 ? ctAg.slice(-1)    : &quot;0&quot;;&#xd;
-            var ctCtNum = ctCt.length &gt; 1 ? ctCt.slice(0, -1) : ctCt;&#xd;
-            var ctCtDig = ctCt.length &gt; 1 ? ctCt.slice(-1)    : &quot;0&quot;;&#xd;
+            var ctAgNum = ctAg;&#xd;
+            var ctAgDig = String(ct.digAgencia || &quot;0&quot;);&#xd;
+            var ctCtNum = ctCt;&#xd;
+            var ctCtDig = String(ct.digConta || &quot;0&quot;);&#xd;
 &#xd;
             for (var ced = 0; ced &lt; COLIGADAS_BANCO.length; ced++) {&#xd;
                 var colEd = COLIGADAS_BANCO[ced];&#xd;
@@ -914,25 +919,36 @@ function servicetask16(attempt, message) {&#xd;
 &#xd;
     var idPgto = 0;&#xd;
 &#xd;
-    for (var i = 1; i &lt;= 5; i++) {&#xd;
-        var bancoCod  = clienteForncedor(&quot;hiddenBanco&quot; + i + &quot;Cod&quot;);&#xd;
-        var bancoDesc = clienteForncedor(&quot;hiddenBanco&quot; + i + &quot;Desc&quot;);&#xd;
-        var agencia   = clienteForncedor(&quot;hiddenBanco&quot; + i + &quot;Agencia&quot;);&#xd;
-        var conta     = clienteForncedor(&quot;hiddenBanco&quot; + i + &quot;Conta&quot;);&#xd;
+    for (var numConta = 1; numConta &lt;= 5; numConta++) {&#xd;
+        var bancoCod  = clienteForncedor(&quot;hiddenBanco&quot; + numConta + &quot;Cod&quot;);&#xd;
+        var bancoDesc = clienteForncedor(&quot;hiddenBanco&quot; + numConta + &quot;Desc&quot;);&#xd;
+        var agencia   = clienteForncedor(&quot;hiddenBanco&quot; + numConta + &quot;Agencia&quot;);&#xd;
+        var digAgencia = clienteForncedor(&quot;hiddenBanco&quot; + numConta + &quot;DigAgencia&quot;);&#xd;
+        var conta     = clienteForncedor(&quot;hiddenBanco&quot; + numConta + &quot;Conta&quot;);&#xd;
+        var digConta  = clienteForncedor(&quot;hiddenBanco&quot; + numConta + &quot;DigConta&quot;);&#xd;
 &#xd;
-        log.info(&quot;[ST16] Banco &quot; + i + &quot; — cod=&quot; + bancoCod + &quot; | agencia=&quot; + agencia + &quot; | conta=&quot; + conta + &quot; | desc=&quot; + bancoDesc);&#xd;
+        log.info(&quot;[ST16] Banco &quot; + numConta + &quot; — cod=&quot; + bancoCod + &quot; | agencia=&quot; + agencia + &quot;-&quot; + digAgencia + &quot; | conta=&quot; + conta + &quot;-&quot; + digConta + &quot; | desc=&quot; + bancoDesc);&#xd;
 &#xd;
         if (!bancoCod &amp;&amp; !agencia &amp;&amp; !conta) {&#xd;
-            log.info(&quot;[ST16] Banco &quot; + i + &quot; sem dados — ignorando.&quot;);&#xd;
+            log.info(&quot;[ST16] Banco &quot; + numConta + &quot; sem dados — ignorando.&quot;);&#xd;
             continue;&#xd;
         }&#xd;
 &#xd;
         idPgto++;&#xd;
 &#xd;
-        var agNum = agencia.length &gt; 1 ? agencia.slice(0, -1) : agencia;&#xd;
-        var agDig = agencia.length &gt; 1 ? agencia.slice(-1)    : &quot;0&quot;;&#xd;
-        var ctNum = conta.length   &gt; 1 ? conta.slice(0, -1)   : conta;&#xd;
-        var ctDig = conta.length   &gt; 1 ? conta.slice(-1)      : &quot;0&quot;;&#xd;
+        // Trava de tamanho: as colunas de FDADOSPGTO no RM sao curtas e estourar&#xd;
+        // qualquer uma faz o DataServer recusar a conta inteira com&#xd;
+        // &quot;String or binary data would be truncated&quot;. O formulario ja limita, mas&#xd;
+        // processos salvos antes desse limite podem trazer valores maiores.&#xd;
+        if (agencia.length &gt; 5 || conta.length &gt; 15) {&#xd;
+            log.warn(&quot;[ST16] Banco &quot; + numConta + &quot;: agencia/conta acima do tamanho aceito pelo &quot; +&#xd;
+                     &quot;RM e foram truncadas (agencia=&quot; + agencia + &quot;, conta=&quot; + conta + &quot;).&quot;);&#xd;
+        }&#xd;
+&#xd;
+        var agNum = agencia.substring(0, 5);&#xd;
+        var agDig = (digAgencia || &quot;0&quot;).substring(0, 2);&#xd;
+        var ctNum = conta.substring(0, 15);&#xd;
+        var ctDig = (digConta || &quot;0&quot;).substring(0, 2);&#xd;
 &#xd;
         var ativo = (idPgto === 1) ? &quot;1&quot; : &quot;0&quot;;&#xd;
 &#xd;
@@ -961,9 +977,9 @@ function servicetask16(attempt, message) {&#xd;
 &#xd;
             try {&#xd;
                 chamarRM(&quot;FinDadosPgtoDataBR&quot;, xmlBanco, colAtual);&#xd;
-                log.info(&quot;[ST16] Conta &quot; + i + &quot; / Coligada &quot; + colAtual + &quot; salva com sucesso.&quot;);&#xd;
+                log.info(&quot;[ST16] Conta &quot; + numConta + &quot; / Coligada &quot; + colAtual + &quot; salva com sucesso.&quot;);&#xd;
             } catch (eBanco) {&#xd;
-                log.warn(&quot;[ST16] Falha conta &quot; + i + &quot; / Coligada &quot; + colAtual + &quot;: &quot; + eBanco);&#xd;
+                log.warn(&quot;[ST16] Falha conta &quot; + numConta + &quot; / Coligada &quot; + colAtual + &quot;: &quot; + eBanco);&#xd;
             }&#xd;
         }&#xd;
     }&#xd;
@@ -1036,9 +1052,9 @@ function salvarFcfoAuxiliar(codCfo, coligada) {&#xd;
         { t: &quot;int&quot;, v: codCfoInt   },&#xd;
         { t: &quot;int&quot;, v: coligadaInt }&#xd;
     ];&#xd;
-    try { _execSql(&quot;DELETE FROM FCFO_AUXILIAR_CNAE             WHERE CODCFO=? AND CODCOLIGADA=?&quot;, pkParams); } catch (_) {}&#xd;
-    try { _execSql(&quot;DELETE FROM FCFO_AUXILIAR_GRUPO_MERCADORIA WHERE CODCFO=? AND CODCOLIGADA=?&quot;, pkParams); } catch (_) {}&#xd;
-    try { _execSql(&quot;DELETE FROM FCFO_AUXILIAR                  WHERE CODCFO=? AND CODCOLIGADA=?&quot;, pkParams); } catch (_) {}&#xd;
+    try { _execSql(&quot;DELETE FROM FCFO_AUXILIAR_CNAE             WHERE CODCFO=? AND CODCOLIGADA=?&quot;, pkParams); } catch (erroFechamento) {}&#xd;
+    try { _execSql(&quot;DELETE FROM FCFO_AUXILIAR_GRUPO_MERCADORIA WHERE CODCFO=? AND CODCOLIGADA=?&quot;, pkParams); } catch (erroFechamento) {}&#xd;
+    try { _execSql(&quot;DELETE FROM FCFO_AUXILIAR                  WHERE CODCFO=? AND CODCOLIGADA=?&quot;, pkParams); } catch (erroFechamento) {}&#xd;
 &#xd;
     // FCFO_AUXILIAR &#xd;
     try {&#xd;
@@ -1164,17 +1180,17 @@ function salvarFcfoAuxiliar(codCfo, coligada) {&#xd;
 &#xd;
 // SEPARA O CÓDIGO E DESCRIÇÃO DO CNAE&#xd;
 function _parseCnae(valor) {&#xd;
-    var v   = String(valor || &quot;&quot;).trim();&#xd;
+    var texto = String(valor || &quot;&quot;).trim();&#xd;
     var sep = &quot; — &quot;; // &quot; — &quot;&#xd;
-    var idx = v.indexOf(sep);&#xd;
+    var idx = texto.indexOf(sep);&#xd;
     if (idx &gt; 0) {&#xd;
-        return { codigo: v.substring(0, idx).trim(), descricao: v.substring(idx + sep.length).trim() };&#xd;
+        return { codigo: texto.substring(0, idx).trim(), descricao: texto.substring(idx + sep.length).trim() };&#xd;
     }&#xd;
-    idx = v.indexOf(&quot; - &quot;);&#xd;
+    idx = texto.indexOf(&quot; - &quot;);&#xd;
     if (idx &gt; 0) {&#xd;
-        return { codigo: v.substring(0, idx).trim(), descricao: v.substring(idx + 3).trim() };&#xd;
+        return { codigo: texto.substring(0, idx).trim(), descricao: texto.substring(idx + 3).trim() };&#xd;
     }&#xd;
-    return { codigo: v, descricao: &quot;&quot; };&#xd;
+    return { codigo: texto, descricao: &quot;&quot; };&#xd;
 }&#xd;
 &#xd;
 // BUSCA O CODTB2FAT DE UM GRUPO DE MERCADORIA EXISTENTE PELO NOME&#xd;
@@ -1195,12 +1211,12 @@ function _buscarCodTb2Fat(descricao) {&#xd;
             return rs.getInt(1);&#xd;
         }&#xd;
         return null;&#xd;
-    } catch (e) {&#xd;
-        log.warn(&quot;[ST16-AUX] Erro ao buscar CODTB2FAT para &apos;&quot; + descricao + &quot;&apos;: &quot; + e);&#xd;
+    } catch (erro) {&#xd;
+        log.warn(&quot;[ST16-AUX] Erro ao buscar CODTB2FAT para &apos;&quot; + descricao + &quot;&apos;: &quot; + erro);&#xd;
         return null;&#xd;
     } finally {&#xd;
-        if (stmt != null) try { stmt.close(); } catch (_) {}&#xd;
-        if (conn != null) try { conn.close(); } catch (_) {}&#xd;
+        if (stmt != null) try { stmt.close(); } catch (erroFechamento) {}&#xd;
+        if (conn != null) try { conn.close(); } catch (erroFechamento) {}&#xd;
     }&#xd;
 }&#xd;
 &#xd;
@@ -1223,12 +1239,12 @@ function _buscarIdContato(codcfo, coligada, nome) {&#xd;
             return rs.getInt(1);&#xd;
         }&#xd;
         return null;&#xd;
-    } catch (e) {&#xd;
-        log.warn(&quot;[ST16] Erro ao buscar contato &apos;&quot; + nome + &quot;&apos;: &quot; + e);&#xd;
+    } catch (erro) {&#xd;
+        log.warn(&quot;[ST16] Erro ao buscar contato &apos;&quot; + nome + &quot;&apos;: &quot; + erro);&#xd;
         return null;&#xd;
     } finally {&#xd;
-        if (stmt != null) try { stmt.close(); } catch (_) {}&#xd;
-        if (conn != null) try { conn.close(); } catch (_) {}&#xd;
+        if (stmt != null) try { stmt.close(); } catch (erroFechamento) {}&#xd;
+        if (conn != null) try { conn.close(); } catch (erroFechamento) {}&#xd;
     }&#xd;
 }&#xd;
 &#xd;
@@ -1242,26 +1258,26 @@ function salvarContatosRM(codCfo, coligada, emailComercial, emailAdministrativo,
         { nome: &quot;E-mail Administrativo&quot;, email: emailAdministrativo, tel: celular }&#xd;
     ];&#xd;
 &#xd;
-    for (var i = 0; i &lt; lista.length; i++) {&#xd;
-        var c = lista[i];&#xd;
-        if (!c.email &amp;&amp; !c.tel) { continue; }&#xd;
+    for (var indice = 0; indice &lt; lista.length; indice++) {&#xd;
+        var contato = lista[indice];&#xd;
+        if (!contato.email &amp;&amp; !contato.tel) { continue; }&#xd;
 &#xd;
         try {&#xd;
-            var idEx = _buscarIdContato(codcfoStr, coligadaInt, c.nome);&#xd;
+            var idEx = _buscarIdContato(codcfoStr, coligadaInt, contato.nome);&#xd;
             if (idEx) {&#xd;
                 _execSql(&#xd;
                     &quot;UPDATE FCFOCONTATO SET EMAIL=?, TELEFONE=?, ATIVO=1 &quot; +&#xd;
                     &quot;WHERE CODCOLIGADA=? AND CODCFO=? AND IDCONTATO=?&quot;,&#xd;
                     [&#xd;
-                        { t: &quot;str&quot;, v: c.email },&#xd;
-                        { t: &quot;str&quot;, v: c.tel   },&#xd;
+                        { t: &quot;str&quot;, v: contato.email },&#xd;
+                        { t: &quot;str&quot;, v: contato.tel   },&#xd;
                         { t: &quot;int&quot;, v: coligadaInt },&#xd;
                         { t: &quot;str&quot;, v: codcfoStr   },&#xd;
                         { t: &quot;int&quot;, v: idEx        }&#xd;
                     ],&#xd;
                     &quot;/jdbc/RM&quot;&#xd;
                 );&#xd;
-                log.info(&quot;[ST16] Contato atualizado: &quot; + c.nome + &quot; (IDCONTATO=&quot; + idEx + &quot;)&quot;);&#xd;
+                log.info(&quot;[ST16] Contato atualizado: &quot; + contato.nome + &quot; (IDCONTATO=&quot; + idEx + &quot;)&quot;);&#xd;
             } else {&#xd;
                 var proxId = _proximoIdContato(codcfoStr, coligadaInt);&#xd;
                 _execSql(&#xd;
@@ -1272,16 +1288,139 @@ function salvarContatosRM(codCfo, coligada, emailComercial, emailAdministrativo,
                         { t: &quot;int&quot;, v: coligadaInt },&#xd;
                         { t: &quot;str&quot;, v: codcfoStr   },&#xd;
                         { t: &quot;int&quot;, v: proxId      },&#xd;
-                        { t: &quot;str&quot;, v: c.nome      },&#xd;
-                        { t: &quot;str&quot;, v: c.email     },&#xd;
-                        { t: &quot;str&quot;, v: c.tel       }&#xd;
+                        { t: &quot;str&quot;, v: contato.nome      },&#xd;
+                        { t: &quot;str&quot;, v: contato.email     },&#xd;
+                        { t: &quot;str&quot;, v: contato.tel       }&#xd;
                     ],&#xd;
                     &quot;/jdbc/RM&quot;&#xd;
                 );&#xd;
-                log.info(&quot;[ST16] Contato inserido: &quot; + c.nome + &quot; (IDCONTATO=&quot; + proxId + &quot;)&quot;);&#xd;
+                log.info(&quot;[ST16] Contato inserido: &quot; + contato.nome + &quot; (IDCONTATO=&quot; + proxId + &quot;)&quot;);&#xd;
             }&#xd;
-        } catch (e) {&#xd;
-            log.warn(&quot;[ST16] Falha ao gravar contato &apos;&quot; + c.nome + &quot;&apos;: &quot; + e);&#xd;
+        } catch (erro) {&#xd;
+            log.warn(&quot;[ST16] Falha ao gravar contato &apos;&quot; + contato.nome + &quot;&apos;: &quot; + erro);&#xd;
+        }&#xd;
+    }&#xd;
+}&#xd;
+&#xd;
+// COLUNAS DA ABA &quot;ENDEREÇO&quot; DO CONTATO (FCFOCONTATO) NO RM.&#xd;
+// Estão isoladas aqui porque variam entre versões do RM: se o log acusar coluna&#xd;
+// inexistente, basta corrigir o nome nesta tabela (ver dataset ds_colunasFcfoContato).&#xd;
+var COLUNAS_ENDERECO_CONTATO = {&#xd;
+    rua:          &quot;RUA&quot;,&#xd;
+    numero:       &quot;NUMERO&quot;,&#xd;
+    complemento:  &quot;COMPLEMENTO&quot;,&#xd;
+    bairro:       &quot;BAIRRO&quot;,&#xd;
+    cidade:       &quot;CIDADE&quot;,&#xd;
+    estado:       &quot;CODETD&quot;,&#xd;
+    cep:          &quot;CEP&quot;,&#xd;
+    codMunicipio: &quot;CODMUNICIPIO&quot;&#xd;
+};&#xd;
+&#xd;
+// GRAVA OS ENDEREÇOS ADICIONAIS DO FORMULÁRIO COMO CONTATOS (FCFOCONTATO) NO RM.&#xd;
+// A FCFO só tem três endereços (principal, entrega e pagamento), então os endereços&#xd;
+// 2..5 do formulário viram registros de contato com a aba Endereço preenchida.&#xd;
+// Cada endereço é identificado pelo NOME (&quot;Endereço 2&quot;, &quot;Endereço 3&quot;...), o que torna&#xd;
+// o reenvio idempotente: reenviar atualiza o mesmo contato em vez de duplicar.&#xd;
+function salvarEnderecosRM(codCfo, coligada, enderecosJson) {&#xd;
+    if (!enderecosJson || enderecosJson === &quot;[]&quot;) {&#xd;
+        log.info(&quot;[ST16] Nenhum endereço adicional para gravar.&quot;);&#xd;
+        return;&#xd;
+    }&#xd;
+&#xd;
+    var enderecos = [];&#xd;
+    try {&#xd;
+        enderecos = JSON.parse(enderecosJson);&#xd;
+    } catch (eJson) {&#xd;
+        log.error(&quot;[ST16] enderecosJson inválido: &quot; + eJson);&#xd;
+        return;&#xd;
+    }&#xd;
+    if (!enderecos.length) { return; }&#xd;
+&#xd;
+    var codcfoStr   = String(codCfo);&#xd;
+    var coligadaInt = parseInt(coligada, 10);&#xd;
+    var chaves = [&quot;rua&quot;, &quot;numero&quot;, &quot;complemento&quot;, &quot;bairro&quot;, &quot;cidade&quot;, &quot;estado&quot;, &quot;cep&quot;, &quot;codMunicipio&quot;];&#xd;
+&#xd;
+    for (var indice = 0; indice &lt; enderecos.length; indice++) {&#xd;
+        var endereco = enderecos[indice] || {};&#xd;
+&#xd;
+        var valores = {&#xd;
+            rua:          String(endereco.rua || &quot;&quot;),&#xd;
+            numero:       String(endereco.numero || &quot;&quot;),&#xd;
+            complemento:  String(endereco.complemento || &quot;&quot;).substring(0, 40),&#xd;
+            bairro:       String(endereco.bairro || &quot;&quot;),&#xd;
+            cidade:       String(endereco.cidade || &quot;&quot;),&#xd;
+            estado:       String(endereco.estado || &quot;&quot;),&#xd;
+            cep:          String(endereco.cep || &quot;&quot;).replace(/\D/g, &quot;&quot;),&#xd;
+            codMunicipio: String(endereco.codMunicipio || &quot;&quot;).replace(/\D/g, &quot;&quot;)&#xd;
+        };&#xd;
+&#xd;
+        if (!valores.rua &amp;&amp; !valores.cep) { continue; }&#xd;
+&#xd;
+        // Colunas vazias ficam de fora: evita gravar branco em coluna numérica&#xd;
+        // (CODMUNICIPIO) e evita apagar dado já existente no RM na regravação.&#xd;
+        var cols   = [];&#xd;
+        var params = [];&#xd;
+        for (var indiceChave = 0; indiceChave &lt; chaves.length; indiceChave++) {&#xd;
+            var chave = chaves[indiceChave];&#xd;
+            if (!valores[chave]) { continue; }&#xd;
+            cols.push(COLUNAS_ENDERECO_CONTATO[chave]);&#xd;
+            params.push({ t: &quot;str&quot;, v: valores[chave] });&#xd;
+        }&#xd;
+        if (!cols.length) { continue; }&#xd;
+&#xd;
+        // A descrição é obrigatória no formulário; o &quot;Endereço N&quot; fica só como rede de&#xd;
+        // segurança para processos antigos, salvos antes de o campo existir.&#xd;
+        var nome = String(endereco.descricao || &quot;&quot;).trim().substring(0, 60) ||&#xd;
+                   (&quot;Endereço &quot; + (parseInt(endereco.ordem, 10) || (indice + 2)));&#xd;
+&#xd;
+        try {&#xd;
+            // O IDCONTATO vem do formulário quando o endereço já existia no RM. É ele&#xd;
+            // que dá identidade estável ao registro: buscar pelo nome faria com que&#xd;
+            // renomear a descrição inserisse um contato novo em vez de atualizar.&#xd;
+            var idEx = parseInt(endereco.idcontato, 10) || 0;&#xd;
+            if (!idEx) {&#xd;
+                idEx = _buscarIdContato(codcfoStr, coligadaInt, nome) || 0;&#xd;
+            }&#xd;
+&#xd;
+            if (idEx) {&#xd;
+                var sets = [];&#xd;
+                for (var indiceSet = 0; indiceSet &lt; cols.length; indiceSet++) { sets.push(cols[indiceSet] + &quot;=?&quot;); }&#xd;
+&#xd;
+                _execSql(&#xd;
+                    &quot;UPDATE FCFOCONTATO SET NOME=?, &quot; + sets.join(&quot;, &quot;) + &quot;, ATIVO=1, &quot; +&#xd;
+                    &quot;RECMODIFIEDBY=&apos;fluig&apos;, RECMODIFIEDON=GETDATE() &quot; +&#xd;
+                    &quot;WHERE CODCOLIGADA=? AND CODCFO=? AND IDCONTATO=?&quot;,&#xd;
+                    [{ t: &quot;str&quot;, v: nome }].concat(params).concat([&#xd;
+                        { t: &quot;int&quot;, v: coligadaInt },&#xd;
+                        { t: &quot;str&quot;, v: codcfoStr   },&#xd;
+                        { t: &quot;int&quot;, v: idEx        }&#xd;
+                    ]),&#xd;
+                    &quot;/jdbc/RM&quot;&#xd;
+                );&#xd;
+                log.info(&quot;[ST16] Endereço atualizado: &quot; + nome + &quot; (IDCONTATO=&quot; + idEx + &quot;)&quot;);&#xd;
+            } else {&#xd;
+                var proxId = _proximoIdContato(codcfoStr, coligadaInt);&#xd;
+&#xd;
+                var placeholders = [];&#xd;
+                for (var indicePlaceholder = 0; indicePlaceholder &lt; cols.length; indicePlaceholder++) { placeholders.push(&quot;?&quot;); }&#xd;
+&#xd;
+                _execSql(&#xd;
+                    &quot;INSERT INTO FCFOCONTATO (CODCOLIGADA, CODCFO, IDCONTATO, NOME, ATIVO, &quot; +&#xd;
+                    cols.join(&quot;, &quot;) + &quot;, RECCREATEDBY, RECCREATEDON, RECMODIFIEDBY, RECMODIFIEDON) &quot; +&#xd;
+                    &quot;VALUES (?, ?, ?, ?, 1, &quot; + placeholders.join(&quot;, &quot;) +&#xd;
+                    &quot;, &apos;fluig&apos;, GETDATE(), &apos;fluig&apos;, GETDATE())&quot;,&#xd;
+                    [&#xd;
+                        { t: &quot;int&quot;, v: coligadaInt },&#xd;
+                        { t: &quot;str&quot;, v: codcfoStr   },&#xd;
+                        { t: &quot;int&quot;, v: proxId      },&#xd;
+                        { t: &quot;str&quot;, v: nome        }&#xd;
+                    ].concat(params),&#xd;
+                    &quot;/jdbc/RM&quot;&#xd;
+                );&#xd;
+                log.info(&quot;[ST16] Endereço inserido: &quot; + nome + &quot; (IDCONTATO=&quot; + proxId + &quot;)&quot;);&#xd;
+            }&#xd;
+        } catch (eEnd) {&#xd;
+            log.warn(&quot;[ST16] Falha ao gravar endereço &apos;&quot; + nome + &quot;&apos;: &quot; + eEnd);&#xd;
         }&#xd;
     }&#xd;
 }&#xd;
@@ -1302,12 +1441,12 @@ function _proximoIdContato(codcfo, coligada) {&#xd;
         var rs = stmt.executeQuery();&#xd;
         if (rs.next()) { return rs.getInt(1); }&#xd;
         return 1;&#xd;
-    } catch (e) {&#xd;
-        log.warn(&quot;[ST16] Erro ao obter próximo IDCONTATO: &quot; + e);&#xd;
+    } catch (erro) {&#xd;
+        log.warn(&quot;[ST16] Erro ao obter próximo IDCONTATO: &quot; + erro);&#xd;
         return 1;&#xd;
     } finally {&#xd;
-        if (stmt != null) try { stmt.close(); } catch (_) {}&#xd;
-        if (conn != null) try { conn.close(); } catch (_) {}&#xd;
+        if (stmt != null) try { stmt.close(); } catch (erroFechamento) {}&#xd;
+        if (conn != null) try { conn.close(); } catch (erroFechamento) {}&#xd;
     }&#xd;
 }&#xd;
 &#xd;
@@ -1321,28 +1460,28 @@ function _execSql(sql, params, dataSource) {&#xd;
         conn = ds.getConnection();&#xd;
         stmt = conn.prepareStatement(sql);&#xd;
 &#xd;
-        for (var i = 0; i &lt; params.length; i++) {&#xd;
-            var p   = params[i];&#xd;
-            var pos = i + 1;&#xd;
-            if (p.t === &quot;int&quot;) {&#xd;
-                stmt.setInt(pos, p.v);&#xd;
-            } else if (p.t === &quot;float&quot;) {&#xd;
-                stmt.setFloat(pos, p.v);&#xd;
-            } else if (p.t === &quot;ts&quot;) {&#xd;
-                stmt.setTimestamp(pos, p.v);&#xd;
+        for (var indice = 0; indice &lt; params.length; indice++) {&#xd;
+            var parametro = params[indice];&#xd;
+            var posicao   = indice + 1;&#xd;
+            if (parametro.t === &quot;int&quot;) {&#xd;
+                stmt.setInt(posicao, parametro.v);&#xd;
+            } else if (parametro.t === &quot;float&quot;) {&#xd;
+                stmt.setFloat(posicao, parametro.v);&#xd;
+            } else if (parametro.t === &quot;ts&quot;) {&#xd;
+                stmt.setTimestamp(posicao, parametro.v);&#xd;
             } else {&#xd;
-                if (p.v === null || p.v === undefined) {&#xd;
-                    stmt.setString(pos, null);&#xd;
+                if (parametro.v === null || parametro.v === undefined) {&#xd;
+                    stmt.setString(posicao, null);&#xd;
                 } else {&#xd;
-                    stmt.setString(pos, String(p.v));&#xd;
+                    stmt.setString(posicao, String(parametro.v));&#xd;
                 }&#xd;
             }&#xd;
         }&#xd;
 &#xd;
         return stmt.executeUpdate();&#xd;
     } finally {&#xd;
-        if (stmt != null) try { stmt.close(); } catch (_) {}&#xd;
-        if (conn != null) try { conn.close(); } catch (_) {}&#xd;
+        if (stmt != null) try { stmt.close(); } catch (erroFechamento) {}&#xd;
+        if (conn != null) try { conn.close(); } catch (erroFechamento) {}&#xd;
     }&#xd;
 }&#xd;
 &#xd;
@@ -1356,25 +1495,25 @@ function obterUrlFluig() {&#xd;
         if (ds != null &amp;&amp; ds.rowsCount &gt; 0) {&#xd;
             var achou = &quot;&quot;;&#xd;
             var candidatos = [&quot;url&quot;, &quot;URL&quot;, &quot;serverURL&quot;, &quot;SERVER_URL&quot;, &quot;server_url&quot;];&#xd;
-            for (var c = 0; c &lt; candidatos.length &amp;&amp; !achou; c++) {&#xd;
+            for (var indiceCandidato = 0; indiceCandidato &lt; candidatos.length &amp;&amp; !achou; indiceCandidato++) {&#xd;
                 try {&#xd;
-                    var v = ds.getValue(0, candidatos[c]);&#xd;
-                    if (v &amp;&amp; /^https?:\/\//i.test(String(v))) { achou = String(v).trim(); }&#xd;
-                } catch (eC) {}&#xd;
+                    var valorCandidato = ds.getValue(0, candidatos[indiceCandidato]);&#xd;
+                    if (valorCandidato &amp;&amp; /^https?:\/\//i.test(String(valorCandidato))) { achou = String(valorCandidato).trim(); }&#xd;
+                } catch (erroCandidato) {}&#xd;
             }&#xd;
             if (!achou) { &#xd;
                 try {&#xd;
                     var cols = ds.getColumnsName();&#xd;
-                    for (var i = 0; i &lt; cols.size() &amp;&amp; !achou; i++) {&#xd;
-                        var val = ds.getValue(0, cols.get(i));&#xd;
-                        if (val &amp;&amp; /^https?:\/\//i.test(String(val))) { achou = String(val).trim(); }&#xd;
+                    for (var indiceColuna = 0; indiceColuna &lt; cols.size() &amp;&amp; !achou; indiceColuna++) {&#xd;
+                        var valorColuna = ds.getValue(0, cols.get(indiceColuna));&#xd;
+                        if (valorColuna &amp;&amp; /^https?:\/\//i.test(String(valorColuna))) { achou = String(valorColuna).trim(); }&#xd;
                     }&#xd;
-                } catch (eCols) {}&#xd;
+                } catch (erroColunas) {}&#xd;
             }&#xd;
             if (achou) { url = achou; }&#xd;
         }&#xd;
-    } catch (e) {&#xd;
-        log.warn(&quot;[URL] Falha ao consultar dsGetServerURL, usando fallback: &quot; + e);&#xd;
+    } catch (erro) {&#xd;
+        log.warn(&quot;[URL] Falha ao consultar dsGetServerURL, usando fallback: &quot; + erro);&#xd;
     }&#xd;
     _urlFluigCache = url;&#xd;
     return url;&#xd;
@@ -1444,8 +1583,8 @@ function afterProcessFinish(colleagueId, processId, threadSequence, userList) {&
         var corpoEmail = montarCorpoEmailFinalizacao(numSolicitacao, link, ehEdicao, codcfoEdicao);&#xd;
 &#xd;
         enviarEmailFluig(email, assunto, corpoEmail);&#xd;
-    } catch (e) {&#xd;
-        log.error(&quot;[E-MAIL] Erro ao notificar finalização: &quot; + e);&#xd;
+    } catch (erro) {&#xd;
+        log.error(&quot;[E-MAIL] Erro ao notificar finalização: &quot; + erro);&#xd;
     }&#xd;
 }&#xd;
 &#xd;
@@ -1497,25 +1636,25 @@ function obterUrlFluig() {&#xd;
         if (ds != null &amp;&amp; ds.rowsCount &gt; 0) {&#xd;
             var achou = &quot;&quot;;&#xd;
             var candidatos = [&quot;url&quot;, &quot;URL&quot;, &quot;serverURL&quot;, &quot;SERVER_URL&quot;, &quot;server_url&quot;];&#xd;
-            for (var c = 0; c &lt; candidatos.length &amp;&amp; !achou; c++) {&#xd;
+            for (var indiceCandidato = 0; indiceCandidato &lt; candidatos.length &amp;&amp; !achou; indiceCandidato++) {&#xd;
                 try {&#xd;
-                    var v = ds.getValue(0, candidatos[c]);&#xd;
-                    if (v &amp;&amp; /^https?:\/\//i.test(String(v))) { achou = String(v).trim(); }&#xd;
-                } catch (eC) {}&#xd;
+                    var valorCandidato = ds.getValue(0, candidatos[indiceCandidato]);&#xd;
+                    if (valorCandidato &amp;&amp; /^https?:\/\//i.test(String(valorCandidato))) { achou = String(valorCandidato).trim(); }&#xd;
+                } catch (erroCandidato) {}&#xd;
             }&#xd;
             if (!achou) { // varre as colunas retornadas e usa a que contém uma URL&#xd;
                 try {&#xd;
                     var cols = ds.getColumnsName();&#xd;
-                    for (var i = 0; i &lt; cols.size() &amp;&amp; !achou; i++) {&#xd;
-                        var val = ds.getValue(0, cols.get(i));&#xd;
-                        if (val &amp;&amp; /^https?:\/\//i.test(String(val))) { achou = String(val).trim(); }&#xd;
+                    for (var indiceColuna = 0; indiceColuna &lt; cols.size() &amp;&amp; !achou; indiceColuna++) {&#xd;
+                        var valorColuna = ds.getValue(0, cols.get(indiceColuna));&#xd;
+                        if (valorColuna &amp;&amp; /^https?:\/\//i.test(String(valorColuna))) { achou = String(valorColuna).trim(); }&#xd;
                     }&#xd;
-                } catch (eCols) {}&#xd;
+                } catch (erroColunas) {}&#xd;
             }&#xd;
             if (achou) { url = achou; }&#xd;
         }&#xd;
-    } catch (e) {&#xd;
-        log.warn(&quot;[URL] Falha ao consultar dsGetServerURL, usando fallback: &quot; + e);&#xd;
+    } catch (erro) {&#xd;
+        log.warn(&quot;[URL] Falha ao consultar dsGetServerURL, usando fallback: &quot; + erro);&#xd;
     }&#xd;
     _urlFluigCache = url;&#xd;
     return url;&#xd;
@@ -1699,8 +1838,8 @@ function montarAlteracoesEdicaoValidacao() {&#xd;
 &#xd;
     try {&#xd;
         snapshot = JSON.parse(snapshotTexto);&#xd;
-    } catch (e) {&#xd;
-        log.error(&quot;Erro ao ler snapshotEdicaoValidacao: &quot; + e);&#xd;
+    } catch (erro) {&#xd;
+        log.error(&quot;Erro ao ler snapshotEdicaoValidacao: &quot; + erro);&#xd;
         return &quot;&quot;;&#xd;
     }&#xd;
 &#xd;
@@ -1709,9 +1848,9 @@ function montarAlteracoesEdicaoValidacao() {&#xd;
 &#xd;
     var alteracoes = [];&#xd;
 &#xd;
-    for (var i = 0; i &lt; campos.length; i++) {&#xd;
-        var campo = campos[i][0];&#xd;
-        var label = campos[i][1];&#xd;
+    for (var indice = 0; indice &lt; campos.length; indice++) {&#xd;
+        var campo = campos[indice][0];&#xd;
+        var label = campos[indice][1];&#xd;
 &#xd;
         // Snapshots antigos (capturados com outra lista de campos) podem não&#xd;
         // conter esta chave. Sem baseline confiável, não registramos alteração&#xd;
@@ -1820,18 +1959,18 @@ function listaCamposAuditoria() {&#xd;
 // CAPTURA O SNAPSHOT DO CARD PARA AUDITORIA (JSON)&#xd;
 function capturarSnapshotCardParaAuditoria() {&#xd;
     var campos = listaCamposAuditoria();&#xd;
-    var snap = {};&#xd;
-    for (var i = 0; i &lt; campos.length; i++) {&#xd;
-        var id = campos[i][0];&#xd;
-        snap[id] = String(hAPI.getCardValue(id) || &quot;&quot;);&#xd;
+    var snapshot = {};&#xd;
+    for (var indice = 0; indice &lt; campos.length; indice++) {&#xd;
+        var idCampo = campos[indice][0];&#xd;
+        snapshot[idCampo] = String(hAPI.getCardValue(idCampo) || &quot;&quot;);&#xd;
     }&#xd;
-    return JSON.stringify(snap);&#xd;
+    return JSON.stringify(snapshot);&#xd;
 }&#xd;
 &#xd;
 // NORMALIZA O VALOR DE UM CAMPO PARA COMPARAÇÃO NA AUDITORIA (IGNORA MÁSCARA/REPRESENTAÇÃO)&#xd;
 function normalizarValorAuditoria(campo, valor) {&#xd;
-    var v = String(valor || &quot;&quot;).trim();&#xd;
-    if (!v) {&#xd;
+    var valorNormalizado = String(valor || &quot;&quot;).trim();&#xd;
+    if (!valorNormalizado) {&#xd;
         return &quot;&quot;;&#xd;
     }&#xd;
     // Normaliza CNAE e Natureza de Rendimentos comparando apenas os dígitos do código, sem descrição ou máscara.&#xd;
@@ -1840,8 +1979,8 @@ function normalizarValorAuditoria(campo, valor) {&#xd;
         campo === &quot;naturezaRendimento&quot; ||&#xd;
         campo === &quot;codNaturezaRendimento&quot;) {&#xd;
         // Remove a descrição após o separador e mantém apenas os dígitos do código, ignorando a máscara.&#xd;
-        v = v.split(/\s[—–-]\s/)[0];&#xd;
-        return v.replace(/\D/g, &quot;&quot;);&#xd;
+        valorNormalizado = valorNormalizado.split(/\s[—–-]\s/)[0];&#xd;
+        return valorNormalizado.replace(/\D/g, &quot;&quot;);&#xd;
     }&#xd;
 &#xd;
     // Campos mascarados (documentos, CEP, telefones, bancos): compara só dígitos.&#xd;
@@ -1855,10 +1994,10 @@ function normalizarValorAuditoria(campo, valor) {&#xd;
         &quot;hiddenBanco5Cod&quot;, &quot;hiddenBanco5Agencia&quot;, &quot;hiddenBanco5Conta&quot;&#xd;
     ];&#xd;
     if (soDigitos.indexOf(campo) &gt;= 0) {&#xd;
-        return v.replace(/\D/g, &quot;&quot;);&#xd;
+        return valorNormalizado.replace(/\D/g, &quot;&quot;);&#xd;
     }&#xd;
 &#xd;
-    return v;&#xd;
+    return valorNormalizado;&#xd;
 }&#xd;
 &#xd;
 // IDENTIFICA SE UM CAMPO É DO TIPO CHECKBOX PARA NORMALIZAR O VALOR NA AUDITORIA&#xd;
@@ -1877,9 +2016,9 @@ function isCampoCheckboxAuditoria(campo) {&#xd;
 &#xd;
 // CONVERTE O VALOR DE UM CHECKBOX PARA &quot;Sim&quot; OU &quot;Não&quot; PARA COMPARAÇÃO NA AUDITORIA&#xd;
 function normalizarCheckboxAuditoria(valor) {&#xd;
-    var v = String(valor || &quot;&quot;).toLowerCase().trim();&#xd;
+    var valorNormalizado = String(valor || &quot;&quot;).toLowerCase().trim();&#xd;
 &#xd;
-    if (v == &quot;on&quot; || v == &quot;true&quot; || v == &quot;1&quot; || v == &quot;sim&quot; || v == &quot;s&quot;) {&#xd;
+    if (valorNormalizado == &quot;on&quot; || valorNormalizado == &quot;true&quot; || valorNormalizado == &quot;1&quot; || valorNormalizado == &quot;sim&quot; || valorNormalizado == &quot;s&quot;) {&#xd;
         return &quot;Sim&quot;;&#xd;
     }&#xd;
 &#xd;
@@ -1896,25 +2035,25 @@ function obterUrlFluig() {&#xd;
         if (ds != null &amp;&amp; ds.rowsCount &gt; 0) {&#xd;
             var achou = &quot;&quot;;&#xd;
             var candidatos = [&quot;url&quot;, &quot;URL&quot;, &quot;serverURL&quot;, &quot;SERVER_URL&quot;, &quot;server_url&quot;];&#xd;
-            for (var c = 0; c &lt; candidatos.length &amp;&amp; !achou; c++) {&#xd;
+            for (var indiceCandidato = 0; indiceCandidato &lt; candidatos.length &amp;&amp; !achou; indiceCandidato++) {&#xd;
                 try {&#xd;
-                    var v = ds.getValue(0, candidatos[c]);&#xd;
-                    if (v &amp;&amp; /^https?:\/\//i.test(String(v))) { achou = String(v).trim(); }&#xd;
-                } catch (eC) {}&#xd;
+                    var valorCandidato = ds.getValue(0, candidatos[indiceCandidato]);&#xd;
+                    if (valorCandidato &amp;&amp; /^https?:\/\//i.test(String(valorCandidato))) { achou = String(valorCandidato).trim(); }&#xd;
+                } catch (erroCandidato) {}&#xd;
             }&#xd;
             if (!achou) { &#xd;
                 try {&#xd;
                     var cols = ds.getColumnsName();&#xd;
-                    for (var i = 0; i &lt; cols.size() &amp;&amp; !achou; i++) {&#xd;
-                        var val = ds.getValue(0, cols.get(i));&#xd;
-                        if (val &amp;&amp; /^https?:\/\//i.test(String(val))) { achou = String(val).trim(); }&#xd;
+                    for (var indiceColuna = 0; indiceColuna &lt; cols.size() &amp;&amp; !achou; indiceColuna++) {&#xd;
+                        var valorColuna = ds.getValue(0, cols.get(indiceColuna));&#xd;
+                        if (valorColuna &amp;&amp; /^https?:\/\//i.test(String(valorColuna))) { achou = String(valorColuna).trim(); }&#xd;
                     }&#xd;
-                } catch (eCols) {}&#xd;
+                } catch (erroColunas) {}&#xd;
             }&#xd;
             if (achou) { url = achou; }&#xd;
         }&#xd;
-    } catch (e) {&#xd;
-        log.warn(&quot;[URL] Falha ao consultar dsGetServerURL, usando fallback: &quot; + e);&#xd;
+    } catch (erro) {&#xd;
+        log.warn(&quot;[URL] Falha ao consultar dsGetServerURL, usando fallback: &quot; + erro);&#xd;
     }&#xd;
     _urlFluigCache = url;&#xd;
     return url;&#xd;
@@ -1934,8 +2073,8 @@ function notificarSolicitanteCorrecao(motivo, userList, colleagueId) {&#xd;
                     solicitante = String(userList.get(0));&#xd;
                     log.info(&quot;[E-MAIL] fallback userList[0] = &apos;&quot; + solicitante + &quot;&apos;&quot;);&#xd;
                 }&#xd;
-            } catch (eu) {&#xd;
-                log.warn(&quot;[E-MAIL] erro ao ler userList: &quot; + eu);&#xd;
+            } catch (erroUserList) {&#xd;
+                log.warn(&quot;[E-MAIL] erro ao ler userList: &quot; + erroUserList);&#xd;
             }&#xd;
         }&#xd;
 &#xd;
@@ -1968,18 +2107,18 @@ function notificarSolicitanteCorrecao(motivo, userList, colleagueId) {&#xd;
         corpoEmail += &quot;Para realizar os ajustes, &lt;a href=&apos;&quot; + link + &quot;&apos;&gt;clique aqui&lt;/a&gt;.&quot;;&#xd;
 &#xd;
         enviarEmailFluig(email, &quot;Cadastro de Cliente/Fornecedor enviado para CORREÇÃO - #&quot; + numProcesso, corpoEmail);&#xd;
-    } catch (e) {&#xd;
-        log.error(&quot;[E-MAIL] Erro ao notificar correção: &quot; + e);&#xd;
-        if (e.javaException) {&#xd;
-            log.error(&quot;[E-MAIL] Causa (Java): &quot; + e.javaException);&#xd;
+    } catch (erro) {&#xd;
+        log.error(&quot;[E-MAIL] Erro ao notificar correção: &quot; + erro);&#xd;
+        if (erro.javaException) {&#xd;
+            log.error(&quot;[E-MAIL] Causa (Java): &quot; + erro.javaException);&#xd;
         }&#xd;
     }&#xd;
 }&#xd;
 &#xd;
 // RETORNA O E-MAIL DO USUÁRIO FLUIG PELO LOGIN&#xd;
 function buscaEmailUsuarioFluig(login) {&#xd;
-    var c1 = DatasetFactory.createConstraint(&quot;login&quot;, login, login, ConstraintType.MUST);&#xd;
-    var dataset = DatasetFactory.getDataset(&quot;colleague&quot;, null, [c1], null);&#xd;
+    var constraintLogin = DatasetFactory.createConstraint(&quot;login&quot;, login, login, ConstraintType.MUST);&#xd;
+    var dataset = DatasetFactory.getDataset(&quot;colleague&quot;, null, [constraintLogin], null);&#xd;
 &#xd;
     if (dataset != null &amp;&amp; dataset.rowsCount &gt; 0) {&#xd;
         return dataset.getValue(0, &quot;mail&quot;);&#xd;
@@ -2125,7 +2264,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>102</version>
+        <version>21</version>
         <linkSequence>17</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2136,7 +2275,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>102</version>
+        <version>21</version>
         <linkSequence>17</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2147,7 +2286,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>102</version>
+        <version>21</version>
         <linkSequence>25</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2158,7 +2297,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>102</version>
+        <version>21</version>
         <linkSequence>25</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2169,7 +2308,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>102</version>
+        <version>21</version>
         <linkSequence>28</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2180,7 +2319,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>102</version>
+        <version>21</version>
         <linkSequence>28</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2191,7 +2330,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>102</version>
+        <version>21</version>
         <linkSequence>29</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2202,7 +2341,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>102</version>
+        <version>21</version>
         <linkSequence>29</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2213,7 +2352,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>102</version>
+        <version>21</version>
         <linkSequence>30</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2224,7 +2363,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>102</version>
+        <version>21</version>
         <linkSequence>30</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2235,7 +2374,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>102</version>
+        <version>21</version>
         <linkSequence>30</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
@@ -2246,7 +2385,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>102</version>
+        <version>21</version>
         <linkSequence>31</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2257,7 +2396,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>102</version>
+        <version>21</version>
         <linkSequence>31</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2268,7 +2407,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>102</version>
+        <version>21</version>
         <linkSequence>31</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>

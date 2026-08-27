@@ -115,8 +115,8 @@ function montarAlteracoesEdicaoValidacao() {
 
     try {
         snapshot = JSON.parse(snapshotTexto);
-    } catch (e) {
-        log.error("Erro ao ler snapshotEdicaoValidacao: " + e);
+    } catch (erro) {
+        log.error("Erro ao ler snapshotEdicaoValidacao: " + erro);
         return "";
     }
 
@@ -125,9 +125,9 @@ function montarAlteracoesEdicaoValidacao() {
 
     var alteracoes = [];
 
-    for (var i = 0; i < campos.length; i++) {
-        var campo = campos[i][0];
-        var label = campos[i][1];
+    for (var indice = 0; indice < campos.length; indice++) {
+        var campo = campos[indice][0];
+        var label = campos[indice][1];
 
         // Snapshots antigos (capturados com outra lista de campos) podem não
         // conter esta chave. Sem baseline confiável, não registramos alteração
@@ -236,18 +236,18 @@ function listaCamposAuditoria() {
 // CAPTURA O SNAPSHOT DO CARD PARA AUDITORIA (JSON)
 function capturarSnapshotCardParaAuditoria() {
     var campos = listaCamposAuditoria();
-    var snap = {};
-    for (var i = 0; i < campos.length; i++) {
-        var id = campos[i][0];
-        snap[id] = String(hAPI.getCardValue(id) || "");
+    var snapshot = {};
+    for (var indice = 0; indice < campos.length; indice++) {
+        var idCampo = campos[indice][0];
+        snapshot[idCampo] = String(hAPI.getCardValue(idCampo) || "");
     }
-    return JSON.stringify(snap);
+    return JSON.stringify(snapshot);
 }
 
 // NORMALIZA O VALOR DE UM CAMPO PARA COMPARAÇÃO NA AUDITORIA (IGNORA MÁSCARA/REPRESENTAÇÃO)
 function normalizarValorAuditoria(campo, valor) {
-    var v = String(valor || "").trim();
-    if (!v) {
+    var valorNormalizado = String(valor || "").trim();
+    if (!valorNormalizado) {
         return "";
     }
     // Normaliza CNAE e Natureza de Rendimentos comparando apenas os dígitos do código, sem descrição ou máscara.
@@ -256,8 +256,8 @@ function normalizarValorAuditoria(campo, valor) {
         campo === "naturezaRendimento" ||
         campo === "codNaturezaRendimento") {
         // Remove a descrição após o separador e mantém apenas os dígitos do código, ignorando a máscara.
-        v = v.split(/\s[—–-]\s/)[0];
-        return v.replace(/\D/g, "");
+        valorNormalizado = valorNormalizado.split(/\s[—–-]\s/)[0];
+        return valorNormalizado.replace(/\D/g, "");
     }
 
     // Campos mascarados (documentos, CEP, telefones, bancos): compara só dígitos.
@@ -271,10 +271,10 @@ function normalizarValorAuditoria(campo, valor) {
         "hiddenBanco5Cod", "hiddenBanco5Agencia", "hiddenBanco5Conta"
     ];
     if (soDigitos.indexOf(campo) >= 0) {
-        return v.replace(/\D/g, "");
+        return valorNormalizado.replace(/\D/g, "");
     }
 
-    return v;
+    return valorNormalizado;
 }
 
 // IDENTIFICA SE UM CAMPO É DO TIPO CHECKBOX PARA NORMALIZAR O VALOR NA AUDITORIA
@@ -293,9 +293,9 @@ function isCampoCheckboxAuditoria(campo) {
 
 // CONVERTE O VALOR DE UM CHECKBOX PARA "Sim" OU "Não" PARA COMPARAÇÃO NA AUDITORIA
 function normalizarCheckboxAuditoria(valor) {
-    var v = String(valor || "").toLowerCase().trim();
+    var valorNormalizado = String(valor || "").toLowerCase().trim();
 
-    if (v == "on" || v == "true" || v == "1" || v == "sim" || v == "s") {
+    if (valorNormalizado == "on" || valorNormalizado == "true" || valorNormalizado == "1" || valorNormalizado == "sim" || valorNormalizado == "s") {
         return "Sim";
     }
 
@@ -312,25 +312,25 @@ function obterUrlFluig() {
         if (ds != null && ds.rowsCount > 0) {
             var achou = "";
             var candidatos = ["url", "URL", "serverURL", "SERVER_URL", "server_url"];
-            for (var c = 0; c < candidatos.length && !achou; c++) {
+            for (var indiceCandidato = 0; indiceCandidato < candidatos.length && !achou; indiceCandidato++) {
                 try {
-                    var v = ds.getValue(0, candidatos[c]);
-                    if (v && /^https?:\/\//i.test(String(v))) { achou = String(v).trim(); }
-                } catch (eC) {}
+                    var valorCandidato = ds.getValue(0, candidatos[indiceCandidato]);
+                    if (valorCandidato && /^https?:\/\//i.test(String(valorCandidato))) { achou = String(valorCandidato).trim(); }
+                } catch (erroCandidato) {}
             }
             if (!achou) { 
                 try {
                     var cols = ds.getColumnsName();
-                    for (var i = 0; i < cols.size() && !achou; i++) {
-                        var val = ds.getValue(0, cols.get(i));
-                        if (val && /^https?:\/\//i.test(String(val))) { achou = String(val).trim(); }
+                    for (var indiceColuna = 0; indiceColuna < cols.size() && !achou; indiceColuna++) {
+                        var valorColuna = ds.getValue(0, cols.get(indiceColuna));
+                        if (valorColuna && /^https?:\/\//i.test(String(valorColuna))) { achou = String(valorColuna).trim(); }
                     }
-                } catch (eCols) {}
+                } catch (erroColunas) {}
             }
             if (achou) { url = achou; }
         }
-    } catch (e) {
-        log.warn("[URL] Falha ao consultar dsGetServerURL, usando fallback: " + e);
+    } catch (erro) {
+        log.warn("[URL] Falha ao consultar dsGetServerURL, usando fallback: " + erro);
     }
     _urlFluigCache = url;
     return url;
@@ -350,8 +350,8 @@ function notificarSolicitanteCorrecao(motivo, userList, colleagueId) {
                     solicitante = String(userList.get(0));
                     log.info("[E-MAIL] fallback userList[0] = '" + solicitante + "'");
                 }
-            } catch (eu) {
-                log.warn("[E-MAIL] erro ao ler userList: " + eu);
+            } catch (erroUserList) {
+                log.warn("[E-MAIL] erro ao ler userList: " + erroUserList);
             }
         }
 
@@ -384,18 +384,18 @@ function notificarSolicitanteCorrecao(motivo, userList, colleagueId) {
         corpoEmail += "Para realizar os ajustes, <a href='" + link + "'>clique aqui</a>.";
 
         enviarEmailFluig(email, "Cadastro de Cliente/Fornecedor enviado para CORREÇÃO - #" + numProcesso, corpoEmail);
-    } catch (e) {
-        log.error("[E-MAIL] Erro ao notificar correção: " + e);
-        if (e.javaException) {
-            log.error("[E-MAIL] Causa (Java): " + e.javaException);
+    } catch (erro) {
+        log.error("[E-MAIL] Erro ao notificar correção: " + erro);
+        if (erro.javaException) {
+            log.error("[E-MAIL] Causa (Java): " + erro.javaException);
         }
     }
 }
 
 // RETORNA O E-MAIL DO USUÁRIO FLUIG PELO LOGIN
 function buscaEmailUsuarioFluig(login) {
-    var c1 = DatasetFactory.createConstraint("login", login, login, ConstraintType.MUST);
-    var dataset = DatasetFactory.getDataset("colleague", null, [c1], null);
+    var constraintLogin = DatasetFactory.createConstraint("login", login, login, ConstraintType.MUST);
+    var dataset = DatasetFactory.getDataset("colleague", null, [constraintLogin], null);
 
     if (dataset != null && dataset.rowsCount > 0) {
         return dataset.getValue(0, "mail");

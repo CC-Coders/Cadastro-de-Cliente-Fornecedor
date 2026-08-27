@@ -4,7 +4,7 @@ function displayFields(form, customHTML) {
    var formMode = "";
    try {
       formMode = String(form.getFormMode() || "");
-   } catch (e) {
+   } catch (erro) {
    }
 
    form.setValue("formMode", formMode);

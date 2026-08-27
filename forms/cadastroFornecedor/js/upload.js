@@ -267,13 +267,6 @@ function finalizarUploadVisualFluig(config, nomeArquivo) {
    $area.closest(".fg").removeClass("has-error has-erro");
 
    montarStatusAnexo(config.sufixoCampo, nomeArquivo);
-
-   FLUIGC.toast({
-      title: "Anexo incluído",
-      message: nomeArquivo,
-      type: "success",
-      timeout: 3000
-   });
 }
 
 // OCULTA O PAINEL NATIVO DE UPLOAD DO FLUIG (NAVEGAÇÃO E PROGRESSO)

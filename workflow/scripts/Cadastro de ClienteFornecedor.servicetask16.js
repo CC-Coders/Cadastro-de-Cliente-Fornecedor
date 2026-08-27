@@ -90,13 +90,13 @@ function servicetask16(attempt, message) {
         var col = coligadaOverride || COLIGADA;
         log.info("[ST16] Chamando ds_saveRecordRM ? " + dataServerName + " | coligada=" + col);
 
-        var c = [
+        var constraints = [
             DatasetFactory.createConstraint("pDataServerName", dataServerName, dataServerName, ConstraintType.MUST),
             DatasetFactory.createConstraint("pXML",            xml,            xml,            ConstraintType.MUST),
             DatasetFactory.createConstraint("pCodcoligada",    col,            col,            ConstraintType.MUST)
         ];
 
-        var ds = DatasetFactory.getDataset("ds_saveRecordRM", null, c, null);
+        var ds = DatasetFactory.getDataset("ds_saveRecordRM", null, constraints, null);
 
         if (!ds || !ds.values || !ds.values.length) {
             throw new Error("[ST16] ds_saveRecordRM não retornou dados. DataServer=" + dataServerName);
@@ -220,6 +220,12 @@ function servicetask16(attempt, message) {
         log.error("[ST16] Erro ao salvar contatos FCFOCONTATO (não interrompe): " + eCont);
     }
 
+    try {
+        salvarEnderecosRM(codCfo, "0", clienteForncedor("enderecosJson"));
+    } catch (eEnd) {
+        log.error("[ST16] Erro ao salvar endereços adicionais FCFOCONTATO (não interrompe): " + eEnd);
+    }
+
 
     var bancosEdicaoJson = clienteForncedor("bancosEdicaoJson");
     var ehEdicaoBancos = ehEdicao && bancosEdicaoJson && bancosEdicaoJson !== "[]";
@@ -252,10 +258,10 @@ function servicetask16(attempt, message) {
                         ? parseInt(ct.idpgto, 10) : (proxIdEd++);
             var ctAtivo = (String(ct.ativo) === "0") ? "0" : "1";
 
-            var ctAgNum = ctAg.length > 1 ? ctAg.slice(0, -1) : ctAg;
-            var ctAgDig = ctAg.length > 1 ? ctAg.slice(-1)    : "0";
-            var ctCtNum = ctCt.length > 1 ? ctCt.slice(0, -1) : ctCt;
-            var ctCtDig = ctCt.length > 1 ? ctCt.slice(-1)    : "0";
+            var ctAgNum = ctAg;
+            var ctAgDig = String(ct.digAgencia || "0");
+            var ctCtNum = ctCt;
+            var ctCtDig = String(ct.digConta || "0");
 
             for (var ced = 0; ced < COLIGADAS_BANCO.length; ced++) {
                 var colEd = COLIGADAS_BANCO[ced];
@@ -315,25 +321,36 @@ function servicetask16(attempt, message) {
 
     var idPgto = 0;
 
-    for (var i = 1; i <= 5; i++) {
-        var bancoCod  = clienteForncedor("hiddenBanco" + i + "Cod");
-        var bancoDesc = clienteForncedor("hiddenBanco" + i + "Desc");
-        var agencia   = clienteForncedor("hiddenBanco" + i + "Agencia");
-        var conta     = clienteForncedor("hiddenBanco" + i + "Conta");
+    for (var numConta = 1; numConta <= 5; numConta++) {
+        var bancoCod  = clienteForncedor("hiddenBanco" + numConta + "Cod");
+        var bancoDesc = clienteForncedor("hiddenBanco" + numConta + "Desc");
+        var agencia   = clienteForncedor("hiddenBanco" + numConta + "Agencia");
+        var digAgencia = clienteForncedor("hiddenBanco" + numConta + "DigAgencia");
+        var conta     = clienteForncedor("hiddenBanco" + numConta + "Conta");
+        var digConta  = clienteForncedor("hiddenBanco" + numConta + "DigConta");
 
-        log.info("[ST16] Banco " + i + " — cod=" + bancoCod + " | agencia=" + agencia + " | conta=" + conta + " | desc=" + bancoDesc);
+        log.info("[ST16] Banco " + numConta + " — cod=" + bancoCod + " | agencia=" + agencia + "-" + digAgencia + " | conta=" + conta + "-" + digConta + " | desc=" + bancoDesc);
 
         if (!bancoCod && !agencia && !conta) {
-            log.info("[ST16] Banco " + i + " sem dados — ignorando.");
+            log.info("[ST16] Banco " + numConta + " sem dados — ignorando.");
             continue;
         }
 
         idPgto++;
 
-        var agNum = agencia.length > 1 ? agencia.slice(0, -1) : agencia;
-        var agDig = agencia.length > 1 ? agencia.slice(-1)    : "0";
-        var ctNum = conta.length   > 1 ? conta.slice(0, -1)   : conta;
-        var ctDig = conta.length   > 1 ? conta.slice(-1)      : "0";
+        // Trava de tamanho: as colunas de FDADOSPGTO no RM sao curtas e estourar
+        // qualquer uma faz o DataServer recusar a conta inteira com
+        // "String or binary data would be truncated". O formulario ja limita, mas
+        // processos salvos antes desse limite podem trazer valores maiores.
+        if (agencia.length > 5 || conta.length > 15) {
+            log.warn("[ST16] Banco " + numConta + ": agencia/conta acima do tamanho aceito pelo " +
+                     "RM e foram truncadas (agencia=" + agencia + ", conta=" + conta + ").");
+        }
+
+        var agNum = agencia.substring(0, 5);
+        var agDig = (digAgencia || "0").substring(0, 2);
+        var ctNum = conta.substring(0, 15);
+        var ctDig = (digConta || "0").substring(0, 2);
 
         var ativo = (idPgto === 1) ? "1" : "0";
 
@@ -362,9 +379,9 @@ function servicetask16(attempt, message) {
 
             try {
                 chamarRM("FinDadosPgtoDataBR", xmlBanco, colAtual);
-                log.info("[ST16] Conta " + i + " / Coligada " + colAtual + " salva com sucesso.");
+                log.info("[ST16] Conta " + numConta + " / Coligada " + colAtual + " salva com sucesso.");
             } catch (eBanco) {
-                log.warn("[ST16] Falha conta " + i + " / Coligada " + colAtual + ": " + eBanco);
+                log.warn("[ST16] Falha conta " + numConta + " / Coligada " + colAtual + ": " + eBanco);
             }
         }
     }
@@ -437,9 +454,9 @@ function salvarFcfoAuxiliar(codCfo, coligada) {
         { t: "int", v: codCfoInt   },
         { t: "int", v: coligadaInt }
     ];
-    try { _execSql("DELETE FROM FCFO_AUXILIAR_CNAE             WHERE CODCFO=? AND CODCOLIGADA=?", pkParams); } catch (_) {}
-    try { _execSql("DELETE FROM FCFO_AUXILIAR_GRUPO_MERCADORIA WHERE CODCFO=? AND CODCOLIGADA=?", pkParams); } catch (_) {}
-    try { _execSql("DELETE FROM FCFO_AUXILIAR                  WHERE CODCFO=? AND CODCOLIGADA=?", pkParams); } catch (_) {}
+    try { _execSql("DELETE FROM FCFO_AUXILIAR_CNAE             WHERE CODCFO=? AND CODCOLIGADA=?", pkParams); } catch (erroFechamento) {}
+    try { _execSql("DELETE FROM FCFO_AUXILIAR_GRUPO_MERCADORIA WHERE CODCFO=? AND CODCOLIGADA=?", pkParams); } catch (erroFechamento) {}
+    try { _execSql("DELETE FROM FCFO_AUXILIAR                  WHERE CODCFO=? AND CODCOLIGADA=?", pkParams); } catch (erroFechamento) {}
 
     // FCFO_AUXILIAR 
     try {
@@ -565,17 +582,17 @@ function salvarFcfoAuxiliar(codCfo, coligada) {
 
 // SEPARA O CÓDIGO E DESCRIÇÃO DO CNAE
 function _parseCnae(valor) {
-    var v   = String(valor || "").trim();
+    var texto = String(valor || "").trim();
     var sep = " — "; // " — "
-    var idx = v.indexOf(sep);
+    var idx = texto.indexOf(sep);
     if (idx > 0) {
-        return { codigo: v.substring(0, idx).trim(), descricao: v.substring(idx + sep.length).trim() };
+        return { codigo: texto.substring(0, idx).trim(), descricao: texto.substring(idx + sep.length).trim() };
     }
-    idx = v.indexOf(" - ");
+    idx = texto.indexOf(" - ");
     if (idx > 0) {
-        return { codigo: v.substring(0, idx).trim(), descricao: v.substring(idx + 3).trim() };
+        return { codigo: texto.substring(0, idx).trim(), descricao: texto.substring(idx + 3).trim() };
     }
-    return { codigo: v, descricao: "" };
+    return { codigo: texto, descricao: "" };
 }
 
 // BUSCA O CODTB2FAT DE UM GRUPO DE MERCADORIA EXISTENTE PELO NOME
@@ -596,12 +613,12 @@ function _buscarCodTb2Fat(descricao) {
             return rs.getInt(1);
         }
         return null;
-    } catch (e) {
-        log.warn("[ST16-AUX] Erro ao buscar CODTB2FAT para '" + descricao + "': " + e);
+    } catch (erro) {
+        log.warn("[ST16-AUX] Erro ao buscar CODTB2FAT para '" + descricao + "': " + erro);
         return null;
     } finally {
-        if (stmt != null) try { stmt.close(); } catch (_) {}
-        if (conn != null) try { conn.close(); } catch (_) {}
+        if (stmt != null) try { stmt.close(); } catch (erroFechamento) {}
+        if (conn != null) try { conn.close(); } catch (erroFechamento) {}
     }
 }
 
@@ -624,12 +641,12 @@ function _buscarIdContato(codcfo, coligada, nome) {
             return rs.getInt(1);
         }
         return null;
-    } catch (e) {
-        log.warn("[ST16] Erro ao buscar contato '" + nome + "': " + e);
+    } catch (erro) {
+        log.warn("[ST16] Erro ao buscar contato '" + nome + "': " + erro);
         return null;
     } finally {
-        if (stmt != null) try { stmt.close(); } catch (_) {}
-        if (conn != null) try { conn.close(); } catch (_) {}
+        if (stmt != null) try { stmt.close(); } catch (erroFechamento) {}
+        if (conn != null) try { conn.close(); } catch (erroFechamento) {}
     }
 }
 
@@ -643,26 +660,26 @@ function salvarContatosRM(codCfo, coligada, emailComercial, emailAdministrativo,
         { nome: "E-mail Administrativo", email: emailAdministrativo, tel: celular }
     ];
 
-    for (var i = 0; i < lista.length; i++) {
-        var c = lista[i];
-        if (!c.email && !c.tel) { continue; }
+    for (var indice = 0; indice < lista.length; indice++) {
+        var contato = lista[indice];
+        if (!contato.email && !contato.tel) { continue; }
 
         try {
-            var idEx = _buscarIdContato(codcfoStr, coligadaInt, c.nome);
+            var idEx = _buscarIdContato(codcfoStr, coligadaInt, contato.nome);
             if (idEx) {
                 _execSql(
                     "UPDATE FCFOCONTATO SET EMAIL=?, TELEFONE=?, ATIVO=1 " +
                     "WHERE CODCOLIGADA=? AND CODCFO=? AND IDCONTATO=?",
                     [
-                        { t: "str", v: c.email },
-                        { t: "str", v: c.tel   },
+                        { t: "str", v: contato.email },
+                        { t: "str", v: contato.tel   },
                         { t: "int", v: coligadaInt },
                         { t: "str", v: codcfoStr   },
                         { t: "int", v: idEx        }
                     ],
                     "/jdbc/RM"
                 );
-                log.info("[ST16] Contato atualizado: " + c.nome + " (IDCONTATO=" + idEx + ")");
+                log.info("[ST16] Contato atualizado: " + contato.nome + " (IDCONTATO=" + idEx + ")");
             } else {
                 var proxId = _proximoIdContato(codcfoStr, coligadaInt);
                 _execSql(
@@ -673,16 +690,139 @@ function salvarContatosRM(codCfo, coligada, emailComercial, emailAdministrativo,
                         { t: "int", v: coligadaInt },
                         { t: "str", v: codcfoStr   },
                         { t: "int", v: proxId      },
-                        { t: "str", v: c.nome      },
-                        { t: "str", v: c.email     },
-                        { t: "str", v: c.tel       }
+                        { t: "str", v: contato.nome      },
+                        { t: "str", v: contato.email     },
+                        { t: "str", v: contato.tel       }
                     ],
                     "/jdbc/RM"
                 );
-                log.info("[ST16] Contato inserido: " + c.nome + " (IDCONTATO=" + proxId + ")");
+                log.info("[ST16] Contato inserido: " + contato.nome + " (IDCONTATO=" + proxId + ")");
             }
-        } catch (e) {
-            log.warn("[ST16] Falha ao gravar contato '" + c.nome + "': " + e);
+        } catch (erro) {
+            log.warn("[ST16] Falha ao gravar contato '" + contato.nome + "': " + erro);
+        }
+    }
+}
+
+// COLUNAS DA ABA "ENDEREÇO" DO CONTATO (FCFOCONTATO) NO RM.
+// Estão isoladas aqui porque variam entre versões do RM: se o log acusar coluna
+// inexistente, basta corrigir o nome nesta tabela (ver dataset ds_colunasFcfoContato).
+var COLUNAS_ENDERECO_CONTATO = {
+    rua:          "RUA",
+    numero:       "NUMERO",
+    complemento:  "COMPLEMENTO",
+    bairro:       "BAIRRO",
+    cidade:       "CIDADE",
+    estado:       "CODETD",
+    cep:          "CEP",
+    codMunicipio: "CODMUNICIPIO"
+};
+
+// GRAVA OS ENDEREÇOS ADICIONAIS DO FORMULÁRIO COMO CONTATOS (FCFOCONTATO) NO RM.
+// A FCFO só tem três endereços (principal, entrega e pagamento), então os endereços
+// 2..5 do formulário viram registros de contato com a aba Endereço preenchida.
+// Cada endereço é identificado pelo NOME ("Endereço 2", "Endereço 3"...), o que torna
+// o reenvio idempotente: reenviar atualiza o mesmo contato em vez de duplicar.
+function salvarEnderecosRM(codCfo, coligada, enderecosJson) {
+    if (!enderecosJson || enderecosJson === "[]") {
+        log.info("[ST16] Nenhum endereço adicional para gravar.");
+        return;
+    }
+
+    var enderecos = [];
+    try {
+        enderecos = JSON.parse(enderecosJson);
+    } catch (eJson) {
+        log.error("[ST16] enderecosJson inválido: " + eJson);
+        return;
+    }
+    if (!enderecos.length) { return; }
+
+    var codcfoStr   = String(codCfo);
+    var coligadaInt = parseInt(coligada, 10);
+    var chaves = ["rua", "numero", "complemento", "bairro", "cidade", "estado", "cep", "codMunicipio"];
+
+    for (var indice = 0; indice < enderecos.length; indice++) {
+        var endereco = enderecos[indice] || {};
+
+        var valores = {
+            rua:          String(endereco.rua || ""),
+            numero:       String(endereco.numero || ""),
+            complemento:  String(endereco.complemento || "").substring(0, 40),
+            bairro:       String(endereco.bairro || ""),
+            cidade:       String(endereco.cidade || ""),
+            estado:       String(endereco.estado || ""),
+            cep:          String(endereco.cep || "").replace(/\D/g, ""),
+            codMunicipio: String(endereco.codMunicipio || "").replace(/\D/g, "")
+        };
+
+        if (!valores.rua && !valores.cep) { continue; }
+
+        // Colunas vazias ficam de fora: evita gravar branco em coluna numérica
+        // (CODMUNICIPIO) e evita apagar dado já existente no RM na regravação.
+        var cols   = [];
+        var params = [];
+        for (var indiceChave = 0; indiceChave < chaves.length; indiceChave++) {
+            var chave = chaves[indiceChave];
+            if (!valores[chave]) { continue; }
+            cols.push(COLUNAS_ENDERECO_CONTATO[chave]);
+            params.push({ t: "str", v: valores[chave] });
+        }
+        if (!cols.length) { continue; }
+
+        // A descrição é obrigatória no formulário; o "Endereço N" fica só como rede de
+        // segurança para processos antigos, salvos antes de o campo existir.
+        var nome = String(endereco.descricao || "").trim().substring(0, 60) ||
+                   ("Endereço " + (parseInt(endereco.ordem, 10) || (indice + 2)));
+
+        try {
+            // O IDCONTATO vem do formulário quando o endereço já existia no RM. É ele
+            // que dá identidade estável ao registro: buscar pelo nome faria com que
+            // renomear a descrição inserisse um contato novo em vez de atualizar.
+            var idEx = parseInt(endereco.idcontato, 10) || 0;
+            if (!idEx) {
+                idEx = _buscarIdContato(codcfoStr, coligadaInt, nome) || 0;
+            }
+
+            if (idEx) {
+                var sets = [];
+                for (var indiceSet = 0; indiceSet < cols.length; indiceSet++) { sets.push(cols[indiceSet] + "=?"); }
+
+                _execSql(
+                    "UPDATE FCFOCONTATO SET NOME=?, " + sets.join(", ") + ", ATIVO=1, " +
+                    "RECMODIFIEDBY='fluig', RECMODIFIEDON=GETDATE() " +
+                    "WHERE CODCOLIGADA=? AND CODCFO=? AND IDCONTATO=?",
+                    [{ t: "str", v: nome }].concat(params).concat([
+                        { t: "int", v: coligadaInt },
+                        { t: "str", v: codcfoStr   },
+                        { t: "int", v: idEx        }
+                    ]),
+                    "/jdbc/RM"
+                );
+                log.info("[ST16] Endereço atualizado: " + nome + " (IDCONTATO=" + idEx + ")");
+            } else {
+                var proxId = _proximoIdContato(codcfoStr, coligadaInt);
+
+                var placeholders = [];
+                for (var indicePlaceholder = 0; indicePlaceholder < cols.length; indicePlaceholder++) { placeholders.push("?"); }
+
+                _execSql(
+                    "INSERT INTO FCFOCONTATO (CODCOLIGADA, CODCFO, IDCONTATO, NOME, ATIVO, " +
+                    cols.join(", ") + ", RECCREATEDBY, RECCREATEDON, RECMODIFIEDBY, RECMODIFIEDON) " +
+                    "VALUES (?, ?, ?, ?, 1, " + placeholders.join(", ") +
+                    ", 'fluig', GETDATE(), 'fluig', GETDATE())",
+                    [
+                        { t: "int", v: coligadaInt },
+                        { t: "str", v: codcfoStr   },
+                        { t: "int", v: proxId      },
+                        { t: "str", v: nome        }
+                    ].concat(params),
+                    "/jdbc/RM"
+                );
+                log.info("[ST16] Endereço inserido: " + nome + " (IDCONTATO=" + proxId + ")");
+            }
+        } catch (eEnd) {
+            log.warn("[ST16] Falha ao gravar endereço '" + nome + "': " + eEnd);
         }
     }
 }
@@ -703,12 +843,12 @@ function _proximoIdContato(codcfo, coligada) {
         var rs = stmt.executeQuery();
         if (rs.next()) { return rs.getInt(1); }
         return 1;
-    } catch (e) {
-        log.warn("[ST16] Erro ao obter próximo IDCONTATO: " + e);
+    } catch (erro) {
+        log.warn("[ST16] Erro ao obter próximo IDCONTATO: " + erro);
         return 1;
     } finally {
-        if (stmt != null) try { stmt.close(); } catch (_) {}
-        if (conn != null) try { conn.close(); } catch (_) {}
+        if (stmt != null) try { stmt.close(); } catch (erroFechamento) {}
+        if (conn != null) try { conn.close(); } catch (erroFechamento) {}
     }
 }
 
@@ -722,28 +862,28 @@ function _execSql(sql, params, dataSource) {
         conn = ds.getConnection();
         stmt = conn.prepareStatement(sql);
 
-        for (var i = 0; i < params.length; i++) {
-            var p   = params[i];
-            var pos = i + 1;
-            if (p.t === "int") {
-                stmt.setInt(pos, p.v);
-            } else if (p.t === "float") {
-                stmt.setFloat(pos, p.v);
-            } else if (p.t === "ts") {
-                stmt.setTimestamp(pos, p.v);
+        for (var indice = 0; indice < params.length; indice++) {
+            var parametro = params[indice];
+            var posicao   = indice + 1;
+            if (parametro.t === "int") {
+                stmt.setInt(posicao, parametro.v);
+            } else if (parametro.t === "float") {
+                stmt.setFloat(posicao, parametro.v);
+            } else if (parametro.t === "ts") {
+                stmt.setTimestamp(posicao, parametro.v);
             } else {
-                if (p.v === null || p.v === undefined) {
-                    stmt.setString(pos, null);
+                if (parametro.v === null || parametro.v === undefined) {
+                    stmt.setString(posicao, null);
                 } else {
-                    stmt.setString(pos, String(p.v));
+                    stmt.setString(posicao, String(parametro.v));
                 }
             }
         }
 
         return stmt.executeUpdate();
     } finally {
-        if (stmt != null) try { stmt.close(); } catch (_) {}
-        if (conn != null) try { conn.close(); } catch (_) {}
+        if (stmt != null) try { stmt.close(); } catch (erroFechamento) {}
+        if (conn != null) try { conn.close(); } catch (erroFechamento) {}
     }
 }
 
@@ -757,25 +897,25 @@ function obterUrlFluig() {
         if (ds != null && ds.rowsCount > 0) {
             var achou = "";
             var candidatos = ["url", "URL", "serverURL", "SERVER_URL", "server_url"];
-            for (var c = 0; c < candidatos.length && !achou; c++) {
+            for (var indiceCandidato = 0; indiceCandidato < candidatos.length && !achou; indiceCandidato++) {
                 try {
-                    var v = ds.getValue(0, candidatos[c]);
-                    if (v && /^https?:\/\//i.test(String(v))) { achou = String(v).trim(); }
-                } catch (eC) {}
+                    var valorCandidato = ds.getValue(0, candidatos[indiceCandidato]);
+                    if (valorCandidato && /^https?:\/\//i.test(String(valorCandidato))) { achou = String(valorCandidato).trim(); }
+                } catch (erroCandidato) {}
             }
             if (!achou) { 
                 try {
                     var cols = ds.getColumnsName();
-                    for (var i = 0; i < cols.size() && !achou; i++) {
-                        var val = ds.getValue(0, cols.get(i));
-                        if (val && /^https?:\/\//i.test(String(val))) { achou = String(val).trim(); }
+                    for (var indiceColuna = 0; indiceColuna < cols.size() && !achou; indiceColuna++) {
+                        var valorColuna = ds.getValue(0, cols.get(indiceColuna));
+                        if (valorColuna && /^https?:\/\//i.test(String(valorColuna))) { achou = String(valorColuna).trim(); }
                     }
-                } catch (eCols) {}
+                } catch (erroColunas) {}
             }
             if (achou) { url = achou; }
         }
-    } catch (e) {
-        log.warn("[URL] Falha ao consultar dsGetServerURL, usando fallback: " + e);
+    } catch (erro) {
+        log.warn("[URL] Falha ao consultar dsGetServerURL, usando fallback: " + erro);
     }
     _urlFluigCache = url;
     return url;

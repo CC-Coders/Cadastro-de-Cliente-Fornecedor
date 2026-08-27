@@ -83,6 +83,13 @@ function buscarCnpj(cnpj) {
       return;
    }
 
+   // Evita consultar (e alertar) o mesmo CNPJ duas vezes quando o handler de "load"
+   // e o de "input" disparam para o mesmo valor.
+   if (cnpj === globalThis._cnpjJaConsultado) {
+      return;
+   }
+   globalThis._cnpjJaConsultado = cnpj;
+
    var dadosRM = _verificarCnpjNoRM(cnpj);
 
    if (dadosRM === undefined) {
@@ -270,8 +277,8 @@ function _verificarCnpjNoRM(cnpj) {
       var itens = _parsearDataset(ds, "ds_verificarCnpjRM");
       return itens.length > 0 ? itens[0] : null;
 
-   } catch (e) {
-      console.error("[ds_verificarCnpjRM] Erro ao consultar RM:", e);
+   } catch (erro) {
+      console.error("[ds_verificarCnpjRM] Erro ao consultar RM:", erro);
       FLUIGC.toast({
          title: "Erro na verificação do RM",
          message: "Não foi possível verificar o CNPJ no RM. Verifique o dataset 'ds_verificarCnpjRM'.",
@@ -293,6 +300,63 @@ function _preencherSeVazio(seletor, valor) {
 }
 
 // PREENCHE O FORMULÁRIO COM OS DADOS DO CNPJ VINDOS DA RECEITA (Sintegra) + CNAEs, e busca a IE
+// EXTRAI O NOME DO MUNICÍPIO DA RESPOSTA DA RECEITA FEDERAL (Sintegrapi).
+// A chave varia conforme a consulta: já veio como "municipio" (texto), como objeto
+// com descricao/nome, e sob outros nomes. Sem isso a cidade ficava em branco mesmo
+// com logradouro, bairro e UF preenchidos.
+function _municipioDaReceita(data) {
+   if (!data) return "";
+
+   const candidatos = [
+      data.municipio,
+      data.cidade,
+      data.nome_municipio,
+      data.municipio_descricao,
+      data.descricao_municipio,
+      data.endereco && data.endereco.municipio,
+      data.endereco && data.endereco.cidade
+   ];
+
+   for (let indice = 0; indice < candidatos.length; indice++) {
+      const bruto = candidatos[indice];
+      if (!bruto) continue;
+
+      // Alguns retornos trazem um objeto ({ codigo, descricao }) no lugar do texto.
+      const nome = (typeof bruto === "object")
+         ? (bruto.descricao || bruto.nome || bruto.municipio || "")
+         : bruto;
+
+      if (String(nome).trim()) return String(nome).trim();
+   }
+
+   return "";
+}
+
+// COMPLETA A CIDADE PELO CEP QUANDO A RECEITA FEDERAL NÃO A DEVOLVE.
+// A consulta de CNPJ retorna logradouro, número, bairro, CEP e UF, mas nenhuma chave de
+// município — sem isto a cidade ficava em branco mesmo com todo o resto preenchido.
+// Só a cidade e a UF são aproveitadas daqui: o logradouro da Receita é o oficial.
+function _completarCidadePorCep(cep, ufReceita) {
+   cep = (cep || "").replace(/\D/g, "");
+   if (cep.length !== 8) return;
+
+   $.ajax({
+      url: "https://viacep.com.br/ws/" + cep + "/json/",
+      method: "GET",
+      dataType: "json",
+      success: function (via) {
+         if (!via || via.erro || !via.localidade) return;
+
+         preencherEnderecoRM(via.uf || ufReceita, via.localidade);
+         sincronizarCamposDinamicosHidden();
+      },
+      error: function () {
+         console.warn("[RM-ENDERECO] Não foi possível resolver a cidade pelo CEP " + cep +
+                      ". Preencha a cidade manualmente.");
+      }
+   });
+}
+
 function preencherDadosCnpj(data) {
    _preencherSeVazio("#razaoSocial",  data.nome_empresarial);
    _preencherSeVazio("#nomeFantasia", data.nome_fantasia);
@@ -303,8 +367,13 @@ function preencherDadosCnpj(data) {
    _preencherSeVazio("#cep",          formatarCep(data.cep || ""));
    $("#pais").val("Brasil");
 
-   preencherEnderecoRM(data.uf || "", data.municipio || "");
+   const municipioReceita = _municipioDaReceita(data);
+   preencherEnderecoRM(data.uf || "", municipioReceita);
    sincronizarCamposDinamicosHidden();
+
+   if (!municipioReceita) {
+      _completarCidadePorCep(data.cep, data.uf || "");
+   }
 
    _preencherSeVazio("#telefone", formatarTelefone(data.telefone || ""));
    _preencherSeVazio("#emailCr",  data.endereco_eletronico);
@@ -416,9 +485,9 @@ function formatarCep(cep) {
 
 // FORMATA O TELEFONE
 function formatarTelefone(tel) {
-   const d = String(tel || "").replace(/\D/g, "");
-   if (d.length === 11) return d.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
-   if (d.length === 10) return d.replace(/^(\d{2})(\d{4})(\d{4})$/, "($1) $2-$3");
+   const digitos = String(tel || "").replace(/\D/g, "");
+   if (digitos.length === 11) return digitos.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+   if (digitos.length === 10) return digitos.replace(/^(\d{2})(\d{4})(\d{4})$/, "($1) $2-$3");
    return tel || "";
 }
 

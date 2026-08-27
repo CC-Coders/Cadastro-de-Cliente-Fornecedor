@@ -53,10 +53,10 @@ function geraHtmlHistorico(linha) {
 
     var _ordAtual = _ordemAtividadeHist(linha.ATIVIDADE);
     var _ordProx = _ordemAtividadeHist(linha.PROXIMA_ATIVIDADE);
-    var _acao = (linha.ACAO || "").toLowerCase();
+    var _acao = (linha.ACAO || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
     var _negativoTxt = _acao.indexOf("reprov") !== -1 || _acao.indexOf("devolv") !== -1 ||
                        _acao.indexOf("corrig") !== -1 || _acao.indexOf("correcao") !== -1;
-    var _positivoTxt = _acao.indexOf("aprov") !== -1;
+    var _positivoTxt = _acao.indexOf("aprov") !== -1 || _acao.indexOf("enviar") !== -1 || _acao.indexOf("reenvio") !== -1;
 
     var borda = "";
     if (_ordAtual && _ordProx && _ordProx < _ordAtual) borda = "border:solid 1px red;";

@@ -18,7 +18,6 @@ $(globalThis).on("load", function () {
       const ehInicio = atividade === ATIVIDADES.INICIO_0 || atividade === ATIVIDADES.INICIO;
 
       if (ehInicio && cnpj.length === 14) {
-         globalThis._cnpjJaConsultado = cnpj;
          buscarCnpj(cnpj);
       }
 
@@ -66,9 +65,9 @@ function bindEventosDadosBancarios() {
       if (codigo) limparErroCampo(this.id);
    });
 
-   $(document).on("change", ".banco-agencia, .banco-conta", sincronizarTabelaBancaria);
+   $(document).on("change", ".banco-agencia, .banco-conta, .banco-digito-agencia, .banco-digito-conta", sincronizarTabelaBancaria);
 
-   $(document).on("input change", ".banco-agencia, .banco-conta", function () {
+   $(document).on("input change", ".banco-agencia, .banco-conta, .banco-digito-agencia, .banco-digito-conta", function () {
       if (($(this).val() || "").trim() && this.id) {
          limparErroCampo(this.id);
       }
@@ -146,7 +145,16 @@ function bindEventosCamposDinamicos() {
 
 // HANDLERS DE CAMPOS BÁSICOS
 function bindEventosCamposBasicos() {
-   $(document).on("input change", ".form-control[required]", function () {
+   // Ancorado no container com erro, e não em [required]: o Selectize redistribui os
+   // atributos do <select> nativo para o input que ele gera, então ".form-control[required]"
+   // deixava de casar justamente nos selects com busca — o erro nunca sumia ao preencher.
+   $(document).on("input change", ".fg.has-erro .form-control", function () {
+      limparErroCampoObrigatorioPreenchido(this);
+   });
+
+   // A descrição do endereço valida fora de um .fg, então marca o erro no próprio
+   // campo (.campo-erro) e não casaria com o seletor acima.
+   $(document).on("input change", ".form-control.campo-erro", function () {
       limparErroCampoObrigatorioPreenchido(this);
    });
 
@@ -269,6 +277,89 @@ function bindEventosEndereco() {
       else $("#nomeCidadeSalva").val(($(this).val() || "").trim());
 
       if ($(this).val()) limparErroCampo("cidade");
+   });
+
+   bindEventosEnderecosExtras();
+}
+
+// HANDLERS DOS ENDEREÇOS ADICIONAIS (cards criados dinamicamente).
+function bindEventosEnderecosExtras() {
+   $("#btn-add-endereco").off("click.endereco").on("click.endereco", adicionarEndereco);
+
+   $(document).off(".enderecoExtra");
+
+   $(document).on("click.enderecoExtra", ".btn-remove-addr", function () {
+      removerEndereco(Number($(this).data("numero")));
+   });
+
+   // O CEP preenche apenas o card em que foi digitado.
+   $(document).on("blur.enderecoExtra", "#enderecos-cards .endereco-cep", function () {
+      const cep = ($(this).val() || "").replaceAll(/\D/g, "");
+      if (cep.length !== 8) return;
+
+      buscarCepDoCard(cep, $(this).closest(".endereco-extra"));
+   });
+
+   // Trocar a UF recarrega a lista de cidades daquele card.
+   $(document).on("change.enderecoExtra", "#enderecos-cards .endereco-estado", function () {
+      const $card = $(this).closest(".endereco-extra");
+      const uf = $(this).val() || "";
+
+      popularSelect($card.find(".endereco-cidade"), listaMunicipios(uf), "Selecione a cidade...", "");
+      $card.find(".endereco-codmunicipio").val("");
+
+      sincronizarTabelaEnderecos();
+   });
+
+   $(document).on("change.enderecoExtra", "#enderecos-cards .endereco-cidade", function () {
+      const $card = $(this).closest(".endereco-extra");
+      const item = itemDaLista(listaMunicipios($card.find(".endereco-estado").val()), $(this).val());
+
+      $card.find(".endereco-codmunicipio").val(item ? item.cod : "");
+      sincronizarTabelaEnderecos();
+   });
+
+   // Qualquer digitação nos cards extras é espelhada na tabela que o Fluig persiste.
+   $(document).on("change.enderecoExtra", "#enderecos-cards input, #enderecos-cards select",
+      sincronizarTabelaEnderecos);
+}
+
+// BUSCA O CEP E PREENCHE APENAS O CARD DE ENDEREÇO INFORMADO.
+function buscarCepDoCard(cep, $card) {
+   $.ajax({
+      url: "https://viacep.com.br/ws/" + cep + "/json/",
+      method: "GET",
+      dataType: "json",
+      success: function (data) {
+         if (data.erro) {
+            FLUIGC.toast({
+               message: "CEP não encontrado. Preencha o endereço manualmente.",
+               type: "warning",
+               timeout: 3000
+            });
+            return;
+         }
+
+         $card.find(".endereco-rua").val(data.logradouro || "");
+         $card.find(".endereco-bairro").val(data.bairro || "");
+
+         const uf = data.uf || "";
+         definirValorSelect($card.find(".endereco-estado"), uf);
+         popularSelect($card.find(".endereco-cidade"), listaMunicipios(uf), "Selecione a cidade...", data.localidade || "");
+
+         const item = itemDaLista(listaMunicipios(uf), data.localidade || "");
+         $card.find(".endereco-codmunicipio").val(item ? item.cod : "");
+
+         sincronizarTabelaEnderecos();
+         $card.find(".endereco-numero").focus();
+      },
+      error: function () {
+         FLUIGC.toast({
+            message: "Erro ao buscar CEP. Preencha o endereço manualmente.",
+            type: "warning",
+            timeout: 3000
+         });
+      }
    });
 }
 

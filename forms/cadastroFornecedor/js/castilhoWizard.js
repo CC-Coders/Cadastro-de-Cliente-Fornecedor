@@ -23,8 +23,8 @@ function desenharEtapasWizard() {
     if (!$barra.length || $barra.children(".step").length) return;
 
     var html = "";
-    for (var i = 0; i < ETAPAS.length; i++) {
-        html += '<div class="step" data-etapa="' + i + '">' + ETAPAS[i].rotulo + '</div>';
+    for (var indice = 0; indice < ETAPAS.length; indice++) {
+        html += '<div class="step" data-etapa="' + indice + '">' + ETAPAS[indice].rotulo + '</div>';
     }
     $barra.html(html);
 }

@@ -200,6 +200,7 @@ function sincronizarEstadoInicial() {
     controlarBotaoAdicionarCnae,
     controlarBotaoAdicionarGrupoMercadoria,
     inicializarDadosBancarios,
+    inicializarEnderecos,
     aplicarRegrasCadastroAssertivo,
     atualizarSetas
   ];
@@ -214,6 +215,14 @@ function sincronizarEstadoInicial() {
 
   // A partir daqui um campo vazio já significa "o usuário limpou", e não "ainda não restaurou".
   globalThis._formRestaurando = false;
+
+  // Os endereços restaurados foram lidos com a trava ligada, então o JSON que o
+  // servicetask16 envia ao RM ainda está vazio: preenche agora que os cards existem.
+  try {
+    if (typeof sincronizarTabelaEnderecos === "function") sincronizarTabelaEnderecos();
+  } catch (erro) {
+    console.error("Erro ao sincronizar endereços após a restauração:", erro);
+  }
 }
 
 // RESTAURA OS CHECKBOXES SALVOS APÓS O CARREGAMENTO DA PÁGINA, AGUARDANDO A INICIALIZAÇÃO DOS COMPONENTES DO FORMULÁRIO

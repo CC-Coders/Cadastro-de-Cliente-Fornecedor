@@ -37,18 +37,36 @@ const LABELS_UPLOAD = {
 function aplicarAsteriscoObrigatorio() {
    $("label .req").remove();
 
+   // O Selectize deixa dois campos obrigatórios dentro do mesmo .fg (o <select> nativo
+   // escondido e o input de busca que ele gera), o que rendia dois asteriscos no rótulo.
+   // O guard abaixo marca cada rótulo uma única vez, sem precisar excluir nenhum campo.
    $(".form-control, input, select, textarea").each(function () {
       const $campo = $(this);
-      const isRequired = $campo.prop("required");
 
-      if (!isRequired) return;
+      if (!$campo.prop("required")) return;
 
       const $label = $campo.closest(".fg").find("label").first();
 
-      if (!$label.length) return;
+      if (!$label.length || $label.find(".req").length) return;
 
       $label.append(' <span class="req">*</span>');
    });
+}
+
+// DEFINE DEPOIS DE QUAL ELEMENTO A MENSAGEM DE ERRO É INSERIDA.
+// Num select com busca o <select> nativo fica escondido ANTES da UI do Selectize, dentro
+// do mesmo .select-wrap: inserir logo após ele jogaria a mensagem entre o rótulo e o campo.
+function $insertAfterErro($campo) {
+   const $inputBtnRow = $campo.closest(".input-btn-row");
+   if ($inputBtnRow.length) return $inputBtnRow;
+
+   const $selectWrap = $campo.closest(".select-wrap");
+   if ($selectWrap.length) return $selectWrap;
+
+   const $selectize = $campo.siblings(".selectize-control");
+   if ($selectize.length) return $selectize;
+
+   return $campo;
 }
 
 // EXIBE ERRO INLINE EM UM CAMPO
@@ -67,10 +85,7 @@ function exibirErroCampo(campoId, mensagem) {
    // padrão de Auxílio-Alimentação/Férias (ver #motivo em historico.css).
    $campo.addClass("campo-erro");
 
-   const $inputBtnRow = $campo.closest(".input-btn-row");
-   const $insertAfter = $inputBtnRow.length ? $inputBtnRow : $campo;
-
-   $insertAfter.after(
+   $insertAfterErro($campo).after(
       '<small class="help-block erro-validacao" id="' + mensagemId + '">' +
       mensagem +
       "</small>"
@@ -79,10 +94,15 @@ function exibirErroCampo(campoId, mensagem) {
 
 // DÁ FOCO AO PRIMEIRO CAMPO COM ERRO VISÍVEL.
 function focusCampoComErro() {
-   let $primeiroErro = $(".fg.has-erro:visible")
-      .first()
-      .find("input, select, textarea")
-      .first();
+   const $fgComErro = $(".fg.has-erro:visible").first();
+
+   // Num select com busca o <select> nativo está escondido e não aceita foco:
+   // quem recebe é o input gerado pelo Selectize.
+   let $primeiroErro = $fgComErro.find(".selectize-input input").first();
+
+   if (!$primeiroErro.length) {
+      $primeiroErro = $fgComErro.find("input, select, textarea").first();
+   }
 
    // Campos fora de .fg (ex.: observacaoValidacao) marcam erro com .campo-erro no próprio campo.
    if (!$primeiroErro.length) {
@@ -94,6 +114,17 @@ function focusCampoComErro() {
    }
 }
 
+// INDICA SE O CAMPO ESTÁ VISÍVEL PARA O USUÁRIO.
+// O Selectize esconde o <select> nativo e desenha a própria UI ao lado: nesse caso
+// ":visible" no select é sempre falso, e quem responde pela visibilidade é o controle
+// gerado. Sem isso todo select com busca escapava da validação de obrigatório.
+function _campoVisivelParaUsuario($campo) {
+   if ($campo.is(":visible")) return true;
+
+   const $selectize = $campo.siblings(".selectize-control");
+   return $selectize.length > 0 && $selectize.is(":visible");
+}
+
 // VALIDA UM CAMPO OBRIGATÓRIO
 function validarCampoObrigatorio(campoId, label) {
    const $campo = $("#" + campoId);
@@ -102,7 +133,7 @@ function validarCampoObrigatorio(campoId, label) {
 
    const valor = ($campo.val() || "").trim();
 
-   if (!$campo.is(":visible") || $campo.prop("readonly")) {
+   if (!_campoVisivelParaUsuario($campo) || $campo.prop("readonly")) {
       return true;
    }
 
@@ -196,6 +227,31 @@ function validarListaCampos(campos) {
    return valido;
 }
 
+// VALIDA A DESCRIÇÃO DOS ENDEREÇOS ADICIONAIS — é ela que nomeia o endereço no RM,
+// então um card preenchido sem descrição não pode passar. Card ainda vazio é ignorado.
+function validarDescricaoEnderecosExtras() {
+   let valido = true;
+
+   $("#enderecos-cards .endereco-extra").each(function (index) {
+      const numero = index + 2;
+      const sufixo = String(numero);
+
+      const cep = ($("#cep" + sufixo).val() || "").trim();
+      const rua = ($("#endereco" + sufixo).val() || "").trim();
+      if (!cep && !rua) return;
+
+      const rotulo = (typeof _rotuloEndereco === "function")
+         ? _rotuloEndereco(numero)
+         : ("Endereço " + numero);
+
+      if (!validarCampoObrigatorio("descricaoEndereco" + sufixo, "Descrição do " + rotulo)) {
+         valido = false;
+      }
+   });
+
+   return valido;
+}
+
 // VALIDA A ETAPA 1
 function validarPreCadastro(exibirToast) {
    limparErrosPreCadastro();
@@ -212,12 +268,12 @@ function validarPreCadastro(exibirToast) {
    ];
 
    const camposEndereco = [
-      { id: "razaoSocial",  label: "Razão Social"  },
-      { id: "nomeFantasia", label: "Nome Fantasia"  },
-      { id: "endereco",     label: "Endereço"       },
-      { id: "numero",       label: "Número"         },
-      { id: "bairro",       label: "Bairro"         },
-      { id: "cidade",       label: "Cidade"         }
+      { id: "razaoSocial",       label: "Razão Social"           },
+      { id: "nomeFantasia",      label: "Nome Fantasia"          },
+      { id: "endereco",          label: "Endereço"               },
+      { id: "numero",            label: "Número"                 },
+      { id: "bairro",            label: "Bairro"                 },
+      { id: "cidade",            label: "Cidade"                 }
    ];
 
    if (!modoEstrangeiro) {
@@ -229,6 +285,7 @@ function validarPreCadastro(exibirToast) {
    if (!validarListaCampos(camposCliente))   valido = false;
    if (!validarDocumentosPorCategoria())     valido = false;
    if (!validarListaCampos(camposEndereco))  valido = false;
+   if (!validarDescricaoEnderecosExtras())   valido = false;
 
    if (!valido && exibirToast) _toastCamposObrigatorios();
 
@@ -560,6 +617,10 @@ function limparErrosPreCadastro() {
    camposPreCadastro.forEach(function (campoId) {
       limparErroCampo(campoId);
    });
+
+   $("#enderecos-cards .endereco-extra").each(function (index) {
+      limparErroCampo("descricaoEndereco" + (index + 2));
+   });
 }
 
 // LIMPA OS ERROS INLINE DA ETAPA 2
@@ -730,7 +791,13 @@ globalThis.beforeSendValidate = function (numState, nextState) {
       const decisao = valor("selectDecisao");
       var erroDecisao = false;
 
-      if (!validarCampoObrigatorio("observacaoValidacao", "Observações")) { valido = false; erroDecisao = true; }
+      // Observação obrigatória só na reprovação: é ela que justifica a correção.
+      if (decisao === "Correcao") {
+         if (!validarCampoObrigatorio("observacaoValidacao", "Observações")) { valido = false; erroDecisao = true; }
+      } else {
+         limparErroCampo("observacaoValidacao");
+      }
+
       if (!validarCampoObrigatorio("selectDecisao", "Ação")) { valido = false; erroDecisao = true; }
 
       if (decisao && decisao != "enviarRm" && decisao != "Correcao") {
@@ -766,11 +833,19 @@ function validarHistoricoDecisao(exibirToast) {
 
    let valido = true;
 
-   if (!validarCampoObrigatorio("observacaoValidacao", "Observações")) valido = false;
+   const decisao = ($("#selectDecisao").val() || "").trim();
+
+   // A observação justifica a reprovação, então só é exigida nela — aprovar não precisa.
+   if (decisao === "Correcao") {
+      if (!validarCampoObrigatorio("observacaoValidacao", "Observações")) valido = false;
+   } else {
+      limparErroCampo("observacaoValidacao");
+   }
+
    if (!validarCampoObrigatorio("selectDecisao", "Ação")) valido = false;
 
    // Natureza de Rendimentos: o Suprimentos deve preenchê-la antes de "Enviar ao RM" (exceto RDO).
-   const enviandoAoRM = ($("#selectDecisao").val() || "").trim() === "enviarRm";
+   const enviandoAoRM = decisao === "enviarRm";
    if (enviandoAoRM && !ehTipoRDO() &&
        !validarCampoObrigatorio("naturezaRendimento", "Natureza de Rendimentos")) {
       valido = false;

@@ -35,8 +35,8 @@ function _parsearDataset(ds, nomeDataset) {
    try {
       const lista = JSON.parse(result);
       return Array.isArray(lista) ? lista : [];
-   } catch (e) {
-      console.error("[Dataset] " + nomeDataset + " com RESULT inválido:", e);
+   } catch (erro) {
+      console.error("[Dataset] " + nomeDataset + " com RESULT inválido:", erro);
       return [];
    }
 }
@@ -51,8 +51,8 @@ function _listaRM(chave, nomeDataset, constraints, montarItem) {
          DatasetFactory.getDataset(nomeDataset, null, constraints || null, null),
          nomeDataset
       );
-   } catch (e) {
-      console.error("[Dataset] Erro ao consultar " + nomeDataset + ":", e);
+   } catch (erro) {
+      console.error("[Dataset] Erro ao consultar " + nomeDataset + ":", erro);
    }
 
    _cacheRM[chave] = linhas.map(montarItem).filter(function (item) { return item.valor !== ""; });
@@ -254,8 +254,12 @@ function sincronizarNaturezaRendimento() {
 }
 
 // CÓDIGOS DE IRRF ACEITOS PARA CADA TIPO DE PESSOA.
+// O "0001" fica só em Pessoa Jurídica: o próprio RM recusa a combinação com Pessoa
+// Física em FinCFOMasterSbc.ValidaCodReceita, e o cadastro parava na integração com
+// "A categoria de pessoa escolhida (PPessoaFisica) é incompatível com o Código da
+// Receita de IRRF (0001)".
 const IRRF_POR_CATEGORIA = {
-   F: ["0588", "3208", "0001"],
+   F: ["0588", "3208"],
    J: ["1708", "17081", "0001"]
 };
 
@@ -332,6 +336,7 @@ function popularSelectsGrupoMercadoria() {
 // PREENCHE ESTADO E CIDADE A PARTIR DE UMA CONSULTA EXTERNA (CEP / Receita Federal).
 // A cidade vem por nome, então é localizada ignorando acentos e caixa.
 function preencherEnderecoRM(uf, nomeCidade) {
+   console.log('[DEBUG] preencherEnderecoRM recebeu:', uf, nomeCidade)
    uf = _txt(uf);
    if (!uf) return;
 
@@ -340,11 +345,16 @@ function preencherEnderecoRM(uf, nomeCidade) {
    limparErroCampo("estado");
 
    popularSelectMunicipio(uf);
+
+   // Sem cidade não há o que localizar. A consulta de CNPJ cai aqui de propósito: a
+   // Receita não devolve município, e quem chama completa depois pelo CEP.
+   nomeCidade = _txt(nomeCidade);
    if (!nomeCidade) return;
 
    const cidade = _localizarMunicipio(uf, nomeCidade);
    if (!cidade) {
-      console.warn("[RM-ENDERECO] Cidade '" + nomeCidade + "' não encontrada na UF " + uf + ".");
+      console.warn("[RM-ENDERECO] Cidade '" + nomeCidade + "' não encontrada na UF " + uf +
+                   ". Municípios carregados do RM: " + listaMunicipios(uf).length + ".");
       return;
    }
 

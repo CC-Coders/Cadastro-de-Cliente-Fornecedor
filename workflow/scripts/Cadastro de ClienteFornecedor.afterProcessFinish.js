@@ -26,8 +26,8 @@ function afterProcessFinish(colleagueId, processId, threadSequence, userList) {
         var corpoEmail = montarCorpoEmailFinalizacao(numSolicitacao, link, ehEdicao, codcfoEdicao);
 
         enviarEmailFluig(email, assunto, corpoEmail);
-    } catch (e) {
-        log.error("[E-MAIL] Erro ao notificar finalização: " + e);
+    } catch (erro) {
+        log.error("[E-MAIL] Erro ao notificar finalização: " + erro);
     }
 }
 
@@ -79,25 +79,25 @@ function obterUrlFluig() {
         if (ds != null && ds.rowsCount > 0) {
             var achou = "";
             var candidatos = ["url", "URL", "serverURL", "SERVER_URL", "server_url"];
-            for (var c = 0; c < candidatos.length && !achou; c++) {
+            for (var indiceCandidato = 0; indiceCandidato < candidatos.length && !achou; indiceCandidato++) {
                 try {
-                    var v = ds.getValue(0, candidatos[c]);
-                    if (v && /^https?:\/\//i.test(String(v))) { achou = String(v).trim(); }
-                } catch (eC) {}
+                    var valorCandidato = ds.getValue(0, candidatos[indiceCandidato]);
+                    if (valorCandidato && /^https?:\/\//i.test(String(valorCandidato))) { achou = String(valorCandidato).trim(); }
+                } catch (erroCandidato) {}
             }
             if (!achou) { // varre as colunas retornadas e usa a que contém uma URL
                 try {
                     var cols = ds.getColumnsName();
-                    for (var i = 0; i < cols.size() && !achou; i++) {
-                        var val = ds.getValue(0, cols.get(i));
-                        if (val && /^https?:\/\//i.test(String(val))) { achou = String(val).trim(); }
+                    for (var indiceColuna = 0; indiceColuna < cols.size() && !achou; indiceColuna++) {
+                        var valorColuna = ds.getValue(0, cols.get(indiceColuna));
+                        if (valorColuna && /^https?:\/\//i.test(String(valorColuna))) { achou = String(valorColuna).trim(); }
                     }
-                } catch (eCols) {}
+                } catch (erroColunas) {}
             }
             if (achou) { url = achou; }
         }
-    } catch (e) {
-        log.warn("[URL] Falha ao consultar dsGetServerURL, usando fallback: " + e);
+    } catch (erro) {
+        log.warn("[URL] Falha ao consultar dsGetServerURL, usando fallback: " + erro);
     }
     _urlFluigCache = url;
     return url;

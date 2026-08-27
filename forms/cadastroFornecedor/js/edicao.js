@@ -33,6 +33,12 @@ function abrirModalEdicao() {
          console.error('[edicao] Falha ao abrir modal:', err);
          return;
       }
+      $('#modalEdicaoCfo .modal-header .close').hide();
+      $('#modalEdicaoCfo .modal-footer .btn, #modalEdicaoCfo .modal-footer button').css({
+         'background': '#c0392b',
+         'border-color': '#c0392b',
+         'color': '#fff'
+      });
       $('#edicaoBtnBuscar').off('click').on('click', buscarCfoParaEdicao);
       $('#edicaoTermoBusca').off('keydown').on('keydown', function (e) {
          if (e.which === 13) { e.preventDefault(); buscarCfoParaEdicao(); }
@@ -197,6 +203,8 @@ function preencherEdicaoCompleta(detalhes) {
    $('#nomeFantasia').val(c.NOME || '');
 
 
+   preencherEnderecosEdicao(detalhes.enderecos || []);
+
    $('#endereco').val(c.LOGRADOURO || '');
    $('#numero').val(c.NUMERO || '');
    $('#complemento').val(c.COMPLEMENTO || '');
@@ -312,13 +320,57 @@ function preencherEdicaoCompleta(detalhes) {
 
 }
 
+// PREENCHE OS ENDEREÇOS ADICIONAIS (2+) COM OS CONTATOS DE ENDEREÇO VINDOS DO RM.
+// Zera antes de preencher: sem isso os endereços do cadastro aberto anteriormente no
+// modal ficariam grudados neste. Reaproveita inicializarEnderecos, que já sabe recriar
+// os cards a partir do enderecosJson (inclusive UF -> lista de cidades).
+function preencherEnderecosEdicao(enderecos) {
+   $('#enderecos-cards').empty();
+   $('#enderecosJson').val('');
+
+   var limite = (typeof LIMITE_ENDERECOS === 'number') ? LIMITE_ENDERECOS : 5;
+   var lista = [];
+
+   for (var i = 0; i < enderecos.length && lista.length < (limite - 1); i++) {
+      var e = enderecos[i] || {};
+      var rua = (e.RUA || '').toString().trim();
+      if (!rua) { continue; }
+
+      lista.push({
+         ordem: lista.length + 2,
+         // Identidade do endereço no RM: é por ela que o servicetask16 atualiza o
+         // contato existente. Sem isso, mudar a descrição criaria um contato novo.
+         idcontato: (e.IDCONTATO || '').toString().trim(),
+         descricao: (e.DESCRICAO || '').toString().trim(),
+         cep: (e.CEP || '').toString().replace(/\D/g, ''),
+         rua: rua,
+         numero: (e.NUMERO || '').toString().trim(),
+         complemento: (e.COMPLEMENTO || '').toString().trim(),
+         bairro: (e.BAIRRO || '').toString().trim(),
+         cidade: (e.CIDADE || '').toString().trim(),
+         estado: (e.UF || '').toString().trim(),
+         codMunicipio: (e.CODMUNICIPIO || '').toString().trim()
+      });
+   }
+
+   $('#enderecosJson').val(JSON.stringify(lista));
+
+   if (typeof inicializarEnderecos === 'function') {
+      inicializarEnderecos();
+   } else if (typeof controlarBotaoAdicionarEndereco === 'function') {
+      controlarBotaoAdicionarEndereco();
+   }
+}
+
 // PREENCHE OS CARDS DE CONTAS BANCÁRIAS COM OS DADOS VINDOS DO RM (até 5 contas, preenchendo os hidden).
 function preencherBancosEdicao(bancos) {
    for (var i = 1; i <= 5; i++) {
       $('#hiddenBanco' + i + 'Cod').val('');
       $('#hiddenBanco' + i + 'Desc').val('');
       $('#hiddenBanco' + i + 'Agencia').val('');
+      $('#hiddenBanco' + i + 'DigAgencia').val('');
       $('#hiddenBanco' + i + 'Conta').val('');
+      $('#hiddenBanco' + i + 'DigConta').val('');
    }
 
    var contasRm = [];
@@ -326,8 +378,10 @@ function preencherBancosEdicao(bancos) {
    for (var b = 0; b < bancos.length && n < 5; b++) {
       var conta = bancos[b];
       var numBanco = (conta.NUMEROBANCO || '').toString().trim();
-      var agencia = ((conta.CODIGOAGENCIA || '') + (conta.DIGITOAGENCIA || '')).replace(/\D/g, '');
-      var ctCorrente = ((conta.CONTACORRENTE || '') + (conta.DIGITOCONTA || '')).replace(/\D/g, '');
+      var agencia = (conta.CODIGOAGENCIA || '').toString().replace(/\D/g, '');
+      var digAgencia = (conta.DIGITOAGENCIA || '').toString().trim();
+      var ctCorrente = (conta.CONTACORRENTE || '').toString().replace(/\D/g, '');
+      var digConta = (conta.DIGITOCONTA || '').toString().trim();
 
       if (!numBanco && !agencia && !ctCorrente) { continue; }
 
@@ -335,7 +389,9 @@ function preencherBancosEdicao(bancos) {
       $('#hiddenBanco' + n + 'Cod').val(numBanco);
       $('#hiddenBanco' + n + 'Desc').val((conta.NOMEAGENCIA || '').toString().trim());
       $('#hiddenBanco' + n + 'Agencia').val(agencia);
+      $('#hiddenBanco' + n + 'DigAgencia').val(digAgencia);
       $('#hiddenBanco' + n + 'Conta').val(ctCorrente);
+      $('#hiddenBanco' + n + 'DigConta').val(digConta);
 
       contasRm.push({
          idpgto: (conta.IDPGTO || '').toString().trim(),
@@ -396,10 +452,12 @@ function montarBancosEdicaoJson() {
       var ativo = ehRm ? ($card.find('.chk-conta-ativa').is(':checked') ? '1' : '0') : '1';
       var idpgto = $card.attr('data-idpgto') || '';
 
-      var cod     = ($('#banco' + sufixo).val()          || '').toString().trim();
-      var desc    = ($('#bancoDescricao' + sufixo).val()  || '').toString().trim();
-      var agencia = ($('#agencia' + sufixo).val()         || '').replace(/\D/g, '');
-      var conta   = ($('#conta' + sufixo).val()           || '').replace(/\D/g, '');
+      var cod        = ($('#banco' + sufixo).val()          || '').toString().trim();
+      var desc       = ($('#bancoDescricao' + sufixo).val()  || '').toString().trim();
+      var agencia    = ($('#agencia' + sufixo).val()         || '').replace(/\D/g, '');
+      var digAgencia = ($('#digitoAgencia' + sufixo).val()   || '').toString().trim();
+      var conta      = ($('#conta' + sufixo).val()           || '').replace(/\D/g, '');
+      var digConta   = ($('#digitoConta' + sufixo).val()     || '').toString().trim();
 
       if (!cod && !agencia && !conta) { return; }
 
@@ -410,7 +468,9 @@ function montarBancosEdicaoJson() {
          banco: cod,
          desc: desc,
          agencia: agencia,
-         conta: conta
+         digAgencia: digAgencia,
+         conta: conta,
+         digConta: digConta
       });
    });
 

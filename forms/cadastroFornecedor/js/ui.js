@@ -217,6 +217,14 @@ function controlarEnderecoEstrangeiro(ativo) {
          $("#nomeCidadeSalva").val("");
       }
    }
+
+   // Sem CEP e sem País a linha fica com colunas sobrando: o grid usa outras larguras.
+   $("#docEndereco").toggleClass("modo-exterior", ativo);
+
+   // Os endereços adicionais seguem a mesma regra do endereço principal.
+   if (typeof aplicarModoEstrangeiroNosEnderecos === "function") {
+      aplicarModoEstrangeiroNosEnderecos(ativo);
+   }
 }
 
 // CONTROLA A VISIBILIDADE DO ALERTA DE CNPJ INVÁLIDO (CATEGORIA PJ, NÃO ESTRANGEIRO)

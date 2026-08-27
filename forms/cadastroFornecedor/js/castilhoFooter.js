@@ -32,8 +32,8 @@ function goToStep(step) {
     $(".step-item").removeClass("active done");
 
     var visiveis = getStepsVisiveis();
-    for (var i = 0; i < visiveis.length; i++) {
-        var itemStep = visiveis[i];
+    for (var indice = 0; indice < visiveis.length; indice++) {
+        var itemStep = visiveis[indice];
         if (itemStep < step) {
             $(NAV_MAP[itemStep]).addClass("done");   // abas anteriores
         } else if (itemStep === step) {

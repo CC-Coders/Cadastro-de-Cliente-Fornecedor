@@ -181,19 +181,21 @@ function aplicarMascaraCnae($campo) {
 }
 
 // FORMATA AGÊNCIA E CONTA À MEDIDA QUE SÃO DIGITADAS, MANTENDO A TABELA SINCRONIZADA.
+// Agência/conta são só números; o dígito verificador tem campo próprio (não é mais
+// deduzido cortando o último caractere digitado).
 function inicializarMascarasBancarias() {
    $(document).on("input", ".banco-agencia", function () {
-      let valor = $(this).val().replaceAll(/\D/g, "").slice(0, 5);
-      if (valor.length > 4) valor = valor.replace(/^(\d{4})(\d)$/, "$1-$2");
-      $(this).val(valor);
+      $(this).val($(this).val().replace(/\D/g, "").slice(0, MAX_AGENCIA_RM));
       sincronizarTabelaBancaria();
    });
 
    $(document).on("input", ".banco-conta", function () {
-      // Conta limitada a 16 dígitos. O último dígito vira verificador.
-      let valor = $(this).val().replaceAll(/\D/g, "").slice(0, 16);
-      if (valor.length > 1) valor = valor.replace(/(\d+)(\d)$/, "$1-$2");
-      $(this).val(valor);
+      $(this).val($(this).val().replace(/\D/g, "").slice(0, MAX_CONTA_RM));
+      sincronizarTabelaBancaria();
+   });
+
+   $(document).on("input", ".banco-digito-agencia, .banco-digito-conta", function () {
+      $(this).val($(this).val().replace(/[^0-9A-Za-z]/g, "").toUpperCase().slice(0, MAX_DIGITO_RM));
       sincronizarTabelaBancaria();
    });
 }
@@ -225,6 +227,8 @@ function sincronizarCamposDinamicosHidden() {
 
       $hidden.val(($campo.val() || "").trim());
    }
+
+   if (typeof sincronizarTabelaEnderecos === "function") sincronizarTabelaEnderecos();
 }
 
 // DADOS BANCÁRIOS
@@ -259,10 +263,20 @@ function _gerarHtmlCardBancario(numero) {
       "    </div>" +
       '    <div class="fg"><label>Código do Banco</label>' +
       '      <input type="text" id="bancoCodExibicao' + sufixo + '" class="form-control" placeholder="000" readonly></div>' +
-      '    <div class="fg"><label for="agencia' + sufixo + '">Agência</label>' +
-      '      <input type="text" id="agencia' + sufixo + '" name="agencia' + sufixo + '" class="form-control banco-agencia" placeholder="0000-0"></div>' +
-      '    <div class="fg"><label for="conta' + sufixo + '">Conta</label>' +
-      '      <input type="text" id="conta' + sufixo + '" name="conta' + sufixo + '" class="form-control banco-conta" placeholder="00000-0"></div>' +
+      "  </div>" +
+      '  <div class="grid g2">' +
+      '    <div class="banco-num-group">' +
+      '      <div class="fg banco-num-main"><label for="agencia' + sufixo + '">Agência</label>' +
+      '        <input type="text" id="agencia' + sufixo + '" name="agencia' + sufixo + '" class="form-control banco-agencia" placeholder="0000"></div>' +
+      '      <div class="fg banco-num-dig"><label for="digitoAgencia' + sufixo + '">Dígito</label>' +
+      '        <input type="text" id="digitoAgencia' + sufixo + '" name="digitoAgencia' + sufixo + '" class="form-control banco-digito-agencia" placeholder="0"></div>' +
+      "    </div>" +
+      '    <div class="banco-num-group">' +
+      '      <div class="fg banco-num-main"><label for="conta' + sufixo + '">Conta</label>' +
+      '        <input type="text" id="conta' + sufixo + '" name="conta' + sufixo + '" class="form-control banco-conta" placeholder="00000"></div>' +
+      '      <div class="fg banco-num-dig"><label for="digitoConta' + sufixo + '">Dígito</label>' +
+      '        <input type="text" id="digitoConta' + sufixo + '" name="digitoConta' + sufixo + '" class="form-control banco-digito-conta" placeholder="0"></div>' +
+      "    </div>" +
       "  </div>" +
       "</div>"
    );
@@ -277,7 +291,9 @@ function _contasBancariasSalvas() {
          cod: ($("#hiddenBanco" + i + "Cod").val() || "").trim(),
          desc: ($("#hiddenBanco" + i + "Desc").val() || "").trim(),
          agencia: ($("#hiddenBanco" + i + "Agencia").val() || "").trim(),
-         numero: ($("#hiddenBanco" + i + "Conta").val() || "").trim()
+         digAgencia: ($("#hiddenBanco" + i + "DigAgencia").val() || "").trim(),
+         numero: ($("#hiddenBanco" + i + "Conta").val() || "").trim(),
+         digConta: ($("#hiddenBanco" + i + "DigConta").val() || "").trim()
       };
       if (conta.cod || conta.agencia || conta.numero) contas.push(conta);
    }
@@ -289,18 +305,14 @@ function _contasBancariasSalvas() {
          cod: ($(this).find(".dbBanco").val() || "").trim(),
          desc: ($(this).find(".dbBancoDescricao").val() || "").trim(),
          agencia: ($(this).find(".dbAgencia").val() || "").trim(),
-         numero: ($(this).find(".dbConta").val() || "").trim()
+         digAgencia: ($(this).find(".dbDigAgencia").val() || "").trim(),
+         numero: ($(this).find(".dbConta").val() || "").trim(),
+         digConta: ($(this).find(".dbDigConta").val() || "").trim()
       };
       if (conta.cod || conta.agencia || conta.numero) contas.push(conta);
    });
 
    return contas;
-}
-
-// REAPLICA A MÁSCARA DE AGÊNCIA/CONTA EM VALORES QUE VÊM DO RM APENAS COM DÍGITOS.
-function _formatarDigitoVerificador(valor) {
-   valor = (valor || "").trim();
-   return valor.length > 1 ? valor.slice(0, -1) + "-" + valor.slice(-1) : valor;
 }
 
 // MONTA OS CARDS DE CONTA BANCÁRIA, RESTAURANDO O QUE JÁ ESTIVER SALVO NO PROCESSO.
@@ -328,8 +340,10 @@ function inicializarDadosBancarios() {
       $("#bancoDescricao" + sufixo).val(banco ? banco.rotulo : conta.desc);
       $("#bancoCodExibicao" + sufixo).val(banco ? banco.valor : conta.cod);
 
-      $("#agencia" + sufixo).val(_formatarDigitoVerificador(conta.agencia));
-      $("#conta" + sufixo).val(_formatarDigitoVerificador(conta.numero));
+      $("#agencia" + sufixo).val(conta.agencia);
+      $("#digitoAgencia" + sufixo).val(conta.digAgencia);
+      $("#conta" + sufixo).val(conta.numero);
+      $("#digitoConta" + sufixo).val(conta.digConta);
    });
 
    aplicarBuscaSelect(".banco-select");
@@ -383,7 +397,9 @@ function _reordenarCardsBancarios() {
       $(this).find(".banco-cod").attr({ id: "banco" + sufixo, name: "banco" + sufixo });
       $(this).find(".banco-descricao").attr({ id: "bancoDescricao" + sufixo, name: "bancoDescricao" + sufixo });
       $(this).find(".banco-agencia").attr({ id: "agencia" + sufixo, name: "agencia" + sufixo });
+      $(this).find(".banco-digito-agencia").attr({ id: "digitoAgencia" + sufixo, name: "digitoAgencia" + sufixo });
       $(this).find(".banco-conta").attr({ id: "conta" + sufixo, name: "conta" + sufixo });
+      $(this).find(".banco-digito-conta").attr({ id: "digitoConta" + sufixo, name: "digitoConta" + sufixo });
 
       if (numero === 1) $(this).find(".btn-remove-bank").remove();
    });
@@ -391,6 +407,10 @@ function _reordenarCardsBancarios() {
 
 // COPIA OS CARDS BANCÁRIOS PARA A TABELA AUXILIAR E PARA OS HIDDEN DO FLUIG.
 function sincronizarTabelaBancaria() {
+   // Enquanto o formulario restaura os cards ainda nao existem, e o laco de limpeza
+   // no fim zeraria de 1 a 5 justamente os hidden que inicializarDadosBancarios le.
+   if (globalThis._formRestaurando) return;
+
    const $tbody = $("#tableDadosBancarios tbody").empty();
 
    $("#dados-bancarios-cards .bank-card").each(function (index) {
@@ -400,36 +420,42 @@ function sincronizarTabelaBancaria() {
       const banco = ($("#banco" + sufixo).val() || "").trim();
       const descricao = ($("#bancoDescricao" + sufixo).val() || "").trim();
       const agencia = ($("#agencia" + sufixo).val() || "").replace(/\D/g, "");
+      const digAgencia = ($("#digitoAgencia" + sufixo).val() || "").trim();
       const conta = ($("#conta" + sufixo).val() || "").replace(/\D/g, "");
+      const digConta = ($("#digitoConta" + sufixo).val() || "").trim();
 
       $tbody.append(
          "<tr>" +
          '<td><input type="hidden" name="dbBanco" class="dbBanco" value="' + escaparHtml(banco) + '"></td>' +
          '<td><input type="hidden" name="dbBancoDescricao" class="dbBancoDescricao" value="' + escaparHtml(descricao) + '"></td>' +
          '<td><input type="hidden" name="dbAgencia" class="dbAgencia" value="' + agencia + '"></td>' +
+         '<td><input type="hidden" name="dbDigAgencia" class="dbDigAgencia" value="' + escaparHtml(digAgencia) + '"></td>' +
          '<td><input type="hidden" name="dbConta" class="dbConta" value="' + conta + '"></td>' +
+         '<td><input type="hidden" name="dbDigConta" class="dbDigConta" value="' + escaparHtml(digConta) + '"></td>' +
          "</tr>"
       );
 
-      _gravarHiddensConta(numero, banco, descricao, agencia, conta);
+      _gravarHiddensConta(numero, banco, descricao, agencia, digAgencia, conta, digConta);
    });
 
    // Zera os hidden das contas que deixaram de existir.
    for (let i = $("#dados-bancarios-cards .bank-card").length + 1; i <= LIMITE_CONTAS_BANCARIAS; i++) {
-      _gravarHiddensConta(i, "", "", "", "");
+      _gravarHiddensConta(i, "", "", "", "", "", "");
    }
 
    atualizarCamposBancariosRm();
 }
 
 // GRAVA UMA CONTA BANCÁRIA NOS CAMPOS HIDDEN QUE O FLUIG PERSISTE.
-function _gravarHiddensConta(numero, banco, descricao, agencia, conta) {
+function _gravarHiddensConta(numero, banco, descricao, agencia, digAgencia, conta, digConta) {
    if (numero > LIMITE_CONTAS_BANCARIAS) return;
 
    $("#hiddenBanco" + numero + "Cod").val(banco);
    $("#hiddenBanco" + numero + "Desc").val(descricao);
    $("#hiddenBanco" + numero + "Agencia").val(agencia);
+   $("#hiddenBanco" + numero + "DigAgencia").val(digAgencia);
    $("#hiddenBanco" + numero + "Conta").val(conta);
+   $("#hiddenBanco" + numero + "DigConta").val(digConta);
 }
 
 // COPIA A PRIMEIRA CONTA (só dígitos) PARA OS CAMPOS QUE A INTEGRAÇÃO COM O RM LÊ.
@@ -442,6 +468,311 @@ function atualizarCamposBancariosRm() {
 function controlarBotaoAdicionarConta() {
    const total = $("#dados-bancarios-cards .bank-card").length;
    _controlarBotaoAdicionar(total, LIMITE_CONTAS_BANCARIAS, $("#btn-add-conta-bancaria"));
+}
+
+// ENDEREÇOS
+//
+// O endereço 1 é o do HTML (#cep, #endereco, #numero...) e continua sendo o único que a
+// integração com o RM lê — por isso ele fica estático, com os IDs originais intactos.
+// Os endereços 2+ são gerados aqui, com sufixo numérico, e persistem na tableEnderecos.
+
+// SUFIXO DOS CAMPOS DE UM ENDEREÇO (o primeiro usa os IDs originais, sem sufixo).
+function _sufixoEndereco(numero) {
+   return numero === 1 ? "" : String(numero);
+}
+
+// RÓTULO EXIBIDO DE UM ENDEREÇO ADICIONAL.
+// O endereço 1 é o "Endereço de Cadastro", então os adicionais (numerados 2, 3... por
+// dentro, por causa dos IDs dos campos) aparecem para o usuário como 1, 2...
+function _rotuloEndereco(numero) {
+   return "Endereço " + (numero - 1);
+}
+
+// MONTA O CARD DE UM ENDEREÇO ADICIONAL.
+// O card carrega os dois modos (nacional e exterior) e alterna a visibilidade em
+// aplicarModoEstrangeiroNoCard — trocar o DOM daria o mesmo trabalho da renumeração.
+function _gerarHtmlCardEndereco(numero) {
+   const s = _sufixoEndereco(numero);
+
+   return (
+      '<div class="addr-card endereco-extra" id="addr-card-' + numero + '">' +
+      '  <div class="addr-card-head">' +
+      '    <span class="addr-card-title">' + _rotuloEndereco(numero) + "</span>" +
+      '    <input type="text" id="descricaoEndereco' + s + '" name="descricaoEndereco' + s + '"' +
+      '           class="form-control addr-card-desc endereco-descricao"' +
+      '           placeholder="Descrição do endereço (ex.: Matriz, Filial, Entrega) *" maxlength="60">' +
+      '    <button type="button" class="btn-remove-addr" data-numero="' + numero + '">Remover</button>' +
+      "  </div>" +
+      '  <input type="hidden" id="idContatoEndereco' + s + '" name="idContatoEndereco' + s + '" class="endereco-idcontato">' +
+      '  <div class="grid grid-endereco sem-pais">' +
+      '    <div class="fg col-cep endereco-fg-cep"><label for="cep' + s + '">CEP</label>' +
+      '      <input type="text" id="cep' + s + '" name="cep' + s + '" class="form-control endereco-cep" placeholder="00000-000"></div>' +
+      '    <div class="fg col-rua"><label for="endereco' + s + '">Endereço</label>' +
+      '      <input type="text" id="endereco' + s + '" name="endereco' + s + '" class="form-control endereco-rua" placeholder="Rua, Avenida, Rodovia..."></div>' +
+      '    <div class="fg col-numero"><label for="numero' + s + '">Número</label>' +
+      '      <input type="text" id="numero' + s + '" name="numero' + s + '" class="form-control endereco-numero" placeholder="Nº"></div>' +
+      '    <div class="fg col-complemento"><label for="complemento' + s + '">Complemento</label>' +
+      '      <input type="text" id="complemento' + s + '" name="complemento' + s + '" class="form-control endereco-complemento" placeholder="Sala, Andar, Bloco..."></div>' +
+      '    <div class="fg col-estado endereco-fg-estado"><label for="estado' + s + '" class="endereco-estado-label">Estado</label>' +
+      '      <div class="select-wrap endereco-estado-wrap">' +
+      '        <select id="estado' + s + '" name="estado' + s + '" class="form-control endereco-estado">' +
+      opcoesDaLista(listaEstados(), "Selecione o estado...") +
+      "        </select>" +
+      "      </div>" +
+      '      <input type="text" class="form-control endereco-exterior" value="EX" readonly tabindex="-1" style="display:none"></div>' +
+      '    <div class="fg col-cidade"><label for="cidade' + s + '">Cidade</label>' +
+      '      <div class="select-wrap endereco-cidade-wrap">' +
+      '        <select id="cidade' + s + '" name="cidade' + s + '" class="form-control endereco-cidade">' +
+      '          <option value="">Selecione a cidade...</option>' +
+      "        </select>" +
+      "      </div>" +
+      '      <input type="text" class="form-control endereco-cidade-livre" placeholder="Cidade / Localidade" style="display:none">' +
+      '      <input type="hidden" id="codMunicipio' + s + '" name="codMunicipio' + s + '" class="endereco-codmunicipio"></div>' +
+      '    <div class="fg col-bairro"><label for="bairro' + s + '">Bairro</label>' +
+      '      <input type="text" id="bairro' + s + '" name="bairro' + s + '" class="form-control endereco-bairro" placeholder="Bairro"></div>' +
+      "  </div>" +
+      "</div>"
+   );
+}
+
+// INDICA SE O CADASTRO ESTÁ EM MODO DE ENDEREÇO ESTRANGEIRO.
+function _ehEnderecoEstrangeiro() {
+   return ($("#categoria").val() || "").trim() === "J" && $("#toggleEstrangeiro").is(":checked");
+}
+
+// AJUSTA UM CARD DE ENDEREÇO ADICIONAL AO MODO NACIONAL OU EXTERIOR.
+// No exterior não há CEP nem UF: o estado é fixo "EX" e a cidade é digitada livremente.
+function aplicarModoEstrangeiroNoCard($card, ativo) {
+   $card.find(".grid-endereco").toggleClass("modo-exterior", ativo);
+   $card.find(".endereco-fg-cep").toggle(!ativo);
+   $card.find(".endereco-estado-wrap").toggle(!ativo);
+   $card.find(".endereco-exterior").toggle(ativo);
+   $card.find(".endereco-cidade-wrap").toggle(!ativo);
+   $card.find(".endereco-cidade-livre").toggle(ativo);
+
+   $card.find(".endereco-estado-label").text(ativo ? "End. Exterior" : "Estado");
+
+   if (ativo) {
+      $card.find(".endereco-cep").val("");
+      definirValorSelect($card.find(".endereco-estado"), "EX");
+      $card.find(".endereco-codmunicipio").val("");
+      return;
+   }
+
+   $card.find(".endereco-cidade-livre").val("");
+   if (($card.find(".endereco-estado").val() || "") === "EX") {
+      definirValorSelect($card.find(".endereco-estado"), "");
+   }
+}
+
+// APLICA O MODO NACIONAL/EXTERIOR A TODOS OS ENDEREÇOS ADICIONAIS.
+function aplicarModoEstrangeiroNosEnderecos(ativo) {
+   $("#enderecos-cards .endereco-extra").each(function () {
+      aplicarModoEstrangeiroNoCard($(this), ativo);
+   });
+
+   sincronizarTabelaEnderecos();
+}
+
+// LÊ A CIDADE DE UM CARD, VINDA DO SELECT (nacional) OU DO CAMPO LIVRE (exterior).
+function _valorCidadeCard($card) {
+   return _ehEnderecoEstrangeiro()
+      ? ($card.find(".endereco-cidade-livre").val() || "")
+      : ($card.find(".endereco-cidade").val() || "");
+}
+
+// ACRESCENTA UM NOVO ENDEREÇO, RESPEITANDO O LIMITE MÁXIMO.
+function adicionarEndereco() {
+   // +1 pelo endereço fixo do HTML, que não vive dentro do wrap.
+   const numero = $("#enderecos-cards .endereco-extra").length + 2;
+
+   if (numero > LIMITE_ENDERECOS) {
+      _avisarLimite("Você pode adicionar no máximo " + LIMITE_ENDERECOS + " endereços.");
+      return;
+   }
+
+   $("#enderecos-cards").append(_gerarHtmlCardEndereco(numero));
+
+   const s = _sufixoEndereco(numero);
+   $("#cep" + s).mask("00000-000");
+   $("#numero" + s).mask("000000");
+   aplicarBuscaSelect("#estado" + s + ", #cidade" + s);
+
+   aplicarModoEstrangeiroNoCard($("#addr-card-" + numero), _ehEnderecoEstrangeiro());
+
+   sincronizarTabelaEnderecos();
+   controlarBotaoAdicionarEndereco();
+}
+
+// REMOVE UM ENDEREÇO E RENUMERA OS RESTANTES.
+function removerEndereco(numero) {
+   $("#addr-card-" + numero).remove();
+   _reordenarCardsEndereco();
+   sincronizarTabelaEnderecos();
+   controlarBotaoAdicionarEndereco();
+}
+
+// RENUMERA OS CARDS DE ENDEREÇO, ATUALIZANDO IDS, NAMES E RÓTULOS.
+function _reordenarCardsEndereco() {
+   $("#enderecos-cards .endereco-extra").each(function (index) {
+      const numero = index + 2; // o endereço 1 é o fixo do HTML
+      const s = _sufixoEndereco(numero);
+
+      $(this).attr("id", "addr-card-" + numero);
+      $(this).find(".addr-card-title").text(_rotuloEndereco(numero));
+      $(this).find(".btn-remove-addr").attr("data-numero", numero);
+
+      _renomearCampoEndereco($(this), ".endereco-idcontato", "idContatoEndereco", s);
+      _renomearCampoEndereco($(this), ".endereco-descricao", "descricaoEndereco", s);
+      _renomearCampoEndereco($(this), ".endereco-cep", "cep", s);
+      _renomearCampoEndereco($(this), ".endereco-rua", "endereco", s);
+      _renomearCampoEndereco($(this), ".endereco-numero", "numero", s);
+      _renomearCampoEndereco($(this), ".endereco-complemento", "complemento", s);
+      _renomearCampoEndereco($(this), ".endereco-bairro", "bairro", s);
+      _renomearCampoEndereco($(this), ".endereco-cidade", "cidade", s);
+      _renomearCampoEndereco($(this), ".endereco-codmunicipio", "codMunicipio", s);
+      _renomearCampoEndereco($(this), ".endereco-estado", "estado", s);
+   });
+}
+
+// AJUSTA ID, NAME E O "for" DO RÓTULO DE UM CAMPO RENUMERADO.
+function _renomearCampoEndereco($card, seletor, prefixo, sufixo) {
+   const id = prefixo + sufixo;
+   $card.find(seletor).attr({ id: id, name: id });
+   $card.find('label[for^="' + prefixo + '"]').attr("for", id);
+}
+
+// COPIA OS ENDEREÇOS ADICIONAIS PARA A TABELA QUE O FLUIG PERSISTE.
+// Enquanto o formulário restaura, os cards ainda não existem: sincronizar agora
+// apagaria da tabela justamente os endereços que inicializarEnderecos vai ler.
+function sincronizarTabelaEnderecos() {
+   if (globalThis._formRestaurando) return;
+
+   const $tbody = $("#tableEnderecos tbody").empty();
+   const paraRm = [];
+
+   $("#enderecos-cards .endereco-extra").each(function (index) {
+      const $card = $(this);
+      const numero = index + 2;
+      const s = _sufixoEndereco(numero);
+
+      const endereco = {
+         ordem: numero,
+         idcontato: ($("#idContatoEndereco" + s).val() || "").trim(),
+         descricao: ($("#descricaoEndereco" + s).val() || "").trim(),
+         cep: ($("#cep" + s).val() || "").trim(),
+         rua: ($("#endereco" + s).val() || "").trim(),
+         numero: ($("#numero" + s).val() || "").trim(),
+         complemento: ($("#complemento" + s).val() || "").trim(),
+         bairro: ($("#bairro" + s).val() || "").trim(),
+         cidade: (_valorCidadeCard($card) || "").trim(),
+         estado: ($("#estado" + s).val() || "").trim(),
+         codMunicipio: ($("#codMunicipio" + s).val() || "").trim()
+      };
+
+      $tbody.append(
+         "<tr>" +
+         _celulaEndereco("endIdContato", endereco.idcontato) +
+         _celulaEndereco("endDescricao", endereco.descricao) +
+         _celulaEndereco("endCep", endereco.cep) +
+         _celulaEndereco("endRua", endereco.rua) +
+         _celulaEndereco("endNumero", endereco.numero) +
+         _celulaEndereco("endComplemento", endereco.complemento) +
+         _celulaEndereco("endBairro", endereco.bairro) +
+         _celulaEndereco("endCidade", endereco.cidade) +
+         _celulaEndereco("endEstado", endereco.estado) +
+         _celulaEndereco("endCodMunicipio", endereco.codMunicipio) +
+         "</tr>"
+      );
+
+      // Só vale enviar ao RM o endereço que tem ao menos logradouro ou CEP.
+      if (endereco.cep || endereco.rua) paraRm.push(endereco);
+   });
+
+   // O servicetask16 lê este JSON para gravar os endereços extras na FCFOCONTATO.
+   $("#enderecosJson").val(JSON.stringify(paraRm));
+}
+
+// MONTA UMA CÉLULA HIDDEN DA tableEnderecos.
+function _celulaEndereco(nome, valor) {
+   return '<td><input type="hidden" name="' + nome + '" class="' + nome +
+          '" value="' + escaparHtml((valor || "").trim()) + '"></td>';
+}
+
+// LÊ OS ENDEREÇOS ADICIONAIS JÁ SALVOS NO PROCESSO (hidden do Fluig ou tabela auxiliar).
+// A tableEnderecos é tabela filha e não volta preenchida ao reabrir o formulário — quem
+// de fato persiste é o hidden enderecosJson, igual aos hiddenBanco* dos dados bancários.
+function _enderecosSalvos() {
+   const enderecos = [];
+
+   const json = ($("#enderecosJson").val() || "").trim();
+   if (json && json !== "[]") {
+      try {
+         const salvos = JSON.parse(json);
+         if (Array.isArray(salvos) && salvos.length) return salvos;
+      } catch (erro) {
+         console.error("enderecosJson inválido, usando a tabela auxiliar:", erro);
+      }
+   }
+
+   $("#tableEnderecos tbody tr").each(function () {
+      const endereco = {
+         idcontato: ($(this).find(".endIdContato").val() || "").trim(),
+         descricao: ($(this).find(".endDescricao").val() || "").trim(),
+         cep: ($(this).find(".endCep").val() || "").trim(),
+         rua: ($(this).find(".endRua").val() || "").trim(),
+         numero: ($(this).find(".endNumero").val() || "").trim(),
+         complemento: ($(this).find(".endComplemento").val() || "").trim(),
+         bairro: ($(this).find(".endBairro").val() || "").trim(),
+         cidade: ($(this).find(".endCidade").val() || "").trim(),
+         estado: ($(this).find(".endEstado").val() || "").trim(),
+         codMunicipio: ($(this).find(".endCodMunicipio").val() || "").trim()
+      };
+      if (endereco.cep || endereco.rua) enderecos.push(endereco);
+   });
+
+   return enderecos;
+}
+
+// RECRIA OS CARDS DOS ENDEREÇOS ADICIONAIS SALVOS NO PROCESSO.
+function inicializarEnderecos() {
+   const $wrap = $("#enderecos-cards").empty();
+   const estrangeiro = _ehEnderecoEstrangeiro();
+
+   _enderecosSalvos().forEach(function (endereco, index) {
+      const numero = index + 2;
+      const s = _sufixoEndereco(numero);
+
+      $wrap.append(_gerarHtmlCardEndereco(numero));
+
+      $("#idContatoEndereco" + s).val(endereco.idcontato || "");
+      $("#descricaoEndereco" + s).val(endereco.descricao || "");
+      $("#cep" + s).val(endereco.cep).mask("00000-000");
+      $("#endereco" + s).val(endereco.rua);
+      $("#numero" + s).val(endereco.numero).mask("000000");
+      $("#complemento" + s).val(endereco.complemento);
+      $("#bairro" + s).val(endereco.bairro);
+      $("#codMunicipio" + s).val(endereco.codMunicipio);
+
+      // A lista de cidades depende da UF, então o estado é restaurado primeiro.
+      definirValorSelect("#estado" + s, endereco.estado);
+      popularSelect("#cidade" + s, listaMunicipios(endereco.estado), "Selecione a cidade...", endereco.cidade);
+
+      aplicarBuscaSelect("#estado" + s + ", #cidade" + s);
+
+      const $card = $("#addr-card-" + numero);
+      aplicarModoEstrangeiroNoCard($card, estrangeiro);
+      // No exterior a cidade salva vive no campo livre, não no select.
+      if (estrangeiro) $card.find(".endereco-cidade-livre").val(endereco.cidade);
+   });
+
+   controlarBotaoAdicionarEndereco();
+}
+
+// CONTROLA A DISPONIBILIDADE DO BOTÃO DE ADICIONAR ENDEREÇO.
+function controlarBotaoAdicionarEndereco() {
+   const total = $("#enderecos-cards .endereco-extra").length + 1; // + o endereço fixo
+   _controlarBotaoAdicionar(total, LIMITE_ENDERECOS, $("#btn-add-endereco"));
 }
 
 // TABELAS DE RELATÓRIO
