@@ -28,7 +28,7 @@
     <processDefinitionVersionPK>
       <companyId>1</companyId>
       <processId>Cadastro e Alteração de Cliente/Fornecedor</processId>
-      <version>21</version>
+      <version>23</version>
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
     <formId>0</formId>
@@ -429,7 +429,7 @@
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
         <expressionOrder>1</expressionOrder>
-        <version>21</version>
+        <version>23</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;Correcao&quot;</condition>
@@ -441,7 +441,7 @@
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
         <expressionOrder>2</expressionOrder>
-        <version>21</version>
+        <version>23</version>
         <sequence>13</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;selectDecisao&quot;) == &quot;enviarRm&quot;</condition>
@@ -618,6 +618,21 @@ function servicetask16(attempt, message) {&#xd;
     var cnpj          = clienteForncedor(&quot;docCnpj&quot;).replace(/[^A-Za-z0-9]/g, &quot;&quot;).toUpperCase();&#xd;
     var cpf           = clienteForncedor(&quot;docCpf&quot;).replace(/\D/g, &quot;&quot;);&#xd;
     var cgc           = (categoria === &quot;J&quot;) ? cnpj : cpf;&#xd;
+&#xd;
+    // CGCFAVORECIDO (Dados Bancarios) mostra o valor exatamente como foi gravado —&#xd;
+    // ao contrario de CGCCFO no cadastro principal, o RM nao aplica mascara na&#xd;
+    // exibicao desse campo. cgc sem formatar chegava la sem pontos/traco.&#xd;
+    function formatarCgc(valor) {&#xd;
+        valor = String(valor || &quot;&quot;);&#xd;
+        if (valor.length === 14) {&#xd;
+            return valor.replace(/^(\w{2})(\w{3})(\w{3})(\w{4})(\w{2})$/, &quot;$1.$2.$3/$4-$5&quot;);&#xd;
+        }&#xd;
+        if (valor.length === 11) {&#xd;
+            return valor.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, &quot;$1.$2.$3-$4&quot;);&#xd;
+        }&#xd;
+        return valor;&#xd;
+    }&#xd;
+    var cgcFavorecido = formatarCgc(cgc);&#xd;
 &#xd;
     var rg            = clienteForncedor(&quot;docRg&quot;);&#xd;
     var rgOrgao       = clienteForncedor(&quot;docRgOrgao&quot;);&#xd;
@@ -872,7 +887,7 @@ function servicetask16(attempt, message) {&#xd;
                         &quot;&lt;DESCRICAO&gt;&quot; + x(&quot;Conta &quot; + ctIdp + (ctDesc ? &quot; - &quot; + ctDesc : &quot;&quot;)) + &quot;&lt;/DESCRICAO&gt;&quot; +&#xd;
                         &quot;&lt;FORMAPAGAMENTO&gt;T&lt;/FORMAPAGAMENTO&gt;&quot; +&#xd;
                         &quot;&lt;FAVORECIDO&gt;&quot; + x(nomeRM) + &quot;&lt;/FAVORECIDO&gt;&quot; +&#xd;
-                        &quot;&lt;CGCFAVORECIDO&gt;&quot; + x(cgc) + &quot;&lt;/CGCFAVORECIDO&gt;&quot; +&#xd;
+                        &quot;&lt;CGCFAVORECIDO&gt;&quot; + x(cgcFavorecido) + &quot;&lt;/CGCFAVORECIDO&gt;&quot; +&#xd;
                         &quot;&lt;ATIVO&gt;&quot; + ctAtivo + &quot;&lt;/ATIVO&gt;&quot; +&#xd;
                         &quot;&lt;NUMEROBANCO&gt;&quot; + x(ctBanco) + &quot;&lt;/NUMEROBANCO&gt;&quot; +&#xd;
                         &quot;&lt;CODIGOAGENCIA&gt;&quot; + x(ctAgNum) + &quot;&lt;/CODIGOAGENCIA&gt;&quot; +&#xd;
@@ -904,7 +919,7 @@ function servicetask16(attempt, message) {&#xd;
                     &quot;&lt;DESCRICAO&gt;Boleto com Código de Barras&lt;/DESCRICAO&gt;&quot; +&#xd;
                     &quot;&lt;FORMAPAGAMENTO&gt;I&lt;/FORMAPAGAMENTO&gt;&quot; +&#xd;
                     &quot;&lt;FAVORECIDO&gt;&quot; + x(nomeRM) + &quot;&lt;/FAVORECIDO&gt;&quot; +&#xd;
-                    &quot;&lt;CGCFAVORECIDO&gt;&quot; + x(cgc) + &quot;&lt;/CGCFAVORECIDO&gt;&quot; +&#xd;
+                    &quot;&lt;CGCFAVORECIDO&gt;&quot; + x(cgcFavorecido) + &quot;&lt;/CGCFAVORECIDO&gt;&quot; +&#xd;
                     &quot;&lt;ATIVO&gt;1&lt;/ATIVO&gt;&quot; +&#xd;
                 &quot;&lt;/FDadosPgto&gt;&quot;;&#xd;
             try {&#xd;
@@ -964,7 +979,7 @@ function servicetask16(attempt, message) {&#xd;
                     &quot;&lt;DESCRICAO&gt;&quot;    + x(&quot;Conta &quot; + idPgto + (bancoDesc ? &quot; - &quot; + bancoDesc : &quot;&quot;))       + &quot;&lt;/DESCRICAO&gt;&quot; +&#xd;
                     &quot;&lt;FORMAPAGAMENTO&gt;T&lt;/FORMAPAGAMENTO&gt;&quot; +&#xd;
                     &quot;&lt;FAVORECIDO&gt;&quot;   + x(nomeRM)                                                         + &quot;&lt;/FAVORECIDO&gt;&quot; +&#xd;
-                    &quot;&lt;CGCFAVORECIDO&gt;&quot;+ x(cgc)                                                            + &quot;&lt;/CGCFAVORECIDO&gt;&quot; +&#xd;
+                    &quot;&lt;CGCFAVORECIDO&gt;&quot;+ x(cgcFavorecido)                                                   + &quot;&lt;/CGCFAVORECIDO&gt;&quot; +&#xd;
                     &quot;&lt;ATIVO&gt;&quot; + ativo + &quot;&lt;/ATIVO&gt;&quot; +&#xd;
                     &quot;&lt;NUMEROBANCO&gt;&quot;  + x(bancoCod)                                                       + &quot;&lt;/NUMEROBANCO&gt;&quot; +&#xd;
                     &quot;&lt;CODIGOAGENCIA&gt;&quot;+ x(agNum)                                                          + &quot;&lt;/CODIGOAGENCIA&gt;&quot; +&#xd;
@@ -998,7 +1013,7 @@ function servicetask16(attempt, message) {&#xd;
                 &quot;&lt;DESCRICAO&gt;Boleto com Código de Barras&lt;/DESCRICAO&gt;&quot; +&#xd;
                 &quot;&lt;FORMAPAGAMENTO&gt;I&lt;/FORMAPAGAMENTO&gt;&quot; +&#xd;
                 &quot;&lt;FAVORECIDO&gt;&quot;    + x(nomeRM) + &quot;&lt;/FAVORECIDO&gt;&quot; +&#xd;
-                &quot;&lt;CGCFAVORECIDO&gt;&quot; + x(cgc)    + &quot;&lt;/CGCFAVORECIDO&gt;&quot; +&#xd;
+                &quot;&lt;CGCFAVORECIDO&gt;&quot; + x(cgcFavorecido)    + &quot;&lt;/CGCFAVORECIDO&gt;&quot; +&#xd;
                 &quot;&lt;ATIVO&gt;1&lt;/ATIVO&gt;&quot; +&#xd;
             &quot;&lt;/FDadosPgto&gt;&quot;;&#xd;
 &#xd;
@@ -2264,7 +2279,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>21</version>
+        <version>23</version>
         <linkSequence>17</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2275,7 +2290,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>21</version>
+        <version>23</version>
         <linkSequence>17</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2286,7 +2301,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>21</version>
+        <version>23</version>
         <linkSequence>25</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2297,7 +2312,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>21</version>
+        <version>23</version>
         <linkSequence>25</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2308,7 +2323,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>21</version>
+        <version>23</version>
         <linkSequence>28</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2319,7 +2334,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>21</version>
+        <version>23</version>
         <linkSequence>28</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2330,7 +2345,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>21</version>
+        <version>23</version>
         <linkSequence>29</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2341,7 +2356,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>21</version>
+        <version>23</version>
         <linkSequence>29</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2352,7 +2367,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>21</version>
+        <version>23</version>
         <linkSequence>30</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2363,7 +2378,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>21</version>
+        <version>23</version>
         <linkSequence>30</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2374,7 +2389,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>21</version>
+        <version>23</version>
         <linkSequence>30</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>
@@ -2385,7 +2400,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>21</version>
+        <version>23</version>
         <linkSequence>31</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2396,7 +2411,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>21</version>
+        <version>23</version>
         <linkSequence>31</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2407,7 +2422,7 @@ function enviarEmailFluig(email, assunto, corpoEmail) {&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>CadastroClienteFornecedor</processId>
-        <version>21</version>
+        <version>23</version>
         <linkSequence>31</linkSequence>
         <bendSequence>3</bendSequence>
       </processLinkBendPK>

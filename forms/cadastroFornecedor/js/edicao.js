@@ -273,7 +273,13 @@ function preencherEdicaoCompleta(detalhes) {
       });
    }
 
-   if (aux.EMAIL_COMERCIAL) { $('#emailComercial').val(aux.EMAIL_COMERCIAL); }
+   // O e-mail administrativo so existe como contato (FCFOCONTATO), nunca na FCFO_AUXILIAR.
+   // O comercial existe nas duas tabelas; prioriza o contato (mesma tela que o RM mostra
+   // em "Contato do Cli/For") e cai para a aux quando o contato ainda nao existir.
+   var emails = detalhes.emails || {};
+   var emailComercialSalvo = emails.comercial || aux.EMAIL_COMERCIAL;
+   if (emailComercialSalvo) { $('#emailComercial').val(emailComercialSalvo); }
+   if (emails.administrativo) { $('#emailAdministrativo').val(emails.administrativo); }
    if (aux.WEBSITE) { $('#site').val(aux.WEBSITE); }
 
    var cnaes = detalhes.cnaes || [];

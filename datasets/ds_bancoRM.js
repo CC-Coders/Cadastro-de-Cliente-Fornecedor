@@ -2,10 +2,13 @@ function createDataset(fields, constraints, sortFields) {
     try {
         var constraints = getConstraints(constraints);
 
+        // ZRBancosFebraban em vez de GBANCO: lista oficial Febraban, mais completa.
+        // Alias para NUMBANCO/NOME mantem o front-end (listaBancos em consultas.js)
+        // sem precisar mudar.
         var query = "";
-        query += "SELECT NUMBANCO, NOME ";
-        query += "FROM GBANCO ";
-        query += "ORDER BY NOME";
+        query += "SELECT codBanco AS NUMBANCO, nome AS NOME ";
+        query += "FROM ZRBancosFebraban ";
+        query += "ORDER BY nome";
 
         var retorno = executaQuery(query, [], "/jdbc/RM");
 

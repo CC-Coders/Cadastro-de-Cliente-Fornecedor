@@ -38,11 +38,7 @@ function fecharConexao(conexao) {
     }
 }
 
-// Executa uma consulta e devolve um array de objetos { COLUNA: "valor" }.
-// Com `conexaoExistente` a conexão é reaproveitada (e não é fechada aqui); sem ela,
-// abre e fecha uma própria a partir de `dataSource`.
-// NULL vira "" — sem isto o `valor + ""` produziria a string "null" nas colunas nulas,
-// que é o motivo de várias consultas embrulharem tudo em ISNULL.
+
 function executaQuery(query, parametros, dataSource, conexaoExistente) {
     var conexao = conexaoExistente || null;
     var conexaoPropria = !conexaoExistente;
