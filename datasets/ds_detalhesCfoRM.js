@@ -16,7 +16,8 @@ function createDataset(fields, constraints, sortFields) {
                 cadastro:     _cadastro(conexao, parametros),
                 bancos:       _bancos(conexao, parametros),
                 boletoIdpgto: _boletoIdpgto(conexao, parametros),
-                enderecos:    _enderecos(conexao, parametros)
+                enderecos:    _enderecos(conexao, parametros),
+                emails:       _emails(conexao, parametros)
             };
         } finally {
             fecharConexao(conexao);
@@ -51,12 +52,11 @@ function _cadastro(conexao, parametros) {
     query += "  ISNULL(f.RETENCAOISS,0) AS RETENCAOISS, ISNULL(f.NACIONALIDADE,0) AS NACIONALIDADE, ";
     query += "  ISNULL(f.NUMDEPENDENTES,0) AS NUMDEPENDENTES, ";
     query += "  CONVERT(VARCHAR(10), f.DTNASCIMENTO, 120) AS DTNASCIMENTO ";
-    // OUTER APPLY em vez de LEFT JOIN direto: CODMUNICIPIO nao e unico sozinho na
-    // GMUNICIPIO (o mesmo codigo existe em mais de uma UF), e o JOIN direto multiplica
-    // a linha do cadastro por municipio colidente. TOP 1 + ORDER BY mantem so um.
     query += "FROM FCFO f ";
     query += "OUTER APPLY (SELECT TOP 1 NOMEMUNICIPIO, CODETDMUNICIPIO FROM GMUNICIPIO ";
-    query += "  WHERE CODMUNICIPIO = f.CODMUNICIPIO ORDER BY CODETDMUNICIPIO) m ";
+    query += "  WHERE CODMUNICIPIO = f.CODMUNICIPIO ";
+    query += "  ORDER BY CASE WHEN CODETDMUNICIPIO = COALESCE(NULLIF(f.CODETD,''), f.CI_UF) THEN 0 ELSE 1 END";
+    query += ") m ";
     query += "WHERE f.CODCFO = ? ORDER BY f.CODCOLIGADA";
 
     var linhas = executaQuery(query, parametros, null, conexao);
@@ -92,11 +92,11 @@ function _enderecos(conexao, parametros) {
     query += "  c.BAIRRO, c.CEP, c.CODMUNICIPIO, ";
     query += "  COALESCE(m.NOMEMUNICIPIO, c.CIDADE) AS CIDADE, ";
     query += "  COALESCE(m.CODETDMUNICIPIO, c.CODETD) AS UF ";
-    // Mesmo cuidado da _cadastro: sem isto um endereco aparece duplicado no formulario,
-    // um card por UF colidente do mesmo CODMUNICIPIO.
     query += "FROM FCFOCONTATO c ";
     query += "OUTER APPLY (SELECT TOP 1 NOMEMUNICIPIO, CODETDMUNICIPIO FROM GMUNICIPIO ";
-    query += "  WHERE CODMUNICIPIO = c.CODMUNICIPIO ORDER BY CODETDMUNICIPIO) m ";
+    query += "  WHERE CODMUNICIPIO = c.CODMUNICIPIO ";
+    query += "  ORDER BY CASE WHEN CODETDMUNICIPIO = c.CODETD THEN 0 ELSE 1 END";
+    query += ") m ";
     query += "WHERE c.CODCFO = ? AND ISNULL(c.RUA,'') <> '' ORDER BY c.IDCONTATO";
 
     try {
@@ -104,6 +104,30 @@ function _enderecos(conexao, parametros) {
     } catch (erro) {
         log.warn("[ds_detalhesCfoRM] Falha ao ler endereços adicionais (não interrompe): " + erro);
         return [];
+    }
+}
+
+// E-MAILS DE CONTATO (FCFOCONTATO) — o e-mail administrativo so e gravado aqui pelo
+// servicetask16 (salvarContatosRM), nunca na FCFO_AUXILIAR. O comercial existe nas
+// duas tabelas (aux cobre o comercial); sem isto o administrativo ficava em branco
+// ao reabrir o cadastro para edicao.
+function _emails(conexao, parametros) {
+    var query = "SELECT NOME, EMAIL FROM FCFOCONTATO " +
+                "WHERE CODCFO = ? AND NOME IN ('E-mail Comercial', 'E-mail Administrativo')";
+
+    try {
+        var linhas = executaQuery(query, parametros, null, conexao);
+        var porNome = {};
+        for (var indice = 0; indice < linhas.length; indice++) {
+            porNome[linhas[indice].NOME] = linhas[indice].EMAIL;
+        }
+        return {
+            comercial: porNome["E-mail Comercial"] || "",
+            administrativo: porNome["E-mail Administrativo"] || ""
+        };
+    } catch (erro) {
+        log.warn("[ds_detalhesCfoRM] Falha ao ler e-mails de contato (nao interrompe): " + erro);
+        return { comercial: "", administrativo: "" };
     }
 }
 

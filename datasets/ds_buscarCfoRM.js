@@ -21,9 +21,14 @@ function createDataset(fields, constraints, sortFields) {
         queryInterna += "  ROW_NUMBER() OVER (PARTITION BY f.CODCFO ORDER BY f.CODCOLIGADA) AS RN ";
         // OUTER APPLY em vez de LEFT JOIN direto: evita que CODMUNICIPIO colidindo em
         // mais de uma UF multiplique a linha do cadastro antes do ROW_NUMBER dedupar.
+        // O ORDER BY sozinho pegava a primeira UF colidente em ordem alfabetica, e nao
+        // a UF real do cadastro (mesmo bug corrigido em ds_detalhesCfoRM) — por isso a
+        // lista de busca mostrava cidade/UF diferente do que o formulario de edicao traz.
         queryInterna += "FROM FCFO f ";
         queryInterna += "OUTER APPLY (SELECT TOP 1 NOMEMUNICIPIO, CODETDMUNICIPIO FROM GMUNICIPIO ";
-        queryInterna += "  WHERE CODMUNICIPIO = f.CODMUNICIPIO ORDER BY CODETDMUNICIPIO) m ";
+        queryInterna += "  WHERE CODMUNICIPIO = f.CODMUNICIPIO ";
+        queryInterna += "  ORDER BY CASE WHEN CODETDMUNICIPIO = COALESCE(NULLIF(f.CODETD,''), f.CI_UF) THEN 0 ELSE 1 END";
+        queryInterna += ") m ";
 
         var parametros = [];
 
@@ -34,9 +39,12 @@ function createDataset(fields, constraints, sortFields) {
 
         } else if (!temLetras && soDigitos.length > 0) {
 
-            // CODCFO é varchar no RM: compara como string, não como int.
+            // CODCFO é varchar no RM e guarda zero a esquerda ("040644"). Comparar como
+            // int faz o SQL Server converter a coluna e a busca casar independente de o
+            // usuario digitar o zero ou nao; comparando como string exata, buscar "40644"
+            // nao encontraria "040644".
             queryInterna += "WHERE f.CODCOLIGADA = 0 AND f.CODCFO = ? ";
-            parametros.push({ type: "string", value: soDigitos });
+            parametros.push({ type: "int", value: parseInt(soDigitos, 10) });
 
         } else {
             queryInterna += "WHERE f.CODCOLIGADA = 0 AND (f.NOME LIKE ? OR f.NOMEFANTASIA LIKE ?) ";

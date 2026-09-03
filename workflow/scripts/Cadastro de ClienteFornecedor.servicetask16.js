@@ -21,6 +21,21 @@ function servicetask16(attempt, message) {
     var cpf           = clienteForncedor("docCpf").replace(/\D/g, "");
     var cgc           = (categoria === "J") ? cnpj : cpf;
 
+    // CGCFAVORECIDO (Dados Bancarios) mostra o valor exatamente como foi gravado —
+    // ao contrario de CGCCFO no cadastro principal, o RM nao aplica mascara na
+    // exibicao desse campo. cgc sem formatar chegava la sem pontos/traco.
+    function formatarCgc(valor) {
+        valor = String(valor || "");
+        if (valor.length === 14) {
+            return valor.replace(/^(\w{2})(\w{3})(\w{3})(\w{4})(\w{2})$/, "$1.$2.$3/$4-$5");
+        }
+        if (valor.length === 11) {
+            return valor.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
+        }
+        return valor;
+    }
+    var cgcFavorecido = formatarCgc(cgc);
+
     var rg            = clienteForncedor("docRg");
     var rgOrgao       = clienteForncedor("docRgOrgao");
     var rgUf          = clienteForncedor("docRgUf");
@@ -274,7 +289,7 @@ function servicetask16(attempt, message) {
                         "<DESCRICAO>" + x("Conta " + ctIdp + (ctDesc ? " - " + ctDesc : "")) + "</DESCRICAO>" +
                         "<FORMAPAGAMENTO>T</FORMAPAGAMENTO>" +
                         "<FAVORECIDO>" + x(nomeRM) + "</FAVORECIDO>" +
-                        "<CGCFAVORECIDO>" + x(cgc) + "</CGCFAVORECIDO>" +
+                        "<CGCFAVORECIDO>" + x(cgcFavorecido) + "</CGCFAVORECIDO>" +
                         "<ATIVO>" + ctAtivo + "</ATIVO>" +
                         "<NUMEROBANCO>" + x(ctBanco) + "</NUMEROBANCO>" +
                         "<CODIGOAGENCIA>" + x(ctAgNum) + "</CODIGOAGENCIA>" +
@@ -306,7 +321,7 @@ function servicetask16(attempt, message) {
                     "<DESCRICAO>Boleto com Código de Barras</DESCRICAO>" +
                     "<FORMAPAGAMENTO>I</FORMAPAGAMENTO>" +
                     "<FAVORECIDO>" + x(nomeRM) + "</FAVORECIDO>" +
-                    "<CGCFAVORECIDO>" + x(cgc) + "</CGCFAVORECIDO>" +
+                    "<CGCFAVORECIDO>" + x(cgcFavorecido) + "</CGCFAVORECIDO>" +
                     "<ATIVO>1</ATIVO>" +
                 "</FDadosPgto>";
             try {
@@ -366,7 +381,7 @@ function servicetask16(attempt, message) {
                     "<DESCRICAO>"    + x("Conta " + idPgto + (bancoDesc ? " - " + bancoDesc : ""))       + "</DESCRICAO>" +
                     "<FORMAPAGAMENTO>T</FORMAPAGAMENTO>" +
                     "<FAVORECIDO>"   + x(nomeRM)                                                         + "</FAVORECIDO>" +
-                    "<CGCFAVORECIDO>"+ x(cgc)                                                            + "</CGCFAVORECIDO>" +
+                    "<CGCFAVORECIDO>"+ x(cgcFavorecido)                                                   + "</CGCFAVORECIDO>" +
                     "<ATIVO>" + ativo + "</ATIVO>" +
                     "<NUMEROBANCO>"  + x(bancoCod)                                                       + "</NUMEROBANCO>" +
                     "<CODIGOAGENCIA>"+ x(agNum)                                                          + "</CODIGOAGENCIA>" +
@@ -400,7 +415,7 @@ function servicetask16(attempt, message) {
                 "<DESCRICAO>Boleto com Código de Barras</DESCRICAO>" +
                 "<FORMAPAGAMENTO>I</FORMAPAGAMENTO>" +
                 "<FAVORECIDO>"    + x(nomeRM) + "</FAVORECIDO>" +
-                "<CGCFAVORECIDO>" + x(cgc)    + "</CGCFAVORECIDO>" +
+                "<CGCFAVORECIDO>" + x(cgcFavorecido)    + "</CGCFAVORECIDO>" +
                 "<ATIVO>1</ATIVO>" +
             "</FDadosPgto>";
 
